@@ -2,7 +2,7 @@ import inspect
 from functools import wraps
 
 import numpy as np
-from quapy.method.aggregative import PACC, SLD, CC
+from quapy.method.aggregative import CC, PACC, SLD
 from quapy.protocol import UPP, AbstractProtocol
 from sklearn.linear_model import LogisticRegression
 
@@ -17,14 +17,15 @@ _sld_param_grid = {
     "q__classifier__C": np.logspace(-3, 3, 7),
     "q__classifier__class_weight": [None, "balanced"],
     "q__recalib": [None, "bcts"],
-    "q__exact_train_prev": [True],
-    "confidence": [None, "max_conf", "entropy"],
+    "confidence": [["max_conf", "entropy"]],
 }
 _pacc_param_grid = {
     "q__classifier__C": np.logspace(-3, 3, 7),
     "q__classifier__class_weight": [None, "balanced"],
-    "confidence": [None, "max_conf", "entropy"],
+    "confidence": [["max_conf", "entropy"]],
 }
+
+
 def method(func):
     @wraps(func)
     def wrapper(c_model, validation, protocol):
@@ -43,7 +44,7 @@ def evaluation_report(
     report = EvaluationReport(name=method_name)
     for sample in protocol():
         e_sample = estimator.extend(sample)
-        estim_prev = estimator.estimate(e_sample.X, ext=True)
+        estim_prev = estimator.estimate(e_sample.eX)
         acc_score = qc.error.acc(estim_prev)
         f1_score = qc.error.f1(estim_prev)
         report.append_row(
@@ -69,6 +70,32 @@ def bin_sld(c_model, validation, protocol) -> EvaluationReport:
 @method
 def mul_sld(c_model, validation, protocol) -> EvaluationReport:
     est = MCAE(c_model, SLD(LogisticRegression())).fit(validation)
+    return evaluation_report(
+        estimator=est,
+        protocol=protocol,
+    )
+
+
+@method
+def binc_sld(c_model, validation, protocol) -> EvaluationReport:
+    est = BQAE(
+        c_model,
+        SLD(LogisticRegression()),
+        confidence=["max_conf", "entropy"],
+    ).fit(validation)
+    return evaluation_report(
+        estimator=est,
+        protocol=protocol,
+    )
+
+
+@method
+def mulc_sld(c_model, validation, protocol) -> EvaluationReport:
+    est = MCAE(
+        c_model,
+        SLD(LogisticRegression()),
+        confidence=["max_conf", "entropy"],
+    ).fit(validation)
     return evaluation_report(
         estimator=est,
         protocol=protocol,
@@ -218,8 +245,12 @@ def mul_pacc(c_model, validation, protocol) -> EvaluationReport:
 
 
 @method
-def binmc_pacc(c_model, validation, protocol) -> EvaluationReport:
-    est = BQAE(c_model, PACC(LogisticRegression()), confidence="max_conf").fit(validation)
+def binc_pacc(c_model, validation, protocol) -> EvaluationReport:
+    est = BQAE(
+        c_model,
+        PACC(LogisticRegression()),
+        confidence=["max_conf", "entropy"],
+    ).fit(validation)
     return evaluation_report(
         estimator=est,
         protocol=protocol,
@@ -227,26 +258,12 @@ def binmc_pacc(c_model, validation, protocol) -> EvaluationReport:
 
 
 @method
-def mulmc_pacc(c_model, validation, protocol) -> EvaluationReport:
-    est = MCAE(c_model, PACC(LogisticRegression()), confidence="max_conf").fit(validation)
-    return evaluation_report(
-        estimator=est,
-        protocol=protocol,
-    )
- 
-
-@method
-def binne_pacc(c_model, validation, protocol) -> EvaluationReport:
-    est = BQAE(c_model, PACC(LogisticRegression()), confidence="entropy").fit(validation)
-    return evaluation_report(
-        estimator=est,
-        protocol=protocol,
-    )
-
-
-@method
-def mulne_pacc(c_model, validation, protocol) -> EvaluationReport:
-    est = MCAE(c_model, PACC(LogisticRegression()), confidence="entropy").fit(validation)
+def mulc_pacc(c_model, validation, protocol) -> EvaluationReport:
+    est = MCAE(
+        c_model,
+        PACC(LogisticRegression()),
+        confidence=["max_conf", "entropy"],
+    ).fit(validation)
     return evaluation_report(
         estimator=est,
         protocol=protocol,
