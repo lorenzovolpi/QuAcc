@@ -1,48 +1,8 @@
-import pytest
-from quacc.data import ExClassManager as ECM, ExtendedCollection
 import numpy as np
+import pytest
 import scipy.sparse as sp
 
-
-class TestExClassManager:
-    @pytest.mark.parametrize(
-        "true_class,pred_class,result",
-        [
-            (0, 0, 0),
-            (0, 1, 1),
-            (1, 0, 2),
-            (1, 1, 3),
-        ],
-    )
-    def test_get_ex(self, true_class, pred_class, result):
-        ncl = 2
-        assert ECM.get_ex(ncl, true_class, pred_class) == result
-
-    @pytest.mark.parametrize(
-        "ex_class,result",
-        [
-            (0, 0),
-            (1, 1),
-            (2, 0),
-            (3, 1),
-        ],
-    )
-    def test_get_pred(self, ex_class, result):
-        ncl = 2
-        assert ECM.get_pred(ncl, ex_class) == result
-
-    @pytest.mark.parametrize(
-        "ex_class,result",
-        [
-            (0, 0),
-            (1, 0),
-            (2, 1),
-            (3, 1),
-        ],
-    )
-    def test_get_true(self, ex_class, result):
-        ncl = 2
-        assert ECM.get_true(ncl, ex_class) == result
+from quacc.data import ExtendedCollection
 
 
 class TestExtendedCollection:

@@ -2,8 +2,8 @@ import itertools
 from copy import deepcopy
 from time import time
 from typing import Callable, Union
-import numpy as np
 
+import numpy as np
 import quapy as qp
 from quapy.data import LabelledCollection
 from quapy.model_selection import GridSearchQ
@@ -12,7 +12,7 @@ from sklearn.base import BaseEstimator
 
 import quacc as qc
 import quacc.error
-from quacc.data import ExtendedCollection
+from quacc.data import ExtendedCollection, ExtendedData
 from quacc.evaluation import evaluate
 from quacc.logger import SubLogger
 from quacc.method.base import (
@@ -182,7 +182,7 @@ class GridSearchAE(BaseAccuracyEstimator):
         assert hasattr(self, "best_model_"), "quantify called before fit"
         return self.best_model().extend(coll, pred_proba=pred_proba)
 
-    def estimate(self, instances, ext=False):
+    def estimate(self, instances):
         """Estimate class prevalence values using the best model found after calling the :meth:`fit` method.
 
         :param instances: sample contanining the instances
@@ -191,7 +191,7 @@ class GridSearchAE(BaseAccuracyEstimator):
         """
 
         assert hasattr(self, "best_model_"), "estimate called before fit"
-        return self.best_model().estimate(instances, ext=ext)
+        return self.best_model().estimate(instances)
 
     def set_params(self, **parameters):
         """Sets the hyper-parameters to explore.
@@ -218,7 +218,6 @@ class GridSearchAE(BaseAccuracyEstimator):
         if hasattr(self, "best_model_"):
             return self.best_model_
         raise ValueError("best_model called before fit")
-
 
 
 class MCAEgsq(MultiClassAccuracyEstimator):
@@ -257,10 +256,15 @@ class MCAEgsq(MultiClassAccuracyEstimator):
 
         return self
 
-    def estimate(self, instances, ext=False) -> np.ndarray:
-        e_inst = instances if ext else self._extend_instances(instances)
-        estim_prev = self.quantifier.quantify(e_inst)
-        return self._check_prevalence_classes(estim_prev, self.quantifier.best_model().classes_)
+    def estimate(self, instances) -> np.ndarray:
+        e_inst = instances
+        if not isinstance(e_inst, ExtendedData):
+            e_inst = self._extend_instances(instances)
+
+        estim_prev = self.quantifier.quantify(e_inst.X)
+        return self._check_prevalence_classes(
+            estim_prev, self.quantifier.best_model().classes_
+        )
 
 
 class BQAEgsq(BinaryQuantifierAccuracyEstimator):
