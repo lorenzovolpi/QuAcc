@@ -2,11 +2,7 @@ debug_conf: &debug_conf
   global:
     METRICS: 
     - acc
-    DATASET_N_PREVS: 5
-    DATASET_PREVS:
-    # - 0.2
-    - 0.5
-    # - 0.8
+    DATASET_N_PREVS: 9
 
   confs:
     - DATASET_NAME: rcv1
@@ -15,7 +11,10 @@ debug_conf: &debug_conf
   plot_confs:
     debug:
       PLOT_ESTIMATORS:
-        - mulmc_sld
+        - binc_sld
+        - binmc_sld
+        - binne_sld
+        - bin_sld
         - atc_mc
       PLOT_STDEV: true
 
@@ -24,7 +23,6 @@ mc_conf: &mc_conf
     METRICS: 
     - acc
     DATASET_N_PREVS: 9
-    DATASET_DIR_UPDATE: true
 
   confs:
     - DATASET_NAME: rcv1
@@ -32,12 +30,8 @@ mc_conf: &mc_conf
     # - DATASET_NAME: imdb
 
   plot_confs:
-    debug3:
+    confidence:
       PLOT_ESTIMATORS:
-        - binmc_sld
-        - mulmc_sld
-        - binne_sld
-        - mulne_sld
         - bin_sld_gs
         - mul_sld_gs
         - atc_mc
@@ -230,4 +224,4 @@ main_conf: &main_conf
       - atc_ne
       - doc_feat
 
-exec: *debug_conf
+exec: *mc_conf
