@@ -70,6 +70,7 @@ class Logger:
         rh.setLevel(logging.DEBUG)
         cls.__handlers.append(rh)
         root.addHandler(rh)
+        root.info("-" * 100)
 
     @classmethod
     def clear_handlers(cls):
@@ -95,8 +96,6 @@ class Logger:
     @classmethod
     def close(cls):
         if cls.__setup and cls.__thread is not None:
-            root = logging.getLogger("listener")
-            root.info("-" * 100)
             cls.__queue.put(None)
             cls.__thread.join()
             # cls.__manager.close()
