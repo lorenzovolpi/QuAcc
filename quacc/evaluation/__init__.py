@@ -22,7 +22,7 @@ def evaluate(
     estim_prevs, true_prevs = [], []
     for sample in protocol():
         e_sample = estimator.extend(sample)
-        estim_prev = estimator.estimate(e_sample.X, ext=True)
+        estim_prev = estimator.estimate(e_sample.eX)
         estim_prevs.append(estim_prev)
         true_prevs.append(e_sample.prevalence())
 

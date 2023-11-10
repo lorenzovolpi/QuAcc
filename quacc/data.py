@@ -1,10 +1,8 @@
-import math
-from typing import List, Optional
+from typing import List, Tuple
 
 import numpy as np
 import scipy.sparse as sp
 from quapy.data import LabelledCollection
-
 
 # Extended classes
 #
@@ -20,32 +18,54 @@ from quapy.data import LabelledCollection
 #     |  False 0 |  True 1  |
 #     |__________|__________|
 #
-class ExClassManager:
-    @staticmethod
-    def get_ex(n_classes: int, true_class: int, pred_class: int) -> int:
-        return true_class * n_classes + pred_class
-
-    @staticmethod
-    def get_pred(n_classes: int, ex_class: int) -> int:
-        return ex_class % n_classes
-
-    @staticmethod
-    def get_true(n_classes: int, ex_class: int) -> int:
-        return ex_class // n_classes
 
 
-class ExtendedCollection(LabelledCollection):
+class ExtendedData:
     def __init__(
         self,
         instances: np.ndarray | sp.csr_matrix,
-        labels: np.ndarray,
-        classes: Optional[List] = None,
+        pred_proba: np.ndarray,
+        ext: np.ndarray = None,
     ):
-        super().__init__(instances, labels, classes=classes)
+        self.b_instances_ = instances
+        self.pred_proba_ = pred_proba
+        self.ext_ = ext
+        self.instances = self.__extend_instances(instances, pred_proba, ext=ext)
 
-    def split_by_pred(self):
-        _ncl = int(math.sqrt(self.n_classes))
-        _indexes = ExtendedCollection._split_index_by_pred(_ncl, self.instances)
+    def __extend_instances(
+        self,
+        instances: np.ndarray | sp.csr_matrix,
+        pred_proba: np.ndarray,
+        ext: np.ndarray = None,
+    ) -> np.ndarray | sp.csr_matrix:
+        to_append = pred_proba
+        if ext is not None:
+            to_append = np.concatenate([ext, pred_proba], axis=1)
+
+        if isinstance(instances, sp.csr_matrix):
+            _to_append = sp.csr_matrix(to_append)
+            n_x = sp.hstack([instances, _to_append])
+        elif isinstance(instances, np.ndarray):
+            n_x = np.concatenate((instances, to_append), axis=1)
+        else:
+            raise ValueError("Unsupported matrix format")
+
+        return n_x
+
+    @property
+    def X(self):
+        return self.instances
+
+    def __split_index_by_pred(self) -> List[np.ndarray]:
+        _pred_label = np.argmax(self.pred_proba_, axis=0)
+
+        return [
+            (_pred_label == cl).nonzero()[0]
+            for cl in np.arange(self.pred_proba_.shape[0])
+        ]
+
+    def split_by_pred(self, return_indexes=False):
+        _indexes = self.__split_index_by_pred()
         if isinstance(self.instances, np.ndarray):
             _instances = [
                 self.instances[ind] if ind.shape[0] > 0 else np.asarray([], dtype=int)
@@ -58,93 +78,95 @@ class ExtendedCollection(LabelledCollection):
                 else sp.csr_matrix(np.empty((0, 0), dtype=int))
                 for ind in _indexes
             ]
-        _labels = [
-            np.asarray(
-                [
-                    ExClassManager.get_true(_ncl, lbl)
-                    for lbl in (self.labels[ind] if len(ind) > 0 else [])
-                ],
-                dtype=int,
-            )
-            for ind in _indexes
-        ]
-        return [
-            ExtendedCollection(inst, lbl, classes=range(0, _ncl))
-            for (inst, lbl) in zip(_instances, _labels)
-        ]
 
-    @classmethod
-    def split_inst_by_pred(
-        cls, n_classes: int, instances: np.ndarray | sp.csr_matrix
-    ) -> (List[np.ndarray | sp.csr_matrix], List[float]):
-        _indexes = cls._split_index_by_pred(n_classes, instances)
-        if isinstance(instances, np.ndarray):
-            _instances = [
-                instances[ind] if ind.shape[0] > 0 else np.asarray([], dtype=int)
-                for ind in _indexes
-            ]
-        elif isinstance(instances, sp.csr_matrix):
-            _instances = [
-                instances[ind]
-                if ind.shape[0] > 0
-                else sp.csr_matrix(np.empty((0, 0), dtype=int))
-                for ind in _indexes
-            ]
-        norms = [inst.shape[0] / instances.shape[0] for inst in _instances]
-        return _instances, norms
+        if return_indexes:
+            return _instances, _indexes
 
-    @classmethod
-    def _split_index_by_pred(
-        cls, n_classes: int, instances: np.ndarray | sp.csr_matrix
-    ) -> List[np.ndarray]:
-        if isinstance(instances, np.ndarray):
-            _pred_label = [np.argmax(inst[-n_classes:], axis=0) for inst in instances]
-        elif isinstance(instances, sp.csr_matrix):
-            _pred_label = [
-                np.argmax(inst[:, -n_classes:].toarray().flatten(), axis=0)
-                for inst in instances
-            ]
-        else:
-            raise ValueError("Unsupported matrix format")
+        return _instances
 
-        return [
-            np.asarray([j for (j, x) in enumerate(_pred_label) if x == i], dtype=int)
-            for i in range(0, n_classes)
-        ]
+    def __len__(self):
+        return self.instances.shape[0]
 
-    @classmethod
-    def extend_instances(
-        cls, instances: np.ndarray | sp.csr_matrix, pred_proba: np.ndarray
-    ) -> np.ndarray | sp.csr_matrix:
-        if isinstance(instances, sp.csr_matrix):
-            _pred_proba = sp.csr_matrix(pred_proba)
-            n_x = sp.hstack([instances, _pred_proba])
-        elif isinstance(instances, np.ndarray):
-            n_x = np.concatenate((instances, pred_proba), axis=1)
-        else:
-            raise ValueError("Unsupported matrix format")
 
-        return n_x
+class ExtendedLabels:
+    def __init__(self, true: np.ndarray, pred: np.ndarray, ncl: np.ndarray):
+        self.true = true
+        self.pred = pred
+        self.ncl = ncl
 
-    @classmethod
-    def extend_collection(
-        cls,
-        base: LabelledCollection,
-        pred_proba: np.ndarray,
+    @property
+    def y(self):
+        return self.true * self.ncl + self.pred
+
+    def __getitem__(self, idx):
+        return ExtendedLabels(self.true[idx], self.pred[idx], self.ncl)
+
+
+class ExtendedCollection(LabelledCollection):
+    def __init__(
+        self,
+        instances: np.ndarray | sp.csr_matrix,
+        labels: np.ndarray,
+        pred_proba: np.ndarray = None,
+        ext: np.ndarray = None,
     ):
-        n_classes = base.n_classes
+        e_data, e_labels, _classes = self.__extend_collection(
+            instances=instances,
+            labels=labels,
+            pred_proba=pred_proba,
+            ext=ext,
+        )
+        self.e_data_ = e_data
+        self.e_labels_ = e_labels
+        super().__init__(e_data.X, e_labels.y, classes=_classes)
 
+    @classmethod
+    def from_lc(
+        cls,
+        lc: LabelledCollection,
+        predict_proba: np.ndarray,
+        ext: np.ndarray = None,
+    ):
+        return ExtendedCollection(lc.X, lc.y, pred_proba=predict_proba, ext=ext)
+
+    @property
+    def pred_proba(self):
+        return self.e_data_.pred_proba_
+
+    @property
+    def ext(self):
+        return self.e_data_.ext_
+
+    @property
+    def eX(self):
+        return self.e_data_
+
+    @property
+    def ey(self):
+        return self.e_labels_
+
+    def split_by_pred(self):
+        _ncl = len(self.pred_proba)
+        _instances, _indexes = self.e_data_.split_by_pred(return_indexes=True)
+        _labels = [self.ey[ind] for ind in _indexes]
+        return [
+            LabelledCollection(inst, lbl.true, classes=range(0, _ncl))
+            for inst, lbl in zip(_instances, _labels)
+        ]
+
+    def __extend_collection(
+        self,
+        instances: sp.csr_matrix | np.ndarray,
+        labels: np.ndarray,
+        pred_proba: np.ndarray,
+        ext: np.ndarray = None,
+    ) -> Tuple[ExtendedData, ExtendedLabels, np.ndarray]:
+        n_classes = np.unique(labels).shape[0]
         # n_X = [ X | predicted probs. ]
-        n_x = cls.extend_instances(base.X, pred_proba)
+        e_instances = ExtendedData(instances, pred_proba, ext=ext)
 
         # n_y = (exptected y, predicted y)
-        pred_proba = pred_proba[:, -n_classes:]
         preds = np.argmax(pred_proba, axis=-1)
-        n_y = np.asarray(
-            [
-                ExClassManager.get_ex(n_classes, true_class, pred_class)
-                for (true_class, pred_class) in zip(base.y, preds)
-            ]
-        )
+        e_labels = ExtendedLabels(labels, preds, n_classes)
 
-        return ExtendedCollection(n_x, n_y, classes=[*range(0, n_classes * n_classes)])
+        return e_instances, e_labels, np.arange(n_classes**2)
