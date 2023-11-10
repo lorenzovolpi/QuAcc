@@ -41,4 +41,8 @@
 - [x] sistemare exact_train quapy
 - [x] testare anche su imbd
 
+- [x] aggiungere esecuzione remota via ssh
+- [ ] testare confidence con sia max_conf che exntropy
 - [ ] rivedere nuove baselines
+- [ ] importare nuovi dataset
+- [ ] implementare mul3
