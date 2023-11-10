@@ -2,7 +2,6 @@ from copy import deepcopy
 from time import time
 
 import numpy as np
-import win11toast
 from quapy.method.aggregative import SLD
 from quapy.protocol import APP, UPP
 from sklearn.linear_model import LogisticRegression
@@ -54,8 +53,8 @@ def test_gs():
     )
     for sample in protocol():
         e_sample = gs_estimator.extend(sample)
-        estim_prev_b = estimator.estimate(e_sample.X, ext=True)
-        estim_prev_gs = gs_estimator.estimate(e_sample.X, ext=True)
+        estim_prev_b = estimator.estimate(e_sample.eX)
+        estim_prev_gs = gs_estimator.estimate(e_sample.eX)
         erb.append_row(
             sample.prevalence(),
             acc=abs(acc(e_sample.prevalence()) - acc(estim_prev_b)),
@@ -74,7 +73,6 @@ def test_gs():
 
     print(cr.table())
     print(f"[took {time() - tstart:.3f}s]")
-    win11toast.notify("Test", "completed")
 
 
 def test_mc():
@@ -108,12 +106,12 @@ def test_et():
     estimator = MCAE(
         classifier,
         SLD(LogisticRegression(), exact_train_prev=False),
-        confidence="max_conf",
+        confidence="entropy",
     ).fit(d.validation)
     e_test = estimator.extend(d.test)
-    ep = estimator.estimate(e_test.X, ext=True)
-    print(f"{qc.error.acc(ep) = }")
-    print(f"{qc.error.acc(e_test.prevalence()) = }")
+    ep = estimator.estimate(e_test.eX)
+    print(f"estim prev = {qc.error.acc(ep)}")
+    print(f"true prev {qc.error.acc(e_test.prevalence())}")
 
 
 if __name__ == "__main__":
