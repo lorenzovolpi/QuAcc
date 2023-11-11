@@ -77,6 +77,15 @@ def mul_sld(c_model, validation, protocol) -> EvaluationReport:
 
 
 @method
+def mul3w_sld(c_model, validation, protocol) -> EvaluationReport:
+    est = MCAE(c_model, SLD(LogisticRegression()), collapse_false=True).fit(validation)
+    return evaluation_report(
+        estimator=est,
+        protocol=protocol,
+    )
+
+
+@method
 def binc_sld(c_model, validation, protocol) -> EvaluationReport:
     est = BQAE(
         c_model,
@@ -95,6 +104,20 @@ def mulc_sld(c_model, validation, protocol) -> EvaluationReport:
         c_model,
         SLD(LogisticRegression()),
         confidence=["max_conf", "entropy"],
+    ).fit(validation)
+    return evaluation_report(
+        estimator=est,
+        protocol=protocol,
+    )
+
+
+@method
+def mul3wc_sld(c_model, validation, protocol) -> EvaluationReport:
+    est = MCAE(
+        c_model,
+        SLD(LogisticRegression()),
+        confidence=["max_conf", "entropy"],
+        collapse_false=True,
     ).fit(validation)
     return evaluation_report(
         estimator=est,
@@ -175,6 +198,23 @@ def bin_sld_gs(c_model, validation, protocol) -> EvaluationReport:
 def mul_sld_gs(c_model, validation, protocol) -> EvaluationReport:
     v_train, v_val = validation.split_stratified(0.6, random_state=0)
     model = MCAE(c_model, SLD(LogisticRegression()))
+    est = GridSearchAE(
+        model=model,
+        param_grid=_sld_param_grid,
+        refit=False,
+        protocol=UPP(v_val, repeats=100),
+        verbose=True,
+    ).fit(v_train)
+    return evaluation_report(
+        estimator=est,
+        protocol=protocol,
+    )
+
+
+@method
+def mul3w_sld_gs(c_model, validation, protocol) -> EvaluationReport:
+    v_train, v_val = validation.split_stratified(0.6, random_state=0)
+    model = MCAE(c_model, SLD(LogisticRegression()), collapse_false=True)
     est = GridSearchAE(
         model=model,
         param_grid=_sld_param_grid,

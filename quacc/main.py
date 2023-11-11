@@ -25,6 +25,7 @@ def estimate_comparison():
                 dataset,
                 estimators=CE.name[env.COMP_ESTIMATORS],
             )
+            dr.pickle(env.OUT_DIR / f"{dataset.name}.pickle")
         except Exception as e:
             log.error(f"Evaluation over {dataset.name} failed. Exception: {e}")
             traceback(e)

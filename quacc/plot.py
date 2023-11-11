@@ -29,6 +29,7 @@ def plot_delta(
     train_prev=None,
     legend=True,
     avg=None,
+    return_fig=False,
 ) -> Path:
     _base_title = "delta_stdev" if stdevs is not None else "delta"
     if train_prev is not None:
@@ -84,9 +85,12 @@ def plot_delta(
 
     if legend:
         ax.legend(loc="center left", bbox_to_anchor=(1, 0.5))
+
+    if return_fig:
+        return fig
+
     output_path = env.PLOT_OUT_DIR / f"{title}.png"
     fig.savefig(output_path, bbox_inches="tight")
-
     return output_path
 
 
@@ -100,6 +104,7 @@ def plot_diagonal(
     name="default",
     train_prev=None,
     legend=True,
+    return_fig=False,
 ):
     if train_prev is not None:
         t_prev_pos = int(round(train_prev[pos_class] * 100))
@@ -169,6 +174,10 @@ def plot_diagonal(
 
     if legend:
         ax.legend(loc="center left", bbox_to_anchor=(1, 0.5))
+
+    if return_fig:
+        return fig
+
     output_path = env.PLOT_OUT_DIR / f"{title}.png"
     fig.savefig(output_path, bbox_inches="tight")
     return output_path
@@ -185,6 +194,7 @@ def plot_shift(
     name="default",
     train_prev=None,
     legend=True,
+    return_fig=False,
 ) -> Path:
     if train_prev is not None:
         t_prev_pos = int(round(train_prev[pos_class] * 100))
@@ -233,6 +243,10 @@ def plot_shift(
 
     if legend:
         ax.legend(loc="center left", bbox_to_anchor=(1, 0.5))
+
+    if return_fig:
+        return fig
+
     output_path = env.PLOT_OUT_DIR / f"{title}.png"
     fig.savefig(output_path, bbox_inches="tight")
 

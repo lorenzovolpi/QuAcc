@@ -1,3 +1,4 @@
+import pickle
 from pathlib import Path
 from typing import List, Tuple
 
@@ -145,7 +146,12 @@ class CompReport:
         return avg_p
 
     def get_plots(
-        self, mode="delta", metric="acc", estimators=None, conf="default", stdev=False
+        self,
+        mode="delta",
+        metric="acc",
+        estimators=None,
+        conf="default",
+        return_fig=False,
     ) -> List[Tuple[str, Path]]:
         if mode == "delta":
             avg_data = self.avg_by_prevs(metric=metric, estimators=estimators)
@@ -156,6 +162,7 @@ class CompReport:
                 metric=metric,
                 name=conf,
                 train_prev=self.train_prev,
+                return_fig=return_fig,
             )
         elif mode == "delta_stdev":
             avg_data = self.avg_by_prevs(metric=metric, estimators=estimators)
@@ -168,6 +175,7 @@ class CompReport:
                 name=conf,
                 train_prev=self.train_prev,
                 stdevs=st_data.T.to_numpy(),
+                return_fig=return_fig,
             )
         elif mode == "diagonal":
             f_data = self.data(metric=metric + "_score", estimators=estimators)
@@ -180,6 +188,7 @@ class CompReport:
                 metric=metric,
                 name=conf,
                 train_prev=self.train_prev,
+                return_fig=return_fig,
             )
         elif mode == "shift":
             _shift_data = self.shift_data(metric=metric, estimators=estimators)
@@ -197,6 +206,7 @@ class CompReport:
                 name=conf,
                 train_prev=self.train_prev,
                 counts=shift_counts.T.to_numpy(),
+                return_fig=return_fig,
             )
 
     def to_md(self, conf="default", metric="acc", estimators=None, stdev=False) -> str:
@@ -219,7 +229,6 @@ class CompReport:
                 metric=metric,
                 estimators=estimators,
                 conf=conf,
-                stdev=stdev,
             )
             res += f"![plot_{mode}]({op.relative_to(env.OUT_DIR).as_posix()})\n"
 
@@ -287,6 +296,95 @@ class DatasetReport:
         self.add(cr)
         return self
 
+    def get_plots(
+        self,
+        data=None,
+        mode="delta_train",
+        metric="acc",
+        estimators=None,
+        conf="default",
+        return_fig=False,
+    ):
+        if mode == "delta_train":
+            _data = self.data(metric, estimators) if data is None else data
+            avg_on_train = _data.groupby(level=1).mean()
+            prevs_on_train = np.sort(avg_on_train.index.unique(0))
+            return plot.plot_delta(
+                base_prevs=np.around(
+                    [(1.0 - p, p) for p in prevs_on_train], decimals=2
+                ),
+                columns=avg_on_train.columns.to_numpy(),
+                data=avg_on_train.T.to_numpy(),
+                metric=metric,
+                name=conf,
+                train_prev=None,
+                avg="train",
+                return_fig=return_fig,
+            )
+        elif mode == "stdev_train":
+            _data = self.data(metric, estimators) if data is None else data
+            avg_on_train = _data.groupby(level=1).mean()
+            prevs_on_train = np.sort(avg_on_train.index.unique(0))
+            stdev_on_train = _data.groupby(level=1).std()
+            return plot.plot_delta(
+                base_prevs=np.around(
+                    [(1.0 - p, p) for p in prevs_on_train], decimals=2
+                ),
+                columns=avg_on_train.columns.to_numpy(),
+                data=avg_on_train.T.to_numpy(),
+                metric=metric,
+                name=conf,
+                train_prev=None,
+                stdevs=stdev_on_train.T.to_numpy(),
+                avg="train",
+                return_fig=return_fig,
+            )
+        elif mode == "delta_test":
+            _data = self.data(metric, estimators) if data is None else data
+            avg_on_test = _data.groupby(level=0).mean()
+            prevs_on_test = np.sort(avg_on_test.index.unique(0))
+            return plot.plot_delta(
+                base_prevs=np.around([(1.0 - p, p) for p in prevs_on_test], decimals=2),
+                columns=avg_on_test.columns.to_numpy(),
+                data=avg_on_test.T.to_numpy(),
+                metric=metric,
+                name=conf,
+                train_prev=None,
+                avg="test",
+                return_fig=return_fig,
+            )
+        elif mode == "stdev_test":
+            _data = self.data(metric, estimators) if data is None else data
+            avg_on_test = _data.groupby(level=0).mean()
+            prevs_on_test = np.sort(avg_on_test.index.unique(0))
+            stdev_on_test = _data.groupby(level=0).std()
+            return plot.plot_delta(
+                base_prevs=np.around([(1.0 - p, p) for p in prevs_on_test], decimals=2),
+                columns=avg_on_test.columns.to_numpy(),
+                data=avg_on_test.T.to_numpy(),
+                metric=metric,
+                name=conf,
+                train_prev=None,
+                stdevs=stdev_on_test.T.to_numpy(),
+                avg="test",
+                return_fig=return_fig,
+            )
+        elif mode == "shift":
+            _shift_data = self.shift_data(metric, estimators) if data is None else data
+            avg_shift = _shift_data.groupby(level=0).mean()
+            count_shift = _shift_data.groupby(level=0).count()
+            prevs_shift = np.sort(avg_shift.index.unique(0))
+            return plot.plot_shift(
+                shift_prevs=np.around([(1.0 - p, p) for p in prevs_shift], decimals=2),
+                columns=avg_shift.columns.to_numpy(),
+                data=avg_shift.T.to_numpy(),
+                metric=metric,
+                name=conf,
+                train_prev=None,
+                counts=count_shift.T.to_numpy(),
+                return_fig=return_fig,
+            )
+
     def to_md(self, conf="default", metric="acc", estimators=[], stdev=False):
         res = f"# {self.name}\n\n"
         for cr in self.crs:
@@ -300,94 +398,81 @@ class DatasetReport:
         ######################## avg on train ########################
         res += "### avg on train\n"
 
-        avg_on_train = _data.groupby(level=1).mean()
-        prevs_on_train = np.sort(avg_on_train.index.unique(0))
-        stdev_on_train = _data.groupby(level=1).std() if stdev else None
         avg_on_train_tbl = _data.groupby(level=1).mean()
         avg_on_train_tbl.loc["avg", :] = _data.mean()
 
         res += avg_on_train_tbl.to_html() + "\n\n"
 
-        delta_op = plot.plot_delta(
-            base_prevs=np.around([(1.0 - p, p) for p in prevs_on_train], decimals=2),
-            columns=avg_on_train.columns.to_numpy(),
-            data=avg_on_train.T.to_numpy(),
+        delta_op = self.get_plots(
+            data=_data,
+            mode="delta_train",
             metric=metric,
-            name=conf,
-            train_prev=None,
-            avg="train",
+            estimators=estimators,
+            conf=conf,
         )
         res += f"![plot_delta]({delta_op.relative_to(env.OUT_DIR).as_posix()})\n"
 
         if stdev:
-            delta_stdev_op = plot.plot_delta(
-                base_prevs=np.around(
-                    [(1.0 - p, p) for p in prevs_on_train], decimals=2
-                ),
-                columns=avg_on_train.columns.to_numpy(),
-                data=avg_on_train.T.to_numpy(),
+            delta_stdev_op = self.get_plots(
+                data=_data,
+                mode="stdev_train",
                 metric=metric,
-                name=conf,
-                train_prev=None,
-                stdevs=stdev_on_train.T.to_numpy(),
-                avg="train",
+                estimators=estimators,
+                conf=conf,
             )
             res += f"![plot_delta_stdev]({delta_stdev_op.relative_to(env.OUT_DIR).as_posix()})\n"
 
         ######################## avg on test ########################
         res += "### avg on test\n"
 
-        avg_on_test = _data.groupby(level=0).mean()
-        prevs_on_test = np.sort(avg_on_test.index.unique(0))
-        stdev_on_test = _data.groupby(level=0).std() if stdev else None
         avg_on_test_tbl = _data.groupby(level=0).mean()
         avg_on_test_tbl.loc["avg", :] = _data.mean()
 
         res += avg_on_test_tbl.to_html() + "\n\n"
 
-        delta_op = plot.plot_delta(
-            base_prevs=np.around([(1.0 - p, p) for p in prevs_on_test], decimals=2),
-            columns=avg_on_test.columns.to_numpy(),
-            data=avg_on_test.T.to_numpy(),
+        delta_op = self.get_plots(
+            data=_data,
+            mode="delta_test",
             metric=metric,
-            name=conf,
-            train_prev=None,
-            avg="test",
+            estimators=estimators,
+            conf=conf,
         )
         res += f"![plot_delta]({delta_op.relative_to(env.OUT_DIR).as_posix()})\n"
 
         if stdev:
-            delta_stdev_op = plot.plot_delta(
-                base_prevs=np.around([(1.0 - p, p) for p in prevs_on_test], decimals=2),
-                columns=avg_on_test.columns.to_numpy(),
-                data=avg_on_test.T.to_numpy(),
+            delta_stdev_op = self.get_plots(
+                data=_data,
+                mode="stdev_test",
                 metric=metric,
-                name=conf,
-                train_prev=None,
-                stdevs=stdev_on_test.T.to_numpy(),
-                avg="test",
+                estimators=estimators,
+                conf=conf,
             )
             res += f"![plot_delta_stdev]({delta_stdev_op.relative_to(env.OUT_DIR).as_posix()})\n"
 
         ######################## avg shift ########################
         res += "### avg dataset shift\n"
 
-        avg_shift = _shift_data.groupby(level=0).mean()
-        count_shift = _shift_data.groupby(level=0).count()
-        prevs_shift = np.sort(avg_shift.index.unique(0))
-
-        shift_op = plot.plot_shift(
-            shift_prevs=np.around([(1.0 - p, p) for p in prevs_shift], decimals=2),
-            columns=avg_shift.columns.to_numpy(),
-            data=avg_shift.T.to_numpy(),
+        shift_op = self.get_plots(
+            data=_shift_data,
+            mode="shift",
             metric=metric,
-            name=conf,
-            train_prev=None,
-            counts=count_shift.T.to_numpy(),
+            estimators=estimators,
+            conf=conf,
         )
         res += f"![plot_shift]({shift_op.relative_to(env.OUT_DIR).as_posix()})\n"
 
         return res
+
+    def pickle(self, pickle_path: Path):
+        with open(pickle_path, "wb") as f:
+            pickle.dump(self, f)
+
+    @classmethod
+    def unpickle(cls, pickle_path: Path):
+        with open(pickle_path, "rb") as f:
+            dr = pickle.load(f)
+
+        return dr
 
     def __iter__(self):
         return (cr for cr in self.crs)
