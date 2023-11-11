@@ -5035,3 +5035,601 @@
 09/11/23 21:08:08| DEBUG       [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': None, 'quantifier__recalib': None, 'confidence': ['max_conf', 'entropy']} (score=0.00688) [took 1027.9305s]
 09/11/23 21:15:36| INFO        bin_sld_gs finished [took 1476.4334s]
 09/11/23 21:15:36| INFO     Dataset sample 0.90 of dataset rcv1_CCAT_9prevs finished [took 1479.7993s]
+----------------------------------------------------------------------------------------------------
+10/11/23 13:06:41| INFO     dataset rcv1_CCAT_9prevs
+10/11/23 13:06:47| INFO     Dataset sample 0.10 of dataset rcv1_CCAT_9prevs started
+10/11/23 13:06:52| WARNING     Method mul_sld failed. Exception: ExtendedCollection.from_lc() got an unexpected keyword argument 'pred_proba'
+10/11/23 13:06:56| WARNING     Method mul3w_sld failed. Exception: ExtendedCollection.from_lc() got an unexpected keyword argument 'pred_proba'
+----------------------------------------------------------------------------------------------------
+10/11/23 13:07:50| INFO     dataset rcv1_CCAT_9prevs
+10/11/23 13:07:55| INFO     Dataset sample 0.10 of dataset rcv1_CCAT_9prevs started
+10/11/23 13:09:28| WARNING     Method mul_sld failed. Exception: labels ({1, 2}) contain values not included in classes_ ({0})
+10/11/23 13:09:29| WARNING     Method mul3w_sld failed. Exception: labels ({1, 2}) contain values not included in classes_ ({0})
+10/11/23 13:09:46| INFO        ref finished [took 88.3729s]
+10/11/23 13:09:54| INFO        atc_mc finished [took 90.4167s]
+10/11/23 13:09:54| INFO     Dataset sample 0.10 of dataset rcv1_CCAT_9prevs finished [took 118.7000s]
+10/11/23 13:09:54| INFO     Dataset sample 0.20 of dataset rcv1_CCAT_9prevs started
+10/11/23 13:11:25| WARNING     Method mul3w_sld failed. Exception: labels ({1, 2}) contain values not included in classes_ ({0})
+10/11/23 13:11:26| WARNING     Method mul_sld failed. Exception: labels ({1, 2}) contain values not included in classes_ ({0})
+----------------------------------------------------------------------------------------------------
+10/11/23 13:19:00| INFO     dataset rcv1_CCAT_9prevs
+10/11/23 13:19:05| INFO     Dataset sample 0.10 of dataset rcv1_CCAT_9prevs started
+10/11/23 13:19:10| WARNING     Method mul_sld failed. Exception: 'int' object is not iterable
+10/11/23 13:19:13| WARNING     Method mul3w_sld failed. Exception: 'int' object is not iterable
+----------------------------------------------------------------------------------------------------
+10/11/23 13:20:12| INFO     dataset rcv1_CCAT_9prevs
+10/11/23 13:20:17| INFO     Dataset sample 0.10 of dataset rcv1_CCAT_9prevs started
+10/11/23 13:21:36| WARNING     Method mul_sld failed. Exception: labels ({1, 2}) contain values not included in classes_ ({0})
+10/11/23 13:21:39| WARNING     Method mul3w_sld failed. Exception: labels ({1, 2}) contain values not included in classes_ ({0, 1})
+10/11/23 13:21:54| INFO        ref finished [took 77.8358s]
+10/11/23 13:22:02| INFO        atc_mc finished [took 81.6210s]
+10/11/23 13:22:02| INFO     Dataset sample 0.10 of dataset rcv1_CCAT_9prevs finished [took 104.5107s]
+10/11/23 13:22:02| INFO     Dataset sample 0.20 of dataset rcv1_CCAT_9prevs started
+10/11/23 13:23:31| WARNING     Method mul3w_sld failed. Exception: labels ({1, 2}) contain values not included in classes_ ({0, 1})
+10/11/23 13:23:31| WARNING     Method mul_sld failed. Exception: labels ({1, 2}) contain values not included in classes_ ({0})
+10/11/23 13:23:47| INFO        ref finished [took 83.8010s]
+10/11/23 13:23:55| INFO        atc_mc finished [took 82.0180s]
+10/11/23 13:23:55| INFO     Dataset sample 0.20 of dataset rcv1_CCAT_9prevs finished [took 113.0759s]
+10/11/23 13:23:55| INFO     Dataset sample 0.30 of dataset rcv1_CCAT_9prevs started
+10/11/23 13:25:35| WARNING     Method mul3w_sld failed. Exception: labels ({1, 2}) contain values not included in classes_ ({0, 1})
+10/11/23 13:25:35| WARNING     Method mul_sld failed. Exception: labels ({1, 2}) contain values not included in classes_ ({0})
+10/11/23 13:25:52| INFO        ref finished [took 91.9242s]
+10/11/23 13:26:01| INFO        atc_mc finished [took 91.0173s]
+10/11/23 13:26:01| INFO     Dataset sample 0.30 of dataset rcv1_CCAT_9prevs finished [took 125.8152s]
+10/11/23 13:26:01| INFO     Dataset sample 0.40 of dataset rcv1_CCAT_9prevs started
+----------------------------------------------------------------------------------------------------
+10/11/23 14:35:06| INFO     dataset rcv1_CCAT_1prevs
+10/11/23 14:35:16| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+10/11/23 14:36:54| WARNING     Method mul_sld failed. Exception: labels ({1, 2}) contain values not included in classes_ ({0})
+10/11/23 14:37:32| INFO        ref finished [took 114.8732s]
+----------------------------------------------------------------------------------------------------
+10/11/23 14:45:14| INFO     dataset rcv1_CCAT_1prevs
+10/11/23 14:45:20| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+10/11/23 14:46:56| INFO        ref finished [took 77.5985s]
+10/11/23 14:47:09| INFO        atc_mc finished [took 83.9760s]
+10/11/23 14:56:11| WARNING     Method mul_sld failed. Exception: labels ({1, 2}) contain values not included in classes_ ({0})
+10/11/23 14:56:13| WARNING     Method mul3w_sld failed. Exception: labels ({1, 2}) contain values not included in classes_ ({0, 1})
+10/11/23 14:56:13| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs finished [took 652.8237s]
+----------------------------------------------------------------------------------------------------
+10/11/23 14:56:25| INFO     dataset rcv1_CCAT_1prevs
+----------------------------------------------------------------------------------------------------
+10/11/23 14:56:31| INFO     dataset rcv1_CCAT_1prevs
+10/11/23 14:56:37| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+10/11/23 14:58:44| INFO        ref finished [took 106.4738s]
+10/11/23 14:59:09| INFO        atc_mc finished [took 117.9679s]
+10/11/23 15:16:17| INFO        mul3w_sld finished [took 1166.3690s]
+----------------------------------------------------------------------------------------------------
+10/11/23 15:49:18| INFO     dataset rcv1_CCAT_1prevs
+10/11/23 15:49:23| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+10/11/23 15:50:15| INFO        ref finished [took 44.7880s]
+----------------------------------------------------------------------------------------------------
+10/11/23 16:24:50| INFO     dataset rcv1_CCAT_1prevs
+10/11/23 16:24:57| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+----------------------------------------------------------------------------------------------------
+10/11/23 16:26:54| INFO     dataset rcv1_CCAT_1prevs
+10/11/23 16:27:01| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+----------------------------------------------------------------------------------------------------
+10/11/23 16:28:15| INFO     dataset rcv1_CCAT_1prevs
+10/11/23 16:28:22| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+----------------------------------------------------------------------------------------------------
+10/11/23 16:29:17| INFO     dataset rcv1_CCAT_1prevs
+10/11/23 16:29:25| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+10/11/23 16:30:30| INFO        ref finished [took 52.9566s]
+----------------------------------------------------------------------------------------------------
+10/11/23 16:33:04| INFO     dataset rcv1_CCAT_1prevs
+10/11/23 16:33:11| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+10/11/23 16:34:10| INFO        ref finished [took 50.4274s]
+10/11/23 16:34:22| INFO        mul_sld finished [took 66.6494s]
+10/11/23 16:34:22| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs finished [took 70.8885s]
+----------------------------------------------------------------------------------------------------
+10/11/23 16:36:29| INFO     dataset rcv1_CCAT_9prevs
+10/11/23 16:36:34| INFO     Dataset sample 0.10 of dataset rcv1_CCAT_9prevs started
+10/11/23 16:37:26| WARNING     Method mul3w_sld failed. Exception: index 3 is out of bounds for axis 0 with size 3
+10/11/23 16:37:40| INFO        ref finished [took 50.7235s]
+10/11/23 16:37:47| INFO        atc_mc finished [took 54.6993s]
+----------------------------------------------------------------------------------------------------
+10/11/23 16:45:15| INFO     dataset rcv1_CCAT_9prevs
+10/11/23 16:45:20| INFO     Dataset sample 0.10 of dataset rcv1_CCAT_9prevs started
+10/11/23 16:46:11| WARNING     Method mul_sld failed. Exception: unsupported operand type(s) for /: 'NoneType' and 'int'
+10/11/23 16:46:12| WARNING     Method mul3w_sld failed. Exception: unsupported operand type(s) for /: 'NoneType' and 'int'
+10/11/23 16:46:25| INFO        ref finished [took 50.7336s]
+10/11/23 16:46:33| INFO        atc_mc finished [took 54.1424s]
+10/11/23 16:46:33| INFO     Dataset sample 0.10 of dataset rcv1_CCAT_9prevs finished [took 72.4632s]
+10/11/23 16:46:33| INFO     Dataset sample 0.20 of dataset rcv1_CCAT_9prevs started
+10/11/23 16:47:28| WARNING     Method mul_sld failed. Exception: unsupported operand type(s) for /: 'NoneType' and 'int'
+10/11/23 16:47:29| WARNING     Method mul3w_sld failed. Exception: unsupported operand type(s) for /: 'NoneType' and 'int'
+----------------------------------------------------------------------------------------------------
+10/11/23 16:51:39| INFO     dataset rcv1_CCAT_9prevs
+10/11/23 16:51:44| INFO     Dataset sample 0.10 of dataset rcv1_CCAT_9prevs started
+10/11/23 16:52:50| INFO        ref finished [took 51.5277s]
+10/11/23 16:52:55| INFO        mul3w_sld finished [took 62.7316s]
+10/11/23 16:52:58| INFO        atc_mc finished [took 55.6057s]
+10/11/23 16:53:25| INFO        mul_sld finished [took 97.7123s]
+10/11/23 16:53:25| INFO     Dataset sample 0.10 of dataset rcv1_CCAT_9prevs finished [took 100.9808s]
+10/11/23 16:53:25| INFO     Dataset sample 0.20 of dataset rcv1_CCAT_9prevs started
+10/11/23 16:54:36| INFO        ref finished [took 55.7445s]
+10/11/23 16:54:43| INFO        atc_mc finished [took 56.7203s]
+10/11/23 16:54:45| INFO        mul3w_sld finished [took 71.0450s]
+10/11/23 16:54:53| INFO        mul_sld finished [took 84.6525s]
+10/11/23 16:54:53| INFO     Dataset sample 0.20 of dataset rcv1_CCAT_9prevs finished [took 88.0027s]
+10/11/23 16:54:53| INFO     Dataset sample 0.30 of dataset rcv1_CCAT_9prevs started
+10/11/23 16:56:06| INFO        ref finished [took 54.1395s]
+10/11/23 16:56:11| INFO        mul3w_sld finished [took 70.1307s]
+10/11/23 16:56:13| INFO        atc_mc finished [took 57.6850s]
+10/11/23 16:56:16| INFO        mul_sld finished [took 79.3229s]
+10/11/23 16:56:16| INFO     Dataset sample 0.30 of dataset rcv1_CCAT_9prevs finished [took 83.1293s]
+10/11/23 16:56:16| INFO     Dataset sample 0.40 of dataset rcv1_CCAT_9prevs started
+10/11/23 16:57:25| INFO        ref finished [took 53.7706s]
+10/11/23 16:57:31| INFO        mul3w_sld finished [took 67.0318s]
+10/11/23 16:57:32| INFO        atc_mc finished [took 57.7642s]
+10/11/23 16:57:35| INFO        mul_sld finished [took 76.4066s]
+10/11/23 16:57:35| INFO     Dataset sample 0.40 of dataset rcv1_CCAT_9prevs finished [took 79.0392s]
+10/11/23 16:57:35| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_9prevs started
+10/11/23 16:58:46| INFO        ref finished [took 53.7141s]
+10/11/23 16:58:51| INFO        mul3w_sld finished [took 68.1234s]
+10/11/23 16:58:53| INFO        atc_mc finished [took 57.5702s]
+10/11/23 16:58:59| INFO        mul_sld finished [took 80.1266s]
+10/11/23 16:58:59| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_9prevs finished [took 83.5102s]
+10/11/23 16:58:59| INFO     Dataset sample 0.60 of dataset rcv1_CCAT_9prevs started
+10/11/23 17:00:08| INFO        ref finished [took 54.7955s]
+10/11/23 17:00:12| INFO        mul3w_sld finished [took 65.3780s]
+10/11/23 17:00:16| INFO        atc_mc finished [took 58.0304s]
+10/11/23 17:00:35| INFO        mul_sld finished [took 92.9140s]
+10/11/23 17:00:35| INFO     Dataset sample 0.60 of dataset rcv1_CCAT_9prevs finished [took 95.8577s]
+10/11/23 17:00:35| INFO     Dataset sample 0.70 of dataset rcv1_CCAT_9prevs started
+10/11/23 17:01:48| INFO        ref finished [took 56.4922s]
+10/11/23 17:01:53| INFO        atc_mc finished [took 57.1146s]
+10/11/23 17:01:53| INFO        mul3w_sld finished [took 70.4300s]
+10/11/23 17:02:03| INFO        mul_sld finished [took 84.4971s]
+10/11/23 17:02:03| INFO     Dataset sample 0.70 of dataset rcv1_CCAT_9prevs finished [took 88.5686s]
+10/11/23 17:02:03| INFO     Dataset sample 0.80 of dataset rcv1_CCAT_9prevs started
+10/11/23 17:03:17| INFO        ref finished [took 55.9443s]
+10/11/23 17:03:19| INFO        mul3w_sld finished [took 68.1298s]
+10/11/23 17:03:21| INFO        atc_mc finished [took 55.8708s]
+10/11/23 17:03:29| INFO        mul_sld finished [took 81.8552s]
+10/11/23 17:03:29| INFO     Dataset sample 0.80 of dataset rcv1_CCAT_9prevs finished [took 85.5029s]
+10/11/23 17:03:29| INFO     Dataset sample 0.90 of dataset rcv1_CCAT_9prevs started
+10/11/23 17:04:36| INFO        ref finished [took 52.4327s]
+10/11/23 17:04:42| INFO        mul3w_sld finished [took 65.1205s]
+10/11/23 17:04:44| INFO        atc_mc finished [took 56.4258s]
+10/11/23 17:05:07| INFO        mul_sld finished [took 95.0175s]
+10/11/23 17:05:07| INFO     Dataset sample 0.90 of dataset rcv1_CCAT_9prevs finished [took 98.2742s]
+----------------------------------------------------------------------------------------------------
+10/11/23 17:11:56| INFO     dataset rcv1_CCAT_9prevs
+10/11/23 17:12:01| INFO     Dataset sample 0.10 of dataset rcv1_CCAT_9prevs started
+10/11/23 17:13:39| INFO        ref finished [took 70.2028s]
+10/11/23 17:13:41| INFO        mul3w_sld finished [took 92.9234s]
+10/11/23 17:13:43| INFO        mul3wc_sld finished [took 81.4985s]
+10/11/23 17:13:47| INFO        atc_mc finished [took 69.8737s]
+10/11/23 17:13:49| INFO        mulc_sld finished [took 91.9609s]
+10/11/23 17:14:09| INFO        mul_sld finished [took 125.3021s]
+10/11/23 17:14:09| INFO     Dataset sample 0.10 of dataset rcv1_CCAT_9prevs finished [took 128.4443s]
+10/11/23 17:14:09| INFO     Dataset sample 0.20 of dataset rcv1_CCAT_9prevs started
+10/11/23 17:15:49| INFO        ref finished [took 69.9186s]
+10/11/23 17:15:52| INFO        mul3w_sld finished [took 94.1565s]
+10/11/23 17:15:53| INFO        mul3wc_sld finished [took 81.7286s]
+10/11/23 17:15:55| INFO        atc_mc finished [took 68.0996s]
+10/11/23 17:15:59| INFO        mulc_sld finished [took 93.4749s]
+10/11/23 17:16:02| INFO        mul_sld finished [took 109.9866s]
+10/11/23 17:16:02| INFO     Dataset sample 0.20 of dataset rcv1_CCAT_9prevs finished [took 113.2243s]
+10/11/23 17:16:02| INFO     Dataset sample 0.30 of dataset rcv1_CCAT_9prevs started
+10/11/23 17:17:46| INFO        ref finished [took 69.7954s]
+10/11/23 17:17:49| INFO        mul3w_sld finished [took 97.4538s]
+10/11/23 17:17:52| INFO        atc_mc finished [took 68.3256s]
+10/11/23 17:17:53| INFO        mul3wc_sld finished [took 84.1359s]
+10/11/23 17:17:54| INFO        mul_sld finished [took 107.4652s]
+10/11/23 17:17:55| INFO        mulc_sld finished [took 95.2790s]
+10/11/23 17:17:55| INFO     Dataset sample 0.30 of dataset rcv1_CCAT_9prevs finished [took 112.5479s]
+10/11/23 17:17:55| INFO     Dataset sample 0.40 of dataset rcv1_CCAT_9prevs started
+10/11/23 17:19:33| INFO        ref finished [took 69.0242s]
+10/11/23 17:19:37| INFO        mul3w_sld finished [took 94.6726s]
+10/11/23 17:19:39| INFO        mul3wc_sld finished [took 83.5757s]
+10/11/23 17:19:40| INFO        atc_mc finished [took 70.0895s]
+10/11/23 17:19:42| INFO        mul_sld finished [took 104.3169s]
+10/11/23 17:19:45| INFO        mulc_sld finished [took 96.4947s]
+10/11/23 17:19:45| INFO     Dataset sample 0.40 of dataset rcv1_CCAT_9prevs finished [took 109.8588s]
+10/11/23 17:19:45| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_9prevs started
+10/11/23 17:21:25| INFO        ref finished [took 68.6827s]
+10/11/23 17:21:28| INFO        mul3w_sld finished [took 95.7660s]
+10/11/23 17:21:33| INFO        mul3wc_sld finished [took 84.6669s]
+10/11/23 17:21:34| INFO        atc_mc finished [took 68.2059s]
+10/11/23 17:21:38| INFO        mul_sld finished [took 109.7998s]
+10/11/23 17:21:41| INFO        mulc_sld finished [took 100.2322s]
+10/11/23 17:21:41| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_9prevs finished [took 116.3329s]
+10/11/23 17:21:41| INFO     Dataset sample 0.60 of dataset rcv1_CCAT_9prevs started
+10/11/23 17:23:20| INFO        ref finished [took 68.4213s]
+10/11/23 17:23:21| INFO        mul3w_sld finished [took 92.4175s]
+10/11/23 17:23:25| INFO        mul3wc_sld finished [took 84.2143s]
+10/11/23 17:23:28| INFO        atc_mc finished [took 70.9748s]
+10/11/23 17:23:33| INFO        mul_sld finished [took 108.9404s]
+10/11/23 17:23:35| INFO        mulc_sld finished [took 98.6542s]
+10/11/23 17:23:35| INFO     Dataset sample 0.60 of dataset rcv1_CCAT_9prevs finished [took 114.0658s]
+10/11/23 17:23:35| INFO     Dataset sample 0.70 of dataset rcv1_CCAT_9prevs started
+10/11/23 17:25:15| INFO        ref finished [took 67.6212s]
+10/11/23 17:25:19| INFO        mul3w_sld finished [took 94.4720s]
+10/11/23 17:25:23| INFO        mul3wc_sld finished [took 84.2353s]
+10/11/23 17:25:24| INFO        atc_mc finished [took 68.8926s]
+10/11/23 17:25:29| INFO        mul_sld finished [took 110.0608s]
+10/11/23 17:25:31| INFO        mulc_sld finished [took 98.8512s]
+10/11/23 17:25:31| INFO     Dataset sample 0.70 of dataset rcv1_CCAT_9prevs finished [took 116.1487s]
+10/11/23 17:25:31| INFO     Dataset sample 0.80 of dataset rcv1_CCAT_9prevs started
+10/11/23 17:27:13| INFO        ref finished [took 67.6916s]
+10/11/23 17:27:14| INFO        mul3wc_sld finished [took 77.9027s]
+10/11/23 17:27:16| INFO        mul3w_sld finished [took 95.6551s]
+10/11/23 17:27:21| INFO        atc_mc finished [took 69.1522s]
+10/11/23 17:27:25| INFO        mul_sld finished [took 110.5946s]
+10/11/23 17:27:26| INFO        mulc_sld finished [took 97.1366s]
+10/11/23 17:27:26| INFO     Dataset sample 0.80 of dataset rcv1_CCAT_9prevs finished [took 115.0205s]
+10/11/23 17:27:26| INFO     Dataset sample 0.90 of dataset rcv1_CCAT_9prevs started
+10/11/23 17:28:57| INFO        ref finished [took 60.3214s]
+10/11/23 17:29:05| INFO        mul3w_sld finished [took 89.8969s]
+10/11/23 17:29:08| INFO        mul3wc_sld finished [took 79.4281s]
+10/11/23 17:29:09| INFO        mulc_sld finished [took 89.2493s]
+10/11/23 17:29:10| INFO        atc_mc finished [took 69.0056s]
+10/11/23 17:29:29| INFO        mul_sld finished [took 119.2894s]
+10/11/23 17:29:29| INFO     Dataset sample 0.90 of dataset rcv1_CCAT_9prevs finished [took 122.1553s]
+----------------------------------------------------------------------------------------------------
+10/11/23 17:53:55| INFO     dataset rcv1_CCAT_9prevs
+10/11/23 17:54:01| INFO     Dataset sample 0.10 of dataset rcv1_CCAT_9prevs started
+10/11/23 17:54:04| WARNING     Method mul_sld_gs failed. Exception: no combination of hyperparameters seem to work
+10/11/23 17:54:06| WARNING     Method mul3w_sld_gs failed. Exception: no combination of hyperparameters seem to work
+10/11/23 17:54:53| INFO        ref finished [took 44.4485s]
+10/11/23 17:55:01| INFO        atc_mc finished [took 49.8926s]
+10/11/23 17:55:01| INFO     Dataset sample 0.10 of dataset rcv1_CCAT_9prevs finished [took 60.0268s]
+10/11/23 17:55:01| INFO     Dataset sample 0.20 of dataset rcv1_CCAT_9prevs started
+10/11/23 17:55:04| WARNING     Method mul_sld_gs failed. Exception: no combination of hyperparameters seem to work
+10/11/23 17:55:07| WARNING     Method mul3w_sld_gs failed. Exception: no combination of hyperparameters seem to work
+10/11/23 17:55:54| INFO        ref finished [took 44.7491s]
+10/11/23 17:56:02| INFO        atc_mc finished [took 49.9022s]
+10/11/23 17:56:02| INFO     Dataset sample 0.20 of dataset rcv1_CCAT_9prevs finished [took 60.8386s]
+10/11/23 17:56:02| INFO     Dataset sample 0.30 of dataset rcv1_CCAT_9prevs started
+10/11/23 17:56:05| WARNING     Method mul_sld_gs failed. Exception: no combination of hyperparameters seem to work
+10/11/23 17:56:08| WARNING     Method mul3w_sld_gs failed. Exception: no combination of hyperparameters seem to work
+10/11/23 17:56:56| INFO        ref finished [took 45.2058s]
+10/11/23 17:57:03| INFO        atc_mc finished [took 49.0981s]
+10/11/23 17:57:03| INFO     Dataset sample 0.30 of dataset rcv1_CCAT_9prevs finished [took 61.1000s]
+10/11/23 17:57:03| INFO     Dataset sample 0.40 of dataset rcv1_CCAT_9prevs started
+10/11/23 17:57:05| WARNING     Method mul_sld_gs failed. Exception: no combination of hyperparameters seem to work
+10/11/23 17:57:08| WARNING     Method mul3w_sld_gs failed. Exception: no combination of hyperparameters seem to work
+10/11/23 17:57:54| INFO        ref finished [took 44.3211s]
+10/11/23 17:58:01| INFO        atc_mc finished [took 48.9814s]
+10/11/23 17:58:01| INFO     Dataset sample 0.40 of dataset rcv1_CCAT_9prevs finished [took 58.0909s]
+10/11/23 17:58:01| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_9prevs started
+10/11/23 17:58:04| WARNING     Method mul_sld_gs failed. Exception: no combination of hyperparameters seem to work
+10/11/23 17:58:06| WARNING     Method mul3w_sld_gs failed. Exception: no combination of hyperparameters seem to work
+10/11/23 17:58:53| INFO        ref finished [took 43.7895s]
+10/11/23 17:59:01| INFO        atc_mc finished [took 49.8161s]
+10/11/23 17:59:01| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_9prevs finished [took 60.3531s]
+10/11/23 17:59:01| INFO     Dataset sample 0.60 of dataset rcv1_CCAT_9prevs started
+10/11/23 17:59:04| WARNING     Method mul_sld_gs failed. Exception: no combination of hyperparameters seem to work
+10/11/23 17:59:07| WARNING     Method mul3w_sld_gs failed. Exception: no combination of hyperparameters seem to work
+10/11/23 17:59:53| INFO        ref finished [took 43.8473s]
+10/11/23 18:00:02| INFO        atc_mc finished [took 50.1003s]
+10/11/23 18:00:02| INFO     Dataset sample 0.60 of dataset rcv1_CCAT_9prevs finished [took 60.5473s]
+10/11/23 18:00:02| INFO     Dataset sample 0.70 of dataset rcv1_CCAT_9prevs started
+10/11/23 18:00:05| WARNING     Method mul_sld_gs failed. Exception: no combination of hyperparameters seem to work
+10/11/23 18:00:08| WARNING     Method mul3w_sld_gs failed. Exception: no combination of hyperparameters seem to work
+10/11/23 18:00:55| INFO        ref finished [took 44.2168s]
+10/11/23 18:01:02| INFO        atc_mc finished [took 49.0013s]
+10/11/23 18:01:02| INFO     Dataset sample 0.70 of dataset rcv1_CCAT_9prevs finished [took 60.5261s]
+10/11/23 18:01:02| INFO     Dataset sample 0.80 of dataset rcv1_CCAT_9prevs started
+10/11/23 18:01:06| WARNING     Method mul_sld_gs failed. Exception: no combination of hyperparameters seem to work
+10/11/23 18:01:08| WARNING     Method mul3w_sld_gs failed. Exception: no combination of hyperparameters seem to work
+10/11/23 18:01:55| INFO        ref finished [took 44.0374s]
+10/11/23 18:02:02| INFO        atc_mc finished [took 49.0107s]
+10/11/23 18:02:02| INFO     Dataset sample 0.80 of dataset rcv1_CCAT_9prevs finished [took 60.0171s]
+10/11/23 18:02:02| INFO     Dataset sample 0.90 of dataset rcv1_CCAT_9prevs started
+10/11/23 18:02:06| WARNING     Method mul_sld_gs failed. Exception: no combination of hyperparameters seem to work
+10/11/23 18:02:08| WARNING     Method mul3w_sld_gs failed. Exception: no combination of hyperparameters seem to work
+10/11/23 18:02:55| INFO        ref finished [took 44.8341s]
+10/11/23 18:03:02| INFO        atc_mc finished [took 49.3663s]
+10/11/23 18:03:02| INFO     Dataset sample 0.90 of dataset rcv1_CCAT_9prevs finished [took 59.9146s]
+----------------------------------------------------------------------------------------------------
+10/11/23 18:25:20| INFO     dataset rcv1_CCAT_1prevs
+10/11/23 18:25:26| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+10/11/23 18:25:33| WARNING     Method mul_sld_gs failed. Exception: '>=' not supported between instances of 'AttributeError' and 'int'
+----------------------------------------------------------------------------------------------------
+10/11/23 18:27:03| INFO     dataset rcv1_CCAT_1prevs
+10/11/23 18:27:08| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+----------------------------------------------------------------------------------------------------
+10/11/23 18:32:33| INFO     dataset rcv1_CCAT_1prevs
+10/11/23 18:32:38| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+10/11/23 18:32:56| WARNING     Method mul_sld_gs failed. Exception: '>=' not supported between instances of 'AssertionError' and 'int'
+----------------------------------------------------------------------------------------------------
+10/11/23 18:34:35| INFO     dataset rcv1_CCAT_1prevs
+10/11/23 18:34:40| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+10/11/23 18:36:25| INFO        ref finished [took 96.5839s]
+10/11/23 18:44:44| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': None, 'quantifier__recalib': 'bcts', 'confidence': ['max_conf', 'entropy']} (score=0.00784) [took 599.7376s]
+10/11/23 18:45:34| INFO        mul_sld_gs finished [took 649.9561s]
+10/11/23 18:45:34| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs finished [took 654.0138s]
+----------------------------------------------------------------------------------------------------
+10/11/23 19:09:37| INFO     dataset rcv1_CCAT_9prevs
+10/11/23 19:09:42| INFO     Dataset sample 0.10 of dataset rcv1_CCAT_9prevs started
+10/11/23 19:12:34| INFO        ref finished [took 161.2859s]
+10/11/23 19:13:10| INFO        atc_mc finished [took 195.4184s]
+10/11/23 19:23:09| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__recalib': 'bcts', 'confidence': ['max_conf', 'entropy']} (score=0.00980) [took 799.2257s]
+10/11/23 19:25:06| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__recalib': 'bcts', 'confidence': ['max_conf', 'entropy']} (score=0.01058) [took 920.3112s]
+10/11/23 19:25:20| INFO        mul3w_sld_gs finished [took 930.7628s]
+10/11/23 19:25:54| INFO        mul_sld_gs finished [took 968.7880s]
+10/11/23 19:25:54| INFO     Dataset sample 0.10 of dataset rcv1_CCAT_9prevs finished [took 972.0481s]
+10/11/23 19:25:54| INFO     Dataset sample 0.20 of dataset rcv1_CCAT_9prevs started
+10/11/23 19:29:20| INFO        ref finished [took 194.4623s]
+10/11/23 19:29:41| INFO        atc_mc finished [took 212.3133s]
+10/11/23 19:39:18| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 0.01, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__recalib': 'bcts', 'confidence': ['max_conf', 'entropy']} (score=0.01783) [took 796.9196s]
+10/11/23 19:41:39| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 0.01, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__recalib': 'bcts', 'confidence': ['max_conf', 'entropy']} (score=0.01419) [took 940.9938s]
+10/11/23 19:41:44| INFO        mul3w_sld_gs finished [took 942.8448s]
+10/11/23 19:42:29| INFO        mul_sld_gs finished [took 991.5975s]
+10/11/23 19:42:29| INFO     Dataset sample 0.20 of dataset rcv1_CCAT_9prevs finished [took 995.0756s]
+10/11/23 19:42:29| INFO     Dataset sample 0.30 of dataset rcv1_CCAT_9prevs started
+10/11/23 19:45:53| INFO        ref finished [took 192.2438s]
+10/11/23 19:46:27| INFO        atc_mc finished [took 222.4684s]
+10/11/23 19:56:09| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 1000.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__recalib': 'bcts', 'confidence': ['max_conf', 'entropy']} (score=0.00855) [took 811.9404s]
+10/11/23 19:58:17| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': None, 'quantifier__recalib': 'bcts', 'confidence': ['max_conf', 'entropy']} (score=0.00987) [took 944.2852s]
+10/11/23 19:58:26| INFO        mul3w_sld_gs finished [took 949.1296s]
+10/11/23 19:59:09| INFO        mul_sld_gs finished [took 995.5734s]
+10/11/23 19:59:09| INFO     Dataset sample 0.30 of dataset rcv1_CCAT_9prevs finished [took 999.2987s]
+10/11/23 19:59:09| INFO     Dataset sample 0.40 of dataset rcv1_CCAT_9prevs started
+10/11/23 20:02:30| INFO        ref finished [took 192.8661s]
+10/11/23 20:02:59| INFO        atc_mc finished [took 217.1095s]
+10/11/23 20:12:26| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__recalib': None, 'confidence': ['max_conf', 'entropy']} (score=0.01004) [took 792.0336s]
+10/11/23 20:14:45| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__recalib': None, 'confidence': ['max_conf', 'entropy']} (score=0.01023) [took 933.3629s]
+10/11/23 20:14:49| INFO        mul3w_sld_gs finished [took 935.2472s]
+10/11/23 20:15:33| INFO        mul_sld_gs finished [took 981.2718s]
+10/11/23 20:15:33| INFO     Dataset sample 0.40 of dataset rcv1_CCAT_9prevs finished [took 983.8857s]
+10/11/23 20:15:33| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_9prevs started
+10/11/23 20:18:54| INFO        ref finished [took 190.6586s]
+10/11/23 20:19:31| INFO        atc_mc finished [took 222.0446s]
+10/11/23 20:28:53| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__recalib': 'bcts', 'confidence': ['max_conf', 'entropy']} (score=0.00628) [took 794.2257s]
+10/11/23 20:31:06| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__recalib': 'bcts', 'confidence': ['max_conf', 'entropy']} (score=0.00601) [took 930.8288s]
+10/11/23 20:31:12| INFO        mul3w_sld_gs finished [took 932.7508s]
+10/11/23 20:31:58| INFO        mul_sld_gs finished [took 982.4600s]
+10/11/23 20:31:58| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_9prevs finished [took 985.3991s]
+10/11/23 20:31:58| INFO     Dataset sample 0.60 of dataset rcv1_CCAT_9prevs started
+10/11/23 20:35:16| INFO        ref finished [took 187.4145s]
+10/11/23 20:35:52| INFO        atc_mc finished [took 219.1775s]
+10/11/23 20:45:24| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__recalib': 'bcts', 'confidence': ['max_conf', 'entropy']} (score=0.00683) [took 799.7247s]
+10/11/23 20:47:38| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__recalib': 'bcts', 'confidence': ['max_conf', 'entropy']} (score=0.00635) [took 936.5460s]
+10/11/23 20:47:46| INFO        mul3w_sld_gs finished [took 941.6249s]
+10/11/23 20:48:28| INFO        mul_sld_gs finished [took 987.3566s]
+10/11/23 20:48:28| INFO     Dataset sample 0.60 of dataset rcv1_CCAT_9prevs finished [took 990.3392s]
+10/11/23 20:48:28| INFO     Dataset sample 0.70 of dataset rcv1_CCAT_9prevs started
+10/11/23 20:52:00| INFO        ref finished [took 199.2882s]
+10/11/23 20:52:27| INFO        atc_mc finished [took 221.3995s]
+10/11/23 21:01:50| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 0.01, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__recalib': 'bcts', 'confidence': ['max_conf', 'entropy']} (score=0.01112) [took 794.5357s]
+10/11/23 21:03:48| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 0.01, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__recalib': 'bcts', 'confidence': ['max_conf', 'entropy']} (score=0.01010) [took 916.6784s]
+10/11/23 21:04:04| INFO        mul3w_sld_gs finished [took 928.2783s]
+10/11/23 21:04:45| INFO        mul_sld_gs finished [took 972.9080s]
+10/11/23 21:04:45| INFO     Dataset sample 0.70 of dataset rcv1_CCAT_9prevs finished [took 976.3012s]
+10/11/23 21:04:45| INFO     Dataset sample 0.80 of dataset rcv1_CCAT_9prevs started
+10/11/23 21:07:55| INFO        ref finished [took 179.6820s]
+10/11/23 21:08:25| INFO        atc_mc finished [took 205.4880s]
+10/11/23 21:17:51| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__recalib': 'bcts', 'confidence': ['max_conf', 'entropy']} (score=0.01448) [took 778.9722s]
+10/11/23 21:20:04| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__recalib': 'bcts', 'confidence': ['max_conf', 'entropy']} (score=0.01845) [took 915.8827s]
+10/11/23 21:20:10| INFO        mul3w_sld_gs finished [took 917.5008s]
+10/11/23 21:20:53| INFO        mul_sld_gs finished [took 965.1015s]
+10/11/23 21:20:53| INFO     Dataset sample 0.80 of dataset rcv1_CCAT_9prevs finished [took 968.7572s]
+10/11/23 21:20:53| INFO     Dataset sample 0.90 of dataset rcv1_CCAT_9prevs started
+10/11/23 21:23:59| INFO        ref finished [took 175.7336s]
+10/11/23 21:24:36| INFO        atc_mc finished [took 208.4952s]
+10/11/23 21:34:01| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__recalib': None, 'confidence': ['max_conf', 'entropy']} (score=0.00971) [took 780.9362s]
+10/11/23 21:35:59| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': None, 'quantifier__recalib': None, 'confidence': ['max_conf', 'entropy']} (score=0.00915) [took 902.5701s]
+10/11/23 21:36:12| INFO        mul3w_sld_gs finished [took 911.8556s]
+10/11/23 21:36:47| INFO        mul_sld_gs finished [took 950.1102s]
+10/11/23 21:36:47| INFO     Dataset sample 0.90 of dataset rcv1_CCAT_9prevs finished [took 953.3643s]
+----------------------------------------------------------------------------------------------------
+10/11/23 23:35:14| INFO     dataset rcv1_CCAT_1prevs
+10/11/23 23:35:19| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+10/11/23 23:36:36| INFO        ref finished [took 57.4602s]
+10/11/23 23:36:41| INFO        mul3w_sld finished [took 72.3696s]
+10/11/23 23:36:43| INFO        atc_mc finished [took 57.1442s]
+10/11/23 23:36:48| INFO        mul_sld finished [took 84.9653s]
+10/11/23 23:36:48| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs finished [took 88.9861s]
+10/11/23 23:36:48| ERROR    Evaluation over rcv1_CCAT_1prevs failed. Exception: file must have a 'write' attribute
+----------------------------------------------------------------------------------------------------
+10/11/23 23:40:17| INFO     dataset rcv1_CCAT_1prevs
+10/11/23 23:40:23| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+10/11/23 23:41:49| INFO        ref finished [took 68.3161s]
+10/11/23 23:41:53| INFO        mul3w_sld finished [took 80.2113s]
+10/11/23 23:41:56| INFO        atc_mc finished [took 67.4302s]
+10/11/23 23:42:01| INFO        mul_sld finished [took 94.1596s]
+10/11/23 23:42:01| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs finished [took 98.1999s]
+10/11/23 23:42:01| ERROR    Evaluation over rcv1_CCAT_1prevs failed. Exception: write() argument must be str, not bytes
+----------------------------------------------------------------------------------------------------
+10/11/23 23:46:43| INFO     dataset rcv1_CCAT_1prevs
+10/11/23 23:46:48| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+10/11/23 23:48:04| INFO        ref finished [took 56.6494s]
+10/11/23 23:48:10| INFO        mul3w_sld finished [took 71.5272s]
+10/11/23 23:48:12| INFO        atc_mc finished [took 56.8870s]
+10/11/23 23:48:15| INFO        mul_sld finished [took 83.1487s]
+10/11/23 23:48:15| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs finished [took 86.6542s]
+----------------------------------------------------------------------------------------------------
+11/11/23 02:18:21| ERROR    Evaluation over rcv1_CCAT_3prevs failed. Exception: 'Invalid estimator: estimator mul3w_slds does not exist'
+11/11/23 02:18:21| ERROR    Failed while saving configuration rcv1_CCAT_debug_gs of rcv1_CCAT_3prevs. Exception: local variable 'dr' referenced before assignment
+----------------------------------------------------------------------------------------------------
+11/11/23 02:20:09| INFO     dataset rcv1_CCAT_3prevs
+11/11/23 02:20:15| INFO     Dataset sample 0.20 of dataset rcv1_CCAT_3prevs started
+11/11/23 02:21:26| INFO        ref finished [took 54.1901s]
+11/11/23 02:21:33| INFO        mul3w_sld finished [took 69.3537s]
+11/11/23 02:21:34| INFO        atc_mc finished [took 56.0851s]
+11/11/23 02:21:37| INFO        mul_sld finished [took 78.6476s]
+11/11/23 02:21:37| INFO     Dataset sample 0.20 of dataset rcv1_CCAT_3prevs finished [took 82.3064s]
+11/11/23 02:21:37| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_3prevs started
+11/11/23 02:22:46| INFO        ref finished [took 53.7198s]
+11/11/23 02:22:52| INFO        mul3w_sld finished [took 67.7595s]
+11/11/23 02:22:54| INFO        atc_mc finished [took 57.2473s]
+11/11/23 02:23:00| INFO        mul_sld finished [took 80.1637s]
+11/11/23 02:23:00| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_3prevs finished [took 83.2895s]
+11/11/23 02:23:00| INFO     Dataset sample 0.80 of dataset rcv1_CCAT_3prevs started
+11/11/23 02:24:11| INFO        ref finished [took 53.3185s]
+11/11/23 02:24:16| INFO        mul3w_sld finished [took 67.0687s]
+11/11/23 02:24:19| INFO        atc_mc finished [took 56.5244s]
+11/11/23 02:24:26| INFO        mul_sld finished [took 82.6075s]
+11/11/23 02:24:26| INFO     Dataset sample 0.80 of dataset rcv1_CCAT_3prevs finished [took 85.5541s]
+----------------------------------------------------------------------------------------------------
+11/11/23 03:03:37| INFO     dataset rcv1_CCAT_9prevs
+11/11/23 03:03:42| INFO     Dataset sample 0.10 of dataset rcv1_CCAT_9prevs started
+11/11/23 03:04:49| INFO        ref finished [took 51.5735s]
+11/11/23 03:04:53| INFO        mul3w_sld finished [took 62.2816s]
+11/11/23 03:04:57| INFO        atc_mc finished [took 56.1819s]
+11/11/23 03:05:22| INFO        mul_sld finished [took 96.8027s]
+11/11/23 03:05:22| INFO     Dataset sample 0.10 of dataset rcv1_CCAT_9prevs finished [took 100.0654s]
+11/11/23 03:05:22| INFO     Dataset sample 0.20 of dataset rcv1_CCAT_9prevs started
+11/11/23 03:06:32| INFO        ref finished [took 53.7892s]
+11/11/23 03:06:37| INFO        mul3w_sld finished [took 66.3243s]
+11/11/23 03:06:40| INFO        atc_mc finished [took 57.0767s]
+11/11/23 03:06:48| INFO        mul_sld finished [took 82.1666s]
+11/11/23 03:06:48| INFO     Dataset sample 0.20 of dataset rcv1_CCAT_9prevs finished [took 85.6326s]
+11/11/23 03:06:48| INFO     Dataset sample 0.30 of dataset rcv1_CCAT_9prevs started
+11/11/23 03:07:59| INFO        ref finished [took 53.4098s]
+11/11/23 03:08:05| INFO        mul3w_sld finished [took 67.3941s]
+11/11/23 03:08:06| INFO        atc_mc finished [took 56.8497s]
+11/11/23 03:08:09| INFO        mul_sld finished [took 77.4972s]
+11/11/23 03:08:09| INFO     Dataset sample 0.30 of dataset rcv1_CCAT_9prevs finished [took 81.1647s]
+11/11/23 03:08:09| INFO     Dataset sample 0.40 of dataset rcv1_CCAT_9prevs started
+11/11/23 03:09:18| INFO        ref finished [took 54.4416s]
+11/11/23 03:09:23| INFO        mul3w_sld finished [took 67.3565s]
+11/11/23 03:09:25| INFO        atc_mc finished [took 57.5687s]
+11/11/23 03:09:29| INFO        mul_sld finished [took 77.1110s]
+11/11/23 03:09:29| INFO     Dataset sample 0.40 of dataset rcv1_CCAT_9prevs finished [took 79.8726s]
+11/11/23 03:09:29| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_9prevs started
+11/11/23 03:10:38| INFO        ref finished [took 54.2066s]
+11/11/23 03:10:44| INFO        mul3w_sld finished [took 66.9062s]
+11/11/23 03:10:46| INFO        atc_mc finished [took 57.1371s]
+11/11/23 03:10:52| INFO        mul_sld finished [took 79.7498s]
+11/11/23 03:10:52| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_9prevs finished [took 83.1506s]
+11/11/23 03:10:52| INFO     Dataset sample 0.60 of dataset rcv1_CCAT_9prevs started
+11/11/23 03:11:59| INFO        ref finished [took 51.1698s]
+11/11/23 03:12:03| INFO        mul3w_sld finished [took 63.7260s]
+11/11/23 03:12:07| INFO        atc_mc finished [took 56.1393s]
+11/11/23 03:12:15| INFO        mul_sld finished [took 79.3176s]
+11/11/23 03:12:15| INFO     Dataset sample 0.60 of dataset rcv1_CCAT_9prevs finished [took 82.4614s]
+11/11/23 03:12:15| INFO     Dataset sample 0.70 of dataset rcv1_CCAT_9prevs started
+11/11/23 03:13:23| INFO        ref finished [took 51.5505s]
+11/11/23 03:13:28| INFO        mul3w_sld finished [took 64.8809s]
+11/11/23 03:13:32| INFO        atc_mc finished [took 56.2766s]
+11/11/23 03:13:39| INFO        mul_sld finished [took 80.9284s]
+11/11/23 03:13:39| INFO     Dataset sample 0.70 of dataset rcv1_CCAT_9prevs finished [took 84.2727s]
+11/11/23 03:13:39| INFO     Dataset sample 0.80 of dataset rcv1_CCAT_9prevs started
+11/11/23 03:14:50| INFO        ref finished [took 54.6314s]
+11/11/23 03:14:55| INFO        mul3w_sld finished [took 67.8281s]
+11/11/23 03:14:58| INFO        atc_mc finished [took 57.4433s]
+11/11/23 03:15:04| INFO        mul_sld finished [took 82.1945s]
+11/11/23 03:15:04| INFO     Dataset sample 0.80 of dataset rcv1_CCAT_9prevs finished [took 85.5484s]
+11/11/23 03:15:04| INFO     Dataset sample 0.90 of dataset rcv1_CCAT_9prevs started
+11/11/23 03:16:12| INFO        ref finished [took 54.0583s]
+11/11/23 03:16:19| INFO        mul3w_sld finished [took 65.9654s]
+11/11/23 03:16:20| INFO        atc_mc finished [took 56.7869s]
+11/11/23 03:16:42| INFO        mul_sld finished [took 94.5979s]
+11/11/23 03:16:42| INFO     Dataset sample 0.90 of dataset rcv1_CCAT_9prevs finished [took 97.8705s]
+----------------------------------------------------------------------------------------------------
+11/11/23 14:55:30| INFO     dataset rcv1_CCAT_9prevs
+11/11/23 14:55:35| INFO     Dataset sample 0.10 of dataset rcv1_CCAT_9prevs started
+11/11/23 14:56:42| INFO        ref finished [took 51.5446s]
+11/11/23 14:56:45| INFO        mul3w_sld finished [took 61.1724s]
+11/11/23 14:56:49| INFO        atc_mc finished [took 55.8947s]
+11/11/23 14:57:16| INFO        mul_sld finished [took 97.5932s]
+11/11/23 14:57:16| INFO     Dataset sample 0.10 of dataset rcv1_CCAT_9prevs finished [took 100.9322s]
+11/11/23 14:57:16| INFO     Dataset sample 0.20 of dataset rcv1_CCAT_9prevs started
+11/11/23 14:58:25| INFO        ref finished [took 52.3894s]
+11/11/23 14:58:32| INFO        mul3w_sld finished [took 66.8082s]
+11/11/23 14:58:34| INFO        atc_mc finished [took 57.1608s]
+11/11/23 14:58:43| INFO        mul_sld finished [took 82.8613s]
+11/11/23 14:58:43| INFO     Dataset sample 0.20 of dataset rcv1_CCAT_9prevs finished [took 86.2458s]
+11/11/23 14:58:43| INFO     Dataset sample 0.30 of dataset rcv1_CCAT_9prevs started
+11/11/23 14:59:55| INFO        ref finished [took 53.4860s]
+11/11/23 15:00:00| INFO        mul3w_sld finished [took 68.6692s]
+11/11/23 15:00:02| INFO        atc_mc finished [took 56.8460s]
+11/11/23 15:00:04| INFO        mul_sld finished [took 77.8829s]
+11/11/23 15:00:04| INFO     Dataset sample 0.30 of dataset rcv1_CCAT_9prevs finished [took 81.6584s]
+11/11/23 15:00:04| INFO     Dataset sample 0.40 of dataset rcv1_CCAT_9prevs started
+11/11/23 15:01:12| INFO        ref finished [took 52.5890s]
+11/11/23 15:01:18| INFO        mul3w_sld finished [took 66.3191s]
+11/11/23 15:01:18| INFO        atc_mc finished [took 55.8094s]
+11/11/23 15:01:23| INFO        mul_sld finished [took 76.2650s]
+11/11/23 15:01:23| INFO     Dataset sample 0.40 of dataset rcv1_CCAT_9prevs finished [took 78.8604s]
+11/11/23 15:01:23| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_9prevs started
+11/11/23 15:02:30| INFO        ref finished [took 52.1273s]
+11/11/23 15:02:39| INFO        mul3w_sld finished [took 67.7736s]
+11/11/23 15:02:41| INFO        atc_mc finished [took 58.1392s]
+11/11/23 15:02:47| INFO        mul_sld finished [took 80.6840s]
+11/11/23 15:02:47| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_9prevs finished [took 84.0856s]
+11/11/23 15:02:47| INFO     Dataset sample 0.60 of dataset rcv1_CCAT_9prevs started
+11/11/23 15:03:54| INFO        ref finished [took 51.3613s]
+11/11/23 15:03:59| INFO        mul3w_sld finished [took 64.3562s]
+11/11/23 15:04:03| INFO        atc_mc finished [took 57.0352s]
+11/11/23 15:04:10| INFO        mul_sld finished [took 79.8549s]
+11/11/23 15:04:10| INFO     Dataset sample 0.60 of dataset rcv1_CCAT_9prevs finished [took 82.9290s]
+11/11/23 15:04:10| INFO     Dataset sample 0.70 of dataset rcv1_CCAT_9prevs started
+11/11/23 15:05:20| INFO        ref finished [took 52.6105s]
+11/11/23 15:05:25| INFO        mul3w_sld finished [took 66.7591s]
+11/11/23 15:05:27| INFO        atc_mc finished [took 55.8870s]
+11/11/23 15:05:34| INFO        mul_sld finished [took 80.9824s]
+11/11/23 15:05:34| INFO     Dataset sample 0.70 of dataset rcv1_CCAT_9prevs finished [took 84.2673s]
+11/11/23 15:05:34| INFO     Dataset sample 0.80 of dataset rcv1_CCAT_9prevs started
+11/11/23 15:06:45| INFO        ref finished [took 53.6830s]
+11/11/23 15:06:50| INFO        mul3w_sld finished [took 67.4974s]
+11/11/23 15:06:53| INFO        atc_mc finished [took 57.2897s]
+11/11/23 15:06:59| INFO        mul_sld finished [took 81.3697s]
+11/11/23 15:06:59| INFO     Dataset sample 0.80 of dataset rcv1_CCAT_9prevs finished [took 84.7980s]
+11/11/23 15:06:59| INFO     Dataset sample 0.90 of dataset rcv1_CCAT_9prevs started
+11/11/23 15:08:08| INFO        ref finished [took 54.0902s]
+11/11/23 15:08:14| INFO        mul3w_sld finished [took 66.9136s]
+11/11/23 15:08:16| INFO        atc_mc finished [took 57.8269s]
+11/11/23 15:08:39| INFO        mul_sld finished [took 96.4137s]
+11/11/23 15:08:39| INFO     Dataset sample 0.90 of dataset rcv1_CCAT_9prevs finished [took 99.5541s]
+----------------------------------------------------------------------------------------------------
+11/11/23 18:04:49| INFO     dataset imdb_9prevs
+11/11/23 18:05:00| INFO     Dataset sample 0.10 of dataset imdb_9prevs started
+11/11/23 18:05:30| INFO        ref finished [took 26.1862s]
+11/11/23 18:05:37| INFO        atc_mc finished [took 32.4255s]
+11/11/23 18:05:42| INFO        mul3w_sld finished [took 38.9162s]
+11/11/23 18:06:19| INFO        mul_sld finished [took 76.8053s]
+11/11/23 18:06:19| INFO     Dataset sample 0.10 of dataset imdb_9prevs finished [took 79.1732s]
+11/11/23 18:06:19| INFO     Dataset sample 0.20 of dataset imdb_9prevs started
+11/11/23 18:06:51| INFO        ref finished [took 27.6356s]
+11/11/23 18:06:58| INFO        atc_mc finished [took 33.5521s]
+11/11/23 18:07:01| INFO        mul3w_sld finished [took 38.2698s]
+11/11/23 18:07:26| INFO        mul_sld finished [took 63.9553s]
+11/11/23 18:07:26| INFO     Dataset sample 0.20 of dataset imdb_9prevs finished [took 66.8514s]
+11/11/23 18:07:26| INFO     Dataset sample 0.30 of dataset imdb_9prevs started
+11/11/23 18:08:02| INFO        ref finished [took 27.3880s]
+11/11/23 18:08:09| INFO        atc_mc finished [took 34.5060s]
+11/11/23 18:08:12| INFO        mul3w_sld finished [took 38.3408s]
+11/11/23 18:08:23| INFO        mul_sld finished [took 50.5943s]
+11/11/23 18:08:23| INFO     Dataset sample 0.30 of dataset imdb_9prevs finished [took 57.8801s]
+11/11/23 18:08:23| INFO     Dataset sample 0.40 of dataset imdb_9prevs started
+11/11/23 18:08:57| INFO        ref finished [took 27.9013s]
+11/11/23 18:09:03| INFO        atc_mc finished [took 33.7677s]
+11/11/23 18:09:06| INFO        mul3w_sld finished [took 37.6649s]
+11/11/23 18:09:18| INFO        mul_sld finished [took 51.5975s]
+11/11/23 18:09:18| INFO     Dataset sample 0.40 of dataset imdb_9prevs finished [took 54.8989s]
+11/11/23 18:09:18| INFO     Dataset sample 0.50 of dataset imdb_9prevs started
+11/11/23 18:09:53| INFO        ref finished [took 28.6798s]
+11/11/23 18:10:00| INFO        atc_mc finished [took 35.3206s]
+11/11/23 18:10:03| INFO        mul3w_sld finished [took 38.9082s]
+11/11/23 18:10:15| INFO        mul_sld finished [took 52.0709s]
+11/11/23 18:10:15| INFO     Dataset sample 0.50 of dataset imdb_9prevs finished [took 56.2785s]
+11/11/23 18:10:15| INFO     Dataset sample 0.60 of dataset imdb_9prevs started
+11/11/23 18:10:48| INFO        ref finished [took 28.5387s]
+11/11/23 18:10:55| INFO        atc_mc finished [took 34.9152s]
+11/11/23 18:10:58| INFO        mul3w_sld finished [took 39.0343s]
+11/11/23 18:11:07| INFO        mul_sld finished [took 49.9013s]
+11/11/23 18:11:07| INFO     Dataset sample 0.60 of dataset imdb_9prevs finished [took 52.8028s]
+11/11/23 18:11:07| INFO     Dataset sample 0.70 of dataset imdb_9prevs started
+11/11/23 18:11:43| INFO        ref finished [took 29.2208s]
+11/11/23 18:11:50| INFO        atc_mc finished [took 36.2494s]
+11/11/23 18:11:54| INFO        mul3w_sld finished [took 39.4380s]
+11/11/23 18:12:02| INFO        mul_sld finished [took 50.3782s]
+11/11/23 18:12:02| INFO     Dataset sample 0.70 of dataset imdb_9prevs finished [took 54.9711s]
+11/11/23 18:12:02| INFO     Dataset sample 0.80 of dataset imdb_9prevs started
+11/11/23 18:12:37| INFO        ref finished [took 28.2535s]
+11/11/23 18:12:45| INFO        atc_mc finished [took 34.9431s]
+11/11/23 18:12:47| INFO        mul3w_sld finished [took 38.4049s]
+11/11/23 18:12:56| INFO        mul_sld finished [took 48.3663s]
+11/11/23 18:12:56| INFO     Dataset sample 0.80 of dataset imdb_9prevs finished [took 53.7749s]
+11/11/23 18:12:56| INFO     Dataset sample 0.90 of dataset imdb_9prevs started
+11/11/23 18:13:28| INFO        ref finished [took 27.5002s]
+11/11/23 18:13:35| INFO        atc_mc finished [took 34.2726s]
+11/11/23 18:13:41| INFO        mul3w_sld finished [took 41.9968s]
+11/11/23 18:13:54| INFO        mul_sld finished [took 56.7537s]
+11/11/23 18:13:54| INFO     Dataset sample 0.90 of dataset imdb_9prevs finished [took 58.1750s]

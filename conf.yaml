@@ -5,16 +5,13 @@ debug_conf: &debug_conf
     DATASET_N_PREVS: 9
 
   confs:
-    - DATASET_NAME: rcv1
-      DATASET_TARGET: CCAT
+    - DATASET_NAME: imdb
 
   plot_confs:
-    debug:
+    debug_gs:
       PLOT_ESTIMATORS:
-        - binc_sld
-        - binmc_sld
-        - binne_sld
-        - bin_sld
+        - mul_sld
+        - mul3w_sld
         - atc_mc
       PLOT_STDEV: true
 
@@ -224,4 +221,4 @@ main_conf: &main_conf
       - atc_ne
       - doc_feat
 
-exec: *mc_conf
+exec: *debug_conf

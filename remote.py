@@ -21,10 +21,12 @@ __to_sync_up = {
     "dir": [
         "quacc",
         "baselines",
+        "qcpanel",
     ],
     "file": [
         "conf.yaml",
         "run.py",
+        "pyproject.toml",
     ],
 }
 __to_sync_down = {
@@ -60,10 +62,13 @@ def put_dir(sftp: paramiko.SFTPClient, from_: Path, to_: Path):
         elif (from_ / f).is_dir():
             _ex_list += put_dir(sftp, from_ / f, to_ / f)
 
-    to_list = sftp.listdir(str(to_))
-    for f in to_list:
-        if f not in from_list:
-            _ex_list += prune_remote(sftp, to_ / f)
+    try:
+        to_list = sftp.listdir(str(to_))
+        for f in to_list:
+            if f not in from_list:
+                _ex_list += prune_remote(sftp, to_ / f)
+    except FileNotFoundError:
+        pass
 
     return _ex_list
 
@@ -78,10 +83,10 @@ def get_dir(sftp: paramiko.SFTPClient, from_: Path, to_: Path):
         mode = sftp.stat(str(from_ / f)).st_mode
         if stat.S_ISDIR(mode):
             _ex_list += get_dir(sftp, from_ / f, to_ / f)
-            _ex_list.append([sftp.rmdir, str(from_ / f)])
+            # _ex_list.append([sftp.rmdir, str(from_ / f)])
         elif stat.S_ISREG(mode):
             _ex_list.append([sftp.get, str(from_ / f), str(to_ / f)])
-            _ex_list.append([sftp.remove, str(from_ / f)])
+            # _ex_list.append([sftp.remove, str(from_ / f)])
 
     return _ex_list
 

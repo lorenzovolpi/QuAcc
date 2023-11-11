@@ -42,7 +42,7 @@
 - [x] testare anche su imbd
 
 - [x] aggiungere esecuzione remota via ssh
-- [ ] testare confidence con sia max_conf che exntropy
+- [x] testare confidence con sia max_conf che exntropy
+- [x] implementare mul3
 - [ ] rivedere nuove baselines
 - [ ] importare nuovi dataset
-- [ ] implementare mul3

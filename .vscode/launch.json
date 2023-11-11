@@ -9,7 +9,7 @@
             "name": "main",
             "type": "python",
             "request": "launch",
-            "program": "C:\\Users\\Lorenzo Volpi\\source\\tesi\\quacc\\main.py",
+            "program": "~/source/tesi/quacc/main.py",
             "console": "integratedTerminal",
             "justMyCode": true
         },

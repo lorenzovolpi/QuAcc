@@ -20,13 +20,20 @@ from quapy.data import LabelledCollection
 #
 
 
+class ExtensionPolicy:
+    def __init__(self, collapse_false=False):
+        self.collapse_false = collapse_false
+
+
 class ExtendedData:
     def __init__(
         self,
         instances: np.ndarray | sp.csr_matrix,
         pred_proba: np.ndarray,
         ext: np.ndarray = None,
+        extpol=None,
     ):
+        self.extpol = ExtensionPolicy() if extpol is None else extpol
         self.b_instances_ = instances
         self.pred_proba_ = pred_proba
         self.ext_ = ext
@@ -89,14 +96,31 @@ class ExtendedData:
 
 
 class ExtendedLabels:
-    def __init__(self, true: np.ndarray, pred: np.ndarray, ncl: np.ndarray):
+    def __init__(
+        self,
+        true: np.ndarray,
+        pred: np.ndarray,
+        ncl: np.ndarray,
+        extpol: ExtensionPolicy = None,
+    ):
+        self.extpol = ExtensionPolicy() if extpol is None else extpol
         self.true = true
         self.pred = pred
         self.ncl = ncl
 
     @property
     def y(self):
-        return self.true * self.ncl + self.pred
+        if self.extpol.collapse_false:
+            return self.true + self.pred
+        else:
+            return self.true * self.ncl + self.pred
+
+    @property
+    def classes(self):
+        if self.extpol.collapse_false:
+            return np.arange(self.ncl + 1)
+        else:
+            return np.arange(self.ncl**2)
 
     def __getitem__(self, idx):
         return ExtendedLabels(self.true[idx], self.pred[idx], self.ncl)
@@ -109,8 +133,10 @@ class ExtendedCollection(LabelledCollection):
         labels: np.ndarray,
         pred_proba: np.ndarray = None,
         ext: np.ndarray = None,
+        extpol=None,
     ):
-        e_data, e_labels, _classes = self.__extend_collection(
+        self.extpol = ExtensionPolicy() if extpol is None else extpol
+        e_data, e_labels = self.__extend_collection(
             instances=instances,
             labels=labels,
             pred_proba=pred_proba,
@@ -118,16 +144,19 @@ class ExtendedCollection(LabelledCollection):
         )
         self.e_data_ = e_data
         self.e_labels_ = e_labels
-        super().__init__(e_data.X, e_labels.y, classes=_classes)
+        super().__init__(e_data.X, e_labels.y, classes=e_labels.classes)
 
     @classmethod
     def from_lc(
         cls,
         lc: LabelledCollection,
-        predict_proba: np.ndarray,
+        pred_proba: np.ndarray,
         ext: np.ndarray = None,
+        extpol=None,
     ):
-        return ExtendedCollection(lc.X, lc.y, pred_proba=predict_proba, ext=ext)
+        return ExtendedCollection(
+            lc.X, lc.y, pred_proba=pred_proba, ext=ext, extpol=extpol
+        )
 
     @property
     def pred_proba(self):
@@ -145,6 +174,13 @@ class ExtendedCollection(LabelledCollection):
     def ey(self):
         return self.e_labels_
 
+    def counts(self):
+        _counts = super().counts()
+        if self.extpol.collapse_false:
+            _counts = np.insert(_counts, 2, 0)
+
+        return _counts
+
     def split_by_pred(self):
         _ncl = len(self.pred_proba)
         _instances, _indexes = self.e_data_.split_by_pred(return_indexes=True)
@@ -160,13 +196,14 @@ class ExtendedCollection(LabelledCollection):
         labels: np.ndarray,
         pred_proba: np.ndarray,
         ext: np.ndarray = None,
-    ) -> Tuple[ExtendedData, ExtendedLabels, np.ndarray]:
-        n_classes = np.unique(labels).shape[0]
+        extpol=None,
+    ) -> Tuple[ExtendedData, ExtendedLabels]:
+        n_classes = pred_proba.shape[1]
         # n_X = [ X | predicted probs. ]
-        e_instances = ExtendedData(instances, pred_proba, ext=ext)
+        e_instances = ExtendedData(instances, pred_proba, ext=ext, extpol=self.extpol)
 
         # n_y = (exptected y, predicted y)
         preds = np.argmax(pred_proba, axis=-1)
-        e_labels = ExtendedLabels(labels, preds, n_classes)
+        e_labels = ExtendedLabels(labels, preds, n_classes, extpol=self.extpol)
 
-        return e_instances, e_labels, np.arange(n_classes**2)
+        return e_instances, e_labels

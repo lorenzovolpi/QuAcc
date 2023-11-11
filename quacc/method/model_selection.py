@@ -174,6 +174,7 @@ class GridSearchAE(BaseAccuracyEstimator):
         except Exception as e:
             self._sout(f"something went wrong for config {params}; skipping:")
             self._sout(f"\tException: {e}")
+
             score = None
 
         return params, score, model
