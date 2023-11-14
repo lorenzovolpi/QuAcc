@@ -1,6 +1,7 @@
 *.code-workspace
 quavenv/*
 *.pdf
+.venv/*
 
 __pycache__/*
 baselines/__pycache__/*
@@ -10,6 +11,8 @@ quacc/__pycache__/*
 quacc/evaluation/__pycache__/*
 quacc/method/__pycache__/*
 tests/__pycache__/*
+tests/*/__pycache__/*
+tests/*/*/__pycache__/*
 
 *.coverage
 .coverage
