@@ -48,7 +48,7 @@ test_conf: &test_conf
 
   confs:
     - DATASET_NAME: rcv1
-      DATASET_TARGET: CCAT
+      DATASET_TARGET: GCAT
     # - DATASET_NAME: imdb
 
   plot_confs:
