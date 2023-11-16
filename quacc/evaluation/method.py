@@ -17,7 +17,7 @@ _sld_param_grid = {
     "q__classifier__C": np.logspace(-3, 3, 7),
     "q__classifier__class_weight": [None, "balanced"],
     "q__recalib": [None, "bcts"],
-    "confidence": [["max_conf", "entropy"]],
+    "confidence": [["max_conf"], ["entropy"], ["max_conf", "entropy"]],
 }
 _pacc_param_grid = {
     "q__classifier__C": np.logspace(-3, 3, 7),
@@ -152,6 +152,20 @@ def mulmc_sld(c_model, validation, protocol) -> EvaluationReport:
 
 
 @method
+def mul3wmc_sld(c_model, validation, protocol) -> EvaluationReport:
+    est = MCAE(
+        c_model,
+        SLD(LogisticRegression()),
+        confidence="max_conf",
+        collapse_false=True,
+    ).fit(validation)
+    return evaluation_report(
+        estimator=est,
+        protocol=protocol,
+    )
+
+
+@method
 def binne_sld(c_model, validation, protocol) -> EvaluationReport:
     est = BQAE(
         c_model,
@@ -170,6 +184,20 @@ def mulne_sld(c_model, validation, protocol) -> EvaluationReport:
         c_model,
         SLD(LogisticRegression()),
         confidence="entropy",
+    ).fit(validation)
+    return evaluation_report(
+        estimator=est,
+        protocol=protocol,
+    )
+
+
+@method
+def mul3wne_sld(c_model, validation, protocol) -> EvaluationReport:
+    est = MCAE(
+        c_model,
+        SLD(LogisticRegression()),
+        confidence="entropy",
+        collapse_false=True,
     ).fit(validation)
     return evaluation_report(
         estimator=est,
