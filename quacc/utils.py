@@ -57,3 +57,9 @@ def create_dataser_dir(dir_name, update=False):
     env.PLOT_OUT_DIR = plot_dir_path
     if not plot_dir_path.exists():
         os.mkdir(plot_dir_path)
+
+
+def get_quacc_home():
+    home = Path("~/quacc_home").expanduser()
+    os.makedirs(home, exist_ok=True)
+    return home
