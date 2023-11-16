@@ -1,4 +1,5 @@
 import multiprocessing
+import os
 import time
 from traceback import print_exception as traceback
 from typing import List
@@ -10,7 +11,7 @@ import quapy as qp
 from quacc.dataset import Dataset
 from quacc.environment import env
 from quacc.evaluation import baseline, method
-from quacc.evaluation.report import CompReport, DatasetReport, EvaluationReport
+from quacc.evaluation.report import CompReport, DatasetReport
 from quacc.evaluation.worker import estimate_worker
 from quacc.logger import Logger
 
@@ -74,12 +75,13 @@ class CompEstimator:
 CE = CompEstimator()
 
 
-def evaluate_comparison(dataset: Dataset, estimators=None) -> EvaluationReport:
+def evaluate_comparison(dataset: Dataset, estimators=None) -> DatasetReport:
     log = Logger.logger()
     # with multiprocessing.Pool(1) as pool:
-    with multiprocessing.Pool(len(estimators)) as pool:
+    __pool_size = os.cpu_count() // 2
+    with multiprocessing.Pool(__pool_size) as pool:
         dr = DatasetReport(dataset.name)
-        log.info(f"dataset {dataset.name}")
+        log.info(f"dataset {dataset.name} [pool size: {__pool_size}]")
         for d in dataset():
             log.info(
                 f"Dataset sample {d.train_prev[1]:.2f} of dataset {dataset.name} started"
