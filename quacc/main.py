@@ -37,7 +37,7 @@ def estimate_comparison():
                         conf=plot_conf,
                         metric=m,
                         estimators=CE.name[env.PLOT_ESTIMATORS],
-                        stdev=env.PLOT_STDEV,
+                        plot_path=env.PLOT_OUT_DIR,
                     )
                     with open(output_path, "w") as f:
                         f.write(_repr)
