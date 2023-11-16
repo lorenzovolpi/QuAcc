@@ -18,6 +18,7 @@ main = "quacc.main:main"
 run = "run:run"
 panel = "qcpanel.run:run"
 sync_up = "remote:sync_code"
+sync_down = "remote:sync_output"
 
 
 [tool.poetry.group.dev.dependencies]
