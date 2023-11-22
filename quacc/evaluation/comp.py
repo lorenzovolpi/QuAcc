@@ -29,6 +29,11 @@ class CompEstimatorName_:
         elif isinstance(e, list):
             return list(self.ce._CompEstimator__get(e).keys())
 
+    @property
+    def all(self):
+        all_keys = list(CompEstimator._CompEstimator__dict.keys())
+        return self[all_keys]
+
 
 class CompEstimatorFunc_:
     def __init__(self, ce):
@@ -78,7 +83,7 @@ CE = CompEstimator()
 def evaluate_comparison(dataset: Dataset, estimators=None) -> DatasetReport:
     log = Logger.logger()
     # with multiprocessing.Pool(1) as pool:
-    __pool_size = os.cpu_count() // 2
+    __pool_size = round(os.cpu_count() * 0.8)
     with multiprocessing.Pool(__pool_size) as pool:
         dr = DatasetReport(dataset.name)
         log.info(f"dataset {dataset.name} [pool size: {__pool_size}]")
