@@ -137,10 +137,10 @@ add_conf: &add_conf
     DATASET_N_PREVS: 9
 
   confs:
+    - DATASET_NAME: imdb
+  confs_next:
     - DATASET_NAME: rcv1
       DATASET_TARGET: CCAT
-  confs_next:
-    - DATASET_NAME: imdb
     - DATASET_NAME: rcv1
       DATASET_TARGET: GCAT
     - DATASET_NAME: rcv1

@@ -27,6 +27,7 @@ __to_sync_up = {
         "conf.yaml",
         "run.py",
         "remote.py",
+        "merge_data.py",
         "pyproject.toml",
     ],
 }
