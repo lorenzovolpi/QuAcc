@@ -15,7 +15,7 @@ username = "volpi"
 
 __exec_main = "cd tesi; /home/volpi/.local/bin/poetry run main"
 __exec_log = "/usr/bin/tail -f -n 0 tesi/quacc.log"
-__log_file = "quacc.log"
+__log_file = "remote.log"
 __target_dir = Path("/home/volpi/tesi")
 __to_sync_up = {
     "dir": [
@@ -161,8 +161,9 @@ def _echo_log(ssh: paramiko.SSHClient, q_: queue.Queue):
     _, rout, _ = ssh.exec_command(__exec_log, timeout=5.0)
     while True:
         try:
+            _line = rout.readline()
             with open(__log_file, "a") as f:
-                f.write(rout.readline())
+                f.write(_line)
         except TimeoutError:
             pass
 
@@ -173,15 +174,23 @@ def _echo_log(ssh: paramiko.SSHClient, q_: queue.Queue):
             pass
 
 
-def remote():
+def remote(detatch=False):
     ssh = paramiko.SSHClient()
     ssh.load_host_keys(known_hosts)
     ssh.connect(hostname=hostname, username=username)
     sync_code(ssh=ssh)
 
-    _, rout, rerr = ssh.exec_command(__exec_main)
-    q = queue.Queue()
+    __to_exec = __exec_main
+    if detatch:
+        __to_exec += " &> out & disown"
 
+    _, rout, rerr = ssh.exec_command(__to_exec)
+
+    if detatch:
+        ssh.close()
+        return
+
+    q = queue.Queue()
     _tlog = threading.Thread(target=_echo_log, args=[ssh, q])
     _tlog.start()
 
@@ -196,6 +205,30 @@ def remote():
     q.put(None)
 
     sync_output(ssh=ssh)
+    _tlog.join()
+
+    ssh.close()
+
+
+def log_remote():
+    ssh = paramiko.SSHClient()
+    ssh.load_host_keys(known_hosts)
+    ssh.connect(hostname=hostname, username=username)
+
+    sftp = ssh.open_sftp()
+    sftp.get(str(__target_dir / "quacc.log"), str(Path(__log_file).absolute()))
+    sftp.close()
+
+    q = queue.Queue()
+    _tlog = threading.Thread(target=_echo_log, args=[ssh, q])
+    _tlog.start()
+
+    try:
+        input()
+    except KeyboardInterrupt:
+        pass
+    finally:
+        q.put(None)
 
     _tlog.join()
     ssh.close()
