@@ -12,6 +12,8 @@ from quacc.evaluation.report import DatasetReport
 
 
 class QuaccTestViewer(param.Parameterized):
+    __base_path = "output"
+
     dataset = param.Selector()
     metric = param.Selector()
     estimators = param.ListSelector()
@@ -30,6 +32,8 @@ class QuaccTestViewer(param.Parameterized):
     param_pane = param.Parameter()
     plot_pane = param.Parameter()
     modal_pane = param.Parameter()
+
+    root = param.String()
 
     def __init__(self, param_init=None, **params):
         super().__init__(**params)
@@ -234,12 +238,14 @@ class QuaccTestViewer(param.Parameterized):
         )
 
     def update_datasets(self):
-        __base_path = "output"
+        if not self.__get_param_init("root"):
+            self.root = self.__base_path
+
         dataset_paths = sorted(
-            explore_datasets(__base_path), key=lambda t: (-len(t.parts), t)
+            explore_datasets(self.root), key=lambda t: (-len(t.parts), t)
         )
         self.datasets_ = {
-            str(dp.parent.relative_to(Path(__base_path))): DatasetReport.unpickle(dp)
+            str(dp.parent.relative_to(Path(self.root))): DatasetReport.unpickle(dp)
             for dp in dataset_paths
         }
 

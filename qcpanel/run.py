@@ -13,12 +13,13 @@ def app_instance():
     param_init = {
         k: v
         for k, v in pn.state.location.query_params.items()
-        if k in ["dataset", "metric", "plot_view", "mode", "estimators"]
+        if k in ["root", "dataset", "metric", "plot_view", "mode", "estimators"]
     }
     qtv = QuaccTestViewer(param_init=param_init)
     pn.state.location.sync(
         qtv,
         {
+            "root": "root",
             "dataset": "dataset",
             "metric": "metric",
             "plot_view": "plot_view",
