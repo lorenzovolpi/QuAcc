@@ -1,3 +1,4 @@
+import json
 import pickle
 from pathlib import Path
 from typing import List, Tuple
@@ -14,12 +15,16 @@ def _get_metric(metric: str):
 
 
 def _get_estimators(estimators: List[str], cols: np.ndarray):
-    return slice(None) if estimators is None else cols[np.in1d(cols, estimators)]
+    if estimators is None:
+        return slice(None)
+
+    estimators = np.array(estimators)
+    return estimators[np.isin(estimators, cols)]
 
 
 class EvaluationReport:
     def __init__(self, name=None):
-        self.data: pd.DataFrame = None
+        self.data: pd.DataFrame | None = None
         self.fit_score = None
         self.name = name if name is not None else "default"
 
@@ -55,36 +60,36 @@ class EvaluationReport:
 
 class CompReport:
     _default_modes = [
-        "delta",
-        "delta_stdev",
-        "diagonal",
+        "delta_train",
+        "stdev_train",
+        "train_table",
         "shift",
-        "table",
         "shift_table",
+        "diagonal",
     ]
 
     def __init__(
         self,
-        reports: List[EvaluationReport],
+        datas: List[EvaluationReport] | pd.DataFrame,
         name="default",
-        train_prev=None,
-        valid_prev=None,
+        train_prev: np.ndarray = None,
+        valid_prev: np.ndarray = None,
         times=None,
     ):
-        self._data = (
-            pd.concat(
-                [er.data for er in reports],
-                keys=[er.name for er in reports],
-                axis=1,
+        if isinstance(datas, pd.DataFrame):
+            self._data: pd.DataFrame = datas
+        else:
+            self._data: pd.DataFrame = (
+                pd.concat(
+                    [er.data for er in datas],
+                    keys=[er.name for er in datas],
+                    axis=1,
+                )
+                .swaplevel(0, 1, axis=1)
+                .sort_index(axis=1, level=0, sort_remaining=False)
+                .sort_index(axis=0, level=0)
             )
-            .swaplevel(0, 1, axis=1)
-            .sort_index(axis=1, level=0, sort_remaining=False)
-            .sort_index(axis=0, level=0)
-        )
 
-        self.fit_scores = {
-            er.name: er.fit_score for er in reports if er.fit_score is not None
-        }
         self.train_prev = train_prev
         self.valid_prev = valid_prev
         self.times = times
@@ -97,9 +102,46 @@ class CompReport:
     def np_prevs(self) -> np.ndarray:
         return np.around([(1.0 - p, p) for p in self.prevs], decimals=2)
 
+    def join(self, other, how="update", estimators=None):
+        if how not in ["update"]:
+            how = "update"
+
+        if not (self.train_prev == other.train_prev).all():
+            raise ValueError(
+                f"self has train prev. {self.train_prev} while other has {other.train_prev}"
+            )
+
+        self_data = self.data(estimators=estimators)
+        other_data = other.data(estimators=estimators)
+
+        if not (self_data.index == other_data.index).all():
+            raise ValueError("self and other have different indexes")
+
+        update_col = self_data.columns.intersection(other_data.columns)
+        other_join_col = other_data.columns.difference(update_col)
+
+        _join = pd.concat(
+            [self_data, other_data.loc[:, other_join_col.to_list()]],
+            axis=1,
+        )
+        _join.loc[:, update_col.to_list()] = other_data.loc[:, update_col.to_list()]
+        _join.sort_index(axis=1, level=0, sort_remaining=False, inplace=True)
+
+        df = CompReport(
+            _join,
+            self.name if hasattr(self, "name") else "default",
+            self.train_prev,
+            self.valid_prev,
+            self.times | other.times,
+        )
+
+        return df
+
     def data(self, metric: str = None, estimators: List[str] = None) -> pd.DataFrame:
         _metric = _get_metric(metric)
-        _estimators = _get_estimators(estimators, self._data.columns.unique(1))
+        _estimators = _get_estimators(
+            estimators, self._data.loc[:, (_metric, slice(None))].columns.unique(1)
+        )
         f_data: pd.DataFrame = self._data.copy().loc[:, (_metric, _estimators)]
 
         if len(f_data.columns.unique(0)) == 1:
@@ -127,7 +169,9 @@ class CompReport:
         shift_data = shift_data.sort_index(axis=0, level=0)
 
         _metric = _get_metric(metric)
-        _estimators = _get_estimators(estimators, shift_data.columns.unique(1))
+        _estimators = _get_estimators(
+            estimators, shift_data.loc[:, (_metric, slice(None))].columns.unique(1)
+        )
         shift_data: pd.DataFrame = shift_data.loc[:, (_metric, _estimators)]
 
         if len(shift_data.columns.unique(0)) == 1:
@@ -170,8 +214,11 @@ class CompReport:
         return_fig=False,
         base_path=None,
     ) -> List[Tuple[str, Path]]:
-        if mode == "delta":
+        if mode == "delta_train":
             avg_data = self.avg_by_prevs(metric=metric, estimators=estimators)
+            if avg_data.empty is True:
+                return None
+
             return plot.plot_delta(
                 base_prevs=self.np_prevs,
                 columns=avg_data.columns.to_numpy(),
@@ -182,8 +229,11 @@ class CompReport:
                 return_fig=return_fig,
                 base_path=base_path,
             )
-        elif mode == "delta_stdev":
+        elif mode == "stdev_train":
             avg_data = self.avg_by_prevs(metric=metric, estimators=estimators)
+            if avg_data.empty is True:
+                return None
+
             st_data = self.stdev_by_prevs(metric=metric, estimators=estimators)
             return plot.plot_delta(
                 base_prevs=self.np_prevs,
@@ -198,6 +248,9 @@ class CompReport:
             )
         elif mode == "diagonal":
             f_data = self.data(metric=metric + "_score", estimators=estimators)
+            if f_data.empty is True:
+                return None
+
             ref: pd.Series = f_data.loc[:, "ref"]
             f_data.drop(columns=["ref"], inplace=True)
             return plot.plot_diagonal(
@@ -212,6 +265,9 @@ class CompReport:
             )
         elif mode == "shift":
             _shift_data = self.shift_data(metric=metric, estimators=estimators)
+            if _shift_data.empty is True:
+                return None
+
             shift_avg = _shift_data.groupby(level=0).mean()
             shift_counts = _shift_data.groupby(level=0).count()
             shift_prevs = np.around(
@@ -235,7 +291,7 @@ class CompReport:
         conf="default",
         metric="acc",
         estimators=None,
-        modes=["delta", "delta_stdev", "diagonal", "shift", "table", "shift_table"],
+        modes=_default_modes,
         plot_path=None,
     ) -> str:
         res = f"## {int(np.around(self.train_prev, decimals=2)[1]*100)}% positives\n"
@@ -246,7 +302,7 @@ class CompReport:
                 continue
             res += fmt_line_md(f"{k}: {v:.3f}s")
         res += "\n"
-        if "table" in modes:
+        if "train_table" in modes:
             res += "### table\n"
             res += self.table(metric=metric, estimators=estimators).to_html() + "\n\n"
         if "shift_table" in modes:
@@ -256,7 +312,7 @@ class CompReport:
                 + "\n\n"
             )
 
-        plot_modes = [m for m in modes if m not in ["table", "shift_table"]]
+        plot_modes = [m for m in modes if not m.endswith("table")]
         for mode in plot_modes:
             res += f"### {mode}\n"
             op = self.get_plots(
@@ -275,12 +331,12 @@ class DatasetReport:
     _default_dr_modes = [
         "delta_train",
         "stdev_train",
+        "train_table",
+        "shift",
+        "shift_table",
         "delta_test",
         "stdev_test",
-        "shift",
-        "train_table",
         "test_table",
-        "shift_table",
     ]
     _default_cr_modes = CompReport._default_modes
 
@@ -288,7 +344,15 @@ class DatasetReport:
         self.name = name
         self.crs: List[CompReport] = [] if crs is None else crs
 
-    def data(self, metric: str = None, estimators: str = None) -> pd.DataFrame:
+    def join(self, other, estimators=None):
+        _crs = [
+            s_cr.join(o_cr, estimators=estimators)
+            for s_cr, o_cr in zip(self.crs, other.crs)
+        ]
+
+        return DatasetReport(self.name, _crs)
+
+    def data(self, metric: str = None, estimators: List[str] = None) -> pd.DataFrame:
         def _cr_train_prev(cr: CompReport):
             return cr.train_prev[1]
 
@@ -551,9 +615,12 @@ class DatasetReport:
         return self
 
     @classmethod
-    def unpickle(cls, pickle_path: Path):
+    def unpickle(cls, pickle_path: Path, report_info=False):
         with open(pickle_path, "rb") as f:
             dr = pickle.load(f)
+
+        if report_info:
+            return DatasetReportInfo(dr, pickle_path)
 
         return dr
 
@@ -561,173 +628,23 @@ class DatasetReport:
         return (cr for cr in self.crs)
 
 
-def __test():
-    df = None
-    print(f"{df is None = }")
-    if df is None:
-        bp = 0.75
-        idx = 0
-        d = {"a": 0.0, "b": 0.1}
-        df = pd.DataFrame(
-            d,
-            index=pd.MultiIndex.from_tuples([(bp, idx)]),
-            columns=d.keys(),
-        )
-    print(df)
-    print("-" * 100)
+class DatasetReportInfo:
+    def __init__(self, dr: DatasetReport, path: Path):
+        self.dr = dr
+        self.name = str(path.parent)
+        _data = dr.data()
+        self.columns = list(_data.columns.unique(1))
+        self.train_prevs = len(self.dr.crs)
+        self.test_prevs = len(_data.index.unique(1))
+        self.repeats = len(_data.index.unique(2))
 
-    bp = 0.75
-    idx = len(df.loc[bp, :])
-    df.loc[(bp, idx), :] = {"a": 0.2, "b": 0.3}
-    print(df)
-    print("-" * 100)
+    def __repr__(self) -> str:
+        _d = {
+            "train prevs.": self.train_prevs,
+            "test prevs.": self.test_prevs,
+            "repeats": self.repeats,
+            "columns": self.columns,
+        }
+        _r = f"{self.name}\n{json.dumps(_d, indent=2)}\n"
 
-    bp = 0.90
-    idx = len(df.loc[bp, :]) if bp in df.index else 0
-    df.loc[(bp, idx), :] = {"a": 0.2, "b": 0.3}
-    print(df)
-    print("-" * 100)
-
-    bp = 0.90
-    idx = len(df.loc[bp, :]) if bp in df.index else 0
-    d = {"a": 0.2, "v": 0.3, "e": 0.4}
-    notin = np.setdiff1d(list(d.keys()), df.columns)
-    df.loc[:, notin] = np.nan
-    df.loc[(bp, idx), :] = d
-    print(df)
-    print("-" * 100)
-
-    bp = 0.90
-    idx = len(df.loc[bp, :]) if bp in df.index else 0
-    d = {"a": 0.3, "v": 0.4, "e": 0.5}
-    notin = np.setdiff1d(list(d.keys()), df.columns)
-    print(f"{notin = }")
-    df.loc[:, notin] = np.nan
-    df.loc[(bp, idx), :] = d
-    print(df)
-    print("-" * 100)
-    print(f"{np.sort(np.unique(df.index.get_level_values(0))) = }")
-    print("-" * 100)
-
-    print(f"{df.loc[(0.75, ),:] = }\n")
-    print(f"{df.loc[(slice(None), 1),:] = }")
-    print("-" * 100)
-
-    print(f"{(0.75, ) in df.index = }")
-    print(f"{(0.7, ) in df.index = }")
-    print("-" * 100)
-
-    df1 = pd.DataFrame(
-        {
-            "a": np.linspace(0.0, 1.0, 6),
-            "b": np.linspace(1.0, 2.0, 6),
-            "e": np.linspace(2.0, 3.0, 6),
-            "v": np.linspace(0.0, 1.0, 6),
-        },
-        index=pd.MultiIndex.from_product([[0.75, 0.9], [0, 1, 2]]),
-        columns=["a", "b", "e", "v"],
-    )
-
-    df2 = (
-        pd.concat([df, df1], keys=["a", "b"], axis=1)
-        .swaplevel(0, 1, axis=1)
-        .sort_index(axis=1, level=0)
-    )
-    df3 = pd.concat([df1, df], keys=["b", "a"], axis=1)
-    print(df)
-    print(df1)
-    print(df2)
-    print(df3)
-    df = df3
-    print("-" * 100)
-
-    print(df.loc[:, ("b", ["e", "v"])])
-    print(df.loc[:, (slice(None), ["e", "v"])])
-    print(df.loc[:, ("b", slice(None))])
-    print(df.loc[:, ("b", slice(None))].droplevel(level=0, axis=1))
-    print(df.loc[:, (slice(None), ["e", "v"])].droplevel(level=0, axis=1))
-    print(len(df.loc[:, ("b", slice(None))].columns.unique(0)))
-    print("-" * 100)
-
-    idx_0 = np.around(np.abs(df.index.get_level_values(0).to_numpy() - 0.8), decimals=2)
-    midx = pd.MultiIndex.from_arrays([idx_0, df.index.get_level_values(1)])
-    print(midx)
-    dfs = df.copy()
-    dfs.index = midx
-    print(df)
-    print(dfs)
-    print("-" * 100)
-
-    df.loc[(0.85, 0), :] = np.linspace(0, 1, 8)
-    df.loc[(0.85, 1), :] = np.linspace(0, 1, 8)
-    df.loc[(0.85, 2), :] = np.linspace(0, 1, 8)
-    idx_0 = np.around(np.abs(df.index.get_level_values(0).to_numpy() - 0.8), decimals=2)
-    print(np.where(idx_0 == 0.05))
-    idx_1 = np.empty(shape=idx_0.shape, dtype="<i4")
-    print(idx_1)
-    for _id in np.unique(idx_0):
-        wh = np.where(idx_0 == _id)[0]
-        idx_1[wh] = np.arange(wh.shape[0])
-    midx = pd.MultiIndex.from_arrays([idx_0, idx_1])
-    dfs = df.copy()
-    dfs.index = midx
-    dfs.sort_index(level=0, axis=0, inplace=True)
-    print(df)
-    print(dfs)
-    print("-" * 100)
-
-    print(np.sort(dfs.index.unique(0)))
-    print("-" * 100)
-
-    print(df.groupby(level=0).mean())
-    print(dfs.groupby(level=0).mean())
-    print("-" * 100)
-
-    s = df.mean(axis=0)
-    dfa = df.groupby(level=0).mean()
-    dfa.loc["avg", :] = s
-    print(dfa)
-    print("-" * 100)
-
-    print(df)
-    dfn = df.loc[:, (slice(None), slice(None))]
-    print(dfn)
-    print(f"{df is dfn = }")
-    print("-" * 100)
-
-    a = np.array(["abc", "bcd", "cde", "bcd"], dtype="object")
-    print(a)
-    whb = np.where(a == "bcd")[0]
-    if len(whb) > 0:
-        a = np.insert(a, whb + 1, "pippo")
-    print(a)
-    print("-" * 100)
-
-    dff: pd.DataFrame = df.loc[:, ("a",)]
-    print(dff.to_dict(orient="list"))
-    dff = dff.drop(columns=["v"])
-    print(dff)
-    s: pd.Series = dff.loc[:, "e"]
-    print(s)
-    print(s.to_numpy())
-    print(type(s.to_numpy()))
-    print("-" * 100)
-
-    df3 = pd.concat([df, df], axis=0, keys=[0.5, 0.3]).sort_index(axis=0, level=0)
-    print(df3)
-    df3n = pd.concat([df, df], axis=0).sort_index(axis=0, level=0)
-    print(df3n)
-    df = df3
-    print("-" * 100)
-
-    print(df.groupby(level=1).mean(), df.groupby(level=1).count())
-    print("-" * 100)
-
-    print(df)
-    for ls in df.T.to_numpy():
-        print(ls)
-    print("-" * 100)
-
-
-if __name__ == "__main__":
-    __test()
+        return _r
