@@ -21,5 +21,13 @@
             "console": "integratedTerminal",
             "justMyCode": false
         },
+        {
+            "name": "panel",
+            "type": "python",
+            "request": "launch",
+            "program": "~/source/tesi/qcpanel/run.py",
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
     ]
 }
