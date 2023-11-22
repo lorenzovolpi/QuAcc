@@ -41,7 +41,11 @@ def estimate_comparison():
             n_prevalences=env.DATASET_N_PREVS,
             prevs=env.DATASET_PREVS,
         )
-        create_dataser_dir(dataset.name, update=env.DATASET_DIR_UPDATE)
+        create_dataser_dir(
+            dataset.name,
+            update=env.DATASET_DIR_UPDATE,
+            create_md=CREATE_MD,
+        )
         Logger.add_handler(env.OUT_DIR / f"{dataset.name}.log")
         try:
             dr = comp.evaluate_comparison(
