@@ -1,0 +1,38 @@
+----------------------------------------------------------------------------------------------------
+21/11/23 14:33:02| INFO     dataset rcv1_CCAT [pool size: 10]
+21/11/23 14:33:06| INFO     Dataset sample 0.10 of dataset rcv1_CCAT started
+21/11/23 14:33:41| INFO        ref finished [took 32.5095s]
+21/11/23 14:44:47| INFO        mandoline finished [took 695.3280s]
+21/11/23 14:44:47| INFO     Dataset sample 0.10 of dataset rcv1_CCAT finished [took 700.7217s]
+21/11/23 14:44:47| INFO     Dataset sample 0.20 of dataset rcv1_CCAT started
+21/11/23 14:45:21| INFO        ref finished [took 30.8301s]
+21/11/23 14:56:12| INFO        mandoline finished [took 679.5898s]
+21/11/23 14:56:12| INFO     Dataset sample 0.20 of dataset rcv1_CCAT finished [took 685.3558s]
+21/11/23 14:56:12| INFO     Dataset sample 0.30 of dataset rcv1_CCAT started
+21/11/23 14:56:45| INFO        ref finished [took 29.9331s]
+21/11/23 15:07:41| INFO        mandoline finished [took 684.4579s]
+21/11/23 15:07:41| INFO     Dataset sample 0.30 of dataset rcv1_CCAT finished [took 689.1060s]
+21/11/23 15:07:41| INFO     Dataset sample 0.40 of dataset rcv1_CCAT started
+21/11/23 15:08:13| INFO        ref finished [took 29.6161s]
+21/11/23 15:18:50| INFO        mandoline finished [took 665.9347s]
+21/11/23 15:18:50| INFO     Dataset sample 0.40 of dataset rcv1_CCAT finished [took 669.0968s]
+21/11/23 15:18:51| INFO     Dataset sample 0.50 of dataset rcv1_CCAT started
+21/11/23 15:19:24| INFO        ref finished [took 30.2475s]
+21/11/23 15:29:58| INFO        mandoline finished [took 662.8145s]
+21/11/23 15:29:58| INFO     Dataset sample 0.50 of dataset rcv1_CCAT finished [took 667.2259s]
+21/11/23 15:29:58| INFO     Dataset sample 0.60 of dataset rcv1_CCAT started
+21/11/23 15:30:30| INFO        ref finished [took 30.2155s]
+21/11/23 15:42:54| INFO        mandoline finished [took 772.9461s]
+21/11/23 15:42:54| INFO     Dataset sample 0.60 of dataset rcv1_CCAT finished [took 776.5262s]
+21/11/23 15:42:54| INFO     Dataset sample 0.70 of dataset rcv1_CCAT started
+21/11/23 15:43:35| INFO        ref finished [took 35.6520s]
+21/11/23 16:06:02| INFO        mandoline finished [took 1381.6871s]
+21/11/23 16:06:02| INFO     Dataset sample 0.70 of dataset rcv1_CCAT finished [took 1387.9846s]
+21/11/23 16:06:02| INFO     Dataset sample 0.80 of dataset rcv1_CCAT started
+21/11/23 16:06:46| INFO        ref finished [took 40.1253s]
+21/11/23 16:32:55| INFO        mandoline finished [took 1605.1647s]
+21/11/23 16:32:55| INFO     Dataset sample 0.80 of dataset rcv1_CCAT finished [took 1613.0689s]
+21/11/23 16:32:55| INFO     Dataset sample 0.90 of dataset rcv1_CCAT started
+21/11/23 16:33:41| INFO        ref finished [took 39.0610s]
+21/11/23 16:54:40| INFO        mandoline finished [took 1296.7300s]
+21/11/23 16:54:40| INFO     Dataset sample 0.90 of dataset rcv1_CCAT finished [took 1304.5258s]
