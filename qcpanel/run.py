@@ -9,8 +9,23 @@ from qcpanel.viewer import QuaccTestViewer
 pn.config.notifications = True
 
 
-def serve(address="localhost"):
-    qtv = QuaccTestViewer()
+def app_instance():
+    param_init = {
+        k: v
+        for k, v in pn.state.location.query_params.items()
+        if k in ["dataset", "metric", "plot_view", "mode", "estimators"]
+    }
+    qtv = QuaccTestViewer(param_init=param_init)
+    pn.state.location.sync(
+        qtv,
+        {
+            "dataset": "dataset",
+            "metric": "metric",
+            "plot_view": "plot_view",
+            "mode": "mode",
+            "estimators": "estimators",
+        },
+    )
 
     def save_callback(event):
         app.open_modal()
@@ -48,13 +63,17 @@ def serve(address="localhost"):
     )
 
     app.servable()
+    return app
+
+
+def serve(address="localhost"):
     __port = 33420
     __allowed = [address]
     if address == "localhost":
         __allowed.append("127.0.0.1")
 
     pn.serve(
-        app,
+        app_instance,
         autoreload=True,
         port=__port,
         show=False,
@@ -76,4 +95,4 @@ def run():
 
 
 if __name__ == "__main__":
-    serve()
+    run()
