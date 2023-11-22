@@ -4,15 +4,19 @@ from statistics import mean
 import numpy as np
 import sklearn.metrics as metrics
 from quapy.data import LabelledCollection
-from quapy.protocol import AbstractStochasticSeededProtocol
+from quapy.protocol import APP, AbstractStochasticSeededProtocol
 from scipy.sparse import issparse
 from sklearn.base import BaseEstimator
+from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import cross_validate
 
 import baselines.atc as atc
-import baselines.doc as doc
+import baselines.doc as doclib
+import baselines.gde as gdelib
 import baselines.impweight as iw
+import baselines.mandoline as mandolib
 import baselines.rca as rcalib
+from baselines.utils import clone_fit
 
 from .report import EvaluationReport
 
@@ -157,6 +161,61 @@ def atc_ne(
 
 
 @baseline
+def doc(
+    c_model: BaseEstimator,
+    validation: LabelledCollection,
+    protocol: AbstractStochasticSeededProtocol,
+    predict_method="predict_proba",
+):
+    c_model_predict = getattr(c_model, predict_method)
+    val1, val2 = validation.split_stratified(train_prop=0.5, random_state=0)
+    val1_probs = c_model_predict(val1.X)
+    val1_mc = np.max(val1_probs, axis=-1)
+    val1_preds = np.argmax(val1_probs, axis=-1)
+    val1_acc = metrics.accuracy_score(val1.y, val1_preds)
+    val2_protocol = APP(
+        val2,
+        n_prevalences=21,
+        repeats=100,
+        return_type="labelled_collection",
+    )
+    val2_prot_mc = []
+    val2_prot_preds = []
+    val2_prot_y = []
+    for v2 in val2_protocol():
+        _probs = c_model_predict(v2.X)
+        _mc = np.max(_probs, axis=-1)
+        _preds = np.argmax(_probs, axis=-1)
+        val2_prot_mc.append(_mc)
+        val2_prot_preds.append(_preds)
+        val2_prot_y.append(v2.y)
+
+    val_scores = np.array([doclib.get_doc(val1_mc, v2_mc) for v2_mc in val2_prot_mc])
+    val_targets = np.array(
+        [
+            val1_acc - metrics.accuracy_score(v2_y, v2_preds)
+            for v2_y, v2_preds in zip(val2_prot_y, val2_prot_preds)
+        ]
+    )
+    reg = LinearRegression().fit(
+        val_scores.reshape((val_scores.shape[0], 1)), val_targets
+    )
+
+    report = EvaluationReport(name="doc")
+    for test in protocol():
+        test_probs = c_model_predict(test.X)
+        test_preds = np.argmax(test_probs, axis=-1)
+        test_mc = np.max(test_probs, axis=-1)
+        score = (
+            val1_acc - reg.predict(np.array([[doclib.get_doc(val1_mc, test_mc)]]))[0]
+        )
+        meta_acc = abs(score - metrics.accuracy_score(test.y, test_preds))
+        report.append_row(test.prevalence(), acc=meta_acc, acc_score=score)
+
+    return report
+
+
+@baseline
 def doc_feat(
     c_model: BaseEstimator,
     validation: LabelledCollection,
@@ -197,7 +256,7 @@ def rca(
     for test in protocol():
         try:
             test_pred = c_model_predict(test.X)
-            c_model2 = rcalib.clone_fit(c_model, test.X, test_pred)
+            c_model2 = clone_fit(c_model, test.X, test_pred)
             c_model2_predict = getattr(c_model2, predict_method)
             val_pred2 = c_model2_predict(validation.X)
             rca_score = 1.0 - rcalib.get_score(val_pred1, val_pred2, validation.y)
@@ -224,7 +283,7 @@ def rca_star(
         train_prop=0.5, random_state=0
     )
     val1_pred = c_model_predict(validation1.X)
-    c_model1 = rcalib.clone_fit(c_model, validation1.X, val1_pred)
+    c_model1 = clone_fit(c_model, validation1.X, val1_pred)
     c_model1_predict = getattr(c_model1, predict_method)
     val2_pred1 = c_model1_predict(validation2.X)
 
@@ -232,7 +291,7 @@ def rca_star(
     for test in protocol():
         try:
             test_pred = c_model_predict(test.X)
-            c_model2 = rcalib.clone_fit(c_model, test.X, test_pred)
+            c_model2 = clone_fit(c_model, test.X, test_pred)
             c_model2_predict = getattr(c_model2, predict_method)
             val2_pred2 = c_model2_predict(validation2.X)
             rca_star_score = 1.0 - rcalib.get_score(
@@ -246,6 +305,59 @@ def rca_star(
             report.append_row(
                 test.prevalence(), acc=float("nan"), acc_score=float("nan")
             )
+
+    return report
+
+
+@baseline
+def gde(
+    c_model: BaseEstimator,
+    validation: LabelledCollection,
+    protocol: AbstractStochasticSeededProtocol,
+    predict_method="predict",
+) -> EvaluationReport:
+    c_model_predict = getattr(c_model, predict_method)
+    val1, val2 = validation.split_stratified(train_prop=0.5, random_state=0)
+    c_model1 = clone_fit(c_model, val1.X, val1.y)
+    c_model1_predict = getattr(c_model1, predict_method)
+    c_model2 = clone_fit(c_model, val2.X, val2.y)
+    c_model2_predict = getattr(c_model2, predict_method)
+
+    report = EvaluationReport(name="gde")
+    for test in protocol():
+        test_pred = c_model_predict(test.X)
+        test_pred1 = c_model1_predict(test.X)
+        test_pred2 = c_model2_predict(test.X)
+        score = gdelib.get_score(test_pred1, test_pred2)
+        meta_score = abs(score - metrics.accuracy_score(test.y, test_pred))
+        report.append_row(test.prevalence(), acc=meta_score, acc_score=score)
+
+    return report
+
+
+@baseline
+def mandoline(
+    c_model: BaseEstimator,
+    validation: LabelledCollection,
+    protocol: AbstractStochasticSeededProtocol,
+    predict_method="predict_proba",
+) -> EvaluationReport:
+    c_model_predict = getattr(c_model, predict_method)
+
+    val_probs = c_model_predict(validation.X)
+    val_preds = np.argmax(val_probs, axis=1)
+    D_val = mandolib.get_slices(val_probs)
+    emprical_mat_list_val = (1.0 * (val_preds == validation.y))[:, np.newaxis]
+
+    report = EvaluationReport(name="mandoline")
+    for test in protocol():
+        test_probs = c_model_predict(test.X)
+        test_pred = np.argmax(test_probs, axis=1)
+        D_test = mandolib.get_slices(test_probs)
+        wp = mandolib.estimate_performance(D_val, D_test, None, emprical_mat_list_val)
+        score = wp.all_estimates[0].weighted[0]
+        meta_score = abs(score - metrics.accuracy_score(test.y, test_pred))
+        report.append_row(test.prevalence(), acc=meta_score, acc_score=score)
 
     return report
 
