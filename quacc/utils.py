@@ -2,8 +2,10 @@ import functools
 import os
 import shutil
 from pathlib import Path
+from urllib.request import urlretrieve
 
 import pandas as pd
+from tqdm import tqdm
 
 from quacc.environment import env
 
@@ -39,10 +41,9 @@ def fmt_line_md(s):
     return f"> {s}  \n"
 
 
-def create_dataser_dir(dir_name, update=False):
+def create_dataser_dir(dir_name, update=False, create_md=False):
     base_out_dir = Path(env.OUT_DIR_NAME)
-    if not base_out_dir.exists():
-        os.mkdir(base_out_dir)
+    os.makedirs(base_out_dir, exist_ok=True)
 
     dataset_dir = base_out_dir / dir_name
     env.OUT_DIR = dataset_dir
@@ -53,13 +54,32 @@ def create_dataser_dir(dir_name, update=False):
         shutil.rmtree(dataset_dir, ignore_errors=True)
         os.mkdir(dataset_dir)
 
-    plot_dir_path = dataset_dir / "plot"
-    env.PLOT_OUT_DIR = plot_dir_path
-    if not plot_dir_path.exists():
-        os.mkdir(plot_dir_path)
+    if create_md:
+        plot_dir_path = dataset_dir / "plot"
+        env.PLOT_OUT_DIR = plot_dir_path
+        if not plot_dir_path.exists():
+            os.mkdir(plot_dir_path)
 
 
 def get_quacc_home():
     home = Path("~/quacc_home").expanduser()
     os.makedirs(home, exist_ok=True)
     return home
+
+
+class TqdmUpTo(tqdm):
+    def update_to(self, b=1, bsize=1, tsize=None):
+        if tsize is not None:
+            self.total = tsize
+        self.update(b * bsize - self.n)
+
+
+def download_file(url: str, downloaded_path: Path):
+    with TqdmUpTo(
+        unit="B",
+        unit_scale=True,
+        unit_divisor=1024,
+        miniters=1,
+        desc=downloaded_path.name,
+    ) as t:
+        urlretrieve(url, filename=downloaded_path, reporthook=t.update_to)
