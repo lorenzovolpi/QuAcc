@@ -1,0 +1,38 @@
+----------------------------------------------------------------------------------------------------
+21/11/23 17:40:45| INFO     dataset imdb [pool size: 10]
+21/11/23 17:40:51| INFO     Dataset sample 0.10 of dataset imdb started
+21/11/23 17:41:02| INFO        ref finished [took 10.1857s]
+21/11/23 17:55:21| INFO        mandoline finished [took 868.9696s]
+21/11/23 17:55:21| INFO     Dataset sample 0.10 of dataset imdb finished [took 870.0990s]
+21/11/23 17:55:21| INFO     Dataset sample 0.20 of dataset imdb started
+21/11/23 17:55:32| INFO        ref finished [took 9.7684s]
+21/11/23 18:10:59| INFO        mandoline finished [took 937.2745s]
+21/11/23 18:10:59| INFO     Dataset sample 0.20 of dataset imdb finished [took 938.5430s]
+21/11/23 18:10:59| INFO     Dataset sample 0.30 of dataset imdb started
+21/11/23 18:11:15| INFO        ref finished [took 11.1052s]
+21/11/23 18:26:34| INFO        mandoline finished [took 929.6805s]
+21/11/23 18:26:34| INFO     Dataset sample 0.30 of dataset imdb finished [took 934.4872s]
+21/11/23 18:26:34| INFO     Dataset sample 0.40 of dataset imdb started
+21/11/23 18:26:49| INFO        ref finished [took 12.7260s]
+21/11/23 18:42:32| INFO        mandoline finished [took 955.8333s]
+21/11/23 18:42:32| INFO     Dataset sample 0.40 of dataset imdb finished [took 958.1168s]
+21/11/23 18:42:32| INFO     Dataset sample 0.50 of dataset imdb started
+21/11/23 18:42:43| INFO        ref finished [took 9.5449s]
+21/11/23 18:58:03| INFO        mandoline finished [took 929.2836s]
+21/11/23 18:58:03| INFO     Dataset sample 0.50 of dataset imdb finished [took 931.1510s]
+21/11/23 18:58:03| INFO     Dataset sample 0.60 of dataset imdb started
+21/11/23 18:58:16| INFO        ref finished [took 10.1241s]
+21/11/23 19:14:33| INFO        mandoline finished [took 988.8207s]
+21/11/23 19:14:33| INFO     Dataset sample 0.60 of dataset imdb finished [took 990.2440s]
+21/11/23 19:14:33| INFO     Dataset sample 0.70 of dataset imdb started
+21/11/23 19:14:45| INFO        ref finished [took 9.4284s]
+21/11/23 19:28:03| INFO        mandoline finished [took 807.4508s]
+21/11/23 19:28:03| INFO     Dataset sample 0.70 of dataset imdb finished [took 809.2394s]
+21/11/23 19:28:03| INFO     Dataset sample 0.80 of dataset imdb started
+21/11/23 19:28:14| INFO        ref finished [took 8.6557s]
+21/11/23 19:41:31| INFO        mandoline finished [took 806.2654s]
+21/11/23 19:41:31| INFO     Dataset sample 0.80 of dataset imdb finished [took 808.4168s]
+21/11/23 19:41:31| INFO     Dataset sample 0.90 of dataset imdb started
+21/11/23 19:41:42| INFO        ref finished [took 8.9919s]
+21/11/23 19:56:51| INFO        mandoline finished [took 918.6407s]
+21/11/23 19:56:51| INFO     Dataset sample 0.90 of dataset imdb finished [took 919.6847s]
