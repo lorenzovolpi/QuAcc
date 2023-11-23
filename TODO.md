@@ -46,3 +46,8 @@
 - [x] implementare mul3
 - [ ] rivedere nuove baselines
 - [ ] importare nuovi dataset
+
+- [ ] testare kernel density estimation (alternativa sld)
+- [ ] significatività statistica (lunedì ore 10.00)
+- [ ] usare un metodo diverso di classificazione sia di partenza che dentro quantificatore per cifar10
+- [ ] valutare altre possibili esplorazioni del caso binario
