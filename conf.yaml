@@ -1,63 +1,53 @@
 debug_conf: &debug_conf
   global:
     METRICS: 
-    - acc
+      - acc
     OUT_DIR_NAME: output/debug
     DATASET_N_PREVS: 9
+    COMP_ESTIMATORS:
+      - bin_sld
+      - mul_sld
+      - m3w_sld
+      - atc_mc
+      - doc
 
   confs:
     - DATASET_NAME: imdb
-    # - DATASET_NAME: rcv1
-    #   DATASET_TARGET: CCAT
-
-  plot_confs:
-    debug_gs:
-      PLOT_ESTIMATORS:
-        - binis_sld
-        - mulis_sld
-        - doc
-        - atc_mc
-        - gde
-
-mc_conf: &mc_conf
-  global:
-    METRICS: 
-    - acc
-    DATASET_N_PREVS: 9
-
-  confs:
+  other_confs:
     - DATASET_NAME: rcv1
       DATASET_TARGET: CCAT
-    # - DATASET_NAME: imdb
+      
 
-  plot_confs:
-    confidence:
-      PLOT_ESTIMATORS:
-        - bin_sld_gs
-        - mul_sld_gs
-        - atc_mc
-      PLOT_STDEV: true
+kde_conf: &kde_conf
+  global:
+    METRICS: 
+      - acc
+      - f1
+    OUT_DIR_NAME: output/kde/gs
+    DATASET_N_PREVS: 9
+    COMP_ESTIMATORS:
+      - bin_kde_gs
+      - mul_kde_gs
+      - m3w_kde_gs
+      - atc_mc
+      - doc
+
+  confs:
+    - DATASET_NAME: imdb
+  other_confs:
+    - DATASET_NAME: rcv1
+      DATASET_TARGET: CCAT
 
 test_conf: &test_conf
   global:
     METRICS: 
-    - acc
-    - f1
+      - acc
+      - f1
     OUT_DIR_NAME: output/test
     DATASET_N_PREVS: 9
     # DATASET_PREVS:
     # - 0.5
-
-  confs:
-    # - DATASET_NAME: rcv1
-    #   DATASET_TARGET: GCAT
-    # - DATASET_NAME: imdb
-    - DATASET_NAME: cifar10
-      DATASET_TARGET: dog
-
-  plot_confs:
-    main:
-      PLOT_ESTIMATORS:
+    COMP_ESTIMATORS:
       - bin_sld
       - mul_sld
       - mul3w_sld
@@ -78,14 +68,47 @@ test_conf: &test_conf
       - doc_feat
       - kfcv
 
+  confs:
+    - DATASET_NAME: cifar10
+      DATASET_TARGET: dog
+  other_confs:
+    - DATASET_NAME: rcv1
+      DATASET_TARGET: GCAT
+    - DATASET_NAME: imdb
+
 main_conf: &main_conf
 
   global:
     METRICS: 
-    - acc
-    - f1
+      - acc
+      - f1
     OUT_DIR_NAME: output/main
     DATASET_N_PREVS: 9
+    COMP_ESTIMATORS:
+      - bin_sld
+      - mul_sld
+      - m3w_sld
+      - binc_sld
+      - mulc_sld
+      - m3wc_sld
+      - binmc_sld
+      - mulmc_sld
+      - m3wmc_sld
+      - binne_sld
+      - mulne_sld
+      - m3wne_sld
+      - binis_sld
+      - mulis_sld
+      - m3wis_sld
+      - bin_sld_gs
+      - mul_sld_gs
+      - m3w_sld_gs
+      - doc
+      - atc_mc
+      - gde
+      - rca
+      - rca_star
+      - mandoline
 
   confs:
     - DATASET_NAME: cifar10
@@ -98,43 +121,22 @@ main_conf: &main_conf
       DATASET_TARGET: GCAT
     - DATASET_NAME: rcv1
       DATASET_TARGET: MCAT
-
-  plot_confs:
-    main:
-      PLOT_ESTIMATORS:
-        - bin_sld
-        - mul_sld
-        - m3w_sld
-        - binc_sld
-        - mulc_sld
-        - m3wc_sld
-        - binmc_sld
-        - mulmc_sld
-        - m3wmc_sld
-        - binne_sld
-        - mulne_sld
-        - m3wne_sld
-        - binis_sld
-        - mulis_sld
-        - m3wis_sld
-        - bin_sld_gs
-        - mul_sld_gs
-        - m3w_sld_gs
-        - doc
-        - atc_mc
-        - gde
-        - rca
-        - rca_star
-        - mandoline
 
 add_conf: &add_conf
 
   global:
     METRICS: 
-    - acc
-    - f1
+      - acc
+      - f1
     OUT_DIR_NAME: output/add/m3w
     DATASET_N_PREVS: 9
+    COMP_ESTIMATORS:
+      - m3w_sld
+      - m3wc_sld
+      - m3wmc_sld
+      - m3wne_sld
+      - m3wis_sld
+      - m3w_sld_gs
 
   confs:
     - DATASET_NAME: cifar10
@@ -148,14 +150,5 @@ add_conf: &add_conf
     - DATASET_NAME: rcv1
       DATASET_TARGET: MCAT
 
-  plot_confs:
-    main:
-      PLOT_ESTIMATORS:
-        - m3w_sld
-        - m3wc_sld
-        - m3wmc_sld
-        - m3wne_sld
-        - m3wis_sld
-        - m3w_sld_gs
 
-exec: *add_conf
+exec: *debug_conf

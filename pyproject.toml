@@ -22,6 +22,19 @@ sync_up = "remote:sync_code"
 sync_down = "remote:sync_output"
 merge_data = "merge_data:run"
 
+[tool.poe]
+poetry_command = ""
+
+[tool.poe.tasks]
+ilona = "ssh volpi@ilona.isti.cnr.it"
+
+[tool.poe.tasks.logr]
+shell = """
+    scp {$HOST}:~/tesi/quacc.log ~/tesi/remote.log &> /dev/null
+    ssh {$HOST} tail -n 0 -f /home/volpi/tesi/quacc.log >> ~/tesi/remote.log
+"""
+interpreter="fish"
+env = { HOST = "volpi@ilona.isti.cnr.it" }
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.4.0"
@@ -43,7 +56,4 @@ addopts = "--cov=quacc --capture=tee-sys"
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
-[virtualenvs]
-in-project = true
-prefer-active-python = true
 
