@@ -41,24 +41,14 @@ def fmt_line_md(s):
     return f"> {s}  \n"
 
 
-def create_dataser_dir(dir_name, update=False, create_md=False):
-    base_out_dir = Path(env.OUT_DIR_NAME)
-    os.makedirs(base_out_dir, exist_ok=True)
-
-    dataset_dir = base_out_dir / dir_name
+def create_dataser_dir(dir_name, update=False):
+    dataset_dir = Path(env.OUT_DIR_NAME) / dir_name
     env.OUT_DIR = dataset_dir
     if update:
-        if not dataset_dir.exists():
-            os.mkdir(dataset_dir)
+        os.makedirs(dataset_dir, exist_ok=True)
     else:
         shutil.rmtree(dataset_dir, ignore_errors=True)
-        os.mkdir(dataset_dir)
-
-    if create_md:
-        plot_dir_path = dataset_dir / "plot"
-        env.PLOT_OUT_DIR = plot_dir_path
-        if not plot_dir_path.exists():
-            os.mkdir(plot_dir_path)
+        os.makedirs(dataset_dir)
 
 
 def get_quacc_home():
