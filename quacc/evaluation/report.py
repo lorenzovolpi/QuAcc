@@ -75,6 +75,7 @@ class CompReport:
         train_prev: np.ndarray = None,
         valid_prev: np.ndarray = None,
         times=None,
+        g_time=None,
     ):
         if isinstance(datas, pd.DataFrame):
             self._data: pd.DataFrame = datas
@@ -90,9 +91,14 @@ class CompReport:
                 .sort_index(axis=0, level=0)
             )
 
+        if times is None:
+            self.times = {er.name: er.time for er in datas}
+        else:
+            self.times = times
+
+        self.times["tot"] = g_time
         self.train_prev = train_prev
         self.valid_prev = valid_prev
-        self.times = times
 
     @property
     def prevs(self) -> np.ndarray:
@@ -130,9 +136,10 @@ class CompReport:
         df = CompReport(
             _join,
             self.name if hasattr(self, "name") else "default",
-            self.train_prev,
-            self.valid_prev,
-            self.times | other.times,
+            train_prev=self.train_prev,
+            valid_prev=self.valid_prev,
+            times=self.times | other.times,
+            g_time=self.times["tot"] + other.times["tot"],
         )
 
         return df
