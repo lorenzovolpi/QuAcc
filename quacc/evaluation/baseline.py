@@ -28,6 +28,7 @@ def baseline(func):
     def wrapper(c_model, validation, protocol):
         return func(c_model, validation, protocol)
 
+    wrapper.name = func.__name__
     _baselines[func.__name__] = wrapper
 
     return wrapper
