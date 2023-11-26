@@ -10949,3 +10949,353 @@
 23/11/23 02:38:29| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__recalib': None, 'confidence': ['max_conf', 'entropy']} (score=0.12245) [took 352.2626s]
 23/11/23 02:38:58| INFO        m3w_sld_gs finished [took 381.4130s]
 23/11/23 02:38:58| INFO     Dataset sample 0.90 of dataset cifar10_dog finished [took 389.9326s]
+----------------------------------------------------------------------------------------------------
+23/11/23 14:13:03| INFO     dataset imdb_1prevs [pool size: 10]
+23/11/23 14:13:10| INFO     Dataset sample 0.50 of dataset imdb_1prevs started
+23/11/23 14:13:56| INFO        doc finished [took 32.5461s]
+23/11/23 14:13:56| INFO        ref finished [took 34.5929s]
+23/11/23 14:13:59| INFO        atc_mc finished [took 39.7904s]
+23/11/23 14:14:04| INFO        bin_sld finished [took 50.6471s]
+23/11/23 14:14:13| INFO        mul_sld finished [took 59.7841s]
+23/11/23 14:24:13| INFO        bin_kde finished [took 655.6011s]
+23/11/23 14:30:41| INFO        mul_kde finished [took 1042.5184s]
+23/11/23 14:30:41| INFO     Dataset sample 0.50 of dataset imdb_1prevs finished [took 1051.0188s]
+----------------------------------------------------------------------------------------------------
+24/11/23 12:19:49| INFO     dataset rcv1_CCAT [pool size: 10]
+----------------------------------------------------------------------------------------------------
+24/11/23 12:20:07| INFO     dataset imdb_1prevs [pool size: 10]
+24/11/23 12:20:14| INFO     Dataset sample 0.50 of dataset imdb_1prevs started
+24/11/23 12:20:35| INFO        ref finished [took 17.6023s]
+24/11/23 12:20:37| INFO        doc finished [took 15.1031s]
+24/11/23 12:20:40| INFO        atc_mc finished [took 17.6415s]
+24/11/23 12:20:41| INFO        m3w_sld finished [took 22.1866s]
+24/11/23 12:20:46| INFO        mul_sld finished [took 28.6670s]
+24/11/23 12:20:46| INFO     Dataset sample 0.50 of dataset imdb_1prevs finished [took 31.7107s]
+----------------------------------------------------------------------------------------------------
+24/11/23 12:24:23| INFO     dataset imdb_1prevs [pool size: 10]
+24/11/23 12:24:29| INFO     Dataset sample 0.50 of dataset imdb_1prevs started
+24/11/23 12:24:57| INFO        ref finished [took 20.1484s]
+24/11/23 12:24:58| INFO        doc finished [took 16.2542s]
+24/11/23 12:25:01| INFO        atc_mc finished [took 22.3052s]
+24/11/23 12:25:01| INFO        bin_sld finished [took 29.3454s]
+24/11/23 12:25:03| INFO        m3w_sld finished [took 26.0132s]
+24/11/23 12:25:07| INFO        mul_sld finished [took 32.1549s]
+24/11/23 12:25:07| INFO     Dataset sample 0.50 of dataset imdb_1prevs finished [took 37.5426s]
+25/11/23 23:09:39| ERROR    estimate comparison failed. Exception: 'Logger' object has no attribute '_Logger__is_setup'
+----------------------------------------------------------------------------------------------------
+25/11/23 23:15:10| INFO     dataset imdb_1prevs [pool size: 10]
+25/11/23 23:15:32| INFO     Dataset sample 0.50 of dataset imdb_1prevs started
+25/11/23 23:15:33| WARNING  Dataset sample 0.50 of dataset imdb_1prevs failed. Exception: object.__new__() takes exactly one argument (the type to instantiate)
+25/11/23 23:15:33| INFO     Dataset sample 0.50 of dataset imdb_1prevs finished [took 0.2613s]
+25/11/23 23:15:33| WARNING  Dataset sample 0.50 of dataset imdb_1prevs failed. Exception: No objects to concatenate
+----------------------------------------------------------------------------------------------------
+25/11/23 23:15:56| INFO     dataset imdb_1prevs [pool size: 10]
+25/11/23 23:16:02| INFO     Dataset sample 0.50 of dataset imdb_1prevs started
+25/11/23 23:16:03| WARNING  Dataset sample 0.50 of dataset imdb_1prevs failed. Exception: object.__new__() takes exactly one argument (the type to instantiate)
+25/11/23 23:16:03| INFO     Dataset sample 0.50 of dataset imdb_1prevs finished [took 0.2083s]
+25/11/23 23:16:03| WARNING  Dataset sample 0.50 of dataset imdb_1prevs failed. Exception: No objects to concatenate
+----------------------------------------------------------------------------------------------------
+25/11/23 23:16:52| INFO     dataset imdb_1prevs [pool size: 10]
+25/11/23 23:16:58| INFO     Dataset sample 0.50 of dataset imdb_1prevs started
+25/11/23 23:16:58| WARNING  Dataset sample 0.50 of dataset imdb_1prevs failed. Exception: Logger.__new__() takes 1 positional argument but 2 were given
+25/11/23 23:16:58| INFO     Dataset sample 0.50 of dataset imdb_1prevs finished [took 0.2287s]
+25/11/23 23:16:58| WARNING  Dataset sample 0.50 of dataset imdb_1prevs failed. Exception: No objects to concatenate
+----------------------------------------------------------------------------------------------------
+25/11/23 23:18:22| INFO     dataset imdb_1prevs [pool size: 10]
+25/11/23 23:18:29| INFO     Dataset sample 0.50 of dataset imdb_1prevs started
+25/11/23 23:18:29| WARNING  Dataset sample 0.50 of dataset imdb_1prevs failed. Exception: object.__new__() takes exactly one argument (the type to instantiate)
+25/11/23 23:18:29| INFO     Dataset sample 0.50 of dataset imdb_1prevs finished [took 0.1994s]
+25/11/23 23:18:29| WARNING  Dataset sample 0.50 of dataset imdb_1prevs failed. Exception: No objects to concatenate
+----------------------------------------------------------------------------------------------------
+25/11/23 23:20:56| INFO     dataset imdb_1prevs [pool size: 10]
+25/11/23 23:21:02| INFO     Dataset sample 0.50 of dataset imdb_1prevs started
+25/11/23 23:21:12| INFO     ref finished [took 8.3176s]
+25/11/23 23:21:12| INFO     Dataset sample 0.50 of dataset imdb_1prevs finished [took 9.9240s]
+----------------------------------------------------------------------------------------------------
+25/11/23 23:24:20| INFO     dataset imdb_1prevs [pool size: 10]
+25/11/23 23:24:27| INFO     Dataset sample 0.50 of dataset imdb_1prevs started
+25/11/23 23:24:36| INFO     ref finished [took 8.2453s]
+25/11/23 23:24:36| INFO     Dataset sample 0.50 of dataset imdb_1prevs finished [took 9.7846s]
+----------------------------------------------------------------------------------------------------
+25/11/23 23:27:01| INFO     dataset imdb_1prevs [pool size: 10]
+25/11/23 23:27:08| INFO     Dataset sample 0.50 of dataset imdb_1prevs started
+25/11/23 23:27:17| INFO     ref finished [took 8.4169s]
+25/11/23 23:27:17| INFO     Dataset sample 0.50 of dataset imdb_1prevs finished [took 9.6665s]
+----------------------------------------------------------------------------------------------------
+25/11/23 23:27:53| INFO     dataset imdb_1prevs [pool size: 10]
+25/11/23 23:28:08| INFO     Dataset sample 0.50 of dataset imdb_1prevs started
+26/11/23 00:07:05| INFO     ref finished [took 15.0738s]
+----------------------------------------------------------------------------------------------------
+26/11/23 00:14:58| INFO     dataset imdb_1prevs [pool size: 10]
+26/11/23 00:15:05| INFO     Dataset sample 0.50 of dataset imdb_1prevs started
+26/11/23 00:15:14| INFO        ref finished [took 8.2365s]
+26/11/23 00:15:14| INFO     Dataset sample 0.50 of dataset imdb_1prevs finished [took 9.3738s]
+----------------------------------------------------------------------------------------------------
+26/11/23 00:16:11| INFO     dataset imdb_1prevs [pool size: 10]
+26/11/23 00:16:18| INFO     Dataset sample 0.50 of dataset imdb_1prevs started
+26/11/23 00:16:27| INFO        ref finished [took 8.4293s]
+26/11/23 00:16:27| INFO     Dataset sample 0.50 of dataset imdb_1prevs finished [took 9.8483s]
+----------------------------------------------------------------------------------------------------
+26/11/23 00:17:18| ERROR    Evaluation over imdb_1prevs failed. Exception: 'Invalid estimator: estimator bin_pacc_gs does not exist'
+----------------------------------------------------------------------------------------------------
+26/11/23 00:17:31| INFO     dataset imdb_1prevs [pool size: 10]
+26/11/23 00:17:37| INFO     Dataset sample 0.50 of dataset imdb_1prevs started
+26/11/23 00:17:56| INFO        ref finished [took 11.7986s]
+26/11/23 00:17:56| INFO        doc finished [took 9.6139s]
+26/11/23 00:18:02| INFO        bin_sld finished [took 21.1728s]
+26/11/23 00:18:02| INFO        atc_mc finished [took 16.1916s]
+----------------------------------------------------------------------------------------------------
+26/11/23 00:18:47| INFO     dataset imdb_1prevs [pool size: 10]
+26/11/23 00:18:53| INFO     Dataset sample 0.50 of dataset imdb_1prevs started
+26/11/23 00:19:11| INFO        doc finished [took 9.3297s]
+26/11/23 00:19:11| INFO        ref finished [took 11.1819s]
+26/11/23 00:19:16| INFO        atc_mc finished [took 15.7185s]
+26/11/23 00:19:17| INFO        bin_sld finished [took 20.9569s]
+26/11/23 00:23:37| DEBUG       [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': None, 'quantifier__recalib': 'bcts', 'confidence': ['isoft']} (score=0.01312) [took 278.5729s]
+26/11/23 00:23:49| INFO        bin_sld_gs finished [took 290.6389s]
+26/11/23 00:23:49| INFO     Dataset sample 0.50 of dataset imdb_1prevs finished [took 296.2452s]
+26/11/23 12:35:22| ERROR    estimate comparison failed. Exception: unsupported operand type(s) for /: 'NoneType' and 'str'
+26/11/23 12:36:10| ERROR    estimate comparison failed. Exception: unsupported operand type(s) for /: 'NoneType' and 'str'
+26/11/23 12:36:48| ERROR    estimate comparison failed. Exception: unsupported operand type(s) for /: 'NoneType' and 'str'
+26/11/23 12:37:39| ERROR    estimate comparison failed. Exception: unsupported operand type(s) for /: 'NoneType' and 'str'
+26/11/23 12:38:05| ERROR    estimate comparison failed. Exception: unsupported operand type(s) for /: 'NoneType' and 'str'
+26/11/23 12:38:26| ERROR    estimate comparison failed. Exception: unsupported operand type(s) for /: 'NoneType' and 'str'
+26/11/23 12:39:52| ERROR    estimate comparison failed. Exception: unsupported operand type(s) for /: 'NoneType' and 'str'
+26/11/23 12:40:47| ERROR    estimate comparison failed. Exception: unsupported operand type(s) for /: 'NoneType' and 'str'
+26/11/23 12:41:37| ERROR    estimate comparison failed. Exception: unsupported operand type(s) for /: 'NoneType' and 'str'
+26/11/23 12:42:06| ERROR    estimate comparison failed. Exception: unsupported operand type(s) for /: 'NoneType' and 'str'
+----------------------------------------------------------------------------------------------------
+26/11/23 12:42:49| INFO     dataset imdb_1prevs [pool size: 10]
+26/11/23 12:42:56| INFO     Dataset sample 0.50 of dataset imdb_1prevs started
+26/11/23 12:43:11| INFO        doc finished [took 8.8286s]
+26/11/23 12:43:12| INFO        ref finished [took 10.1487s]
+26/11/23 12:43:15| INFO        atc_mc finished [took 12.7258s]
+26/11/23 12:43:16| INFO        bin_sld finished [took 17.9662s]
+26/11/23 12:43:16| INFO     Dataset sample 0.50 of dataset imdb_1prevs finished [took 20.1537s]
+----------------------------------------------------------------------------------------------------
+26/11/23 12:51:42| INFO     dataset imdb_1prevs [pool size: 10]
+26/11/23 12:51:49| INFO     Dataset sample 0.50 of dataset imdb_1prevs started
+26/11/23 12:52:03| INFO        doc finished [took 8.3487s]
+26/11/23 12:52:04| INFO        ref finished [took 10.9200s]
+26/11/23 12:52:08| INFO        atc_mc finished [took 12.3923s]
+26/11/23 12:52:08| INFO        bin_sld finished [took 16.5288s]
+26/11/23 12:52:08| INFO     Dataset sample 0.50 of dataset imdb_1prevs finished [took 19.5545s]
+----------------------------------------------------------------------------------------------------
+26/11/23 12:53:17| INFO     dataset imdb_1prevs [pool size: 10]
+26/11/23 12:53:23| INFO     Dataset sample 0.40 of dataset imdb_1prevs started
+26/11/23 12:53:38| INFO        ref finished [took 10.3443s]
+26/11/23 12:53:38| INFO        doc finished [took 8.6077s]
+26/11/23 12:53:41| INFO        atc_mc finished [took 13.3207s]
+26/11/23 12:53:42| INFO        bin_sld finished [took 16.7658s]
+26/11/23 12:53:42| INFO     Dataset sample 0.40 of dataset imdb_1prevs finished [took 19.1411s]
+----------------------------------------------------------------------------------------------------
+26/11/23 12:53:43| INFO     dataset rcv1_CCAT_1prevs [pool size: 10]
+26/11/23 12:56:39| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+26/11/23 12:57:15| INFO        ref finished [took 31.0756s]
+26/11/23 12:57:16| INFO        doc finished [took 28.5057s]
+26/11/23 12:57:17| INFO        bin_sld finished [took 35.9361s]
+26/11/23 12:57:18| INFO        atc_mc finished [took 32.5660s]
+26/11/23 12:57:18| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs finished [took 38.8987s]
+----------------------------------------------------------------------------------------------------
+26/11/23 13:14:31| INFO     dataset imdb_1prevs [pool size: 10]
+26/11/23 13:14:37| INFO     Dataset sample 0.40 of dataset imdb_1prevs started
+26/11/23 13:14:37| WARNING  Dataset sample 0.40 of dataset imdb_1prevs failed. Exception: 'environ' object has no attribute 'items'
+26/11/23 13:14:38| WARNING  Dataset sample 0.40 of dataset imdb_1prevs failed. Exception: 'environ' object has no attribute 'items'
+26/11/23 13:14:38| WARNING  Dataset sample 0.40 of dataset imdb_1prevs failed. Exception: 'environ' object has no attribute 'items'
+26/11/23 13:14:38| WARNING  Dataset sample 0.40 of dataset imdb_1prevs failed. Exception: 'environ' object has no attribute 'items'
+26/11/23 13:14:38| INFO     Dataset sample 0.40 of dataset imdb_1prevs finished [took 0.7827s]
+26/11/23 13:14:38| WARNING  Dataset sample 0.40 of dataset imdb_1prevs failed. Exception: No objects to concatenate
+----------------------------------------------------------------------------------------------------
+26/11/23 13:14:38| INFO     dataset rcv1_CCAT_1prevs [pool size: 10]
+26/11/23 13:14:42| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+26/11/23 13:14:43| WARNING  Dataset sample 0.50 of dataset rcv1_CCAT_1prevs failed. Exception: 'environ' object has no attribute 'items'
+26/11/23 13:14:44| WARNING  Dataset sample 0.50 of dataset rcv1_CCAT_1prevs failed. Exception: 'environ' object has no attribute 'items'
+26/11/23 13:14:45| WARNING  Dataset sample 0.50 of dataset rcv1_CCAT_1prevs failed. Exception: 'environ' object has no attribute 'items'
+26/11/23 13:14:46| WARNING  Dataset sample 0.50 of dataset rcv1_CCAT_1prevs failed. Exception: 'environ' object has no attribute 'items'
+26/11/23 13:14:46| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs finished [took 4.8912s]
+26/11/23 13:14:46| WARNING  Dataset sample 0.50 of dataset rcv1_CCAT_1prevs failed. Exception: No objects to concatenate
+----------------------------------------------------------------------------------------------------
+26/11/23 13:28:23| INFO     dataset imdb_1prevs [pool size: 10]
+26/11/23 13:28:29| INFO     Dataset sample 0.40 of dataset imdb_1prevs started
+26/11/23 13:28:30| WARNING  Dataset sample 0.40 of dataset imdb_1prevs failed. Exception: 'environ' object has no attribute 'items'
+26/11/23 13:28:30| INFO     Dataset sample 0.40 of dataset imdb_1prevs finished [took 0.2838s]
+26/11/23 13:28:30| WARNING  Dataset sample 0.40 of dataset imdb_1prevs failed. Exception: 'ApplyResult' object has no attribute 'data'
+----------------------------------------------------------------------------------------------------
+26/11/23 13:28:30| INFO     dataset rcv1_CCAT_1prevs [pool size: 10]
+26/11/23 13:28:33| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+26/11/23 13:28:35| WARNING  Dataset sample 0.50 of dataset rcv1_CCAT_1prevs failed. Exception: 'environ' object has no attribute 'items'
+26/11/23 13:28:35| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs finished [took 1.4252s]
+26/11/23 13:28:35| WARNING  Dataset sample 0.50 of dataset rcv1_CCAT_1prevs failed. Exception: 'ApplyResult' object has no attribute 'data'
+----------------------------------------------------------------------------------------------------
+26/11/23 13:31:08| INFO     dataset imdb_1prevs [pool size: 10]
+26/11/23 13:31:15| INFO     Dataset sample 0.40 of dataset imdb_1prevs started
+26/11/23 13:31:29| INFO        ref finished [took 10.9091s]
+26/11/23 13:31:29| INFO        doc finished [took 8.7695s]
+26/11/23 13:31:33| INFO        atc_mc finished [took 12.6925s]
+26/11/23 13:31:33| INFO        bin_sld finished [took 16.2455s]
+26/11/23 13:31:33| INFO     Dataset sample 0.40 of dataset imdb_1prevs finished [took 18.0848s]
+----------------------------------------------------------------------------------------------------
+26/11/23 13:31:33| INFO     dataset rcv1_CCAT_1prevs [pool size: 10]
+26/11/23 13:31:37| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+26/11/23 13:32:12| INFO        ref finished [took 30.5893s]
+26/11/23 13:32:13| INFO        bin_sld finished [took 34.5529s]
+26/11/23 13:32:14| INFO        doc finished [took 28.3129s]
+26/11/23 13:32:18| INFO        atc_mc finished [took 35.3325s]
+26/11/23 13:32:18| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs finished [took 41.8520s]
+----------------------------------------------------------------------------------------------------
+26/11/23 13:56:17| INFO     dataset imdb_1prevs [pool size: 10]
+26/11/23 13:56:23| INFO     Dataset sample 0.40 of dataset imdb_1prevs started
+26/11/23 13:56:38| INFO        ref finished [took 11.1801s]
+26/11/23 13:56:38| INFO        doc finished [took 8.8447s]
+26/11/23 13:56:41| INFO        atc_mc finished [took 13.4614s]
+26/11/23 13:56:42| INFO        bin_sld finished [took 17.2343s]
+26/11/23 13:56:42| INFO     Dataset sample 0.40 of dataset imdb_1prevs finished [took 19.1619s]
+----------------------------------------------------------------------------------------------------
+26/11/23 13:56:43| INFO     dataset rcv1_CCAT_1prevs [pool size: 10]
+26/11/23 13:56:46| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+26/11/23 13:57:20| INFO        ref finished [took 29.5824s]
+26/11/23 13:57:21| INFO        doc finished [took 27.7713s]
+26/11/23 13:57:22| INFO        bin_sld finished [took 34.0524s]
+26/11/23 13:57:25| INFO        atc_mc finished [took 33.7363s]
+26/11/23 13:57:25| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs finished [took 39.3207s]
+----------------------------------------------------------------------------------------------------
+26/11/23 14:00:26| INFO     dataset imdb_1prevs [pool size: 10]
+26/11/23 14:00:33| INFO     Dataset sample 0.50 of dataset imdb_1prevs started
+26/11/23 14:01:26| INFO        bin_sld finished [took 50.7765s]
+26/11/23 14:01:34| INFO        binmc_sld finished [took 44.2032s]
+26/11/23 14:01:41| INFO        m3w_sld finished [took 60.0964s]
+26/11/23 14:01:43| INFO        m3wc_sld finished [took 56.6741s]
+26/11/23 14:01:46| INFO        binc_sld finished [took 62.5976s]
+26/11/23 14:01:53| INFO        m3wmc_sld finished [took 57.1598s]
+26/11/23 14:01:53| INFO        mulc_sld finished [took 67.1949s]
+26/11/23 14:01:59| INFO        mulmc_sld finished [took 66.6559s]
+26/11/23 14:02:01| INFO        mul_sld finished [took 83.1596s]
+26/11/23 14:02:01| INFO        binne_sld finished [took 63.2790s]
+26/11/23 14:03:31| INFO        m3wne_sld finished [took 110.9529s]
+26/11/23 14:03:36| INFO        mulne_sld finished [took 126.4873s]
+26/11/23 14:03:45| INFO        binis_sld finished [took 120.7323s]
+26/11/23 14:03:55| INFO        m3wis_sld finished [took 120.8105s]
+26/11/23 14:04:14| INFO        mulis_sld finished [took 142.7732s]
+26/11/23 14:18:23| INFO        bin_kde finished [took 980.5554s]
+26/11/23 14:19:06| INFO        binc_kde finished [took 1015.1475s]
+26/11/23 14:20:39| INFO        binmc_kde finished [took 1011.1490s]
+26/11/23 14:21:24| INFO        binne_kde finished [took 1019.7832s]
+26/11/23 14:28:57| INFO        mul_kde finished [took 1615.1812s]
+26/11/23 14:29:09| INFO        m3w_kde finished [took 1620.8232s]
+26/11/23 14:29:35| INFO        ref finished [took 22.2471s]
+26/11/23 14:30:16| INFO        atc_mc finished [took 36.9250s]
+26/11/23 14:30:39| INFO        doc finished [took 17.6178s]
+26/11/23 14:31:18| INFO        m3wc_kde finished [took 1658.5121s]
+26/11/23 14:32:33| INFO        m3wmc_kde finished [took 1707.5099s]
+26/11/23 14:32:54| INFO        mulmc_kde finished [took 1739.1909s]
+26/11/23 14:32:56| INFO        mulc_kde finished [took 1843.3563s]
+26/11/23 14:35:05| INFO        binis_kde finished [took 860.8087s]
+26/11/23 14:43:31| INFO        m3wne_kde finished [took 1460.1224s]
+26/11/23 14:45:54| INFO        mulne_kde finished [took 1647.6246s]
+26/11/23 14:46:25| INFO        mulis_kde finished [took 1495.9289s]
+26/11/23 14:47:44| INFO        m3wis_kde finished [took 1124.0304s]
+26/11/23 14:47:44| INFO     Dataset sample 0.50 of dataset imdb_1prevs finished [took 2831.2208s]
+----------------------------------------------------------------------------------------------------
+26/11/23 16:21:38| INFO     dataset imdb_1prevs [pool size: 10]
+26/11/23 16:21:45| INFO     Dataset sample 0.50 of dataset imdb_1prevs started
+26/11/23 16:22:10| INFO        doc finished [took 18.6205s]
+26/11/23 16:22:12| INFO        ref finished [took 18.6199s]
+26/11/23 16:22:15| INFO        atc_mc finished [took 20.0159s]
+26/11/23 16:22:16| INFO        bin_sld finished [took 28.3344s]
+26/11/23 16:22:17| INFO        m3w_sld finished [took 24.3171s]
+26/11/23 16:22:21| INFO        mul_sld finished [took 29.6179s]
+26/11/23 16:22:21| INFO     Dataset sample 0.50 of dataset imdb_1prevs finished [took 35.9986s]
+----------------------------------------------------------------------------------------------------
+26/11/23 16:23:08| INFO     dataset imdb_1prevs [pool size: 10]
+26/11/23 16:23:14| INFO     Dataset sample 0.50 of dataset imdb_1prevs started
+26/11/23 16:23:40| INFO        ref finished [took 16.8099s]
+26/11/23 16:23:40| INFO        doc finished [took 15.1661s]
+26/11/23 16:23:43| INFO        atc_mc finished [took 21.2824s]
+26/11/23 16:23:44| INFO        bin_sld finished [took 26.5138s]
+26/11/23 16:23:45| INFO        m3w_sld finished [took 24.8415s]
+26/11/23 16:23:49| INFO        mul_sld finished [took 28.7849s]
+26/11/23 16:23:49| INFO     Dataset sample 0.50 of dataset imdb_1prevs finished [took 34.1335s]
+----------------------------------------------------------------------------------------------------
+26/11/23 16:24:00| INFO     dataset imdb_1prevs [pool size: 10]
+26/11/23 16:24:07| INFO     Dataset sample 0.50 of dataset imdb_1prevs started
+26/11/23 16:24:35| INFO        ref finished [took 21.2039s]
+26/11/23 16:24:35| INFO        doc finished [took 16.5994s]
+26/11/23 16:24:38| INFO        atc_mc finished [took 21.2076s]
+26/11/23 16:24:39| INFO        bin_sld finished [took 28.2131s]
+26/11/23 16:24:39| INFO        m3w_sld finished [took 25.8440s]
+26/11/23 16:24:43| INFO        mul_sld finished [took 31.8643s]
+26/11/23 16:24:43| INFO     Dataset sample 0.50 of dataset imdb_1prevs finished [took 36.6313s]
+----------------------------------------------------------------------------------------------------
+26/11/23 16:26:22| INFO     dataset imdb [pool size: 10]
+26/11/23 16:26:29| INFO     Dataset sample 0.10 of dataset imdb started
+26/11/23 16:26:46| INFO        doc finished [took 11.3898s]
+26/11/23 16:26:46| INFO        ref finished [took 14.1952s]
+26/11/23 16:26:49| INFO        atc_mc finished [took 16.1407s]
+26/11/23 16:26:52| INFO        m3w_sld finished [took 20.3713s]
+26/11/23 16:26:58| INFO        bin_sld finished [took 28.5205s]
+26/11/23 16:27:06| INFO        mul_sld finished [took 35.8858s]
+26/11/23 16:27:06| INFO     Dataset sample 0.10 of dataset imdb finished [took 37.4182s]
+26/11/23 16:27:06| INFO     Dataset sample 0.20 of dataset imdb started
+26/11/23 16:27:25| INFO        ref finished [took 15.6790s]
+26/11/23 16:27:25| INFO        doc finished [took 13.8983s]
+26/11/23 16:27:29| INFO        atc_mc finished [took 18.4964s]
+26/11/23 16:27:29| INFO        m3w_sld finished [took 19.6282s]
+26/11/23 16:27:37| INFO        bin_sld finished [took 30.2087s]
+26/11/23 16:27:41| INFO        mul_sld finished [took 32.5278s]
+26/11/23 16:27:41| INFO     Dataset sample 0.20 of dataset imdb finished [took 34.2369s]
+26/11/23 16:27:41| INFO     Dataset sample 0.30 of dataset imdb started
+26/11/23 16:27:59| INFO        ref finished [took 14.1290s]
+26/11/23 16:28:00| INFO        doc finished [took 14.2235s]
+26/11/23 16:28:04| INFO        atc_mc finished [took 17.3388s]
+26/11/23 16:28:05| INFO        m3w_sld finished [took 20.9451s]
+26/11/23 16:28:08| INFO        bin_sld finished [took 25.7576s]
+26/11/23 16:28:09| INFO        mul_sld finished [took 26.4283s]
+26/11/23 16:28:09| INFO     Dataset sample 0.30 of dataset imdb finished [took 28.2265s]
+26/11/23 16:28:09| INFO     Dataset sample 0.40 of dataset imdb started
+26/11/23 16:28:28| INFO        doc finished [took 13.4465s]
+26/11/23 16:28:28| INFO        ref finished [took 16.2233s]
+26/11/23 16:28:31| INFO        atc_mc finished [took 17.8511s]
+26/11/23 16:28:33| INFO        m3w_sld finished [took 21.1365s]
+26/11/23 16:28:36| INFO        bin_sld finished [took 25.8370s]
+26/11/23 16:28:38| INFO        mul_sld finished [took 27.5821s]
+26/11/23 16:28:38| INFO     Dataset sample 0.40 of dataset imdb finished [took 29.5875s]
+26/11/23 16:28:38| INFO     Dataset sample 0.50 of dataset imdb started
+26/11/23 16:28:59| INFO        ref finished [took 17.4782s]
+26/11/23 16:28:59| INFO        doc finished [took 16.2926s]
+26/11/23 16:29:03| INFO        atc_mc finished [took 20.7857s]
+26/11/23 16:29:04| INFO        m3w_sld finished [took 23.5271s]
+26/11/23 16:29:05| INFO        bin_sld finished [took 25.8989s]
+26/11/23 16:29:09| INFO        mul_sld finished [took 28.5549s]
+26/11/23 16:29:09| INFO     Dataset sample 0.50 of dataset imdb finished [took 30.5951s]
+26/11/23 16:29:09| INFO     Dataset sample 0.60 of dataset imdb started
+26/11/23 16:29:28| INFO        doc finished [took 14.5227s]
+26/11/23 16:29:29| INFO        ref finished [took 17.3996s]
+26/11/23 16:29:32| INFO        atc_mc finished [took 18.4573s]
+26/11/23 16:29:33| INFO        m3w_sld finished [took 21.9935s]
+26/11/23 16:29:35| INFO        bin_sld finished [took 25.5923s]
+26/11/23 16:29:37| INFO        mul_sld finished [took 26.4603s]
+26/11/23 16:29:37| INFO     Dataset sample 0.60 of dataset imdb finished [took 28.1236s]
+26/11/23 16:29:37| INFO     Dataset sample 0.70 of dataset imdb started
+26/11/23 16:29:57| INFO        doc finished [took 14.5036s]
+26/11/23 16:29:58| INFO        ref finished [took 17.3913s]
+26/11/23 16:30:02| INFO        atc_mc finished [took 20.0928s]
+26/11/23 16:30:03| INFO        m3w_sld finished [took 22.2008s]
+26/11/23 16:30:04| INFO        bin_sld finished [took 25.7488s]
+26/11/23 16:30:06| INFO        mul_sld finished [took 26.0060s]
+26/11/23 16:30:06| INFO     Dataset sample 0.70 of dataset imdb finished [took 28.8196s]
+26/11/23 16:30:06| INFO     Dataset sample 0.80 of dataset imdb started
+26/11/23 16:30:27| INFO        ref finished [took 16.3992s]
+26/11/23 16:30:27| INFO        doc finished [took 15.5131s]
+26/11/23 16:30:30| INFO        m3w_sld finished [took 21.9561s]
+26/11/23 16:30:31| INFO        atc_mc finished [took 19.9598s]
+26/11/23 16:30:35| INFO        mul_sld finished [took 27.1376s]
+26/11/23 16:30:36| INFO        bin_sld finished [took 28.3528s]
+26/11/23 16:30:36| INFO     Dataset sample 0.80 of dataset imdb finished [took 29.8656s]
+26/11/23 16:30:36| INFO     Dataset sample 0.90 of dataset imdb started
+26/11/23 16:30:53| INFO        doc finished [took 13.1831s]
+26/11/23 16:30:56| INFO        ref finished [took 16.5231s]
+26/11/23 16:30:59| INFO        atc_mc finished [took 19.5031s]
+26/11/23 16:31:02| INFO        m3w_sld finished [took 23.6839s]
+26/11/23 16:31:03| INFO        bin_sld finished [took 26.3150s]
+26/11/23 16:31:07| INFO        mul_sld finished [took 29.8139s]
+26/11/23 16:31:07| INFO     Dataset sample 0.90 of dataset imdb finished [took 31.3702s]
