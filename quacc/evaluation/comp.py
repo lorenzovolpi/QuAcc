@@ -12,7 +12,7 @@ from quacc.dataset import Dataset
 from quacc.environment import env
 from quacc.evaluation import baseline, method
 from quacc.evaluation.report import CompReport, DatasetReport
-from quacc.evaluation.worker import estimate_worker
+from quacc.evaluation.worker import WorkerArgs, estimate_worker
 from quacc.logger import Logger
 
 pd.set_option("display.float_format", "{:.4f}".format)
@@ -91,45 +91,42 @@ def evaluate_comparison(dataset: Dataset, estimators=None) -> DatasetReport:
             log.info(
                 f"Dataset sample {d.train_prev[1]:.2f} of dataset {dataset.name} started"
             )
-            tstart = time.time()
             tasks = [
-                (estim, d.train, d.validation, d.test) for estim in CE.func[estimators]
+                WorkerArgs(
+                    _estimate=estim,
+                    train=d.train,
+                    validation=d.validation,
+                    test=d.test,
+                    _env=env,
+                    q=Logger.queue(),
+                )
+                for estim in CE.func[estimators]
             ]
-            results = [
-                pool.apply_async(estimate_worker, t, {"_env": env, "q": Logger.queue()})
-                for t in tasks
-            ]
-
-            results_got = []
-            for _r in results:
-                try:
-                    r = _r.get()
-                    if r["result"] is not None:
-                        results_got.append(r)
-                except Exception as e:
-                    log.warning(
-                        f"Dataset sample {d.train_prev[1]:.2f} of dataset {dataset.name} failed. Exception: {e}"
-                    )
-
-            tend = time.time()
-            times = {r["name"]: r["time"] for r in results_got}
-            times["tot"] = tend - tstart
-            log.info(
-                f"Dataset sample {d.train_prev[1]:.2f} of dataset {dataset.name} finished [took {times['tot']:.4f}s]"
-            )
             try:
+                tstart = time.time()
+                results = [
+                    r for r in pool.imap(estimate_worker, tasks) if r is not None
+                ]
+
+                g_time = time.time() - tstart
+                log.info(
+                    f"Dataset sample {d.train_prev[1]:.2f} of dataset {dataset.name} finished "
+                    f"[took {g_time:.4f}s]"
+                )
+
                 cr = CompReport(
-                    [r["result"] for r in results_got],
+                    results,
                     name=dataset.name,
                     train_prev=d.train_prev,
                     valid_prev=d.validation_prev,
-                    times=times,
+                    g_time=g_time,
                 )
+                dr += cr
+
             except Exception as e:
                 log.warning(
-                    f"Dataset sample {d.train_prev[1]:.2f} of dataset {dataset.name} failed. Exception: {e}"
+                    f"Dataset sample {d.train_prev[1]:.2f} of dataset {dataset.name} failed. "
+                    f"Exception: {e}"
                 )
                 traceback(e)
-                cr = None
-            dr += cr
     return dr
