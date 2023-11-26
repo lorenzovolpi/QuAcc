@@ -8,6 +8,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.svm import LinearSVC
 
 import quacc as qc
+from quacc.environment import env
 from quacc.evaluation.report import EvaluationReport
 from quacc.method.base import BQAE, MCAE, BaseAccuracyEstimator
 from quacc.method.model_selection import GridSearchAE
@@ -97,7 +98,7 @@ class EvaluationMethodGridSearch(EvaluationMethod):
     pg: str = "sld"
 
     def __call__(self, c_model, validation, protocol) -> EvaluationReport:
-        v_train, v_val = validation.split_stratified(0.6, random_state=0)
+        v_train, v_val = validation.split_stratified(0.6, random_state=env._R_SEED)
         __grid = _param_grid.get(self.pg, {})
         est = GridSearchAE(
             model=self.get_est(c_model),
@@ -122,7 +123,7 @@ def __sld_lr():
 
 
 def __kde_lr():
-    return KDEy(LogisticRegression())
+    return KDEy(LogisticRegression(), random_state=env._R_SEED)
 
 
 def __sld_lsvc():
