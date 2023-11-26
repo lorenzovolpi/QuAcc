@@ -44,9 +44,9 @@ class GridSearchAE(BaseAccuracyEstimator):
         self.__check_error(error)
         assert isinstance(protocol, AbstractProtocol), "unknown protocol"
 
-    def _sout(self, msg):
-        if self.verbose:
-            print(f"[{self.__class__.__name__}]: {msg}")
+    def _sout(self, msg, level=0):
+        if level > 0 or self.verbose:
+            print(f"[{self.__class__.__name__}@{self.model.__class__.__name__}]: {msg}")
 
     def __normalize_params(self, params):
         __remap = {}
@@ -113,8 +113,10 @@ class GridSearchAE(BaseAccuracyEstimator):
 
         self._sout(
             f"optimization finished: best params {self.best_params_} (score={self.best_score_:.5f}) "
-            f"[took {tend:.4f}s]"
+            f"[took {tend:.4f}s]",
+            level=1,
         )
+
         log = SubLogger.logger()
         log.debug(
             f"[{self.model.__class__.__name__}] "
@@ -160,7 +162,7 @@ class GridSearchAE(BaseAccuracyEstimator):
 
             ttime = time() - tinit
             self._sout(
-                f"hyperparams={params}\t got score {score:.5f} [took {ttime:.4f}s]"
+                f"hyperparams={params}\t got score {score:.5f} [took {ttime:.4f}s]",
             )
 
             # if self.timeout > 0:
@@ -169,12 +171,18 @@ class GridSearchAE(BaseAccuracyEstimator):
         #     self._sout(f"timeout ({self.timeout}s) reached for config {params}")
         #     score = None
         except ValueError as e:
-            self._sout(f"the combination of hyperparameters {params} is invalid")
-            raise e
+            self._sout(
+                f"the combination of hyperparameters {params} is invalid. Exception: {e}",
+                level=1,
+            )
+            score = None
+            # raise e
         except Exception as e:
-            self._sout(f"something went wrong for config {params}; skipping:")
-            self._sout(f"\tException: {e}")
-
+            self._sout(
+                f"something went wrong for config {params}; skipping:"
+                f"\tException: {e}",
+                level=1,
+            )
             score = None
 
         return params, score, model
