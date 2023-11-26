@@ -1,0 +1,9 @@
+{
+    "terminal.integrated.profiles.linux": {
+        "volpi@ilona": {
+            "path": "fish",
+            "args": ["-c", "ssh volpi@ilona.isti.cnr.it",],
+            "overrideName": true,
+        },
+    }
+}
