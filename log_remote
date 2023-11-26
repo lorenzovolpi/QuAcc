@@ -1,4 +1,0 @@
-#!/bin/bash
-
-scp volpi@ilona.isti.cnr.it:~/tesi/quacc.log remote.log &> /dev/null
-ssh volpi@ilona.isti.cnr.it tail -n 0 -f tesi/quacc.log >> remote.log
