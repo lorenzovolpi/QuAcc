@@ -9,23 +9,15 @@
             "name": "main",
             "type": "python",
             "request": "launch",
-            "program": "~/source/tesi/quacc/main.py",
+            "program": "~/tesi/quacc/main.py",
             "console": "integratedTerminal",
             "justMyCode": true
-        },
-        {
-            "name": "main_test",
-            "type": "python",
-            "request": "launch",
-            "program": "C:\\Users\\Lorenzo Volpi\\source\\tesi\\quacc\\main_test.py",
-            "console": "integratedTerminal",
-            "justMyCode": false
         },
         {
             "name": "panel",
             "type": "python",
             "request": "launch",
-            "program": "~/source/tesi/qcpanel/run.py",
+            "program": "~/tesi/qcpanel/run.py",
             "console": "integratedTerminal",
             "justMyCode": true
         },
