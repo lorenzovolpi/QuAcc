@@ -10,6 +10,7 @@ qcpanel/__pycache__/*
 quacc/__pycache__/*
 quacc/evaluation/__pycache__/*
 quacc/method/__pycache__/*
+quacc/quantification/__pycache__/*
 tests/__pycache__/*
 tests/*/__pycache__/*
 tests/*/*/__pycache__/*
