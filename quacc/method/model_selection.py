@@ -13,6 +13,7 @@ from sklearn.base import BaseEstimator
 import quacc as qc
 import quacc.error
 from quacc.data import ExtendedCollection, ExtendedData
+from quacc.environment import env
 from quacc.evaluation import evaluate
 from quacc.logger import SubLogger
 from quacc.method.base import (
@@ -251,7 +252,7 @@ class MCAEgsq(MultiClassAccuracyEstimator):
 
     def fit(self, train: LabelledCollection):
         self.e_train = self.extend(train)
-        t_train, t_val = self.e_train.split_stratified(0.6, random_state=0)
+        t_train, t_val = self.e_train.split_stratified(0.6, random_state=env._R_SEED)
         self.quantifier = GridSearchQ(
             deepcopy(self.quantifier),
             param_grid=self.param_grid,
@@ -304,7 +305,7 @@ class BQAEgsq(BinaryQuantifierAccuracyEstimator):
 
         self.quantifiers = []
         for e_train in self.e_trains:
-            t_train, t_val = e_train.split_stratified(0.6, random_state=0)
+            t_train, t_val = e_train.split_stratified(0.6, random_state=env._R_SEED)
             quantifier = GridSearchQ(
                 model=deepcopy(self.quantifier),
                 param_grid=self.param_grid,

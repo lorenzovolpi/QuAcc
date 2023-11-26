@@ -17,6 +17,7 @@ import baselines.impweight as iw
 import baselines.mandoline as mandolib
 import baselines.rca as rcalib
 from baselines.utils import clone_fit
+from quacc.environment import env
 
 from .report import EvaluationReport
 
@@ -169,7 +170,7 @@ def doc(
     predict_method="predict_proba",
 ):
     c_model_predict = getattr(c_model, predict_method)
-    val1, val2 = validation.split_stratified(train_prop=0.5, random_state=0)
+    val1, val2 = validation.split_stratified(train_prop=0.5, random_state=env._R_SEED)
     val1_probs = c_model_predict(val1.X)
     val1_mc = np.max(val1_probs, axis=-1)
     val1_preds = np.argmax(val1_probs, axis=-1)
@@ -281,7 +282,7 @@ def rca_star(
     """elsahar19"""
     c_model_predict = getattr(c_model, predict_method)
     validation1, validation2 = validation.split_stratified(
-        train_prop=0.5, random_state=0
+        train_prop=0.5, random_state=env._R_SEED
     )
     val1_pred = c_model_predict(validation1.X)
     c_model1 = clone_fit(c_model, validation1.X, val1_pred)
@@ -318,7 +319,7 @@ def gde(
     predict_method="predict",
 ) -> EvaluationReport:
     c_model_predict = getattr(c_model, predict_method)
-    val1, val2 = validation.split_stratified(train_prop=0.5, random_state=0)
+    val1, val2 = validation.split_stratified(train_prop=0.5, random_state=env._R_SEED)
     c_model1 = clone_fit(c_model, val1.X, val1.y)
     c_model1_predict = getattr(c_model1, predict_method)
     c_model2 = clone_fit(c_model, val2.X, val2.y)
