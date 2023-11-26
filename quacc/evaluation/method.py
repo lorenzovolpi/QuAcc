@@ -1,26 +1,35 @@
+from dataclasses import dataclass
+from typing import List
+
 import numpy as np
-from quapy.method.aggregative import PACC, SLD
+from quapy.method.aggregative import PACC, SLD, BaseQuantifier
 from quapy.protocol import UPP, AbstractProtocol
 from sklearn.linear_model import LogisticRegression
 from sklearn.svm import LinearSVC
 
 import quacc as qc
 from quacc.evaluation.report import EvaluationReport
+from quacc.method.base import BQAE, MCAE, BaseAccuracyEstimator
 from quacc.method.model_selection import GridSearchAE
-
-from ..method.base import BQAE, MCAE, BaseAccuracyEstimator
+from quacc.quantification import KDEy
 
 _param_grid = {
     "sld": {
         "q__classifier__C": np.logspace(-3, 3, 7),
         "q__classifier__class_weight": [None, "balanced"],
         "q__recalib": [None, "bcts"],
-        "confidence": [["isoft"], ["max_conf", "entropy"]],
+        "confidence": [None, ["isoft"], ["max_conf", "entropy"]],
     },
     "pacc": {
         "q__classifier__C": np.logspace(-3, 3, 7),
         "q__classifier__class_weight": [None, "balanced"],
-        "confidence": [["isoft"], ["max_conf", "entropy"]],
+        "confidence": [None, ["isoft"], ["max_conf", "entropy"]],
+    },
+    "kde": {
+        "q__classifier__C": np.logspace(-3, 3, 7),
+        "q__classifier__class_weight": [None, "balanced"],
+        "q__bandwidth": np.linspace(0.01, 0.2, 5),
+        "confidence": [None, ["isoft"]],
     },
 }
 
@@ -56,38 +65,42 @@ def evaluation_report(
     return report
 
 
+@dataclass(frozen=True)
 class EvaluationMethod:
-    def __init__(self, name, q, est_c, conf=None, cf=False):
-        self.name = name
-        self.__name__ = name
-        self.q = q
-        self.est_c = est_c
-        self.conf = conf
-        self.cf = cf
+    name: str
+    q: BaseQuantifier
+    est_n: str
+    conf: List[str] | str = None
+    cf: bool = False
+
+    def get_est(self, c_model):
+        match self.est_n:
+            case "mul":
+                return MCAE(
+                    c_model,
+                    self.q,
+                    confidence=self.conf,
+                    collapse_false=self.cf,
+                )
+            case "bin":
+                return BQAE(c_model, self.q, confidence=self.conf)
 
     def __call__(self, c_model, validation, protocol) -> EvaluationReport:
-        est = self.est_c(
-            c_model,
-            self.q,
-            confidence=self.conf,
-            collapse_false=self.cf,
-        ).fit(validation)
+        est = self.get_est(c_model).fit(validation)
         return evaluation_report(
             estimator=est, protocol=protocol, method_name=self.name
         )
 
 
+@dataclass(frozen=True)
 class EvaluationMethodGridSearch(EvaluationMethod):
-    def __init__(self, name, q, est_c, cf=False, pg="sld"):
-        super().__init__(name, q, est_c, cf=cf)
-        self.pg = pg
+    pg: str = "sld"
 
     def __call__(self, c_model, validation, protocol) -> EvaluationReport:
         v_train, v_val = validation.split_stratified(0.6, random_state=0)
-        model = self.est_c(c_model, self.q, collapse_false=self.cf)
         __grid = _param_grid.get(self.pg, {})
         est = GridSearchAE(
-            model=model,
+            model=self.get_est(c_model),
             param_grid=__grid,
             refit=False,
             protocol=UPP(v_val, repeats=100),
@@ -108,6 +121,10 @@ def __sld_lr():
     return SLD(LogisticRegression())
 
 
+def __kde_lr():
+    return KDEy(LogisticRegression())
+
+
 def __sld_lsvc():
     return SLD(LinearSVC())
 
@@ -119,37 +136,54 @@ def __pacc_lr():
 # fmt: off
 __methods_set = [
     # base sld
-    M("bin_sld",     __sld_lr(),  BQAE                                       ),
-    M("mul_sld",     __sld_lr(),  MCAE                                       ),
-    M("m3w_sld",     __sld_lr(),  MCAE,                               cf=True),
+    M("bin_sld",     __sld_lr(),  "bin"                                       ),
+    M("mul_sld",     __sld_lr(),  "mul"                                       ),
+    M("m3w_sld",     __sld_lr(),  "mul",                               cf=True),
     # max_conf + entropy sld
-    M("binc_sld",    __sld_lr(),  BQAE, conf=["max_conf", "entropy"]         ),
-    M("mulc_sld",    __sld_lr(),  MCAE, conf=["max_conf", "entropy"]         ),
-    M("m3wc_sld",    __sld_lr(),  MCAE, conf=["max_conf", "entropy"], cf=True),
+    M("binc_sld",    __sld_lr(),  "bin", conf=["max_conf", "entropy"]         ),
+    M("mulc_sld",    __sld_lr(),  "mul", conf=["max_conf", "entropy"]         ),
+    M("m3wc_sld",    __sld_lr(),  "mul", conf=["max_conf", "entropy"], cf=True),
     # max_conf sld
-    M("binmc_sld",   __sld_lr(),  BQAE, conf="max_conf",                     ),
-    M("mulmc_sld",   __sld_lr(),  MCAE, conf="max_conf",                     ),
-    M("m3wmc_sld",   __sld_lr(),  MCAE, conf="max_conf",              cf=True),
+    M("binmc_sld",   __sld_lr(),  "bin", conf="max_conf",                     ),
+    M("mulmc_sld",   __sld_lr(),  "mul", conf="max_conf",                     ),
+    M("m3wmc_sld",   __sld_lr(),  "mul", conf="max_conf",              cf=True),
     # entropy sld
-    M("binne_sld",   __sld_lr(),  BQAE, conf="entropy",                      ),
-    M("mulne_sld",   __sld_lr(),  MCAE, conf="entropy",                      ),
-    M("m3wne_sld",   __sld_lr(),  MCAE, conf="entropy",               cf=True),
+    M("binne_sld",   __sld_lr(),  "bin", conf="entropy",                      ),
+    M("mulne_sld",   __sld_lr(),  "mul", conf="entropy",                      ),
+    M("m3wne_sld",   __sld_lr(),  "mul", conf="entropy",               cf=True),
     # inverse softmax sld
-    M("binis_sld",   __sld_lr(),  BQAE, conf="isoft",                        ),
-    M("mulis_sld",   __sld_lr(),  MCAE, conf="isoft",                        ),
-    M("m3wis_sld",   __sld_lr(),  MCAE, conf="isoft",                 cf=True),
-    # inverse softmax sld
-    M("binis_pacc",  __pacc_lr(), BQAE, conf="isoft",                        ),
-    M("mulis_pacc",  __pacc_lr(), MCAE, conf="isoft",                        ),
-    M("m3wis_pacc",  __pacc_lr(), MCAE, conf="isoft",                 cf=True),
+    M("binis_sld",   __sld_lr(),  "bin", conf="isoft",                        ),
+    M("mulis_sld",   __sld_lr(),  "mul", conf="isoft",                        ),
+    M("m3wis_sld",   __sld_lr(),  "mul", conf="isoft",                 cf=True),
     # gs sld
-    G("bin_sld_gs",  __sld_lr(),  BQAE, pg="sld"                             ),
-    G("mul_sld_gs",  __sld_lr(),  MCAE, pg="sld"                             ),
-    G("m3w_sld_gs",  __sld_lr(),  MCAE, pg="sld",                     cf=True),
-    # gs pacc
-    G("bin_pacc_gs", __pacc_lr(), BQAE, pg="pacc"                            ),
-    G("mul_pacc_gs", __pacc_lr(), MCAE, pg="pacc"                            ),
-    G("m3w_pacc_gs", __pacc_lr(), MCAE, pg="pacc",                    cf=True),
+    G("bin_sld_gs",  __sld_lr(),  "bin", pg="sld"                             ),
+    G("mul_sld_gs",  __sld_lr(),  "mul", pg="sld"                             ),
+    G("m3w_sld_gs",  __sld_lr(),  "mul", pg="sld",                     cf=True),
+
+    # base kde
+    M("bin_kde",     __kde_lr(),  "bin"                                       ),
+    M("mul_kde",     __kde_lr(),  "mul"                                       ),
+    M("m3w_kde",     __kde_lr(),  "mul",                               cf=True),
+    # max_conf + entropy kde
+    M("binc_kde",    __kde_lr(),  "bin", conf=["max_conf", "entropy"]         ),
+    M("mulc_kde",    __kde_lr(),  "mul", conf=["max_conf", "entropy"]         ),
+    M("m3wc_kde",    __kde_lr(),  "mul", conf=["max_conf", "entropy"], cf=True),
+    # max_conf kde
+    M("binmc_kde",   __kde_lr(),  "bin", conf="max_conf",                     ),
+    M("mulmc_kde",   __kde_lr(),  "mul", conf="max_conf",                     ),
+    M("m3wmc_kde",   __kde_lr(),  "mul", conf="max_conf",              cf=True),
+    # entropy kde
+    M("binne_kde",   __kde_lr(),  "bin", conf="entropy",                      ),
+    M("mulne_kde",   __kde_lr(),  "mul", conf="entropy",                      ),
+    M("m3wne_kde",   __kde_lr(),  "mul", conf="entropy",               cf=True),
+    # inverse softmax kde
+    M("binis_kde",   __kde_lr(),  "bin", conf="isoft",                        ),
+    M("mulis_kde",   __kde_lr(),  "mul", conf="isoft",                        ),
+    M("m3wis_kde",   __kde_lr(),  "mul", conf="isoft",                 cf=True),
+    # gs kde
+    G("bin_kde_gs",  __kde_lr(),  "bin", pg="kde",                            ),
+    G("mul_kde_gs",  __kde_lr(),  "mul", pg="kde",                            ),
+    G("m3w_kde_gs",  __kde_lr(),  "mul", pg="kde",                     cf=True),
 ]
 # fmt: on
 
