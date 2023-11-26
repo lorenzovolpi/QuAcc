@@ -1,44 +1,52 @@
 import time
+from dataclasses import dataclass
+from multiprocessing import Queue
 from traceback import print_exception as traceback
 
 import quapy as qp
+from quapy.data import LabelledCollection
 from quapy.protocol import APP
 from sklearn.linear_model import LogisticRegression
 
+from quacc.environment import env, environ
 from quacc.logger import SubLogger
 
 
-def estimate_worker(_estimate, train, validation, test, _env=None, q=None):
-    qp.environ["SAMPLE_SIZE"] = _env.SAMPLE_SIZE
-    SubLogger.setup(q)
-    log = SubLogger.logger()
+@dataclass(frozen=True)
+class WorkerArgs:
+    _estimate: callable
+    train: LabelledCollection
+    validation: LabelledCollection
+    test: LabelledCollection
+    _env: environ
+    q: Queue
 
-    model = LogisticRegression()
 
-    model.fit(*train.Xy)
-    protocol = APP(
-        test,
-        n_prevalences=_env.PROTOCOL_N_PREVS,
-        repeats=_env.PROTOCOL_REPEATS,
-        return_type="labelled_collection",
-    )
-    start = time.time()
-    try:
-        result = _estimate(model, validation, protocol)
-    except Exception as e:
-        log.warning(f"Method {_estimate.__name__} failed. Exception: {e}")
-        traceback(e)
-        return {
-            "name": _estimate.__name__,
-            "result": None,
-            "time": 0,
-        }
+def estimate_worker(args: WorkerArgs):
+    with env.load(args._env):
+        qp.environ["SAMPLE_SIZE"] = env.SAMPLE_SIZE
+        SubLogger.setup(args.q)
+        log = SubLogger.logger()
 
-    end = time.time()
-    log.info(f"{_estimate.__name__} finished [took {end-start:.4f}s]")
+        model = LogisticRegression()
 
-    return {
-        "name": _estimate.__name__,
-        "result": result,
-        "time": end - start,
-    }
+        model.fit(*args.train.Xy)
+        protocol = APP(
+            args.test,
+            n_prevalences=env.PROTOCOL_N_PREVS,
+            repeats=env.PROTOCOL_REPEATS,
+            return_type="labelled_collection",
+            random_state=env._R_SEED,
+        )
+        start = time.time()
+        try:
+            result = args._estimate(model, args.validation, protocol)
+        except Exception as e:
+            log.warning(f"Method {args._estimate.name} failed. Exception: {e}")
+            traceback(e)
+            return None
+
+        result.time = time.time() - start
+        log.info(f"{args._estimate.name} finished [took {result.time:.4f}s]")
+
+        return result
