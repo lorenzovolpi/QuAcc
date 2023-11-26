@@ -96,11 +96,15 @@ class QuaccTestViewer(param.Parameterized):
             parameters=["estimators"],
             widgets={
                 "estimators": {
-                    "widget_type": pn.widgets.CheckButtonGroup,
-                    "orientation": "vertical",
+                    "widget_type": pn.widgets.MultiChoice,
+                    # "orientation": "vertical",
                     "sizing_mode": "scale_width",
-                    "button_type": "primary",
-                    "button_style": "outline",
+                    # "button_type": "primary",
+                    # "button_style": "outline",
+                    "solid": True,
+                    "search_option_limit": 1000,
+                    "option_limit": 1000,
+                    "max_items": 1000,
                 }
             },
         )
