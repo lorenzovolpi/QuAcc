@@ -7,7 +7,7 @@ import panel as pn
 import param
 
 from qcpanel.util import create_plots, explore_datasets, valid_plot_modes
-from quacc.evaluation.comp import CE
+from quacc.evaluation.estimators import CE
 from quacc.evaluation.report import DatasetReport
 
 
