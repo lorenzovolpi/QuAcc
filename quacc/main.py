@@ -3,10 +3,9 @@ from traceback import print_exception as traceback
 import quacc.evaluation.comp as comp
 from quacc.dataset import Dataset
 from quacc.environment import env
+from quacc.evaluation.estimators import CE
 from quacc.logger import Logger
 from quacc.utils import create_dataser_dir
-
-CE = comp.CompEstimator()
 
 
 def estimate_comparison():
