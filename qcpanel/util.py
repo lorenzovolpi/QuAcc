@@ -4,30 +4,13 @@ from pathlib import Path
 
 import panel as pn
 
-from quacc.evaluation.comp import CE
-from quacc.evaluation.report import DatasetReport
+from quacc.evaluation.estimators import CE
+from quacc.evaluation.report import CompReport, DatasetReport
+from quacc.evaluation.stats import ttest_rel
 
 _plot_sizing_mode = "stretch_both"
-valid_plot_modes = defaultdict(
-    lambda: [
-        "delta_train",
-        "stdev_train",
-        "train_table",
-        "shift",
-        "shift_table",
-        "diagonal",
-    ]
-)
-valid_plot_modes["avg"] = [
-    "delta_train",
-    "stdev_train",
-    "train_table",
-    "shift",
-    "shift_table",
-    "delta_test",
-    "stdev_test",
-    "test_table",
-]
+valid_plot_modes = defaultdict(lambda: CompReport._default_modes)
+valid_plot_modes["avg"] = DatasetReport._default_dr_modes
 
 
 def create_plots(
@@ -59,6 +42,9 @@ def create_plots(
                 .groupby(level=0)
                 .mean()
             )
+            return pn.pane.DataFrame(_data, align="center") if not _data.empty else None
+        case ("avg", "stats_table"):
+            _data = ttest_rel(dr, metric=metric, estimators=estimators)
             return pn.pane.DataFrame(_data, align="center") if not _data.empty else None
         case ("avg", _ as plot_mode):
             _plot = dr.get_plots(
