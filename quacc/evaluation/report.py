@@ -344,6 +344,7 @@ class DatasetReport:
         "delta_test",
         "stdev_test",
         "test_table",
+        "stats_table",
     ]
     _default_cr_modes = CompReport._default_modes
 
