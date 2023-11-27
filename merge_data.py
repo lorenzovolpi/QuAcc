@@ -6,7 +6,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from quacc.evaluation.comp import CE
+from quacc.evaluation.estimators import CE
 from quacc.evaluation.report import DatasetReport, DatasetReportInfo
 
 
