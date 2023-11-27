@@ -7178,3 +7178,18 @@
 26/11/23 11:40:26| INFO        atc_mc finished [took 43.9135s]
 26/11/23 14:51:06| DEBUG       [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 0.01, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.0575, 'confidence': ['isoft']} (score=0.00820) [took 11490.9601s]
 26/11/23 15:14:11| INFO        bin_kde_gs finished [took 12876.1735s]
+26/11/23 16:34:37| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.01, 'confidence': None} (score=0.00900) [took 17699.0875s]
+26/11/23 16:47:40| INFO        m3w_kde_gs finished [took 18481.8915s]
+26/11/23 17:04:36| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.0575, 'confidence': None} (score=0.00789) [took 19500.2223s]
+26/11/23 17:14:11| INFO        mul_kde_gs finished [took 20075.5421s]
+26/11/23 17:14:11| INFO     Dataset sample 0.80 of dataset imdb finished [took 20082.2791s]
+26/11/23 17:14:11| INFO     Dataset sample 0.90 of dataset imdb started
+26/11/23 17:15:20| INFO        doc finished [took 58.1112s]
+26/11/23 17:15:22| INFO        ref finished [took 62.7922s]
+26/11/23 17:15:32| INFO        atc_mc finished [took 71.1179s]
+26/11/23 17:22:00| WARNING     Method bin_kde_gs failed. Exception: no combination of hyperparameters seem to work
+26/11/23 21:26:48| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.0575, 'confidence': None} (score=0.00883) [took 15151.3926s]
+26/11/23 21:44:19| INFO        m3w_kde_gs finished [took 16202.9914s]
+26/11/23 21:53:46| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.0575, 'confidence': None} (score=0.00944) [took 16770.6298s]
+26/11/23 22:04:28| INFO        mul_kde_gs finished [took 17412.4769s]
+26/11/23 22:04:28| INFO     Dataset sample 0.90 of dataset imdb finished [took 17416.0963s]
