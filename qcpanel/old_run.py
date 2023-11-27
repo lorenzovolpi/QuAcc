@@ -5,7 +5,7 @@ from pathlib import Path
 import panel as pn
 import param
 
-from quacc.evaluation.comp import CE
+from quacc.evaluation.estimators import CE
 from quacc.evaluation.report import DatasetReport
 
 pn.extension(design="bootstrap")
