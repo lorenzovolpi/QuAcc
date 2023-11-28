@@ -66,6 +66,7 @@ class CompReport:
         "shift",
         "shift_table",
         "diagonal",
+        "stats_table",
     ]
 
     def __init__(
