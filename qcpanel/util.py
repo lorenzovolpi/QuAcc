@@ -6,7 +6,7 @@ import panel as pn
 
 from quacc.evaluation.estimators import CE
 from quacc.evaluation.report import CompReport, DatasetReport
-from quacc.evaluation.stats import ttest_rel
+from quacc.evaluation.stats import wilcoxon
 
 _plot_sizing_mode = "stretch_both"
 valid_plot_modes = defaultdict(lambda: CompReport._default_modes)
@@ -44,7 +44,7 @@ def create_plots(
             )
             return pn.pane.DataFrame(_data, align="center") if not _data.empty else None
         case ("avg", "stats_table"):
-            _data = ttest_rel(dr, metric=metric, estimators=estimators)
+            _data = wilcoxon(dr, metric=metric, estimators=estimators)
             return pn.pane.DataFrame(_data, align="center") if not _data.empty else None
         case ("avg", _ as plot_mode):
             _plot = dr.get_plots(
@@ -79,6 +79,10 @@ def create_plots(
                 .groupby(level=0)
                 .mean()
             )
+            return pn.pane.DataFrame(_data, align="center") if not _data.empty else None
+        case (_, "stats_table"):
+            cr = dr.crs[_prevs.index(int(plot_view))]
+            _data = wilcoxon(cr, metric=metric, estimators=estimators)
             return pn.pane.DataFrame(_data, align="center") if not _data.empty else None
         case (_, _ as plot_mode):
             cr = dr.crs[_prevs.index(int(plot_view))]
