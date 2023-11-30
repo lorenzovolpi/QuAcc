@@ -14,7 +14,7 @@ from dash.dash_table.Format import Format, Scheme
 from quacc import plot
 from quacc.evaluation.estimators import CE
 from quacc.evaluation.report import CompReport, DatasetReport
-from quacc.evaluation.stats import ttest_rel
+from quacc.evaluation.stats import wilcoxon
 
 backend = plot.get_backend("plotly")
 
@@ -89,7 +89,7 @@ def get_table(dr: DatasetReport, metric, estimators, view, mode):
                 .mean()
             )
         case ("avg", "stats_table"):
-            return ttest_rel(dr, metric=metric, estimators=estimators)
+            return wilcoxon(dr, metric=metric, estimators=estimators)
         case (_, "train_table"):
             cr = dr.crs[_prevs.index(view)]
             return cr.data(metric=metric, estimators=estimators).groupby(level=0).mean()
@@ -100,6 +100,9 @@ def get_table(dr: DatasetReport, metric, estimators, view, mode):
                 .groupby(level=0)
                 .mean()
             )
+        case (_, "stats_table"):
+            cr = dr.crs[_prevs.index(view)]
+            return wilcoxon(cr, metric=metric, estimators=estimators)
 
 
 def get_DataTable(df):
