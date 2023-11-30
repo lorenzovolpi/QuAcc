@@ -6,7 +6,7 @@ from typing import List, Tuple
 import numpy as np
 import pandas as pd
 
-from quacc import plot
+import quacc.plot as plot
 from quacc.utils import fmt_line_md
 
 
@@ -215,16 +215,17 @@ class CompReport:
 
     def get_plots(
         self,
-        mode="delta",
+        mode="delta_train",
         metric="acc",
         estimators=None,
         conf="default",
-        return_fig=False,
+        save_fig=True,
         base_path=None,
+        backend=None,
     ) -> List[Tuple[str, Path]]:
         if mode == "delta_train":
             avg_data = self.avg_by_prevs(metric=metric, estimators=estimators)
-            if avg_data.empty is True:
+            if avg_data.empty:
                 return None
 
             return plot.plot_delta(
@@ -234,8 +235,9 @@ class CompReport:
                 metric=metric,
                 name=conf,
                 train_prev=self.train_prev,
-                return_fig=return_fig,
+                save_fig=save_fig,
                 base_path=base_path,
+                backend=backend,
             )
         elif mode == "stdev_train":
             avg_data = self.avg_by_prevs(metric=metric, estimators=estimators)
@@ -251,8 +253,9 @@ class CompReport:
                 name=conf,
                 train_prev=self.train_prev,
                 stdevs=st_data.T.to_numpy(),
-                return_fig=return_fig,
+                save_fig=save_fig,
                 base_path=base_path,
+                backend=backend,
             )
         elif mode == "diagonal":
             f_data = self.data(metric=metric + "_score", estimators=estimators)
@@ -268,8 +271,9 @@ class CompReport:
                 metric=metric,
                 name=conf,
                 train_prev=self.train_prev,
-                return_fig=return_fig,
+                save_fig=save_fig,
                 base_path=base_path,
+                backend=backend,
             )
         elif mode == "shift":
             _shift_data = self.shift_data(metric=metric, estimators=estimators)
@@ -290,8 +294,9 @@ class CompReport:
                 name=conf,
                 train_prev=self.train_prev,
                 counts=shift_counts.T.to_numpy(),
-                return_fig=return_fig,
+                save_fig=save_fig,
                 base_path=base_path,
+                backend=backend,
             )
 
     def to_md(
@@ -323,11 +328,12 @@ class CompReport:
         plot_modes = [m for m in modes if not m.endswith("table")]
         for mode in plot_modes:
             res += f"### {mode}\n"
-            op = self.get_plots(
+            _, op = self.get_plots(
                 mode=mode,
                 metric=metric,
                 estimators=estimators,
                 conf=conf,
+                save_fig=True,
                 base_path=plot_path,
             )
             res += f"![plot_{mode}]({op.relative_to(op.parents[1]).as_posix()})\n"
@@ -424,12 +430,15 @@ class DatasetReport:
         metric="acc",
         estimators=None,
         conf="default",
-        return_fig=False,
+        save_fig=True,
         base_path=None,
+        backend=None,
     ):
         if mode == "delta_train":
             _data = self.data(metric, estimators) if data is None else data
             avg_on_train = _data.groupby(level=1).mean()
+            if avg_on_train.empty:
+                return None
             prevs_on_train = np.sort(avg_on_train.index.unique(0))
             return plot.plot_delta(
                 base_prevs=np.around(
@@ -441,12 +450,15 @@ class DatasetReport:
                 name=conf,
                 train_prev=None,
                 avg="train",
-                return_fig=return_fig,
+                save_fig=save_fig,
                 base_path=base_path,
+                backend=backend,
             )
         elif mode == "stdev_train":
             _data = self.data(metric, estimators) if data is None else data
             avg_on_train = _data.groupby(level=1).mean()
+            if avg_on_train.empty:
+                return None
             prevs_on_train = np.sort(avg_on_train.index.unique(0))
             stdev_on_train = _data.groupby(level=1).std()
             return plot.plot_delta(
@@ -460,12 +472,15 @@ class DatasetReport:
                 train_prev=None,
                 stdevs=stdev_on_train.T.to_numpy(),
                 avg="train",
-                return_fig=return_fig,
+                save_fig=save_fig,
                 base_path=base_path,
+                backend=backend,
             )
         elif mode == "delta_test":
             _data = self.data(metric, estimators) if data is None else data
             avg_on_test = _data.groupby(level=0).mean()
+            if avg_on_test.empty:
+                return None
             prevs_on_test = np.sort(avg_on_test.index.unique(0))
             return plot.plot_delta(
                 base_prevs=np.around([(1.0 - p, p) for p in prevs_on_test], decimals=2),
@@ -475,12 +490,15 @@ class DatasetReport:
                 name=conf,
                 train_prev=None,
                 avg="test",
-                return_fig=return_fig,
+                save_fig=save_fig,
                 base_path=base_path,
+                backend=backend,
             )
         elif mode == "stdev_test":
             _data = self.data(metric, estimators) if data is None else data
             avg_on_test = _data.groupby(level=0).mean()
+            if avg_on_test.empty:
+                return None
             prevs_on_test = np.sort(avg_on_test.index.unique(0))
             stdev_on_test = _data.groupby(level=0).std()
             return plot.plot_delta(
@@ -492,12 +510,15 @@ class DatasetReport:
                 train_prev=None,
                 stdevs=stdev_on_test.T.to_numpy(),
                 avg="test",
-                return_fig=return_fig,
+                save_fig=save_fig,
                 base_path=base_path,
+                backend=backend,
             )
         elif mode == "shift":
             _shift_data = self.shift_data(metric, estimators) if data is None else data
             avg_shift = _shift_data.groupby(level=0).mean()
+            if avg_shift.empty:
+                return None
             count_shift = _shift_data.groupby(level=0).count()
             prevs_shift = np.sort(avg_shift.index.unique(0))
             return plot.plot_shift(
@@ -508,8 +529,9 @@ class DatasetReport:
                 name=conf,
                 train_prev=None,
                 counts=count_shift.T.to_numpy(),
-                return_fig=return_fig,
+                save_fig=save_fig,
                 base_path=base_path,
+                backend=backend,
             )
 
     def to_md(
@@ -545,24 +567,26 @@ class DatasetReport:
             res += avg_on_train_tbl.to_html() + "\n\n"
 
         if "delta_train" in dr_modes:
-            delta_op = self.get_plots(
+            _, delta_op = self.get_plots(
                 data=_data,
                 mode="delta_train",
                 metric=metric,
                 estimators=estimators,
                 conf=conf,
                 base_path=plot_path,
+                save_fig=True,
             )
             res += f"![plot_delta]({delta_op.relative_to(delta_op.parents[1]).as_posix()})\n"
 
         if "stdev_train" in dr_modes:
-            delta_stdev_op = self.get_plots(
+            _, delta_stdev_op = self.get_plots(
                 data=_data,
                 mode="stdev_train",
                 metric=metric,
                 estimators=estimators,
                 conf=conf,
                 base_path=plot_path,
+                save_fig=True,
             )
             res += f"![plot_delta_stdev]({delta_stdev_op.relative_to(delta_stdev_op.parents[1]).as_posix()})\n"
 
@@ -575,24 +599,26 @@ class DatasetReport:
             res += avg_on_test_tbl.to_html() + "\n\n"
 
         if "delta_test" in dr_modes:
-            delta_op = self.get_plots(
+            _, delta_op = self.get_plots(
                 data=_data,
                 mode="delta_test",
                 metric=metric,
                 estimators=estimators,
                 conf=conf,
                 base_path=plot_path,
+                save_fig=True,
             )
             res += f"![plot_delta]({delta_op.relative_to(delta_op.parents[1]).as_posix()})\n"
 
         if "stdev_test" in dr_modes:
-            delta_stdev_op = self.get_plots(
+            _, delta_stdev_op = self.get_plots(
                 data=_data,
                 mode="stdev_test",
                 metric=metric,
                 estimators=estimators,
                 conf=conf,
                 base_path=plot_path,
+                save_fig=True,
             )
             res += f"![plot_delta_stdev]({delta_stdev_op.relative_to(delta_stdev_op.parents[1]).as_posix()})\n"
 
@@ -605,13 +631,14 @@ class DatasetReport:
             res += shift_on_train_tbl.to_html() + "\n\n"
 
         if "shift" in dr_modes:
-            shift_op = self.get_plots(
+            _, shift_op = self.get_plots(
                 data=_shift_data,
                 mode="shift",
                 metric=metric,
                 estimators=estimators,
                 conf=conf,
                 base_path=plot_path,
+                save_fig=True,
             )
             res += f"![plot_shift]({shift_op.relative_to(shift_op.parents[1]).as_posix()})\n"
 

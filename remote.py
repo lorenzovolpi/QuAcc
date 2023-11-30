@@ -24,6 +24,7 @@ __to_sync_up = {
         "quacc",
         "baselines",
         "qcpanel",
+        "qcdash",
     ],
     "file": [
         "conf.yaml",

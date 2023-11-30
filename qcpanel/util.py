@@ -52,7 +52,7 @@ def create_plots(
                 metric=metric,
                 estimators=estimators,
                 conf="panel",
-                return_fig=True,
+                save_fig=False,
             )
             return (
                 pn.pane.Matplotlib(
@@ -91,7 +91,7 @@ def create_plots(
                 metric=metric,
                 estimators=estimators,
                 conf="panel",
-                return_fig=True,
+                save_fig=False,
             )
             return (
                 pn.pane.Matplotlib(

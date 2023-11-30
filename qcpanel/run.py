@@ -1,10 +1,11 @@
 import argparse
 
 import panel as pn
+from panel.theme.fast import FastDarkTheme, FastDefaultTheme
 
 from qcpanel.viewer import QuaccTestViewer
 
-# pn.config.design = pn.theme.Bootstrap
+# pn.config.design = Fast
 # pn.config.theme = "dark"
 pn.config.notifications = True
 
@@ -59,8 +60,8 @@ def app_instance():
         ],
         main=[pn.Column(qtv.get_plot, sizing_mode="stretch_both")],
         modal=[qtv.modal_pane],
-        theme=pn.theme.DarkTheme,
-        theme_toggle=False,
+        # theme=FastDefaultTheme,
+        theme_toggle=True,
     )
 
     app.servable()
