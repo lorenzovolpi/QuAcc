@@ -6,7 +6,7 @@ import pandas as pd
 import panel as pn
 import param
 
-from qcpanel.util import create_plots, explore_datasets, valid_plot_modes
+from qcpanel.util import create_result, explore_datasets, valid_plot_modes
 from quacc.evaluation.estimators import CE
 from quacc.evaluation.report import DatasetReport
 
@@ -365,7 +365,7 @@ class QuaccTestViewer(param.Parameterized):
             self.plot_pane = __svg
         else:
             _dr = self.datasets_[self.dataset]
-            __plot = create_plots(
+            __plot = create_result(
                 _dr,
                 mode=self.mode,
                 metric=self.metric,
