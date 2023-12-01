@@ -5,8 +5,8 @@ from quacc.plot.plotly import PlotlyPlot
 __backend: BasePlot = MplPlot()
 
 
-def get_backend(be, theme=None):
-    match be:
+def get_backend(name, theme=None):
+    match name:
         case "matplotlib" | "mpl":
             return MplPlot()
         case "plotly":
