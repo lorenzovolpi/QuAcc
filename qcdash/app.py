@@ -50,7 +50,6 @@ def get_datasets(root: str | Path) -> List[DatasetReport]:
 
 def get_fig(dr: DatasetReport, metric, estimators, view, mode, backend=None):
     _backend = backend or plot.get_backend("plotly")
-    print(_backend)
     estimators = CE.name[estimators]
     match (view, mode):
         case ("avg", _):
