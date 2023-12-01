@@ -116,7 +116,7 @@ def get_DataTable(df):
             id=c,
             name=c,
             type="numeric",
-            format=Format(precision=6, scheme=Scheme.exponent),
+            format=Format(precision=6, scheme=Scheme.exponent, nully="nan"),
         )
         for c in df.columns
     }
