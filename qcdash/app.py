@@ -342,10 +342,11 @@ def update_estimators(href, dataset, metric, curr_estimators, root):
             old_estimators = json.loads(old_estimators)
         except JSONDecodeError:
             old_estimators = []
-    valid_estimators = dr.data(metric=metric).columns.unique(0).to_numpy()
+    valid_estimators: np.ndarray = dr.data(metric=metric).columns.unique(0).to_numpy()
     new_estimators = valid_estimators[
         np.isin(valid_estimators, old_estimators)
     ].tolist()
+    valid_estimators = CE.name.sort(valid_estimators.tolist())
     return valid_estimators, new_estimators
 
 
