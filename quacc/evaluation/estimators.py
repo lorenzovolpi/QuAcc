@@ -26,6 +26,9 @@ class CompEstimatorName_:
         elif isinstance(e, list):
             return list(self.ce._CompEstimator__get(e).keys())
 
+    def sort(self, e: List[str]):
+        return list(self.ce._CompEstimator__get(e, get_ref=False).keys())
+
     @property
     def all(self):
         return list(self.ce._CompEstimator__get("__all").keys())
@@ -36,7 +39,7 @@ class CompEstimatorName_:
 
 
 class CompEstimator:
-    def __get(cls, e: str | List[str]):
+    def __get(cls, e: str | List[str], get_ref=True):
         _dict = method._methods | baseline._baselines
 
         match e:
@@ -58,8 +61,10 @@ class CompEstimator:
                 )
 
             e_fun = {k: fun for k, fun in _dict.items() if k in e}
-            if "ref" not in e:
+            if get_ref and "ref" not in e:
                 e_fun["ref"] = _dict["ref"]
+            elif not get_ref and "ref" in e:
+                del e_fun["ref"]
 
             return e_fun
 
