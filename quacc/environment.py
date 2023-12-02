@@ -22,6 +22,7 @@ class environ:
         # "PLOT_ESTIMATORS": [],
         "PLOT_STDEV": False,
         "_R_SEED": 0,
+        "N_JOBS": 1,
     }
     _keys = list(_default_env.keys())
 
