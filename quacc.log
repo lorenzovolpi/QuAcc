@@ -11299,3 +11299,81 @@
 26/11/23 16:31:03| INFO        bin_sld finished [took 26.3150s]
 26/11/23 16:31:07| INFO        mul_sld finished [took 29.8139s]
 26/11/23 16:31:07| INFO     Dataset sample 0.90 of dataset imdb finished [took 31.3702s]
+----------------------------------------------------------------------------------------------------
+01/12/23 17:35:03| INFO     dataset imdb_1prevs [pool size: 10]
+01/12/23 17:35:10| INFO     Dataset sample 0.50 of dataset imdb_1prevs started
+01/12/23 17:38:19| WARNING  Method mul_sld_gs failed. Exception: 'NoneType' object has no attribute 'debug'
+01/12/23 17:38:28| INFO     ref finished [took 8.2288s]
+01/12/23 17:38:28| INFO     Dataset sample 0.50 of dataset imdb_1prevs finished [took 198.5879s]
+----------------------------------------------------------------------------------------------------
+01/12/23 17:41:45| INFO     dataset imdb_1prevs [pool size: 10]
+01/12/23 17:41:51| INFO     Dataset sample 0.50 of dataset imdb_1prevs started
+01/12/23 17:45:01| DEBUG    [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__recalib': 'bcts', 'confidence': ['max_conf', 'entropy']} (score=0.01291) [took 188.1488s]
+01/12/23 17:45:13| INFO     mul_sld_gs finished [took 200.2355s]
+01/12/23 17:45:22| INFO     ref finished [took 8.4438s]
+01/12/23 17:45:22| INFO     Dataset sample 0.50 of dataset imdb_1prevs finished [took 211.0771s]
+----------------------------------------------------------------------------------------------------
+01/12/23 17:48:32| INFO     dataset imdb_1prevs [pool size: 10]
+01/12/23 17:48:38| INFO     Dataset sample 0.50 of dataset imdb_1prevs started
+01/12/23 17:48:53| INFO     ref finished [took 11.4082s]
+01/12/23 17:54:45| DEBUG    [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__recalib': 'bcts', 'confidence': ['max_conf', 'entropy']} (score=0.01297) [took 363.8950s]
+01/12/23 17:54:57| INFO     mul_sld_gs finished [took 375.9603s]
+01/12/23 17:54:57| INFO     Dataset sample 0.50 of dataset imdb_1prevs finished [took 378.7840s]
+----------------------------------------------------------------------------------------------------
+01/12/23 18:12:47| INFO     dataset imdb_1prevs [pool size: 10]
+01/12/23 18:12:53| INFO     Dataset sample 0.50 of dataset imdb_1prevs started
+01/12/23 18:20:56| DEBUG    [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 1000.0, 'quantifier__classifier__class_weight': None, 'quantifier__recalib': 'bcts', 'confidence': None} (score=0.01440) [took 479.7052s]
+01/12/23 18:21:12| INFO     m3w_sld_gs finished [took 495.7428s]
+01/12/23 18:21:26| INFO     ref finished [took 13.1128s]
+01/12/23 18:22:10| DEBUG    [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__recalib': 'bcts', 'confidence': ['max_conf', 'entropy']} (score=0.01297) [took 554.2995s]
+01/12/23 18:22:23| INFO     mul_sld_gs finished [took 566.6578s]
+01/12/23 18:22:23| INFO     Dataset sample 0.50 of dataset imdb_1prevs finished [took 569.2848s]
+----------------------------------------------------------------------------------------------------
+01/12/23 19:28:48| INFO     dataset imdb_1prevs [pool size: 10]
+01/12/23 19:28:54| INFO     Dataset sample 0.50 of dataset imdb_1prevs started
+01/12/23 19:32:02| DEBUG    [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__recalib': 'bcts', 'confidence': ['max_conf', 'entropy']} (score=0.01291) [took 186.6741s]
+01/12/23 19:32:14| INFO     mul_sld_gs finished [took 198.5631s]
+01/12/23 19:34:43| DEBUG    [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__recalib': None, 'confidence': None} (score=0.01428) [took 147.8351s]
+01/12/23 19:34:54| INFO     m3w_sld_gs finished [took 158.4232s]
+01/12/23 19:35:03| INFO     ref finished [took 8.4209s]
+01/12/23 19:35:03| INFO     Dataset sample 0.50 of dataset imdb_1prevs finished [took 368.5922s]
+----------------------------------------------------------------------------------------------------
+01/12/23 19:35:50| INFO     dataset imdb_1prevs [pool size: 10]
+01/12/23 19:35:57| INFO     Dataset sample 0.50 of dataset imdb_1prevs started
+01/12/23 19:38:21| DEBUG    [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__recalib': 'bcts', 'confidence': None} (score=0.01294) [took 143.1597s]
+01/12/23 19:38:33| INFO     mul_sld_gs finished [took 154.9150s]
+01/12/23 19:40:19| DEBUG    [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 1000.0, 'quantifier__classifier__class_weight': None, 'quantifier__recalib': 'bcts', 'confidence': None} (score=0.01441) [took 104.3998s]
+01/12/23 19:40:30| INFO     m3w_sld_gs finished [took 115.3818s]
+01/12/23 19:40:39| INFO     ref finished [took 8.3887s]
+01/12/23 19:40:39| INFO     Dataset sample 0.50 of dataset imdb_1prevs finished [took 281.9887s]
+----------------------------------------------------------------------------------------------------
+01/12/23 19:42:31| INFO     dataset imdb_1prevs [pool size: 10]
+01/12/23 19:42:38| INFO     Dataset sample 0.50 of dataset imdb_1prevs started
+01/12/23 19:44:55| DEBUG    [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__recalib': 'bcts', 'confidence': None} (score=0.01294) [took 136.1128s]
+01/12/23 19:45:07| INFO     mul_sld_gs finished [took 148.1704s]
+01/12/23 19:46:50| DEBUG    [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 1000.0, 'quantifier__classifier__class_weight': None, 'quantifier__recalib': 'bcts', 'confidence': None} (score=0.01441) [took 101.5316s]
+01/12/23 19:47:01| INFO     m3w_sld_gs finished [took 112.6189s]
+01/12/23 19:47:11| INFO     ref finished [took 8.1649s]
+01/12/23 19:47:11| INFO     Dataset sample 0.50 of dataset imdb_1prevs finished [took 272.7446s]
+----------------------------------------------------------------------------------------------------
+01/12/23 19:53:06| INFO     dataset imdb_1prevs [pool size: 10]
+01/12/23 19:53:12| INFO     Dataset sample 0.50 of dataset imdb_1prevs started
+01/12/23 19:54:11| DEBUG    [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': None, 'quantifier__recalib': 'bcts', 'confidence': ['isoft']} (score=0.01312) [took 57.5135s]
+01/12/23 19:54:23| INFO     bin_sld_gs finished [took 69.7429s]
+01/12/23 19:56:39| DEBUG    [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__recalib': 'bcts', 'confidence': None} (score=0.01294) [took 134.5055s]
+01/12/23 19:56:51| INFO     mul_sld_gs finished [took 146.7051s]
+01/12/23 19:58:34| DEBUG    [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 1000.0, 'quantifier__classifier__class_weight': None, 'quantifier__recalib': 'bcts', 'confidence': None} (score=0.01441) [took 101.2858s]
+01/12/23 19:58:45| INFO     m3w_sld_gs finished [took 112.3173s]
+01/12/23 19:58:55| INFO     ref finished [took 8.4150s]
+01/12/23 19:58:55| INFO     Dataset sample 0.50 of dataset imdb_1prevs finished [took 342.3546s]
+----------------------------------------------------------------------------------------------------
+01/12/23 20:31:08| INFO     dataset imdb_1prevs [pool size: 10]
+01/12/23 20:31:14| INFO     Dataset sample 0.50 of dataset imdb_1prevs started
+01/12/23 20:37:33| DEBUG    [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': None, 'quantifier__bandwidth': 0.01, 'confidence': None} (score=0.01418) [took 376.9895s]
+01/12/23 20:41:56| INFO     bin_kde_gs finished [took 640.0389s]
+01/12/23 20:55:57| DEBUG    [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.01, 'confidence': None} (score=0.01353) [took 840.1845s]
+01/12/23 21:01:17| INFO     mul_kde_gs finished [took 1160.2188s]
+01/12/23 21:13:23| DEBUG    [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': None, 'quantifier__bandwidth': 0.01, 'confidence': None} (score=0.01508) [took 724.9068s]
+01/12/23 21:19:05| INFO     m3w_kde_gs finished [took 1066.0211s]
+01/12/23 21:19:14| INFO     ref finished [took 8.3435s]
+01/12/23 21:19:14| INFO     Dataset sample 0.50 of dataset imdb_1prevs finished [took 2879.6491s]
