@@ -9,7 +9,7 @@ from quapy.protocol import APP
 from sklearn.linear_model import LogisticRegression
 
 from quacc.environment import env, environ
-from quacc.logger import SubLogger
+from quacc.logger import Logger, SubLogger
 
 
 @dataclass(frozen=True)
@@ -25,8 +25,9 @@ class WorkerArgs:
 def estimate_worker(args: WorkerArgs):
     with env.load(args._env):
         qp.environ["SAMPLE_SIZE"] = env.SAMPLE_SIZE
-        SubLogger.setup(args.q)
-        log = SubLogger.logger()
+        # SubLogger.setup(args.q)
+        # log = SubLogger.logger()
+        log = Logger.logger()
 
         model = LogisticRegression()
 
