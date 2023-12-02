@@ -4,12 +4,13 @@ debug_conf: &debug_conf
       - acc
     OUT_DIR_NAME: output/debug
     DATASET_N_PREVS: 9
+    DATASET_PREVS:
+      - 0.5
     COMP_ESTIMATORS:
-      - bin_sld
-      - mul_sld
-      - m3w_sld
-      - atc_mc
-      - doc
+      - bin_kde_gs
+      - mul_kde_gs
+      - m3w_kde_gs
+    N_JOBS: -2
 
   confs:
     - DATASET_NAME: imdb
@@ -23,14 +24,21 @@ kde_conf: &kde_conf
     METRICS: 
       - acc
       - f1
-    OUT_DIR_NAME: output/kde/gs
+    OUT_DIR_NAME: output/kde/variant
     DATASET_N_PREVS: 9
     COMP_ESTIMATORS:
-      - bin_kde_gs
-      - mul_kde_gs
-      - m3w_kde_gs
-      - atc_mc
-      - doc
+      - binc_kde
+      - mulc_kde
+      - m3wc_kde
+      - binmc_kde
+      - mulmc_kde
+      - m3wmc_kde
+      - binne_kde
+      - mulne_kde
+      - m3wne_kde
+      - binis_kde
+      - mulis_kde
+      - m3wis_kde
 
   confs:
     - DATASET_NAME: imdb
