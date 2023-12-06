@@ -1,5 +1,7 @@
 from contextlib import contextmanager
 
+import numpy as np
+import quapy as qp
 import yaml
 
 
@@ -42,8 +44,14 @@ class environ:
     def __setdict(self, d: dict):
         for k, v in d.items():
             super().__setattr__(k, v)
+            match k:
+                case "SAMPLE_SIZE":
+                    qp.environ["SAMPLE_SIZE"] = v
+                case "_R_SEED":
+                    qp.environ["_R_SEED"] = v
+                    np.random.seed(v)
 
-    def __getdict(self) -> dict:
+    def to_dict(self) -> dict:
         return {k: self.__getattribute__(k) for k in environ._keys}
 
     @property
@@ -52,16 +60,22 @@ class environ:
 
     @contextmanager
     def load(self, conf):
-        __current = self.__getdict()
-        if conf is not None:
-            if isinstance(conf, dict):
-                self.__setdict(conf)
-            elif isinstance(conf, environ):
-                self.__setdict(conf.__getdict())
+        __current = self.to_dict()
+        __np_random_state = np.random.get_state()
+
+        if conf is None:
+            conf = {}
+
+        if isinstance(conf, environ):
+            conf = conf.to_dict()
+
+        self.__setdict(conf)
+
         try:
             yield
         finally:
             self.__setdict(__current)
+            np.random.set_state(__np_random_state)
 
     def load_confs(self):
         for c in self.confs:
