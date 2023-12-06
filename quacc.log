@@ -11377,3 +11377,1454 @@
 01/12/23 21:19:05| INFO     m3w_kde_gs finished [took 1066.0211s]
 01/12/23 21:19:14| INFO     ref finished [took 8.3435s]
 01/12/23 21:19:14| INFO     Dataset sample 0.50 of dataset imdb_1prevs finished [took 2879.6491s]
+----------------------------------------------------------------------------------------------------
+02/12/23 17:26:58| INFO     dataset imdb_1prevs [pool size: 10]
+02/12/23 17:27:05| INFO     Dataset sample 0.50 of dataset imdb_1prevs started
+02/12/23 17:27:05| ERROR    Evaluation over imdb_1prevs failed. Exception: WorkerArgs.from_estimators() takes 6 positional arguments but 7 were given
+----------------------------------------------------------------------------------------------------
+02/12/23 17:27:41| INFO     dataset imdb_1prevs [pool size: 10]
+02/12/23 17:27:47| INFO     Dataset sample 0.50 of dataset imdb_1prevs started
+02/12/23 17:28:00| INFO     doc finished [took 10.0879s]
+02/12/23 17:28:00| INFO     ref finished [took 10.6789s]
+02/12/23 17:28:04| INFO     atc_mc finished [took 13.8939s]
+02/12/23 17:28:05| INFO     binis_sld finished [took 15.3076s]
+02/12/23 17:28:05| INFO     m3wis_sld finished [took 15.6609s]
+02/12/23 17:28:07| INFO     mulis_sld finished [took 17.3600s]
+02/12/23 17:29:06| DEBUG    [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': None, 'quantifier__recalib': 'bcts', 'confidence': ['isoft']} (score=0.01312) [took 58.1567s]
+02/12/23 17:29:19| INFO     bin_sld_gs finished [took 70.5015s]
+02/12/23 17:29:19| INFO     Dataset sample 0.50 of dataset imdb_1prevs finished [took 91.6072s]
+----------------------------------------------------------------------------------------------------
+02/12/23 17:29:37| INFO     dataset imdb_1prevs [pool size: 10]
+02/12/23 17:29:44| INFO     Dataset sample 0.50 of dataset imdb_1prevs started
+02/12/23 17:29:56| INFO     doc finished [took 10.3211s]
+02/12/23 17:29:57| INFO     ref finished [took 10.6313s]
+02/12/23 17:30:00| INFO     atc_mc finished [took 13.9295s]
+02/12/23 17:30:02| INFO     binis_sld finished [took 15.5240s]
+02/12/23 17:30:02| INFO     m3wis_sld finished [took 15.8131s]
+02/12/23 17:30:04| INFO     mulis_sld finished [took 17.7087s]
+02/12/23 17:31:03| DEBUG    [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': None, 'quantifier__recalib': 'bcts', 'confidence': ['isoft']} (score=0.01312) [took 58.0420s]
+02/12/23 17:31:15| INFO     bin_sld_gs finished [took 70.1533s]
+02/12/23 17:31:15| INFO     Dataset sample 0.50 of dataset imdb_1prevs finished [took 91.9308s]
+----------------------------------------------------------------------------------------------------
+02/12/23 17:32:33| INFO     dataset rcv1_CCAT_1prevs [pool size: 10]
+02/12/23 17:32:37| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+02/12/23 17:33:10| INFO     doc finished [took 30.4758s]
+02/12/23 17:33:11| INFO     ref finished [took 31.3355s]
+02/12/23 17:33:14| INFO     m3wis_sld finished [took 34.4247s]
+02/12/23 17:33:14| INFO     binis_sld finished [took 34.6961s]
+02/12/23 17:33:15| INFO     atc_mc finished [took 35.3378s]
+02/12/23 17:33:15| INFO     mulis_sld finished [took 35.6075s]
+02/12/23 17:34:17| DEBUG    [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': None, 'quantifier__recalib': 'bcts', 'confidence': ['max_conf', 'entropy']} (score=0.00838) [took 60.6149s]
+02/12/23 17:34:48| INFO     bin_sld_gs finished [took 91.4984s]
+02/12/23 17:34:48| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs finished [took 130.5281s]
+----------------------------------------------------------------------------------------------------
+02/12/23 17:37:34| INFO     dataset rcv1_CCAT_1prevs [pool size: 10]
+02/12/23 17:37:38| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+02/12/23 17:38:31| INFO     bin_sld finished [took 49.7383s]
+02/12/23 17:38:32| INFO     m3wmc_sld finished [took 50.5678s]
+02/12/23 17:38:34| INFO     binc_sld finished [took 53.6161s]
+02/12/23 17:38:37| INFO     m3w_sld finished [took 55.2349s]
+02/12/23 17:38:37| INFO     mul_sld finished [took 55.5628s]
+02/12/23 17:38:37| INFO     binne_sld finished [took 55.9847s]
+02/12/23 17:38:39| INFO     m3wc_sld finished [took 57.3195s]
+02/12/23 17:38:40| INFO     binmc_sld finished [took 58.9394s]
+02/12/23 17:38:42| INFO     mulmc_sld finished [took 60.1940s]
+02/12/23 17:38:42| INFO     mulc_sld finished [took 60.1992s]
+02/12/23 17:38:44| INFO     mulne_sld finished [took 62.3856s]
+02/12/23 17:39:15| INFO     gde finished [took 32.5312s]
+02/12/23 17:39:20| INFO     m3wne_sld finished [took 47.8908s]
+02/12/23 17:39:21| INFO     atc_mc finished [took 42.8510s]
+02/12/23 17:39:21| INFO     binis_sld finished [took 48.6476s]
+02/12/23 17:39:22| INFO     ref finished [took 44.5145s]
+02/12/23 17:39:23| INFO     doc finished [took 43.4597s]
+02/12/23 17:39:25| INFO     m3wis_sld finished [took 48.0828s]
+02/12/23 17:39:27| INFO     mulis_sld finished [took 52.1882s]
+02/12/23 17:43:38| INFO     rca finished [took 296.5681s]
+02/12/23 17:57:48| INFO     mandoline finished [took 1145.2510s]
+02/12/23 17:58:50| DEBUG    [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': None, 'quantifier__recalib': 'bcts', 'confidence': ['max_conf', 'entropy']} (score=0.00838) [took 61.5647s]
+02/12/23 17:59:22| INFO     bin_sld_gs finished [took 93.5219s]
+02/12/23 18:02:24| DEBUG    [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': None, 'quantifier__recalib': 'bcts', 'confidence': ['isoft']} (score=0.00773) [took 181.2473s]
+02/12/23 18:02:56| INFO     mul_sld_gs finished [took 213.0169s]
+02/12/23 18:04:58| DEBUG    [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__recalib': 'bcts', 'confidence': None} (score=0.00919) [took 121.4241s]
+02/12/23 18:05:28| INFO     m3w_sld_gs finished [took 151.3891s]
+02/12/23 18:05:28| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs finished [took 1669.9182s]
+----------------------------------------------------------------------------------------------------
+02/12/23 22:19:27| ERROR    Evaluation over rcv1_CCAT_1prevs failed. Exception: 'NoneType' object has no attribute 'debug'
+----------------------------------------------------------------------------------------------------
+03/12/23 02:22:45| INFO     dataset rcv1_CCAT_1prevs [pool size: 10]
+03/12/23 02:22:48| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+03/12/23 02:23:27| INFO        doc finished [took 35.7763s]
+03/12/23 02:23:28| INFO        ref finished [took 37.0951s]
+03/12/23 02:23:29| INFO        m3w_sld finished [took 37.9576s]
+03/12/23 02:23:30| INFO        bin_sld finished [took 38.8674s]
+03/12/23 02:23:30| INFO        atc_mc finished [took 38.8511s]
+03/12/23 02:23:33| INFO        mul_sld finished [took 41.9738s]
+03/12/23 02:24:37| DEBUG       [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': None, 'quantifier__recalib': 'bcts', 'confidence': ['max_conf', 'entropy']} (score=0.00838) [took 63.7000s]
+03/12/23 02:25:09| INFO        bin_sld_gs finished [took 95.0387s]
+03/12/23 02:27:22| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__recalib': 'bcts', 'confidence': None} (score=0.00919) [took 132.5784s]
+03/12/23 02:27:53| INFO        m3w_sld_gs finished [took 164.1179s]
+03/12/23 02:27:53| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs finished [took 305.0618s]
+----------------------------------------------------------------------------------------------------
+03/12/23 02:28:00| INFO     dataset rcv1_CCAT_1prevs [pool size: 10]
+03/12/23 02:28:03| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+03/12/23 02:28:34| INFO        ref finished [took 28.9307s]
+03/12/23 02:28:49| DEBUG       [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': None, 'quantifier__recalib': None, 'confidence': ['isoft']} (score=0.01039) [took 14.1123s]
+03/12/23 02:29:21| INFO        bin_sld_gs finished [took 46.3272s]
+03/12/23 02:29:21| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs finished [took 78.0955s]
+----------------------------------------------------------------------------------------------------
+03/12/23 02:29:27| INFO     dataset imdb_1prevs [pool size: 10]
+03/12/23 02:29:34| INFO     Dataset sample 0.50 of dataset imdb_1prevs started
+03/12/23 02:29:44| INFO        ref finished [took 8.6496s]
+03/12/23 02:30:00| DEBUG       [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__recalib': None, 'confidence': ['max_conf', 'entropy']} (score=0.01320) [took 14.9588s]
+03/12/23 02:30:12| INFO        bin_sld_gs finished [took 26.2841s]
+03/12/23 02:30:12| INFO     Dataset sample 0.50 of dataset imdb_1prevs finished [took 38.0549s]
+----------------------------------------------------------------------------------------------------
+03/12/23 14:11:10| INFO     dataset imdb_1prevs [pool size: 10]
+03/12/23 14:11:17| INFO     Dataset sample 0.50 of dataset imdb_1prevs started
+03/12/23 14:11:28| INFO        ref finished [took 8.6022s]
+03/12/23 14:11:35| DEBUG       [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': None, 'quantifier__recalib': 'bcts', 'confidence': ['isoft']} (score=0.01376) [took 5.5468s]
+03/12/23 14:11:48| INFO        bin_sld_gs finished [took 18.2965s]
+03/12/23 14:11:48| INFO     Dataset sample 0.50 of dataset imdb_1prevs finished [took 30.6673s]
+----------------------------------------------------------------------------------------------------
+03/12/23 14:12:50| INFO     dataset imdb_1prevs [pool size: 10]
+03/12/23 14:12:56| INFO     Dataset sample 0.50 of dataset imdb_1prevs started
+03/12/23 14:13:06| INFO        ref finished [took 8.2080s]
+03/12/23 14:14:13| DEBUG       [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': None, 'quantifier__recalib': 'bcts', 'confidence': ['isoft']} (score=0.01312) [took 65.2160s]
+03/12/23 14:14:25| INFO        bin_sld_gs finished [took 77.5481s]
+03/12/23 14:14:25| INFO     Dataset sample 0.50 of dataset imdb_1prevs finished [took 89.1156s]
+----------------------------------------------------------------------------------------------------
+03/12/23 14:14:38| INFO     dataset imdb_1prevs [pool size: 10]
+03/12/23 14:14:45| INFO     Dataset sample 0.50 of dataset imdb_1prevs started
+03/12/23 14:14:55| INFO        ref finished [took 8.4410s]
+03/12/23 14:15:59| DEBUG       [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': None, 'quantifier__recalib': 'bcts', 'confidence': ['isoft']} (score=0.01312) [took 62.5479s]
+03/12/23 14:16:11| INFO        bin_sld_gs finished [took 75.1998s]
+03/12/23 14:16:11| INFO     Dataset sample 0.50 of dataset imdb_1prevs finished [took 86.8688s]
+----------------------------------------------------------------------------------------------------
+03/12/23 14:24:14| INFO     dataset imdb_1prevs [pool size: 10]
+03/12/23 14:24:20| INFO     Dataset sample 0.50 of dataset imdb_1prevs started
+03/12/23 14:24:31| INFO        ref finished [took 8.5790s]
+03/12/23 14:25:34| DEBUG       [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': None, 'quantifier__recalib': 'bcts', 'confidence': ['isoft']} (score=0.01312) [took 61.9703s]
+03/12/23 14:25:47| INFO        bin_sld_gs finished [took 74.3198s]
+03/12/23 14:25:47| INFO     Dataset sample 0.50 of dataset imdb_1prevs finished [took 86.4699s]
+----------------------------------------------------------------------------------------------------
+03/12/23 14:27:09| INFO     dataset imdb_1prevs [pool size: 10]
+03/12/23 14:27:16| INFO     Dataset sample 0.50 of dataset imdb_1prevs started
+03/12/23 14:27:16| DEBUG    Parallel(n_jobs=-2)
+03/12/23 14:27:26| INFO        ref finished [took 8.2934s]
+03/12/23 14:27:26| DEBUG    Parallel(n_jobs=1)
+03/12/23 14:27:28| DEBUG       Parallel(n_jobs=-2)
+03/12/23 14:27:35| DEBUG       Parallel(n_jobs=-2)
+03/12/23 14:27:44| DEBUG       Parallel(n_jobs=-2)
+03/12/23 14:27:52| DEBUG       Parallel(n_jobs=-2)
+03/12/23 14:28:00| DEBUG       Parallel(n_jobs=-2)
+03/12/23 14:28:07| DEBUG       Parallel(n_jobs=-2)
+03/12/23 14:28:15| DEBUG       Parallel(n_jobs=-2)
+03/12/23 14:28:24| DEBUG       Parallel(n_jobs=-2)
+03/12/23 14:28:30| DEBUG       [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': None, 'quantifier__recalib': 'bcts', 'confidence': ['isoft']} (score=0.01312) [took 62.0059s]
+03/12/23 14:28:42| INFO        bin_sld_gs finished [took 74.7350s]
+03/12/23 14:28:42| INFO     Dataset sample 0.50 of dataset imdb_1prevs finished [took 86.4724s]
+----------------------------------------------------------------------------------------------------
+03/12/23 14:29:33| INFO     dataset imdb_1prevs [pool size: 10]
+03/12/23 14:29:40| INFO     Dataset sample 0.50 of dataset imdb_1prevs started
+03/12/23 14:29:50| INFO        ref finished [took 8.4225s]
+03/12/23 14:29:52| DEBUG       [array([30, 40, 43, 50, 22, 54,  2, 56, 26,  8, 69]), array([13, 66, 77, 16, 27, 75, 73, 48, 74, 83, 61]), array([41, 63, 55, 45, 72,  6,  3, 68, 59,  7, 33]), array([52, 60,  4, 15, 17, 38,  5, 76, 42,  0, 34]), array([28, 11, 62, 23, 10, 31, 53, 79,  1, 32, 71]), array([14, 57, 19, 29, 51, 49, 24, 35, 18, 81, 82]), array([20, 78, 25, 37, 46, 39, 65, 58, 12, 70, 36]), array([21,  9, 80, 67, 64, 47, 44])]
+03/12/23 14:29:52| DEBUG       [30 40 43 50 22 54  2 56 26  8 69]
+03/12/23 14:29:59| DEBUG       [13 66 77 16 27 75 73 48 74 83 61]
+03/12/23 14:30:08| DEBUG       [41 63 55 45 72  6  3 68 59  7 33]
+03/12/23 14:30:17| DEBUG       [52 60  4 15 17 38  5 76 42  0 34]
+03/12/23 14:30:24| DEBUG       [28 11 62 23 10 31 53 79  1 32 71]
+03/12/23 14:30:32| DEBUG       [14 57 19 29 51 49 24 35 18 81 82]
+03/12/23 14:30:40| DEBUG       [20 78 25 37 46 39 65 58 12 70 36]
+03/12/23 14:30:48| DEBUG       [21  9 80 67 64 47 44]
+03/12/23 14:30:55| DEBUG       [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': None, 'quantifier__recalib': 'bcts', 'confidence': ['isoft']} (score=0.01312) [took 63.0119s]
+03/12/23 14:31:07| INFO        bin_sld_gs finished [took 75.5957s]
+03/12/23 14:31:07| INFO     Dataset sample 0.50 of dataset imdb_1prevs finished [took 87.4977s]
+----------------------------------------------------------------------------------------------------
+03/12/23 14:31:10| INFO     dataset imdb_1prevs [pool size: 10]
+03/12/23 14:31:17| INFO     Dataset sample 0.50 of dataset imdb_1prevs started
+03/12/23 14:31:27| INFO        ref finished [took 8.2326s]
+03/12/23 14:31:29| DEBUG       [array([30, 40, 43, 50, 22, 54,  2, 56, 26,  8, 69, 13, 66, 77, 16, 27, 75,
+       73, 48, 74, 83, 61]), array([41, 63, 55, 45, 72,  6,  3, 68, 59,  7, 33, 52, 60,  4, 15, 17, 38,
+        5, 76, 42,  0, 34]), array([28, 11, 62, 23, 10, 31, 53, 79,  1, 32, 71, 14, 57, 19, 29, 51, 49,
+       24, 35, 18, 81, 82]), array([20, 78, 25, 37, 46, 39, 65, 58, 12, 70, 36, 21,  9, 80, 67, 64, 47,
+       44])]
+03/12/23 14:31:29| DEBUG       [30 40 43 50 22 54  2 56 26  8 69 13 66 77 16 27 75 73 48 74 83 61]
+03/12/23 14:31:44| DEBUG       [41 63 55 45 72  6  3 68 59  7 33 52 60  4 15 17 38  5 76 42  0 34]
+03/12/23 14:31:59| DEBUG       [28 11 62 23 10 31 53 79  1 32 71 14 57 19 29 51 49 24 35 18 81 82]
+03/12/23 14:32:14| DEBUG       [20 78 25 37 46 39 65 58 12 70 36 21  9 80 67 64 47 44]
+03/12/23 14:32:27| DEBUG       [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': None, 'quantifier__recalib': 'bcts', 'confidence': ['isoft']} (score=0.01312) [took 58.7255s]
+03/12/23 14:32:40| INFO        bin_sld_gs finished [took 71.3678s]
+03/12/23 14:32:40| INFO     Dataset sample 0.50 of dataset imdb_1prevs finished [took 83.0722s]
+----------------------------------------------------------------------------------------------------
+03/12/23 14:32:49| INFO     dataset imdb_1prevs [pool size: 10]
+03/12/23 14:32:55| INFO     Dataset sample 0.50 of dataset imdb_1prevs started
+03/12/23 14:33:06| INFO        ref finished [took 8.4779s]
+03/12/23 14:34:05| DEBUG       [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': None, 'quantifier__recalib': 'bcts', 'confidence': ['isoft']} (score=0.01312) [took 58.4757s]
+03/12/23 14:34:18| INFO        bin_sld_gs finished [took 70.8493s]
+03/12/23 14:34:18| INFO     Dataset sample 0.50 of dataset imdb_1prevs finished [took 82.5498s]
+----------------------------------------------------------------------------------------------------
+03/12/23 14:34:33| INFO     dataset imdb_1prevs [pool size: 10]
+03/12/23 14:34:39| INFO     Dataset sample 0.50 of dataset imdb_1prevs started
+03/12/23 14:34:50| INFO        ref finished [took 8.3271s]
+03/12/23 14:34:51| DEBUG       [array([30, 36, 27,  4, 10, 25, 28, 11, 37, 31, 29, 20, 39,  2, 41, 18, 15,
+       22, 16, 38,  8, 13]), array([ 5, 17, 32, 14, 35,  7, 34,  1, 26, 12, 33, 24,  6, 23, 21, 19,  9,
+       40,  3,  0])]
+03/12/23 14:34:51| DEBUG       [30 36 27  4 10 25 28 11 37 31 29 20 39  2 41 18 15 22 16 38  8 13]
+03/12/23 14:35:00| DEBUG       [ 5 17 32 14 35  7 34  1 26 12 33 24  6 23 21 19  9 40  3  0]
+03/12/23 14:35:08| DEBUG       [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__recalib': None, 'confidence': ['max_conf', 'entropy']} (score=0.01320) [took 16.8406s]
+03/12/23 14:35:19| INFO        bin_sld_gs finished [took 27.6451s]
+03/12/23 14:35:19| INFO     Dataset sample 0.50 of dataset imdb_1prevs finished [took 39.5360s]
+----------------------------------------------------------------------------------------------------
+03/12/23 14:35:55| INFO     dataset rcv1_CCAT_1prevs [pool size: 10]
+03/12/23 14:35:59| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+03/12/23 14:36:29| INFO        ref finished [took 28.4466s]
+03/12/23 14:37:31| DEBUG       [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': None, 'quantifier__recalib': 'bcts', 'confidence': ['max_conf', 'entropy']} (score=0.00838) [took 61.2735s]
+03/12/23 14:38:03| INFO        bin_sld_gs finished [took 92.7118s]
+03/12/23 14:38:03| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs finished [took 124.1349s]
+----------------------------------------------------------------------------------------------------
+03/12/23 16:15:36| INFO     dataset rcv1_CCAT_1prevs [pool size: 10]
+03/12/23 16:15:39| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+03/12/23 16:16:10| INFO        ref finished [took 29.1572s]
+03/12/23 16:16:11| DEBUG       [array([30, 40, 43, 50, 22, 54,  2, 56, 26,  8, 69, 13, 66, 77, 16, 27, 75,
+       73, 48, 74, 83, 61]), array([41, 63, 55, 45, 72,  6,  3, 68, 59,  7, 33, 52, 60,  4, 15, 17, 38,
+        5, 76, 42,  0, 34]), array([28, 11, 62, 23, 10, 31, 53, 79,  1, 32, 71, 14, 57, 19, 29, 51, 49,
+       24, 35, 18, 81, 82]), array([20, 78, 25, 37, 46, 39, 65, 58, 12, 70, 36, 21,  9, 80, 67, 64, 47,
+       44])]
+03/12/23 16:16:11| DEBUG       [30 40 43 50 22 54  2 56 26  8 69 13 66 77 16 27 75 73 48 74 83 61]
+03/12/23 16:16:26| DEBUG       [41 63 55 45 72  6  3 68 59  7 33 52 60  4 15 17 38  5 76 42  0 34]
+03/12/23 16:16:42| DEBUG       [28 11 62 23 10 31 53 79  1 32 71 14 57 19 29 51 49 24 35 18 81 82]
+03/12/23 16:16:57| DEBUG       [20 78 25 37 46 39 65 58 12 70 36 21  9 80 67 64 47 44]
+03/12/23 16:17:10| DEBUG       [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': None, 'quantifier__recalib': 'bcts', 'confidence': ['max_conf', 'entropy']} (score=0.00838) [took 59.3199s]
+03/12/23 16:17:43| INFO        bin_sld_gs finished [took 91.6124s]
+03/12/23 16:17:43| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs finished [took 123.6585s]
+----------------------------------------------------------------------------------------------------
+03/12/23 16:18:02| INFO     dataset rcv1_CCAT_1prevs [pool size: 10]
+03/12/23 16:18:06| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+03/12/23 16:18:37| INFO        ref finished [took 29.2084s]
+03/12/23 16:18:38| DEBUG       -2
+03/12/23 16:18:38| WARNING     Method bin_sld_gs failed. Exception: can only specify one unknown dimension
+03/12/23 16:18:38| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs finished [took 31.9220s]
+----------------------------------------------------------------------------------------------------
+03/12/23 16:20:16| INFO     dataset rcv1_CCAT_1prevs [pool size: 10]
+03/12/23 16:20:19| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+03/12/23 16:20:50| INFO        ref finished [took 29.0951s]
+03/12/23 16:20:51| DEBUG       -2
+03/12/23 16:20:51| WARNING     Method bin_sld_gs failed. Exception: can only specify one unknown dimension
+03/12/23 16:20:51| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs finished [took 32.0523s]
+----------------------------------------------------------------------------------------------------
+03/12/23 16:22:41| INFO     dataset rcv1_CCAT_1prevs [pool size: 10]
+03/12/23 16:22:45| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+03/12/23 16:23:15| INFO        ref finished [took 28.6124s]
+03/12/23 16:23:16| DEBUG       15
+03/12/23 16:24:16| DEBUG       [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': None, 'quantifier__recalib': 'bcts', 'confidence': ['max_conf', 'entropy']} (score=0.00838) [took 60.3048s]
+03/12/23 16:24:47| INFO        bin_sld_gs finished [took 91.5732s]
+03/12/23 16:24:47| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs finished [took 122.8222s]
+----------------------------------------------------------------------------------------------------
+03/12/23 16:24:59| INFO     dataset rcv1_CCAT_1prevs [pool size: 10]
+03/12/23 16:25:02| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+03/12/23 16:25:34| INFO        ref finished [took 29.7378s]
+03/12/23 16:25:35| DEBUG       batch_size = 11
+03/12/23 16:26:37| DEBUG       [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': None, 'quantifier__recalib': 'bcts', 'confidence': ['max_conf', 'entropy']} (score=0.00838) [took 61.6446s]
+03/12/23 16:27:09| INFO        bin_sld_gs finished [took 93.5524s]
+03/12/23 16:27:09| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs finished [took 126.2251s]
+----------------------------------------------------------------------------------------------------
+03/12/23 16:29:09| INFO     dataset rcv1_CCAT_1prevs [pool size: 10]
+03/12/23 16:29:13| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+03/12/23 16:29:43| INFO        ref finished [took 28.1603s]
+03/12/23 16:29:44| DEBUG       batch_size = 11
+03/12/23 16:29:51| WARNING     Method bin_sld_gs failed. Exception: zero-size array to reduction operation minimum which has no identity
+03/12/23 16:29:51| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs finished [took 38.5622s]
+----------------------------------------------------------------------------------------------------
+03/12/23 16:30:23| INFO     dataset rcv1_CCAT_1prevs [pool size: 10]
+03/12/23 16:30:26| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+03/12/23 16:30:58| INFO        ref finished [took 29.3369s]
+03/12/23 16:30:59| DEBUG       batch_size = 11
+03/12/23 16:31:06| DEBUG       [iter 0] best score = 0.00859855347204677
+03/12/23 16:31:15| DEBUG       [iter 1] best score = 0.009053886256670092
+03/12/23 16:31:23| DEBUG       [iter 2] best score = 0.008440275237985408
+03/12/23 16:31:31| WARNING     Method bin_sld_gs failed. Exception: '<=' not supported between instances of 'float' and 'NoneType'
+03/12/23 16:31:31| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs finished [took 64.0201s]
+----------------------------------------------------------------------------------------------------
+03/12/23 16:32:22| INFO     dataset rcv1_CCAT_1prevs [pool size: 10]
+03/12/23 16:32:26| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+03/12/23 16:32:57| INFO        ref finished [took 29.1482s]
+03/12/23 16:32:58| DEBUG       batch_size = 11
+03/12/23 16:33:06| DEBUG       [iter 0] best score = 0.00859855347204677
+03/12/23 16:33:15| DEBUG       [iter 1] best score = 0.009053886256670092
+03/12/23 16:33:23| DEBUG       [iter 2] best score = 0.008440275237985408
+03/12/23 16:33:30| DEBUG       [iter 3] best score = 0.008509727237092844
+03/12/23 16:33:37| DEBUG       [iter 4] best score = 0.008384628938204557
+03/12/23 16:33:46| DEBUG       [iter 5] best score = 0.00838873657574064
+03/12/23 16:33:54| DEBUG       [iter 6] best score = 0.008582864504239243
+03/12/23 16:34:00| DEBUG       [iter 7] best score = 0.008738292249705014
+03/12/23 16:34:00| DEBUG       [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': None, 'quantifier__recalib': 'bcts', 'confidence': ['max_conf', 'entropy']} (score=0.00838) [took 61.8658s]
+03/12/23 16:34:31| INFO        bin_sld_gs finished [took 92.8298s]
+03/12/23 16:34:31| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs finished [took 125.0087s]
+----------------------------------------------------------------------------------------------------
+03/12/23 16:35:37| INFO     dataset rcv1_CCAT_1prevs [pool size: 10]
+03/12/23 16:35:40| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+03/12/23 16:36:11| INFO        ref finished [took 29.1342s]
+03/12/23 16:36:12| DEBUG       batch_size = 11
+----------------------------------------------------------------------------------------------------
+03/12/23 16:37:37| INFO     dataset rcv1_CCAT_1prevs [pool size: 10]
+03/12/23 16:37:41| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+03/12/23 16:38:11| INFO        ref finished [took 28.4000s]
+03/12/23 16:38:12| DEBUG       batch_size = 11
+03/12/23 16:38:12| WARNING     Method bin_kde_gs failed. Exception: 'builtin_function_or_method' object has no attribute 'time'
+03/12/23 16:38:12| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs finished [took 31.1123s]
+----------------------------------------------------------------------------------------------------
+03/12/23 16:39:19| INFO     dataset rcv1_CCAT_1prevs [pool size: 10]
+03/12/23 16:39:23| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+03/12/23 16:39:53| INFO        ref finished [took 28.2250s]
+03/12/23 16:39:54| DEBUG       batch_size = 11
+03/12/23 16:40:32| DEBUG       [iter 0] best score = 0.009729173941721516 [took -37.887585401535034s]
+03/12/23 16:41:13| DEBUG       [iter 1] best score = 0.009392603683075316 [took -41.157336950302124s]
+03/12/23 16:41:45| DEBUG       [iter 2] best score = 0.01020332673171631 [took -32.264721632003784s]
+03/12/23 16:42:25| DEBUG       [iter 3] best score = 0.009722409102226702 [took -39.225417137145996s]
+03/12/23 16:43:07| DEBUG       [iter 4] best score = 0.009626694539706276 [took -42.80421543121338s]
+03/12/23 16:43:44| DEBUG       [iter 5] best score = 0.010481925236731597 [took -36.653741121292114s]
+03/12/23 16:44:25| DEBUG       [iter 6] best score = 0.01028800503143689 [took -40.85479164123535s]
+03/12/23 16:45:00| DEBUG       [iter 7] best score = 0.010999057911683478 [took -35.337661266326904s]
+03/12/23 16:45:31| DEBUG       [iter 8] best score = 0.01158550879499442 [took -30.31934881210327s]
+03/12/23 16:46:08| DEBUG       [iter 9] best score = 0.019747547649031204 [took -37.18638324737549s]
+03/12/23 16:46:51| DEBUG       [iter 10] best score = 0.009834232311934768 [took -43.61098265647888s]
+03/12/23 16:47:27| DEBUG       [iter 11] best score = 0.012995501553795731 [took -35.67589831352234s]
+03/12/23 16:47:57| DEBUG       [iter 12] best score = 0.014686311877447969 [took -30.10047459602356s]
+03/12/23 16:47:57| DEBUG       [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.01, 'confidence': None} (score=0.00939) [took 483.1874s]
+03/12/23 16:52:29| INFO        bin_kde_gs finished [took 755.1949s]
+03/12/23 16:52:29| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs finished [took 786.2503s]
+----------------------------------------------------------------------------------------------------
+03/12/23 16:52:41| INFO     dataset rcv1_CCAT_1prevs [pool size: 10]
+03/12/23 16:52:45| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+03/12/23 16:53:15| INFO        ref finished [took 28.8704s]
+03/12/23 16:53:16| DEBUG       batch_size = 11
+03/12/23 16:54:05| DEBUG       [iter 0] best score = 0.01076030 [took 48.401s]
+03/12/23 16:54:40| DEBUG       [iter 1] best score = 0.01519444 [took 35.206s]
+03/12/23 16:55:17| DEBUG       [iter 2] best score = 0.01199583 [took 36.699s]
+03/12/23 16:55:58| DEBUG       [iter 3] best score = 0.01193761 [took 41.430s]
+03/12/23 16:56:42| DEBUG       [iter 4] best score = 0.00962002 [took 43.772s]
+03/12/23 16:57:21| DEBUG       [iter 5] best score = 0.01210373 [took 39.555s]
+03/12/23 16:57:52| DEBUG       [iter 6] best score = 0.01186543 [took 30.891s]
+03/12/23 16:58:27| DEBUG       [iter 7] best score = 0.01149941 [took 34.600s]
+03/12/23 16:59:09| DEBUG       [iter 8] best score = 0.00952915 [took 42.496s]
+03/12/23 16:59:45| DEBUG       [iter 9] best score = 0.00973752 [took 35.673s]
+03/12/23 17:00:21| DEBUG       [iter 10] best score = 0.01015591 [took 36.101s]
+03/12/23 17:01:03| DEBUG       [iter 11] best score = 0.01016702 [took 41.941s]
+03/12/23 17:01:41| DEBUG       [iter 12] best score = 0.01014406 [took 38.225s]
+03/12/23 17:02:18| DEBUG       [iter 13] best score = 0.01251315 [took 36.405s]
+03/12/23 17:02:49| DEBUG       [iter 14] best score = 0.01002339 [took 31.075s]
+03/12/23 17:03:25| DEBUG       [iter 15] best score = 0.01378857 [took 35.703s]
+03/12/23 17:04:01| DEBUG       [iter 16] best score = 0.00963704 [took 36.924s]
+03/12/23 17:04:40| DEBUG       [iter 17] best score = 0.01160308 [took 38.959s]
+03/12/23 17:05:13| DEBUG       [iter 18] best score = 0.01010798 [took 33.016s]
+03/12/23 17:05:50| DEBUG       [iter 19] best score = 0.01076733 [took 36.148s]
+03/12/23 17:06:21| DEBUG       [iter 20] best score = 0.01053728 [took 31.780s]
+03/12/23 17:06:58| DEBUG       [iter 21] best score = 0.01075536 [took 36.333s]
+03/12/23 17:07:39| DEBUG       [iter 22] best score = 0.00972917 [took 41.138s]
+03/12/23 17:08:15| DEBUG       [iter 23] best score = 0.01249425 [took 36.396s]
+03/12/23 17:08:56| DEBUG       [iter 24] best score = 0.01498806 [took 40.610s]
+03/12/23 17:09:31| DEBUG       [iter 25] best score = 0.01542491 [took 35.593s]
+03/12/23 17:10:09| DEBUG       [iter 26] best score = 0.00954800 [took 37.561s]
+03/12/23 17:10:52| DEBUG       [iter 27] best score = 0.00927255 [took 42.919s]
+03/12/23 17:11:24| DEBUG       [iter 28] best score = 0.00990196 [took 32.236s]
+03/12/23 17:12:03| DEBUG       [iter 29] best score = 0.01048518 [took 39.135s]
+03/12/23 17:12:44| DEBUG       [iter 30] best score = 0.00971109 [took 40.799s]
+03/12/23 17:13:25| DEBUG       [iter 31] best score = 0.01096402 [took 40.810s]
+03/12/23 17:13:57| DEBUG       [iter 32] best score = 0.00984265 [took 32.558s]
+03/12/23 17:14:35| DEBUG       [iter 33] best score = 0.01761690 [took 37.551s]
+03/12/23 17:15:10| DEBUG       [iter 34] best score = 0.00955739 [took 34.810s]
+03/12/23 17:15:46| DEBUG       [iter 35] best score = 0.01318167 [took 36.112s]
+03/12/23 17:16:29| DEBUG       [iter 36] best score = 0.01110071 [took 42.679s]
+03/12/23 17:17:10| DEBUG       [iter 37] best score = 0.00966141 [took 41.634s]
+03/12/23 17:17:48| DEBUG       [iter 38] best score = 0.00969641 [took 37.899s]
+03/12/23 17:18:20| DEBUG       [iter 39] best score = 0.00939260 [took 32.221s]
+03/12/23 17:18:58| DEBUG       [iter 40] best score = 0.01080854 [took 37.744s]
+03/12/23 17:19:34| DEBUG       [iter 41] best score = 0.01120728 [took 36.167s]
+03/12/23 17:20:15| DEBUG       [iter 42] best score = 0.01020333 [took 40.334s]
+03/12/23 17:20:52| DEBUG       [iter 43] best score = 0.01030955 [took 37.253s]
+03/12/23 17:21:26| DEBUG       [iter 44] best score = 0.01020734 [took 34.365s]
+03/12/23 17:22:05| DEBUG       [iter 45] best score = 0.01090877 [took 38.829s]
+03/12/23 17:22:40| DEBUG       [iter 46] best score = 0.00995080 [took 34.615s]
+----------------------------------------------------------------------------------------------------
+03/12/23 17:50:32| INFO     dataset rcv1_CCAT_1prevs [pool size: 10]
+03/12/23 17:50:35| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+03/12/23 17:51:05| INFO        ref finished [took 28.1365s]
+03/12/23 17:51:06| DEBUG       batch_size = 11
+03/12/23 17:51:30| DEBUG       [iter 0] best score = 0.00887274 [took 23.211s]
+03/12/23 17:51:59| DEBUG       [iter 1] best score = 0.00867318 [took 29.474s]
+03/12/23 17:52:25| DEBUG       [iter 2] best score = 0.01220571 [took 26.432s]
+03/12/23 17:52:48| DEBUG       [iter 3] best score = 0.01091149 [took 22.763s]
+03/12/23 17:53:11| DEBUG       [iter 4] best score = 0.01192161 [took 22.686s]
+03/12/23 17:53:33| DEBUG       [iter 5] best score = 0.01318754 [took 21.984s]
+03/12/23 17:53:57| DEBUG       [iter 6] best score = 0.00962752 [took 23.612s]
+03/12/23 17:54:22| DEBUG       [iter 7] best score = 0.00999534 [took 25.606s]
+03/12/23 17:54:50| DEBUG       [iter 8] best score = 0.01016374 [took 28.142s]
+03/12/23 17:55:17| DEBUG       [iter 9] best score = 0.00906638 [took 26.430s]
+03/12/23 17:55:42| DEBUG       [iter 10] best score = 0.01047633 [took 25.586s]
+03/12/23 17:56:10| DEBUG       [iter 11] best score = 0.00858527 [took 27.955s]
+03/12/23 17:56:35| DEBUG       [iter 12] best score = 0.00865464 [took 25.123s]
+03/12/23 17:56:59| DEBUG       [iter 13] best score = 0.01103404 [took 23.375s]
+03/12/23 17:57:18| DEBUG       [iter 14] best score = 0.01042848 [took 19.538s]
+03/12/23 17:57:43| DEBUG       [iter 15] best score = 0.00939529 [took 24.795s]
+03/12/23 17:58:08| DEBUG       [iter 16] best score = 0.00977250 [took 25.425s]
+03/12/23 17:58:32| DEBUG       [iter 17] best score = 0.01323922 [took 23.031s]
+03/12/23 17:58:58| DEBUG       [iter 18] best score = 0.01006337 [took 26.436s]
+03/12/23 17:59:26| DEBUG       [iter 19] best score = 0.00863107 [took 28.220s]
+03/12/23 17:59:53| DEBUG       [iter 20] best score = 0.01183034 [took 26.682s]
+03/12/23 18:00:18| DEBUG       [iter 21] best score = 0.01097665 [took 25.092s]
+03/12/23 18:00:43| DEBUG       [iter 22] best score = 0.00913278 [took 24.852s]
+03/12/23 18:01:08| DEBUG       [iter 23] best score = 0.00864778 [took 25.655s]
+03/12/23 18:01:37| DEBUG       [iter 24] best score = 0.01170818 [took 28.992s]
+03/12/23 18:02:00| DEBUG       [iter 25] best score = 0.00872422 [took 22.179s]
+03/12/23 18:02:26| DEBUG       [iter 26] best score = 0.00760174 [took 26.292s]
+03/12/23 18:02:50| DEBUG       [iter 27] best score = 0.00927294 [took 24.464s]
+03/12/23 18:03:14| DEBUG       [iter 28] best score = 0.00882952 [took 23.923s]
+03/12/23 18:03:38| DEBUG       [iter 29] best score = 0.01057001 [took 24.057s]
+03/12/23 18:04:01| DEBUG       [iter 30] best score = 0.00868684 [took 22.401s]
+03/12/23 18:04:30| DEBUG       [iter 31] best score = 0.00874412 [took 29.648s]
+03/12/23 18:04:52| DEBUG       [iter 32] best score = 0.01030450 [took 21.429s]
+03/12/23 18:05:16| DEBUG       [iter 33] best score = 0.01085922 [took 24.008s]
+03/12/23 18:05:39| DEBUG       [iter 34] best score = 0.01254566 [took 22.653s]
+03/12/23 18:06:12| DEBUG       [iter 35] best score = 0.01153955 [took 33.566s]
+03/12/23 18:06:36| DEBUG       [iter 36] best score = 0.01079749 [took 24.085s]
+03/12/23 18:07:02| DEBUG       [iter 37] best score = 0.01061162 [took 25.371s]
+03/12/23 18:07:27| DEBUG       [iter 38] best score = 0.00929242 [took 25.177s]
+03/12/23 18:07:53| DEBUG       [iter 39] best score = 0.01097814 [took 25.889s]
+03/12/23 18:08:18| DEBUG       [iter 40] best score = 0.01041492 [took 25.429s]
+03/12/23 18:08:44| DEBUG       [iter 41] best score = 0.01025479 [took 25.854s]
+03/12/23 18:09:12| DEBUG       [iter 42] best score = 0.01043784 [took 27.713s]
+03/12/23 18:09:37| DEBUG       [iter 43] best score = 0.01254014 [took 24.961s]
+03/12/23 18:09:59| DEBUG       [iter 44] best score = 0.00995612 [took 22.130s]
+03/12/23 18:10:26| DEBUG       [iter 45] best score = 0.01067231 [took 26.929s]
+03/12/23 18:10:51| DEBUG       [iter 46] best score = 0.00893041 [took 25.192s]
+03/12/23 18:11:14| DEBUG       [iter 47] best score = 0.01174370 [took 22.842s]
+03/12/23 18:11:42| DEBUG       [iter 48] best score = 0.00953082 [took 28.327s]
+03/12/23 18:12:06| DEBUG       [iter 49] best score = 0.01069810 [took 24.155s]
+03/12/23 18:12:30| DEBUG       [iter 50] best score = 0.01154315 [took 23.556s]
+03/12/23 18:12:30| DEBUG       [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.02, 'confidence': ['isoft']} (score=0.00760) [took 1283.4691s]
+03/12/23 18:15:14| INFO        bin_kde_gs finished [took 1447.7080s]
+03/12/23 18:15:14| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs finished [took 1478.6723s]
+----------------------------------------------------------------------------------------------------
+03/12/23 18:15:34| INFO     dataset rcv1_CCAT_1prevs [pool size: 10]
+03/12/23 18:15:38| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+03/12/23 18:16:08| INFO        ref finished [took 28.1284s]
+03/12/23 18:16:09| DEBUG       batch_size = 11
+03/12/23 18:16:18| DEBUG       [iter 0] best score = 0.01312175 [took 9.610s]
+03/12/23 18:16:29| DEBUG       [iter 1] best score = 0.02124558 [took 10.810s]
+03/12/23 18:16:39| DEBUG       [iter 2] best score = 0.01196361 [took 9.933s]
+03/12/23 18:16:47| DEBUG       [iter 3] best score = 0.02316770 [took 8.479s]
+03/12/23 18:16:56| DEBUG       [iter 4] best score = 0.03845201 [took 8.540s]
+03/12/23 18:17:04| DEBUG       [iter 5] best score = 0.02981809 [took 8.168s]
+03/12/23 18:17:13| DEBUG       [iter 6] best score = 0.01283328 [took 8.929s]
+03/12/23 18:17:23| DEBUG       [iter 7] best score = 0.01421001 [took 9.811s]
+03/12/23 18:17:33| DEBUG       [iter 8] best score = 0.01321974 [took 10.223s]
+03/12/23 18:17:43| DEBUG       [iter 9] best score = 0.01205659 [took 9.733s]
+03/12/23 18:17:52| DEBUG       [iter 10] best score = 0.03963885 [took 8.889s]
+03/12/23 18:18:02| DEBUG       [iter 11] best score = 0.02162535 [took 9.991s]
+03/12/23 18:18:11| DEBUG       [iter 12] best score = 0.01409854 [took 8.872s]
+03/12/23 18:18:19| DEBUG       [iter 13] best score = 0.01924669 [took 8.786s]
+03/12/23 18:18:27| DEBUG       [iter 14] best score = 0.01289574 [took 7.951s]
+03/12/23 18:18:36| DEBUG       [iter 15] best score = 0.01670670 [took 8.656s]
+03/12/23 18:18:45| DEBUG       [iter 16] best score = 0.01418211 [took 9.197s]
+03/12/23 18:18:54| DEBUG       [iter 17] best score = 0.01197634 [took 8.322s]
+03/12/23 18:19:03| DEBUG       [iter 18] best score = 0.02300680 [took 9.526s]
+03/12/23 18:19:13| DEBUG       [iter 19] best score = 0.01244713 [took 10.278s]
+03/12/23 18:19:23| DEBUG       [iter 20] best score = 0.01474099 [took 9.531s]
+03/12/23 18:19:32| DEBUG       [iter 21] best score = 0.02411991 [took 8.888s]
+03/12/23 18:19:40| DEBUG       [iter 22] best score = 0.01231082 [took 8.558s]
+03/12/23 18:19:50| DEBUG       [iter 23] best score = 0.01764084 [took 9.588s]
+03/12/23 18:20:00| DEBUG       [iter 24] best score = 0.01213220 [took 10.275s]
+03/12/23 18:20:09| DEBUG       [iter 25] best score = 0.04026699 [took 8.385s]
+03/12/23 18:20:18| DEBUG       [iter 26] best score = 0.01904431 [took 9.033s]
+03/12/23 18:20:26| DEBUG       [iter 27] best score = 0.01319563 [took 8.848s]
+03/12/23 18:20:35| DEBUG       [iter 28] best score = 0.02780002 [took 8.364s]
+03/12/23 18:20:43| DEBUG       [iter 29] best score = 0.01340489 [took 8.334s]
+03/12/23 18:20:52| DEBUG       [iter 30] best score = 0.01893523 [took 9.005s]
+03/12/23 18:21:03| DEBUG       [iter 31] best score = 0.01542356 [took 10.822s]
+03/12/23 18:21:11| DEBUG       [iter 32] best score = 0.01189100 [took 8.071s]
+03/12/23 18:21:20| DEBUG       [iter 33] best score = 0.01239448 [took 8.491s]
+03/12/23 18:21:28| DEBUG       [iter 34] best score = 0.02215184 [took 8.395s]
+03/12/23 18:21:39| DEBUG       [iter 35] best score = 0.02864283 [took 11.013s]
+03/12/23 18:21:48| DEBUG       [iter 36] best score = 0.02148982 [took 8.830s]
+03/12/23 18:21:57| DEBUG       [iter 37] best score = 0.01204784 [took 9.320s]
+03/12/23 18:22:07| DEBUG       [iter 38] best score = 0.01411311 [took 9.408s]
+03/12/23 18:22:15| DEBUG       [iter 39] best score = 0.03837698 [took 8.688s]
+03/12/23 18:22:24| DEBUG       [iter 40] best score = 0.01208478 [took 8.932s]
+03/12/23 18:22:33| DEBUG       [iter 41] best score = 0.01433506 [took 9.329s]
+03/12/23 18:22:43| DEBUG       [iter 42] best score = 0.01289865 [took 9.333s]
+03/12/23 18:22:52| DEBUG       [iter 43] best score = 0.01449728 [took 9.401s]
+03/12/23 18:23:00| DEBUG       [iter 44] best score = 0.01980503 [took 8.083s]
+03/12/23 18:23:10| DEBUG       [iter 45] best score = 0.01446583 [took 9.516s]
+03/12/23 18:23:19| DEBUG       [iter 46] best score = 0.02742582 [took 9.340s]
+03/12/23 18:23:28| DEBUG       [iter 47] best score = 0.01304332 [took 8.352s]
+03/12/23 18:23:38| DEBUG       [iter 48] best score = 0.01192447 [took 10.091s]
+03/12/23 18:23:47| DEBUG       [iter 49] best score = 0.01291259 [took 9.005s]
+03/12/23 18:23:54| DEBUG       [iter 50] best score = 0.01448077 [took 7.797s]
+03/12/23 18:23:55| DEBUG       [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.08, 'confidence': ['isoft']} (score=0.01189) [took 465.8660s]
+03/12/23 18:24:43| INFO        bin_kde_gs finished [took 514.1362s]
+03/12/23 18:24:43| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs finished [took 545.1156s]
+----------------------------------------------------------------------------------------------------
+03/12/23 21:29:41| INFO     dataset rcv1_CCAT_1prevs [pool size: 10]
+03/12/23 21:29:45| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+----------------------------------------------------------------------------------------------------
+03/12/23 21:30:35| INFO     dataset rcv1_CCAT_1prevs [pool size: 10]
+03/12/23 21:30:38| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+03/12/23 21:31:09| INFO        ref finished [took 29.2042s]
+03/12/23 21:31:10| INFO        self.protocol.total() = 100
+03/12/23 21:31:10| INFO        protocol.total() = 4
+----------------------------------------------------------------------------------------------------
+03/12/23 21:33:38| INFO     dataset rcv1_CCAT_1prevs [pool size: 10]
+03/12/23 21:33:41| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+03/12/23 21:34:12| INFO        ref finished [took 28.7780s]
+03/12/23 21:34:17| WARNING     Method bin_kde_gs failed. Exception: 'NoneType' object is not subscriptable
+03/12/23 21:34:17| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs finished [took 35.8846s]
+----------------------------------------------------------------------------------------------------
+03/12/23 21:36:31| INFO     dataset rcv1_CCAT_1prevs [pool size: 10]
+03/12/23 21:36:34| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+03/12/23 21:37:05| INFO        ref finished [took 29.0306s]
+03/12/23 21:37:11| WARNING     Method bin_kde_gs failed. Exception: only integer scalar arrays can be converted to a scalar index
+03/12/23 21:37:11| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs finished [took 36.4005s]
+----------------------------------------------------------------------------------------------------
+03/12/23 21:39:04| INFO     dataset rcv1_CCAT_1prevs [pool size: 10]
+03/12/23 21:39:07| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+03/12/23 21:39:39| INFO        ref finished [took 29.4051s]
+03/12/23 21:39:44| WARNING     Method bin_kde_gs failed. Exception: only integer scalar arrays can be converted to a scalar index
+03/12/23 21:39:44| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs finished [took 36.5524s]
+----------------------------------------------------------------------------------------------------
+03/12/23 21:40:57| INFO     dataset rcv1_CCAT_1prevs [pool size: 10]
+03/12/23 21:41:00| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+03/12/23 21:41:31| INFO        ref finished [took 28.8051s]
+03/12/23 21:41:36| WARNING     Method bin_kde_gs failed. Exception: list index out of range
+03/12/23 21:41:36| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs finished [took 35.9323s]
+----------------------------------------------------------------------------------------------------
+03/12/23 21:42:53| INFO     dataset rcv1_CCAT_1prevs [pool size: 10]
+03/12/23 21:42:57| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+03/12/23 21:43:28| INFO        ref finished [took 29.4567s]
+03/12/23 21:43:34| WARNING     Method bin_kde_gs failed. Exception: only integer scalar arrays can be converted to a scalar index
+03/12/23 21:43:34| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs finished [took 36.8411s]
+----------------------------------------------------------------------------------------------------
+03/12/23 21:44:39| INFO     dataset rcv1_CCAT_1prevs [pool size: 10]
+03/12/23 21:44:43| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+03/12/23 21:45:14| INFO        ref finished [took 29.4473s]
+----------------------------------------------------------------------------------------------------
+03/12/23 21:46:38| INFO     dataset rcv1_CCAT_1prevs [pool size: 10]
+03/12/23 21:46:42| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+03/12/23 21:47:13| INFO        ref finished [took 29.2156s]
+03/12/23 21:53:39| DEBUG       [step 27.0] best score = 0.01068581 [took 385.620s]
+03/12/23 21:53:39| DEBUG       [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.01, 'confidence': ['isoft']} (score=0.01069) [took 385.7449s]
+03/12/23 21:54:35| INFO        bin_kde_gs finished [took 441.2240s]
+03/12/23 21:54:35| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs finished [took 473.2994s]
+----------------------------------------------------------------------------------------------------
+03/12/23 21:57:01| INFO     dataset rcv1_CCAT_1prevs [pool size: 10]
+03/12/23 21:57:04| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+03/12/23 21:57:36| INFO        ref finished [took 29.5519s]
+03/12/23 22:04:43| DEBUG       [step 27.0] best score = 0.01189100 [took 425.950s]
+03/12/23 22:04:43| DEBUG       [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.08, 'confidence': ['isoft']} (score=0.01189) [took 426.0730s]
+03/12/23 22:05:30| INFO        bin_kde_gs finished [took 472.9577s]
+03/12/23 22:05:30| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs finished [took 505.3358s]
+----------------------------------------------------------------------------------------------------
+03/12/23 23:41:55| INFO     dataset rcv1_CCAT_1prevs [pool size: 10]
+03/12/23 23:41:59| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+03/12/23 23:42:29| INFO        ref finished [took 28.3703s]
+03/12/23 23:49:38| DEBUG       [step 0.037037037037037035] best score = 0.01189100 [took 427.398s]
+03/12/23 23:49:38| DEBUG       [step 0.1111111111111111] best score = 1.00000000 [took 0.369s]
+03/12/23 23:49:38| WARNING     Method bin_kde_gs failed. Exception: no combination of hyperparameters seem to work
+03/12/23 23:49:38| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs finished [took 459.0923s]
+----------------------------------------------------------------------------------------------------
+03/12/23 23:51:22| INFO     dataset rcv1_CCAT_1prevs [pool size: 10]
+03/12/23 23:51:26| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+03/12/23 23:51:56| INFO        ref finished [took 28.6151s]
+03/12/23 23:53:46| DEBUG       [step 0.03703703703703703] best score = 0.01203646 [took 108.355s]
+03/12/23 23:54:44| DEBUG       [step 0.1111111111111111] best score = 0.01141338 [took 58.365s]
+03/12/23 23:54:44| DEBUG       [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.01, 'confidence': None} (score=0.01141) [took 166.8319s]
+03/12/23 23:55:48| INFO        bin_kde_gs finished [took 230.5525s]
+03/12/23 23:55:48| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs finished [took 262.0104s]
+----------------------------------------------------------------------------------------------------
+03/12/23 23:56:17| INFO     dataset rcv1_CCAT_1prevs [pool size: 10]
+03/12/23 23:56:21| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+03/12/23 23:56:50| INFO        ref finished [took 27.7273s]
+03/12/23 23:58:38| DEBUG       [step 0.03703703703703703] best score = 0.01203646 [took 107.116s]
+03/12/23 23:59:36| DEBUG       [step 0.1111111111111111] best score = 0.01141338 [took 58.107s]
+04/12/23 00:00:02| DEBUG       [step 0.3333333333333333] best score = 0.01018487 [took 25.568s]
+04/12/23 00:00:02| WARNING     Method bin_kde_gs failed. Exception: The 'train_size' parameter of train_test_split must be a float in the range (0.0, 1.0), an int in the range [1, inf) or None. Got 1.0 instead.
+04/12/23 00:00:02| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs finished [took 221.5128s]
+----------------------------------------------------------------------------------------------------
+04/12/23 00:01:19| INFO     dataset rcv1_CCAT_1prevs [pool size: 10]
+04/12/23 00:01:23| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+04/12/23 00:01:54| INFO        ref finished [took 29.1486s]
+04/12/23 00:03:43| DEBUG       [step 0.03703703703703703] best score = 0.01203646 [took 107.880s]
+04/12/23 00:04:41| DEBUG       [step 0.1111111111111111] best score = 0.01141338 [took 58.737s]
+04/12/23 00:05:07| DEBUG       [step 0.3333333333333333] best score = 0.01018487 [took 25.820s]
+04/12/23 00:05:07| WARNING     Method bin_kde_gs failed. Exception: cannot unpack non-iterable LabelledCollection object
+04/12/23 00:05:07| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs finished [took 224.5642s]
+----------------------------------------------------------------------------------------------------
+04/12/23 00:05:37| INFO     dataset rcv1_CCAT_1prevs [pool size: 10]
+04/12/23 00:05:41| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+04/12/23 00:06:11| INFO        ref finished [took 28.6422s]
+04/12/23 00:08:01| DEBUG       [step 0.03703703703703703] best score = 0.01203646 [took 108.234s]
+04/12/23 00:09:00| DEBUG       [step 0.1111111111111111] best score = 0.01141338 [took 58.868s]
+04/12/23 00:09:25| DEBUG       [step 0.3333333333333333] best score = 0.01018487 [took 25.473s]
+04/12/23 00:09:49| DEBUG       [step 1.0] best score = 0.01156060 [took 23.744s]
+04/12/23 00:09:49| DEBUG       [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.0575, 'confidence': None} (score=0.01156) [took 216.4332s]
+04/12/23 00:14:50| INFO        bin_kde_gs finished [took 517.7569s]
+04/12/23 00:14:50| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs finished [took 549.4432s]
+----------------------------------------------------------------------------------------------------
+04/12/23 00:23:34| INFO     dataset rcv1_CCAT_1prevs [pool size: 10]
+04/12/23 00:23:38| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+04/12/23 00:24:09| INFO        ref finished [took 29.2210s]
+04/12/23 00:26:32| DEBUG       [step 0.1111111111111111] best score = 0.01015786 [took 141.917s]
+04/12/23 00:28:02| DEBUG       [step 0.3333333333333333] best score = 0.00955716 [took 89.583s]
+04/12/23 00:29:05| DEBUG       [step 1.0] best score = 0.01156060 [took 63.475s]
+04/12/23 00:29:05| DEBUG       [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.0575, 'confidence': None} (score=0.01156) [took 295.0878s]
+04/12/23 00:34:06| INFO        bin_kde_gs finished [took 596.3637s]
+04/12/23 00:34:06| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs finished [took 628.5218s]
+----------------------------------------------------------------------------------------------------
+04/12/23 00:41:48| INFO     dataset rcv1_CCAT_1prevs [pool size: 10]
+04/12/23 00:41:51| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+04/12/23 00:42:22| INFO        ref finished [took 29.1185s]
+04/12/23 00:44:12| DEBUG       [step 0.03703703703703703] best score = 0.01203646 [took 108.320s]
+04/12/23 00:45:11| DEBUG       [step 0.1111111111111111] best score = 0.01141338 [took 59.045s]
+04/12/23 00:45:36| DEBUG       [step 0.3333333333333333] best score = 0.01018487 [took 25.399s]
+04/12/23 00:46:00| DEBUG       [step 1.0] best score = 0.01156060 [took 23.700s]
+04/12/23 00:46:00| DEBUG       [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.0575, 'confidence': None} (score=0.01156) [took 216.5719s]
+04/12/23 00:51:03| INFO        bin_kde_gs finished [took 519.4451s]
+04/12/23 00:51:03| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs finished [took 551.3254s]
+----------------------------------------------------------------------------------------------------
+04/12/23 00:51:09| INFO     dataset rcv1_CCAT_1prevs [pool size: 10]
+04/12/23 00:51:13| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+04/12/23 00:51:44| INFO        ref finished [took 29.0244s]
+04/12/23 00:53:32| DEBUG       n_none: 0
+04/12/23 00:53:32| DEBUG       [step 0.03703703703703703] best score = 0.01203646 [took 107.606s]
+04/12/23 00:54:30| DEBUG       n_none: 0
+04/12/23 00:54:30| DEBUG       [step 0.1111111111111111] best score = 0.01141338 [took 58.196s]
+04/12/23 00:54:56| DEBUG       n_none: 0
+04/12/23 00:54:56| DEBUG       [step 0.3333333333333333] best score = 0.01018487 [took 25.785s]
+04/12/23 00:55:21| DEBUG       n_none: 0
+04/12/23 00:55:21| DEBUG       [step 1.0] best score = 0.01156060 [took 24.487s]
+04/12/23 00:55:21| DEBUG       [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.0575, 'confidence': None} (score=0.01156) [took 216.1769s]
+04/12/23 01:00:23| INFO        bin_kde_gs finished [took 518.1653s]
+04/12/23 01:00:23| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs finished [took 549.9731s]
+----------------------------------------------------------------------------------------------------
+04/12/23 01:00:34| INFO     dataset rcv1_CCAT_1prevs [pool size: 10]
+04/12/23 01:00:37| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+04/12/23 01:01:07| INFO        ref finished [took 28.3511s]
+04/12/23 01:02:57| DEBUG       sorted_scores_idx = array([ 75,  77,  72,  53,  60,  55,  71,  73,  50,  31,  63,  41,  79,
+        92,  95,  93, 111,  51, 135,  74,  83,  61,  97, 137,  94, 103,
+        57,  81,  91, 123, 113, 114, 115,  90,  99,  85, 117, 105,  82,
+       102,  70, 101, 139, 134, 119, 132,  96, 116,  80,  76,  65,  59,
+       112, 131, 100,  87,  98, 110, 122, 136, 125,  78,  52, 107,  16,
+       133, 120, 118,  33,  14,  67,  84,  18, 121,  89,  62,  30,  69,
+        43,  11,  12,  54, 109, 130,  86,  35, 104, 138,  64,  88,  56,
+        58,  37,  66,  32,  36,  34,  10,  38,  39,  68,  19, 108,  17,
+        13, 127,  15, 106,  45,  47,  49, 124, 129, 128, 126,  40,  21,
+         1,  20,   0,  42,   9,   4,  48,   3,   5,  44,  27,   2,   6,
+         7,  46,  22,  25,  24,   8,  23,  29,  26,  28])
+04/12/23 01:02:57| DEBUG       scores = [0.9341099999981499, 0.9341099999960902, 0.93411, 0.9341099999999999, 0.9341099999999998, 0.9341099999999999, 0.93411, 0.93411, 0.93411, 0.9341099999999998, 0.06051999999999993, 0.05554700292472367, 0.05583499999999995, 0.06356955666771408, 0.05048, 0.06393000000000003, 0.04877499999999993, 0.06281999999999996, 0.051340000000000025, 0.062024999999999934, 0.9341099999968062, 0.9341099999936691, 0.93411, 0.93411, 0.93411, 0.93411, 0.93411, 0.93411, 0.93411, 0.93411, 0.05391066334746173, 0.014740993651088975, 0.06051999999999888, 0.0503544130991147, 0.06051999999999993, 0.056582630209597966, 0.06051999999999982, 0.06019563736241398, 0.06052, 0.061540841627911715, 0.8805972181599924, 0.018341808709467538, 0.9341099999999996, 0.05508948634046047, 0.9341099999999999, 0.06562713873160708, 0.93411, 0.06840733252168531, 0.9341099999999999, 0.06904480176783795, 0.01446583451074425, 0.0238313231987788, 0.04836590183800994, 0.013031147501712978, 0.0560770314861489, 0.014153572804457094, 0.05922556604088968, 0.02925635215124327, 0.06014682380914686, 0.04161307596339526, 0.013595757983072469, 0.025570771298542884, 0.052393817815018943, 0.01830904493739659, 0.05850980120814502, 0.03999996760267361, 0.06040811330781148, 0.05066606002626029, 0.061665110026532355, 0.054869617170647894, 0.03541487119611707, 0.014182105143992594, 0.012885508388027989, 0.014425530381247307, 0.02495578836284016, 0.012036462152735627, 0.03951229601255115, 0.012425606400230015, 0.04758946342255208, 0.01862757812984388, 0.0394393323729755, 0.02984513484758662, 0.03475449942021076, 0.02499171859532958, 0.05078831716230666, 0.032825569665387105, 0.05653373185639488, 0.04436421783376611, 0.05886895978487318, 0.05216043815355643, 0.03174524413753661, 0.02992749070727628, 0.019488446889935267, 0.021854490533367424, 0.028000982653718812, 0.01979616004588961, 0.037116372391093784, 0.026666177566206324, 0.04474063852272977, 0.03192646814259144, 0.04383160587505503, 0.03543109372987328, 0.03519712770127706, 0.029166534003624855, 0.057026794987734525, 0.03429561378307575, 0.06398198116995187, 0.048600773151118215, 0.06228195913262663, 0.05636671795017024, 0.04688899176092301, 0.022024663377822908, 0.04214343624261962, 0.0300821636613662, 0.030544150851935122, 0.03155016113712236, 0.03914141202005726, 0.03292254406087403, 0.050009052530722256, 0.036070545465431675, 0.0492089214051547, 0.05147028368345044, 0.04709509629635795, 0.03001801806849074, 0.1741178578677826, 0.0474258887681083, 0.4018600000017519, 0.0638505194109593, 0.30975700075071944, 0.2722955549887443, 0.05638960004768515, 0.04249762817775558, 0.03688905457687575, 0.04897726533326319, 0.035709865009509255, 0.02459986074922838, 0.04733995001415783, 0.026752489189760763, 0.057114823639443174, 0.03567896625100557]
+04/12/23 01:02:57| DEBUG       [step 0.03703703703703703] best score = 0.01203646 [took 108.236s]
+04/12/23 01:03:56| DEBUG       sorted_scores_idx = array([ 8,  3,  2, 15,  7, 11,  0,  5, 13,  9, 19, 14, 40, 27,  1, 33, 30,
+       41,  6,  4, 17, 28, 10, 24, 16, 20, 21, 26, 32, 12, 22, 38, 45, 46,
+       31, 35, 25, 34, 36, 18, 29, 39, 43, 37, 44, 23, 42])
+04/12/23 01:03:56| DEBUG       scores = [0.016220183023966824, 0.021612690964907925, 0.013299790295454831, 0.012648639547867026, 0.023406568823581286, 0.01658539656239435, 0.022781183074839898, 0.013763406015530458, 0.011413382346037958, 0.020182573829241036, 0.024334070653912104, 0.015481883343538679, 0.028631710832028662, 0.019810450321216498, 0.02056502455197584, 0.013647707017555714, 0.025276860687734482, 0.02407563923125481, 0.03557308715842989, 0.020500408728095457, 0.025448565163013682, 0.02614021644308903, 0.028667074005054326, 0.0430809142406204, 0.024662367428162933, 0.03438298762399586, 0.028289692208593627, 0.021506318593271203, 0.024169564041016042, 0.037855466048464105, 0.022755803809970408, 0.030421994178460768, 0.02830546666160659, 0.02275036806213072, 0.0345832591430778, 0.033559804380996, 0.03491600561197311, 0.041477917158539636, 0.029146099601968182, 0.039081137426187365, 0.020756866527674292, 0.022771716980332674, 0.049188239563569554, 0.04124042333039163, 0.04232287859305015, 0.03019715693016894, 0.030333377362935683]
+04/12/23 01:03:56| DEBUG       [step 0.1111111111111111] best score = 0.01141338 [took 59.161s]
+04/12/23 01:04:21| DEBUG       sorted_scores_idx = array([10,  6, 11,  7,  8,  3, 14,  4,  2,  1, 12,  5, 15,  0,  9, 13])
+04/12/23 01:04:21| DEBUG       scores = [0.023838055682022574, 0.01261525092755997, 0.012295815774473598, 0.011423920718930924, 0.012165167895890132, 0.021647471937002557, 0.010240038210003638, 0.011166485106203232, 0.011350152133747033, 0.026777690174550197, 0.010184868439742346, 0.010573549980624479, 0.018146341772912362, 0.029223930297535342, 0.01212768209544412, 0.023540769120652026]
+04/12/23 01:04:21| DEBUG       [step 0.3333333333333333] best score = 0.01018487 [took 25.773s]
+04/12/23 01:04:46| DEBUG       sorted_scores_idx = array([4, 1, 0, 3, 2])
+04/12/23 01:04:46| DEBUG       scores = [0.012217352591314942, 0.011803797097287764, 0.014606372282934597, 0.012309882273099594, 0.01156060256759692]
+04/12/23 01:04:46| DEBUG       [step 1.0] best score = 0.01156060 [took 24.148s]
+04/12/23 01:04:46| DEBUG       [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.0575, 'confidence': None} (score=0.01156) [took 217.4299s]
+04/12/23 01:09:47| INFO        bin_kde_gs finished [took 519.1312s]
+04/12/23 01:09:47| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs finished [took 550.3609s]
+----------------------------------------------------------------------------------------------------
+04/12/23 01:11:16| INFO     dataset rcv1_CCAT_1prevs [pool size: 10]
+04/12/23 01:11:20| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+04/12/23 01:11:51| INFO        ref finished [took 29.0498s]
+04/12/23 01:14:16| DEBUG       sorted_scores_idx = array([ 40,  55,  77,  52,  75,  63,  74,  83, 113,  95,  93, 133,  73,
+        53,  94, 112,  92,  30, 115,  82,  57,  97, 123,  72, 132,  79,
+        76, 114, 135,  96,  62, 134,  51, 117,  33, 104, 116,  85, 105,
+       103,  99,  70,  84, 137, 136, 125,  31, 124,  41,  61, 119,  98,
+        60, 122, 118,  71, 139, 138,  65, 102, 131,  59,  78, 126,  21,
+       107,  50, 110, 106, 127, 130,  43,  91, 120,  87, 121, 111,  80,
+        86, 128, 129,  90,  11,  81, 109, 100,  54, 108,  67, 101,  89,
+        64,  88,  35,  69,  56,  45,  37,  66,  58,  39,  47,  68,  28,
+        49,  26,  42,  20,  32,  23,  44,  46,  24,  48,  16,  18,  13,
+        10,  34,  36,  38,  12,  14,  15,  17,  19,  25,  27,  29,  22,
+         9,   1,   7,   5,   3,   4,   6,   8,   2,   0])
+04/12/23 01:14:16| DEBUG       scores = [0.40186000000000005, 0.07353163958121685, 0.27232500000000004, 0.08065999999999995, 0.17011500000000002, 0.07515, 0.17440999999999998, 0.07430499999999995, 0.18262, 0.07188500000000003, 0.05965503014389904, 0.029606582148695083, 0.06001999999999981, 0.05961779675894107, 0.06001999999999996, 0.06061961069190619, 0.05952499999999992, 0.06077999999999983, 0.05952499999999997, 0.06078, 0.05815457337811102, 0.023419396225256267, 0.06243999999999991, 0.05852401054507965, 0.05918999999999994, 0.06093182116811773, 0.057289999999999966, 0.061398732821814246, 0.056104999999999974, 0.061908508366774716, 0.012975512177002182, 0.019307790531636674, 0.05827311446142846, 0.017284720206507086, 0.059701604593834556, 0.04282012147257354, 0.05998067074198594, 0.04989293480391931, 0.060019999999997305, 0.053498339875711114, 0.010451599351086936, 0.01949248173887317, 0.05755975500266395, 0.02526302742618757, 0.05885834771813455, 0.04871865236728752, 0.05918774612095492, 0.05458776667744776, 0.059434370804501147, 0.05700755866977981, 0.0237372999437562, 0.016476977535947773, 0.010777221267876351, 0.012374707011971813, 0.03168275779840681, 0.010597733212519804, 0.046475243377660194, 0.013556812900790001, 0.05173481314588318, 0.022645947017967336, 0.02040712393548714, 0.019528459226845242, 0.015209626266324196, 0.01080709707644092, 0.037142082894902145, 0.02153547281587568, 0.05050407883621661, 0.03366328769748206, 0.055125000112055914, 0.044316073594525586, 0.018123335859011335, 0.020712468450571012, 0.014022048619581869, 0.01214463545505052, 0.011016740438149786, 0.010785420885899502, 0.014214855025425658, 0.010762281242833786, 0.022699919187680398, 0.014214030055069032, 0.02820035937294377, 0.030438874784031244, 0.013526992123429084, 0.011175813034201698, 0.018161891349663895, 0.01750936262030257, 0.028277478455296653, 0.025695019106684522, 0.0401550538392149, 0.03459033258322342, 0.029597007836584296, 0.025280862094268653, 0.012925411565965203, 0.011914330085312492, 0.01255283850088298, 0.011633218819676862, 0.015091063592705102, 0.01360479843497591, 0.020154288200963502, 0.0181033108048395, 0.031178465812380665, 0.03408253808209406, 0.022101734332182002, 0.017749764628874263, 0.01747830470757934, 0.017664630163419067, 0.023962876593190713, 0.023614419287244476, 0.0322130458132037, 0.030810790058526178, 0.02394267003337493, 0.02646741599717868, 0.01265513588428192, 0.011617777253743092, 0.014520615849985154, 0.013252761922668608, 0.017479953278209556, 0.016519284753801634, 0.020559497749799566, 0.020150262799084332, 0.025324096862884348, 0.026148694876005886, 0.02044798491240849, 0.013808932853798148, 0.01942062198798235, 0.019119625780569062, 0.023392832633558718, 0.024091541489987062, 0.028361906214945484, 0.02860839927478069, 0.02482652972871083, 0.022543834098407135, 0.014032629877417935, 0.012054448304868267, 0.016357829753433566, 0.014757066113737562, 0.018679449715819734, 0.018232042086109287, 0.02147572898882577, 0.02128374715470324]
+04/12/23 01:14:16| DEBUG       [step 0.125] best score = 0.01045160 [took 143.683s]
+04/12/23 01:16:14| DEBUG       sorted_scores_idx = array([46, 66, 55, 13, 32,  0, 12, 64, 34, 17,  1, 23, 48,  3, 10, 16,  4,
+        6, 52,  2, 20, 15, 49,  8, 41,  9,  5, 26, 14, 67, 25, 18, 21, 30,
+       24, 27, 29, 11, 61, 62,  7, 53, 33, 40, 22, 28, 19, 51, 31, 36, 37,
+       42, 35, 38, 58, 39, 60, 43, 59, 50, 44, 54, 45, 47, 56, 57, 69, 65,
+       68, 63])
+04/12/23 01:16:14| DEBUG       scores = [0.013506514707985114, 0.01442667050398571, 0.019874890979317713, 0.015036290731523285, 0.0163333633299544, 0.022855968116602593, 0.01795683446195668, 0.02926365873913065, 0.021478495937862486, 0.022027734724964568, 0.015413567227699576, 0.02783281569739502, 0.014088334743091332, 0.01235824332833259, 0.022974624511932516, 0.0205736729382828, 0.016149073985918232, 0.014394190785836907, 0.02603188681333672, 0.03136314915677621, 0.020312907328963264, 0.026313021048662396, 0.030866864617105125, 0.014447660107103742, 0.026767003639297494, 0.025183604806336798, 0.02287416550601979, 0.027119923740613994, 0.031019778184531544, 0.02745792864649359, 0.026370777702049226, 0.031633637839345446, 0.012952591668868273, 0.03071314057148157, 0.014258270665688699, 0.03340233545926781, 0.03176007572689447, 0.03195088059347915, 0.03346135669566925, 0.03364490637538094, 0.030751989888636276, 0.0217248223824206, 0.03239234716248587, 0.03425653398699199, 0.03512450516593821, 0.035916441764634405, 0.010609189953759923, 0.03632007587139641, 0.014530498455672686, 0.021197479944787254, 0.034731325541740486, 0.03156529392848483, 0.019659238532517234, 0.029569990508601974, 0.03541154479385654, 0.0118829385805304, 0.03664517411494793, 0.03778626695953293, 0.033600417685127976, 0.034712604031046215, 0.03379821237895517, 0.028386177103599294, 0.028715059709878733, 0.03903438866816674, 0.014136495025216144, 0.03837486429334349, 0.011859832246967753, 0.024663937897618216, 0.03866990158252312, 0.03831658024346472]
+04/12/23 01:16:14| DEBUG       [step 0.25] best score = 0.01060919 [took 117.955s]
+04/12/23 01:17:20| DEBUG       sorted_scores_idx = array([25, 28, 23, 21, 16, 17, 19, 27, 26, 29, 15, 34, 14, 11,  6, 33, 20,
+       10, 31, 32, 13, 30,  3,  8,  4, 22,  2,  1, 18, 12, 24,  9,  5,  7,
+        0])
+04/12/23 01:17:20| DEBUG       scores = [0.029365060942721045, 0.021301435313253337, 0.017859407165322604, 0.014402102917355379, 0.016876953566926343, 0.02474260268306391, 0.011801273587192235, 0.025999383006188415, 0.015372088096726926, 0.02350256468087881, 0.012661044477720089, 0.011706959499246883, 0.021817146653087822, 0.013753633521721032, 0.01166287448364165, 0.011558560359400087, 0.010483668232391843, 0.01059035847624461, 0.021323604356155244, 0.01100054247551213, 0.012438023249191042, 0.009780810430665414, 0.01715484735832172, 0.009763497205567356, 0.022405249667863943, 0.009487641656816665, 0.011493948867653512, 0.011266486505915822, 0.009628104666354654, 0.011547889080915686, 0.014393903762371967, 0.013322971589942965, 0.01348690544879845, 0.012061603074141489, 0.0116425296199164]
+04/12/23 01:17:20| DEBUG       [step 0.5] best score = 0.00948764 [took 66.057s]
+04/12/23 01:18:24| DEBUG       sorted_scores_idx = array([14, 13,  9, 10, 12,  4,  5, 17,  8, 15,  0, 16,  1,  2,  6,  3,  7,
+       11])
+04/12/23 01:18:24| DEBUG       scores = [0.014606372282934597, 0.015205990977069732, 0.015259261530928296, 0.015760349297068255, 0.011803797097287764, 0.012217352591314942, 0.015330917477619105, 0.015927940359055384, 0.013105649797581886, 0.010760295424366384, 0.01156060256759692, 0.01750757120515553, 0.011572007493072805, 0.009834232311934768, 0.009626694539706276, 0.013997758101392158, 0.014780114580034165, 0.012309882273099594]
+04/12/23 01:18:24| DEBUG       [step 1.0] best score = 0.00962669 [took 64.132s]
+04/12/23 01:18:24| DEBUG       [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.0575, 'confidence': ['isoft']} (score=0.00963) [took 391.9410s]
+04/12/23 01:23:14| INFO        bin_kde_gs finished [took 681.5185s]
+04/12/23 01:23:14| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs finished [took 713.5300s]
+----------------------------------------------------------------------------------------------------
+04/12/23 01:23:32| INFO     dataset rcv1_CCAT_1prevs [pool size: 10]
+04/12/23 01:23:35| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+04/12/23 01:24:06| INFO        ref finished [took 29.1334s]
+04/12/23 01:30:16| DEBUG       [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.01, 'confidence': None} (score=0.00939) [took 368.9057s]
+04/12/23 01:34:48| INFO        bin_kde_gs finished [took 640.2091s]
+04/12/23 01:34:48| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs finished [took 672.2306s]
+----------------------------------------------------------------------------------------------------
+04/12/23 01:37:58| INFO     dataset rcv1_CCAT_1prevs [pool size: 10]
+04/12/23 01:38:01| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+04/12/23 01:38:32| INFO        ref finished [took 29.0990s]
+04/12/23 01:40:55| DEBUG       [step 0.1111111111111111] best score = 0.01015786 [took 141.471s]
+04/12/23 01:42:26| DEBUG       [step 0.3333333333333333] best score = 0.00955716 [took 91.088s]
+04/12/23 01:43:30| DEBUG       [step 1.0] best score = 0.01156060 [took 64.134s]
+04/12/23 01:43:30| DEBUG       [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.0575, 'confidence': None} (score=0.01156) [took 296.7964s]
+04/12/23 01:48:32| INFO        bin_kde_gs finished [took 598.5847s]
+04/12/23 01:48:32| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs finished [took 630.4409s]
+----------------------------------------------------------------------------------------------------
+04/12/23 01:49:22| INFO     dataset rcv1_CCAT_1prevs [pool size: 10]
+04/12/23 01:49:26| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+04/12/23 01:49:57| INFO        ref finished [took 28.9632s]
+----------------------------------------------------------------------------------------------------
+04/12/23 02:04:17| INFO     dataset rcv1_CCAT_1prevs [pool size: 10]
+04/12/23 02:04:20| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+04/12/23 02:04:51| INFO        ref finished [took 28.9117s]
+04/12/23 02:11:59| DEBUG       [step 0.03703703703703703] best score = 0.01189100 [took 426.753s]
+04/12/23 02:15:46| DEBUG       [step 0.1111111111111111] best score = 0.01141338 [took 227.677s]
+04/12/23 02:17:10| DEBUG       [step 0.3333333333333333] best score = 0.01007941 [took 83.816s]
+04/12/23 02:18:22| DEBUG       [step 1.0] best score = 0.01002339 [took 71.952s]
+04/12/23 02:18:22| DEBUG       [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.06999999999999999, 'confidence': ['isoft']} (score=0.01002) [took 810.3019s]
+04/12/23 02:23:21| INFO        bin_kde_gs finished [took 1108.6665s]
+04/12/23 02:23:21| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs finished [took 1140.1512s]
+----------------------------------------------------------------------------------------------------
+04/12/23 02:31:00| INFO     dataset rcv1_CCAT_1prevs [pool size: 10]
+04/12/23 02:31:04| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+04/12/23 02:31:35| INFO        ref finished [took 28.9709s]
+04/12/23 02:31:35| DEBUG       batch_size = 11
+04/12/23 02:32:23| DEBUG       [iter 0] best score = 0.01076030 [took 47.161s]
+04/12/23 02:32:58| DEBUG       [iter 1] best score = 0.01519444 [took 35.191s]
+04/12/23 02:32:58| WARNING     Method bin_kde_gs failed. Exception: local variable '_iter_from_improv' referenced before assignment
+04/12/23 02:32:58| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs finished [took 114.2195s]
+----------------------------------------------------------------------------------------------------
+04/12/23 02:33:39| INFO     dataset rcv1_CCAT_1prevs [pool size: 10]
+04/12/23 02:33:43| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+04/12/23 02:34:14| INFO        ref finished [took 29.3592s]
+04/12/23 02:34:15| DEBUG       batch_size = 11
+04/12/23 02:35:02| DEBUG       [iter 0] best score = 0.01076030 [took 47.491s]
+04/12/23 02:35:37| DEBUG       [iter 1] best score = 0.01519444 [took 35.124s]
+04/12/23 02:36:14| DEBUG       [iter 2] best score = 0.01199583 [took 36.431s]
+04/12/23 02:36:56| DEBUG       [iter 3] best score = 0.01193761 [took 41.733s]
+04/12/23 02:37:39| DEBUG       [iter 4] best score = 0.00962002 [took 43.625s]
+04/12/23 02:38:19| DEBUG       [iter 5] best score = 0.01210373 [took 39.770s]
+04/12/23 02:38:50| DEBUG       [iter 6] best score = 0.01186543 [took 30.948s]
+04/12/23 02:39:24| DEBUG       [iter 7] best score = 0.01149941 [took 34.476s]
+04/12/23 02:40:07| DEBUG       [iter 8] best score = 0.00952915 [took 42.107s]
+04/12/23 02:40:07| DEBUG       [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.01, 'confidence': ['isoft']} (score=0.00953) [took 351.8096s]
+04/12/23 02:44:36| INFO        bin_kde_gs finished [took 621.2505s]
+04/12/23 02:44:36| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs finished [took 653.2874s]
+----------------------------------------------------------------------------------------------------
+04/12/23 03:04:41| INFO     dataset rcv1_CCAT_1prevs [pool size: 10]
+04/12/23 03:04:45| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+04/12/23 03:05:15| INFO        ref finished [took 27.9019s]
+04/12/23 03:05:16| DEBUG       batch_size = 22
+04/12/23 03:06:33| DEBUG       [iter 0] best score = 0.01076030 [took 76.862s]
+04/12/23 03:07:42| DEBUG       [iter 1] best score = 0.01193761 [took 69.801s]
+04/12/23 03:08:57| DEBUG       [iter 2] best score = 0.00962002 [took 74.390s]
+04/12/23 03:09:55| DEBUG       [iter 3] best score = 0.01149941 [took 58.538s]
+04/12/23 03:11:05| DEBUG       [iter 4] best score = 0.00952915 [took 69.909s]
+04/12/23 03:12:14| DEBUG       [iter 5] best score = 0.01015591 [took 68.859s]
+04/12/23 03:13:21| DEBUG       [iter 6] best score = 0.01014406 [took 67.375s]
+04/12/23 03:13:22| DEBUG       [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.01, 'confidence': ['isoft']} (score=0.00953) [took 485.8408s]
+04/12/23 03:17:51| INFO        bin_kde_gs finished [took 755.1712s]
+04/12/23 03:17:51| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs finished [took 785.9886s]
+----------------------------------------------------------------------------------------------------
+04/12/23 03:18:25| INFO     dataset rcv1_CCAT_1prevs [pool size: 10]
+04/12/23 03:18:28| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+04/12/23 03:18:59| INFO        ref finished [took 28.6478s]
+04/12/23 03:19:00| DEBUG       batch_size = 22
+04/12/23 03:22:10| DEBUG       [iter 0] best score = 0.01076229 [took 190.645s]
+04/12/23 03:25:06| DEBUG       [iter 1] best score = 0.01153586 [took 175.200s]
+04/12/23 03:28:10| DEBUG       [iter 2] best score = 0.00906249 [took 184.014s]
+04/12/23 03:30:32| DEBUG       [iter 3] best score = 0.00985135 [took 142.187s]
+04/12/23 03:33:44| DEBUG       [iter 4] best score = 0.00831166 [took 192.417s]
+04/12/23 03:36:35| DEBUG       [iter 5] best score = 0.00861926 [took 171.177s]
+04/12/23 03:39:15| DEBUG       [iter 6] best score = 0.01129063 [took 159.731s]
+04/12/23 03:41:30| DEBUG       [iter 7] best score = 0.00976135 [took 135.215s]
+04/12/23 03:44:24| DEBUG       [iter 8] best score = 0.00879464 [took 174.065s]
+04/12/23 03:44:24| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.03, 'confidence': None} (score=0.00831) [took 1524.7582s]
+04/12/23 03:50:34| INFO        mul_kde_gs finished [took 1894.1123s]
+04/12/23 03:50:34| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs finished [took 1925.4244s]
+----------------------------------------------------------------------------------------------------
+04/12/23 03:59:01| INFO     dataset rcv1_CCAT_1prevs [pool size: 10]
+04/12/23 03:59:04| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+04/12/23 03:59:35| INFO        ref finished [took 28.6803s]
+04/12/23 03:59:36| DEBUG       batch_size = 11
+04/12/23 04:01:29| DEBUG       [iter 0] best score = 0.01076229 [took 113.153s]
+04/12/23 04:03:02| DEBUG       [iter 1] best score = 0.01134210 [took 92.587s]
+04/12/23 04:04:40| DEBUG       [iter 2] best score = 0.01198470 [took 98.129s]
+04/12/23 04:06:29| DEBUG       [iter 3] best score = 0.01153586 [took 108.873s]
+04/12/23 04:08:18| DEBUG       [iter 4] best score = 0.00906249 [took 109.378s]
+04/12/23 04:10:05| DEBUG       [iter 5] best score = 0.01148134 [took 107.355s]
+04/12/23 04:11:22| DEBUG       [iter 6] best score = 0.00985135 [took 76.762s]
+04/12/23 04:12:53| DEBUG       [iter 7] best score = 0.01071009 [took 90.847s]
+04/12/23 04:14:57| DEBUG       [iter 8] best score = 0.00920549 [took 124.632s]
+04/12/23 04:14:58| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.03, 'confidence': ['isoft']} (score=0.00906) [took 921.8315s]
+04/12/23 04:20:30| INFO        mul_kde_gs finished [took 1254.1793s]
+04/12/23 04:20:30| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs finished [took 1285.6674s]
+----------------------------------------------------------------------------------------------------
+04/12/23 11:14:45| INFO     dataset rcv1_CCAT_1prevs [pool size: 10]
+04/12/23 11:14:49| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+04/12/23 11:15:20| INFO        ref finished [took 29.1956s]
+04/12/23 11:44:39| DEBUG       [step 0.03703703703703703] best score = 0.01172352 [took 1758.342s]
+04/12/23 12:02:17| DEBUG       [step 0.1111111111111111] best score = 0.00887864 [took 1057.856s]
+04/12/23 12:09:37| DEBUG       [step 0.3333333333333333] best score = 0.00879205 [took 440.370s]
+04/12/23 12:13:17| DEBUG       [step 1.0] best score = 0.00855067 [took 219.282s]
+04/12/23 12:13:17| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.06999999999999999, 'confidence': None} (score=0.00855) [took 3475.9649s]
+04/12/23 12:21:49| INFO        mul_kde_gs finished [took 3988.7107s]
+04/12/23 12:21:49| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs finished [took 4020.6990s]
+----------------------------------------------------------------------------------------------------
+04/12/23 12:28:46| INFO     dataset rcv1_CCAT_1prevs [pool size: 10]
+04/12/23 12:28:49| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+04/12/23 12:29:20| INFO        ref finished [took 28.5183s]
+----------------------------------------------------------------------------------------------------
+04/12/23 13:11:56| INFO     dataset rcv1_CCAT_1prevs [pool size: 10]
+04/12/23 13:11:59| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+04/12/23 13:12:30| INFO        ref finished [took 29.0423s]
+04/12/23 13:12:31| DEBUG       batch_size = 11
+04/12/23 13:12:32| WARNING     Method bin_kde_gs failed. Exception: sklearn.base.BaseEstimator.set_params() argument after ** must be a mapping, not str
+04/12/23 13:12:32| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs finished [took 33.2553s]
+----------------------------------------------------------------------------------------------------
+04/12/23 13:17:33| INFO     dataset rcv1_CCAT_1prevs [pool size: 10]
+04/12/23 13:17:37| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+04/12/23 13:18:08| INFO        ref finished [took 29.1127s]
+04/12/23 13:18:09| DEBUG       batch_size = 11
+04/12/23 13:18:10| WARNING     Method bin_kde_gs failed. Exception: sklearn.base.BaseEstimator.set_params() argument after ** must be a mapping, not str
+04/12/23 13:18:10| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs finished [took 33.1964s]
+----------------------------------------------------------------------------------------------------
+04/12/23 13:18:37| INFO     dataset rcv1_CCAT_1prevs [pool size: 10]
+04/12/23 13:18:40| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+04/12/23 13:19:10| INFO        ref finished [took 28.4630s]
+04/12/23 13:19:11| DEBUG       batch_size = 11
+04/12/23 13:19:49| WARNING     Method bin_kde_gs failed. Exception: only integer scalar arrays can be converted to a scalar index
+04/12/23 13:19:49| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs finished [took 68.7640s]
+----------------------------------------------------------------------------------------------------
+04/12/23 13:23:06| INFO     dataset rcv1_CCAT_1prevs [pool size: 10]
+04/12/23 13:23:09| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+04/12/23 13:23:40| INFO        ref finished [took 29.1152s]
+04/12/23 13:23:41| DEBUG       batch_size = 11
+04/12/23 13:24:18| DEBUG       [iter=0,size=11] best score = 0.00972917; best param = {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.01, 'confidence': ['isoft']} [took 37.218s]
+04/12/23 13:24:42| DEBUG       [iter=1,size=11] best score = 0.04728818; best param = {'quantifier__classifier__C': 0.001, 'quantifier__classifier__class_weight': None, 'quantifier__bandwidth': 0.01, 'confidence': ['isoft']} [took 23.390s]
+04/12/23 13:25:06| DEBUG       [iter=2,size=11] best score = 0.05889500; best param = {'quantifier__classifier__C': 0.001, 'quantifier__classifier__class_weight': None, 'quantifier__bandwidth': 0.0575, 'confidence': None} [took 23.917s]
+04/12/23 13:25:29| DEBUG       [iter=3,size=11] best score = 0.05736500; best param = {'quantifier__classifier__C': 0.001, 'quantifier__classifier__class_weight': None, 'quantifier__bandwidth': 0.105, 'confidence': None} [took 23.413s]
+04/12/23 13:25:53| DEBUG       [iter=4,size=11] best score = 0.05677500; best param = {'quantifier__classifier__C': 0.001, 'quantifier__classifier__class_weight': None, 'quantifier__bandwidth': 0.15250000000000002, 'confidence': None} [took 23.363s]
+04/12/23 13:26:16| DEBUG       [iter=5,size=11] best score = 0.02947433; best param = {'quantifier__classifier__C': 0.001, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.01, 'confidence': None} [took 23.246s]
+04/12/23 13:26:36| DEBUG       [iter=6,size=11] best score = 0.01552989; best param = {'quantifier__classifier__C': 0.001, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.01, 'confidence': ['isoft']} [took 19.853s]
+04/12/23 13:26:58| DEBUG       [iter=7,size=11] best score = 0.03440108; best param = {'quantifier__classifier__C': 0.001, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.0575, 'confidence': ['isoft']} [took 22.721s]
+04/12/23 13:27:21| DEBUG       [iter=8,size=11] best score = 0.04907742; best param = {'quantifier__classifier__C': 0.001, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.105, 'confidence': ['isoft']} [took 22.678s]
+04/12/23 13:27:44| DEBUG       [iter=9,size=11] best score = 0.05390910; best param = {'quantifier__classifier__C': 0.001, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.15250000000000002, 'confidence': ['isoft']} [took 22.810s]
+04/12/23 13:28:07| DEBUG       [iter=10,size=11] best score = 0.05613112; best param = {'quantifier__classifier__C': 0.001, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.2, 'confidence': ['isoft']} [took 22.736s]
+04/12/23 13:28:31| DEBUG       [iter=11,size=11] best score = 0.01468631; best param = {'quantifier__classifier__C': 0.01, 'quantifier__classifier__class_weight': None, 'quantifier__bandwidth': 0.01, 'confidence': ['isoft']} [took 24.249s]
+04/12/23 13:28:56| DEBUG       [iter=12,size=11] best score = 0.04529725; best param = {'quantifier__classifier__C': 0.01, 'quantifier__classifier__class_weight': None, 'quantifier__bandwidth': 0.0575, 'confidence': ['isoft']} [took 24.929s]
+04/12/23 13:29:20| DEBUG       [iter=13,size=11] best score = 0.05579906; best param = {'quantifier__classifier__C': 0.01, 'quantifier__classifier__class_weight': None, 'quantifier__bandwidth': 0.105, 'confidence': ['isoft']} [took 23.910s]
+04/12/23 13:29:45| DEBUG       [iter=14,size=11] best score = 0.06002000; best param = {'quantifier__classifier__C': 0.01, 'quantifier__classifier__class_weight': None, 'quantifier__bandwidth': 0.15250000000000002, 'confidence': None} [took 25.215s]
+04/12/23 13:30:09| DEBUG       [iter=15,size=11] best score = 0.01306119; best param = {'quantifier__classifier__C': 0.01, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.01, 'confidence': None} [took 24.305s]
+04/12/23 13:30:32| DEBUG       [iter=16,size=11] best score = 0.01158551; best param = {'quantifier__classifier__C': 0.01, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.01, 'confidence': ['isoft']} [took 23.010s]
+04/12/23 13:30:57| DEBUG       [iter=17,size=11] best score = 0.01082179; best param = {'quantifier__classifier__C': 0.01, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.0575, 'confidence': ['isoft']} [took 24.966s]
+04/12/23 13:31:22| DEBUG       [iter=18,size=11] best score = 0.01408230; best param = {'quantifier__classifier__C': 0.01, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.105, 'confidence': ['isoft']} [took 24.710s]
+04/12/23 13:31:46| DEBUG       [iter=19,size=11] best score = 0.02476863; best param = {'quantifier__classifier__C': 0.01, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.15250000000000002, 'confidence': ['isoft']} [took 23.819s]
+04/12/23 13:32:10| DEBUG       [iter=20,size=11] best score = 0.01255207; best param = {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': None, 'quantifier__bandwidth': 0.01, 'confidence': None} [took 23.902s]
+04/12/23 13:32:36| DEBUG       [iter=21,size=11] best score = 0.01028801; best param = {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': None, 'quantifier__bandwidth': 0.01, 'confidence': ['isoft']} [took 26.322s]
+----------------------------------------------------------------------------------------------------
+04/12/23 13:34:37| INFO     dataset rcv1_CCAT_1prevs [pool size: 10]
+04/12/23 13:34:40| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+04/12/23 13:35:12| INFO        ref finished [took 29.4386s]
+04/12/23 13:35:13| DEBUG       batch_size = 11
+04/12/23 13:35:13| DEBUG       129
+04/12/23 13:35:51| DEBUG       [iter=0,size=11] best score = 0.00972917; best param = {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.01, 'confidence': ['isoft']} [took 37.921s]
+04/12/23 13:35:51| DEBUG       128
+04/12/23 13:36:14| DEBUG       [iter=1,size=11] best score = 0.04728818; best param = {'quantifier__classifier__C': 0.001, 'quantifier__classifier__class_weight': None, 'quantifier__bandwidth': 0.01, 'confidence': ['isoft']} [took 23.114s]
+04/12/23 13:36:14| DEBUG       127
+04/12/23 13:36:37| DEBUG       [iter=2,size=11] best score = 0.05889500; best param = {'quantifier__classifier__C': 0.001, 'quantifier__classifier__class_weight': None, 'quantifier__bandwidth': 0.0575, 'confidence': None} [took 23.526s]
+04/12/23 13:36:37| DEBUG       126
+----------------------------------------------------------------------------------------------------
+04/12/23 13:38:58| INFO     dataset rcv1_CCAT_1prevs [pool size: 10]
+04/12/23 13:39:01| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+04/12/23 13:39:31| INFO        ref finished [took 28.2421s]
+04/12/23 13:39:32| DEBUG       batch_size = 11
+04/12/23 13:39:32| DEBUG       129
+04/12/23 13:40:10| DEBUG       [iter=0,size=11] best score = 0.00972917; best param = {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.01, 'confidence': ['isoft']} [took 37.580s]
+04/12/23 13:40:10| DEBUG       _min_pd_len=11
+04/12/23 13:40:10| DEBUG       118
+04/12/23 13:40:53| DEBUG       [iter=1,size=11] best score = 0.00952915; best param = {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.01, 'confidence': ['isoft']} [took 43.268s]
+04/12/23 13:40:53| DEBUG       _min_pd_len=6
+04/12/23 13:40:53| DEBUG       112
+04/12/23 13:41:24| DEBUG       [iter=2,size=6] best score = 0.00939260; best param = {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.01, 'confidence': None} [took 30.503s]
+04/12/23 13:41:24| DEBUG       _min_pd_len=8
+04/12/23 13:41:24| DEBUG       104
+04/12/23 13:41:56| DEBUG       [iter=3,size=8] best score = 0.01299550; best param = {'quantifier__classifier__C': 1000.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.01, 'confidence': None} [took 32.058s]
+04/12/23 13:41:56| DEBUG       _min_pd_len=5
+04/12/23 13:41:56| DEBUG       99
+04/12/23 13:42:26| DEBUG       [iter=4,size=5] best score = 0.01171423; best param = {'quantifier__classifier__C': 1000.0, 'quantifier__classifier__class_weight': None, 'quantifier__bandwidth': 0.01, 'confidence': None} [took 30.300s]
+04/12/23 13:42:26| DEBUG       _min_pd_len=9
+04/12/23 13:42:26| DEBUG       90
+04/12/23 13:43:02| DEBUG       [iter=5,size=9] best score = 0.00972241; best param = {'quantifier__classifier__C': 1000.0, 'quantifier__classifier__class_weight': None, 'quantifier__bandwidth': 0.01, 'confidence': ['isoft']} [took 35.843s]
+04/12/23 13:43:02| DEBUG       _min_pd_len=8
+04/12/23 13:43:02| DEBUG       82
+04/12/23 13:43:34| DEBUG       [iter=6,size=8] best score = 0.01028801; best param = {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': None, 'quantifier__bandwidth': 0.01, 'confidence': ['isoft']} [took 31.748s]
+04/12/23 13:43:34| DEBUG       _min_pd_len=3
+04/12/23 13:43:34| DEBUG       79
+04/12/23 13:43:51| DEBUG       [iter=7,size=3] best score = 0.01746385; best param = {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': None, 'quantifier__bandwidth': 0.0575, 'confidence': ['isoft']} [took 17.526s]
+04/12/23 13:43:51| DEBUG       _min_pd_len=7
+04/12/23 13:43:51| DEBUG       72
+04/12/23 13:44:17| DEBUG       [iter=8,size=7] best score = 0.01099906; best param = {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.0575, 'confidence': ['isoft']} [took 26.025s]
+04/12/23 13:44:17| DEBUG       _min_pd_len=7
+04/12/23 13:44:17| DEBUG       65
+04/12/23 13:44:42| DEBUG       [iter=9,size=7] best score = 0.00962669; best param = {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.0575, 'confidence': ['isoft']} [took 24.939s]
+04/12/23 13:44:42| DEBUG       _min_pd_len=4
+04/12/23 13:44:42| DEBUG       61
+04/12/23 13:45:03| DEBUG       [iter=10,size=4] best score = 0.00983423; best param = {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.0575, 'confidence': None} [took 20.425s]
+04/12/23 13:45:03| DEBUG       _min_pd_len=7
+04/12/23 13:45:03| DEBUG       54
+04/12/23 13:45:31| DEBUG       [iter=11,size=7] best score = 0.01221735; best param = {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.105, 'confidence': None} [took 28.334s]
+04/12/23 13:45:31| DEBUG       _min_pd_len=5
+04/12/23 13:45:31| DEBUG       49
+04/12/23 13:45:56| DEBUG       [iter=12,size=5] best score = 0.01305249; best param = {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.105, 'confidence': None} [took 24.914s]
+04/12/23 13:45:56| DEBUG       _min_pd_len=3
+04/12/23 13:45:56| DEBUG       46
+04/12/23 13:46:14| DEBUG       [iter=13,size=3] best score = 0.01852107; best param = {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.15250000000000002, 'confidence': None} [took 18.216s]
+04/12/23 13:46:14| DEBUG       _min_pd_len=4
+04/12/23 13:46:14| DEBUG       42
+----------------------------------------------------------------------------------------------------
+04/12/23 13:46:18| INFO     dataset rcv1_CCAT_1prevs [pool size: 10]
+04/12/23 13:46:22| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+04/12/23 13:46:53| INFO        ref finished [took 29.1766s]
+04/12/23 13:46:54| DEBUG       batch_size = 11
+04/12/23 13:46:54| DEBUG       129
+04/12/23 13:47:31| DEBUG       [iter=0,size=11] best score = 0.00972917; best param = {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.01, 'confidence': ['isoft']} [took 37.322s]
+04/12/23 13:47:31| DEBUG       _min_pd_len=11
+04/12/23 13:47:31| DEBUG       118
+04/12/23 13:48:15| DEBUG       [iter=1,size=11] best score = 0.00952915; best param = {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.01, 'confidence': ['isoft']} [took 43.482s]
+04/12/23 13:48:15| DEBUG       _min_pd_len=6
+04/12/23 13:48:15| DEBUG       107
+04/12/23 13:49:00| DEBUG       [iter=2,size=11] best score = 0.00939260; best param = {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.01, 'confidence': None} [took 44.788s]
+04/12/23 13:49:00| DEBUG       _min_pd_len=7
+04/12/23 13:49:00| DEBUG       96
+04/12/23 13:49:38| DEBUG       [iter=3,size=11] best score = 0.01299550; best param = {'quantifier__classifier__C': 1000.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.01, 'confidence': None} [took 38.653s]
+04/12/23 13:49:38| DEBUG       _min_pd_len=4
+04/12/23 13:49:38| DEBUG       85
+04/12/23 13:50:18| DEBUG       [iter=4,size=11] best score = 0.00983423; best param = {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.0575, 'confidence': None} [took 39.443s]
+04/12/23 13:50:18| DEBUG       _min_pd_len=7
+04/12/23 13:50:18| DEBUG       74
+----------------------------------------------------------------------------------------------------
+04/12/23 13:50:37| INFO     dataset rcv1_CCAT_1prevs [pool size: 10]
+04/12/23 13:50:41| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+04/12/23 13:51:12| INFO        ref finished [took 29.4522s]
+04/12/23 13:51:13| DEBUG       batch_size = 11
+04/12/23 13:51:13| DEBUG       129
+04/12/23 13:51:50| DEBUG       [iter=0,size=11] best score = 0.00972917; best param = {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.01, 'confidence': ['isoft']} [took 36.937s]
+04/12/23 13:51:50| DEBUG       _min_pd_len=53
+04/12/23 13:51:50| DEBUG       76
+04/12/23 13:54:34| DEBUG       [iter=1,size=53] best score = 0.00939260; best param = {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.01, 'confidence': None} [took 163.722s]
+04/12/23 13:54:34| DEBUG       _min_pd_len=33
+04/12/23 13:54:34| DEBUG       43
+04/12/23 13:56:08| DEBUG       [iter=2,size=33] best score = 0.00983423; best param = {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.0575, 'confidence': None} [took 94.488s]
+04/12/23 13:56:08| DEBUG       _min_pd_len=9
+04/12/23 13:56:08| DEBUG       32
+04/12/23 13:56:43| DEBUG       [iter=3,size=11] best score = 0.01310565; best param = {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': None, 'quantifier__bandwidth': 0.0575, 'confidence': ['isoft']} [took 34.340s]
+04/12/23 13:56:43| DEBUG       _min_pd_len=20
+04/12/23 13:56:43| DEBUG       12
+04/12/23 13:57:47| DEBUG       [iter=4,size=20] best score = 0.01535565; best param = {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': None, 'quantifier__bandwidth': 0.0575, 'confidence': ['isoft']} [took 64.602s]
+04/12/23 13:57:47| DEBUG       _min_pd_len=0
+04/12/23 13:57:47| DEBUG       1
+04/12/23 13:58:23| DEBUG       [iter=5,size=11] best score = 0.02438625; best param = {'quantifier__classifier__C': 1000.0, 'quantifier__classifier__class_weight': None, 'quantifier__bandwidth': 0.105, 'confidence': None} [took 35.907s]
+04/12/23 13:58:23| DEBUG       _min_pd_len=1
+04/12/23 13:58:23| DEBUG       [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.01, 'confidence': None} (score=0.00939) [took 430.1089s]
+----------------------------------------------------------------------------------------------------
+04/12/23 13:59:24| INFO     dataset rcv1_CCAT_1prevs [pool size: 10]
+04/12/23 13:59:27| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+04/12/23 13:59:59| INFO        ref finished [took 29.4114s]
+04/12/23 14:00:00| DEBUG       batch_size = 11
+04/12/23 14:00:00| DEBUG       549
+04/12/23 14:00:47| DEBUG       [iter=0,size=11] best score = 0.01076030; best param = {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.01, 'confidence': None} [took 47.409s]
+04/12/23 14:00:47| DEBUG       _min_pd_len=27
+04/12/23 14:00:47| DEBUG       522
+04/12/23 14:02:39| DEBUG       [iter=1,size=27] best score = 0.00939260; best param = {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.01, 'confidence': None} [took 112.074s]
+04/12/23 14:02:39| DEBUG       _min_pd_len=21
+04/12/23 14:02:39| DEBUG       501
+04/12/23 14:04:09| DEBUG       [iter=2,size=21] best score = 0.00927255; best param = {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.02, 'confidence': None} [took 89.369s]
+04/12/23 14:04:09| DEBUG       _min_pd_len=7
+04/12/23 14:04:09| DEBUG       490
+04/12/23 14:04:47| DEBUG       [iter=3,size=11] best score = 0.00966141; best param = {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.02, 'confidence': ['isoft']} [took 38.552s]
+04/12/23 14:04:47| DEBUG       _min_pd_len=22
+04/12/23 14:04:47| DEBUG       468
+04/12/23 14:06:19| DEBUG       [iter=4,size=22] best score = 0.00963704; best param = {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.02, 'confidence': ['isoft']} [took 91.372s]
+04/12/23 14:06:19| DEBUG       _min_pd_len=20
+04/12/23 14:06:19| DEBUG       448
+04/12/23 14:07:21| DEBUG       [iter=5,size=20] best score = 0.00954800; best param = {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.05, 'confidence': ['isoft']} [took 62.708s]
+04/12/23 14:07:21| DEBUG       _min_pd_len=7
+04/12/23 14:07:21| DEBUG       437
+04/12/23 14:07:56| DEBUG       [iter=6,size=11] best score = 0.00971300; best param = {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.05, 'confidence': None} [took 35.034s]
+04/12/23 14:07:56| DEBUG       _min_pd_len=22
+04/12/23 14:07:56| DEBUG       415
+04/12/23 14:08:58| DEBUG       [iter=7,size=22] best score = 0.00969641; best param = {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.04, 'confidence': None} [took 61.995s]
+04/12/23 14:08:58| DEBUG       _min_pd_len=5
+04/12/23 14:08:58| DEBUG       404
+04/12/23 14:09:31| DEBUG       [iter=8,size=11] best score = 0.00985754; best param = {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.04, 'confidence': None} [took 32.852s]
+04/12/23 14:09:31| DEBUG       _min_pd_len=17
+04/12/23 14:09:31| DEBUG       387
+04/12/23 14:10:18| DEBUG       [iter=9,size=17] best score = 0.00984265; best param = {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.03, 'confidence': None} [took 47.201s]
+04/12/23 14:10:18| DEBUG       _min_pd_len=5
+04/12/23 14:10:18| DEBUG       376
+04/12/23 14:10:48| DEBUG       [iter=10,size=11] best score = 0.00997422; best param = {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': None, 'quantifier__bandwidth': 0.02, 'confidence': None} [took 29.291s]
+04/12/23 14:10:48| DEBUG       _min_pd_len=22
+04/12/23 14:10:48| DEBUG       354
+04/12/23 14:11:44| DEBUG       [iter=11,size=22] best score = 0.01020734; best param = {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': None, 'quantifier__bandwidth': 0.02, 'confidence': ['isoft']} [took 56.648s]
+04/12/23 14:11:44| DEBUG       _min_pd_len=23
+04/12/23 14:11:44| DEBUG       331
+04/12/23 14:12:46| DEBUG       [iter=12,size=23] best score = 0.01028801; best param = {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': None, 'quantifier__bandwidth': 0.01, 'confidence': ['isoft']} [took 61.766s]
+04/12/23 14:12:46| DEBUG       _min_pd_len=7
+04/12/23 14:12:46| DEBUG       320
+04/12/23 14:13:22| DEBUG       [iter=13,size=11] best score = 0.00972241; best param = {'quantifier__classifier__C': 1000.0, 'quantifier__classifier__class_weight': None, 'quantifier__bandwidth': 0.01, 'confidence': ['isoft']} [took 35.848s]
+04/12/23 14:13:22| DEBUG       _min_pd_len=19
+04/12/23 14:13:22| DEBUG       301
+04/12/23 14:15:01| DEBUG       [iter=14,size=19] best score = 0.01171423; best param = {'quantifier__classifier__C': 1000.0, 'quantifier__classifier__class_weight': None, 'quantifier__bandwidth': 0.01, 'confidence': None} [took 99.184s]
+04/12/23 14:15:01| DEBUG       _min_pd_len=19
+04/12/23 14:15:01| DEBUG       282
+04/12/23 14:16:30| DEBUG       [iter=15,size=19] best score = 0.01582141; best param = {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': None, 'quantifier__bandwidth': 0.01, 'confidence': None} [took 88.749s]
+04/12/23 14:16:30| DEBUG       _min_pd_len=11
+04/12/23 14:16:30| DEBUG       271
+04/12/23 14:17:03| DEBUG       [iter=16,size=11] best score = 0.01446370; best param = {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': None, 'quantifier__bandwidth': 0.060000000000000005, 'confidence': None} [took 33.074s]
+04/12/23 14:17:03| DEBUG       _min_pd_len=5
+04/12/23 14:17:03| DEBUG       260
+04/12/23 14:17:43| DEBUG       [iter=17,size=11] best score = 0.01307169; best param = {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': None, 'quantifier__bandwidth': 0.04, 'confidence': None} [took 40.201s]
+04/12/23 14:17:43| DEBUG       _min_pd_len=15
+04/12/23 14:17:43| DEBUG       245
+04/12/23 14:18:55| DEBUG       [iter=18,size=15] best score = 0.01154013; best param = {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': None, 'quantifier__bandwidth': 0.03, 'confidence': None} [took 71.881s]
+04/12/23 14:18:55| DEBUG       _min_pd_len=4
+04/12/23 14:18:55| DEBUG       234
+04/12/23 14:19:33| DEBUG       [iter=19,size=11] best score = 0.01053118; best param = {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': None, 'quantifier__bandwidth': 0.03, 'confidence': ['isoft']} [took 37.544s]
+04/12/23 14:19:33| DEBUG       _min_pd_len=18
+04/12/23 14:19:33| DEBUG       216
+04/12/23 14:20:44| DEBUG       [iter=20,size=18] best score = 0.01396782; best param = {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': None, 'quantifier__bandwidth': 0.05, 'confidence': ['isoft']} [took 71.151s]
+04/12/23 14:20:44| DEBUG       _min_pd_len=2
+04/12/23 14:20:44| DEBUG       205
+04/12/23 14:21:18| DEBUG       [iter=21,size=11] best score = 0.02363495; best param = {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': None, 'quantifier__bandwidth': 0.08, 'confidence': ['isoft']} [took 34.746s]
+04/12/23 14:21:18| DEBUG       _min_pd_len=15
+04/12/23 14:21:18| DEBUG       190
+04/12/23 14:22:37| DEBUG       [iter=22,size=15] best score = 0.01732266; best param = {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.08, 'confidence': ['isoft']} [took 78.653s]
+04/12/23 14:22:37| DEBUG       _min_pd_len=19
+04/12/23 14:22:37| DEBUG       171
+04/12/23 14:24:00| DEBUG       [iter=23,size=19] best score = 0.01155584; best param = {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.08, 'confidence': ['isoft']} [took 83.096s]
+04/12/23 14:24:00| DEBUG       _min_pd_len=12
+04/12/23 14:24:00| DEBUG       159
+04/12/23 14:24:42| DEBUG       [iter=24,size=12] best score = 0.01130407; best param = {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.06999999999999999, 'confidence': ['isoft']} [took 41.316s]
+04/12/23 14:24:42| DEBUG       _min_pd_len=3
+04/12/23 14:24:42| DEBUG       148
+04/12/23 14:25:10| DEBUG       [iter=25,size=11] best score = 0.01133298; best param = {'quantifier__classifier__C': 0.01, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.06999999999999999, 'confidence': ['isoft']} [took 28.239s]
+04/12/23 14:25:10| DEBUG       _min_pd_len=13
+04/12/23 14:25:10| DEBUG       135
+04/12/23 14:25:47| DEBUG       [iter=26,size=13] best score = 0.01051948; best param = {'quantifier__classifier__C': 0.01, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.04, 'confidence': ['isoft']} [took 36.970s]
+04/12/23 14:25:47| DEBUG       _min_pd_len=3
+04/12/23 14:25:47| DEBUG       124
+04/12/23 14:26:20| DEBUG       [iter=27,size=11] best score = 0.01210373; best param = {'quantifier__classifier__C': 0.001, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.03, 'confidence': ['isoft']} [took 33.248s]
+04/12/23 14:26:20| DEBUG       _min_pd_len=7
+04/12/23 14:26:20| DEBUG       113
+04/12/23 14:26:43| DEBUG       [iter=28,size=11] best score = 0.04649167; best param = {'quantifier__classifier__C': 0.001, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.09, 'confidence': ['isoft']} [took 22.839s]
+04/12/23 14:26:43| DEBUG       _min_pd_len=2
+04/12/23 14:26:43| DEBUG       102
+04/12/23 14:27:12| DEBUG       [iter=29,size=11] best score = 0.01982030; best param = {'quantifier__classifier__C': 1000.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.09, 'confidence': ['isoft']} [took 29.333s]
+04/12/23 14:27:12| DEBUG       _min_pd_len=10
+04/12/23 14:27:12| DEBUG       91
+04/12/23 14:28:09| DEBUG       [iter=30,size=11] best score = 0.01936862; best param = {'quantifier__classifier__C': 1000.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.09, 'confidence': None} [took 56.443s]
+04/12/23 14:28:09| DEBUG       _min_pd_len=13
+04/12/23 14:28:09| DEBUG       78
+04/12/23 14:29:20| DEBUG       [iter=31,size=13] best score = 0.01823377; best param = {'quantifier__classifier__C': 1000.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.06999999999999999, 'confidence': None} [took 71.363s]
+04/12/23 14:29:20| DEBUG       _min_pd_len=0
+04/12/23 14:29:20| DEBUG       67
+04/12/23 14:29:49| DEBUG       [iter=32,size=11] best score = 0.02120722; best param = {'quantifier__classifier__C': 0.01, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.060000000000000005, 'confidence': None} [took 29.492s]
+04/12/23 14:29:49| DEBUG       _min_pd_len=0
+04/12/23 14:29:49| DEBUG       56
+04/12/23 14:30:13| DEBUG       [iter=33,size=11] best score = 0.05961249; best param = {'quantifier__classifier__C': 0.01, 'quantifier__classifier__class_weight': None, 'quantifier__bandwidth': 0.05, 'confidence': None} [took 23.722s]
+04/12/23 14:30:13| DEBUG       _min_pd_len=2
+04/12/23 14:30:13| DEBUG       45
+04/12/23 14:30:45| DEBUG       [iter=34,size=11] best score = 0.02534662; best param = {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': None, 'quantifier__bandwidth': 0.11, 'confidence': None} [took 31.490s]
+04/12/23 14:30:45| DEBUG       _min_pd_len=9
+04/12/23 14:30:45| DEBUG       34
+04/12/23 14:32:23| DEBUG       [iter=35,size=11] best score = 0.02601183; best param = {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': None, 'quantifier__bandwidth': 0.12, 'confidence': None} [took 97.832s]
+04/12/23 14:32:23| DEBUG       _min_pd_len=1
+04/12/23 14:32:23| DEBUG       23
+----------------------------------------------------------------------------------------------------
+04/12/23 14:59:01| INFO     dataset rcv1_CCAT_1prevs [pool size: 10]
+04/12/23 14:59:04| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+04/12/23 14:59:35| INFO        ref finished [took 28.8714s]
+04/12/23 15:23:27| DEBUG       [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.02, 'confidence': None} (score=0.00927) [took 1431.2353s]
+04/12/23 15:28:10| INFO        bin_kde_gs finished [took 1713.5652s]
+04/12/23 15:28:10| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs finished [took 1745.2846s]
+----------------------------------------------------------------------------------------------------
+04/12/23 16:05:05| INFO     dataset rcv1_CCAT_1prevs [pool size: 10]
+04/12/23 16:05:08| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+----------------------------------------------------------------------------------------------------
+04/12/23 16:05:27| INFO     dataset rcv1_CCAT_1prevs [pool size: 10]
+04/12/23 16:05:30| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+04/12/23 16:06:05| INFO        ref finished [took 32.7335s]
+04/12/23 16:06:06| DEBUG       batch_size = 11
+04/12/23 16:06:06| DEBUG       len(_hyper_remaining)=24
+04/12/23 16:06:47| DEBUG       [iter=0,size=11] best score = 0.01075536; best param = {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': None, 'quantifier__bandwidth': 0.01, 'confidence': None} [took 41.021s]
+04/12/23 16:06:47| DEBUG       _min_pd_len=4
+04/12/23 16:06:47| DEBUG       len(_hyper_remaining)=13
+04/12/23 16:07:30| DEBUG       [iter=1,size=11] best score = 0.01171423; best param = {'quantifier__classifier__C': 1000.0, 'quantifier__classifier__class_weight': None, 'quantifier__bandwidth': 0.01, 'confidence': None} [took 43.311s]
+04/12/23 16:07:30| DEBUG       _min_pd_len=2
+04/12/23 16:07:30| DEBUG       len(_hyper_remaining)=2
+04/12/23 16:08:02| DEBUG       [iter=2,size=11] best score = 0.02594594; best param = {'quantifier__classifier__C': 1000.0, 'quantifier__classifier__class_weight': None, 'quantifier__bandwidth': 0.15250000000000002, 'confidence': None} [took 31.534s]
+04/12/23 16:08:02| DEBUG       _min_pd_len=0
+04/12/23 16:08:02| DEBUG       [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': None, 'quantifier__bandwidth': 0.01, 'confidence': None} (score=0.01076) [took 115.9826s]
+----------------------------------------------------------------------------------------------------
+04/12/23 16:09:23| INFO     dataset rcv1_CCAT_1prevs [pool size: 10]
+04/12/23 16:09:27| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+04/12/23 16:10:02| INFO        ref finished [took 33.7756s]
+04/12/23 16:10:03| DEBUG       batch_size = 11
+04/12/23 16:10:03| DEBUG       len(_hyper_remaining)=129
+04/12/23 16:10:40| DEBUG       [iter=0,size=11] best score = 0.00972917; best param = {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.01, 'confidence': ['isoft']} [took 36.636s]
+04/12/23 16:10:40| DEBUG       _min_pd_len=11
+04/12/23 16:10:40| DEBUG       len(_hyper_remaining)=118
+04/12/23 16:11:24| DEBUG       [iter=1,size=11] best score = 0.00952915; best param = {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.01, 'confidence': ['isoft']} [took 44.356s]
+04/12/23 16:11:24| DEBUG       _min_pd_len=6
+04/12/23 16:11:24| DEBUG       len(_hyper_remaining)=107
+04/12/23 16:12:07| DEBUG       [iter=2,size=11] best score = 0.00939260; best param = {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.01, 'confidence': None} [took 43.306s]
+04/12/23 16:12:07| DEBUG       _min_pd_len=7
+04/12/23 16:12:07| DEBUG       len(_hyper_remaining)=96
+04/12/23 16:12:46| DEBUG       [iter=3,size=11] best score = 0.01299550; best param = {'quantifier__classifier__C': 1000.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.01, 'confidence': None} [took 38.251s]
+04/12/23 16:12:46| DEBUG       _min_pd_len=4
+04/12/23 16:12:46| DEBUG       len(_hyper_remaining)=85
+04/12/23 16:13:25| DEBUG       [iter=4,size=11] best score = 0.00983423; best param = {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.0575, 'confidence': None} [took 39.047s]
+04/12/23 16:13:25| DEBUG       _min_pd_len=7
+04/12/23 16:13:25| DEBUG       len(_hyper_remaining)=74
+04/12/23 16:13:57| DEBUG       [iter=5,size=11] best score = 0.00962669; best param = {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.0575, 'confidence': ['isoft']} [took 32.291s]
+04/12/23 16:13:57| DEBUG       _min_pd_len=6
+04/12/23 16:13:57| DEBUG       len(_hyper_remaining)=63
+04/12/23 16:14:30| DEBUG       [iter=6,size=11] best score = 0.01082179; best param = {'quantifier__classifier__C': 0.01, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.0575, 'confidence': ['isoft']} [took 33.320s]
+04/12/23 16:14:30| DEBUG       _min_pd_len=0
+04/12/23 16:14:30| DEBUG       len(_hyper_remaining)=52
+04/12/23 16:15:00| DEBUG       [iter=7,size=11] best score = 0.01230988; best param = {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.105, 'confidence': ['isoft']} [took 29.614s]
+04/12/23 16:15:00| DEBUG       _min_pd_len=0
+04/12/23 16:15:00| DEBUG       len(_hyper_remaining)=41
+04/12/23 16:15:36| DEBUG       [iter=8,size=11] best score = 0.01028801; best param = {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': None, 'quantifier__bandwidth': 0.01, 'confidence': ['isoft']} [took 36.181s]
+04/12/23 16:15:36| DEBUG       _min_pd_len=2
+04/12/23 16:15:36| DEBUG       len(_hyper_remaining)=30
+04/12/23 16:16:23| DEBUG       [iter=9,size=11] best score = 0.00972241; best param = {'quantifier__classifier__C': 1000.0, 'quantifier__classifier__class_weight': None, 'quantifier__bandwidth': 0.01, 'confidence': ['isoft']} [took 46.686s]
+04/12/23 16:16:23| DEBUG       _min_pd_len=1
+04/12/23 16:16:23| DEBUG       len(_hyper_remaining)=19
+04/12/23 16:17:03| DEBUG       [iter=10,size=11] best score = 0.02338209; best param = {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': None, 'quantifier__bandwidth': 0.105, 'confidence': None} [took 40.663s]
+04/12/23 16:17:03| DEBUG       _min_pd_len=6
+04/12/23 16:17:03| DEBUG       len(_hyper_remaining)=8
+04/12/23 16:17:46| DEBUG       [iter=11,size=11] best score = 0.01627881; best param = {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': None, 'quantifier__bandwidth': 0.0575, 'confidence': None} [took 42.841s]
+04/12/23 16:17:46| DEBUG       _min_pd_len=0
+04/12/23 16:17:46| DEBUG       [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.01, 'confidence': None} (score=0.00939) [took 463.3099s]
+04/12/23 16:22:18| INFO        bin_kde_gs finished [took 734.9857s]
+04/12/23 16:22:18| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs finished [took 771.2762s]
+----------------------------------------------------------------------------------------------------
+04/12/23 16:24:35| INFO     dataset rcv1_CCAT_1prevs [pool size: 10]
+04/12/23 16:24:38| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+04/12/23 16:25:09| INFO        ref finished [took 28.2222s]
+04/12/23 16:25:10| DEBUG       len(_hyper_remaining)=129
+----------------------------------------------------------------------------------------------------
+04/12/23 16:25:43| INFO     dataset rcv1_CCAT_1prevs [pool size: 10]
+04/12/23 16:25:46| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+04/12/23 16:26:18| INFO        ref finished [took 29.6509s]
+04/12/23 16:26:19| DEBUG       len(_hyper_remaining)=24
+04/12/23 16:27:04| DEBUG       [size=11] best score = 0.01075536; best param = {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': None, 'quantifier__bandwidth': 0.01, 'confidence': None} [took 45.385s]
+04/12/23 16:27:04| DEBUG       _min_pd_len=4
+04/12/23 16:27:04| DEBUG       len(_hyper_remaining)=13
+04/12/23 16:27:50| DEBUG       [size=11] best score = 0.01171423; best param = {'quantifier__classifier__C': 1000.0, 'quantifier__classifier__class_weight': None, 'quantifier__bandwidth': 0.01, 'confidence': None} [took 46.433s]
+04/12/23 16:27:50| DEBUG       _min_pd_len=2
+04/12/23 16:27:50| DEBUG       len(_hyper_remaining)=2
+04/12/23 16:28:24| DEBUG       [size=11] best score = 0.02594594; best param = {'quantifier__classifier__C': 1000.0, 'quantifier__classifier__class_weight': None, 'quantifier__bandwidth': 0.15250000000000002, 'confidence': None} [took 33.360s]
+04/12/23 16:28:24| DEBUG       _min_pd_len=0
+04/12/23 16:28:24| DEBUG       len(_hyper_remaining)=0
+04/12/23 16:28:43| DEBUG       [size=2] best score = 0.02426218; best param = {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': None, 'quantifier__bandwidth': 0.105, 'confidence': None} [took 18.972s]
+04/12/23 16:28:43| DEBUG       _min_pd_len=0
+04/12/23 16:28:43| DEBUG       [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': None, 'quantifier__bandwidth': 0.01, 'confidence': None} (score=0.01076) [took 144.2576s]
+04/12/23 16:33:53| INFO        bin_kde_gs finished [took 454.2733s]
+04/12/23 16:33:53| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs finished [took 486.6731s]
+----------------------------------------------------------------------------------------------------
+04/12/23 16:34:06| INFO     dataset rcv1_CCAT_1prevs [pool size: 10]
+04/12/23 16:34:10| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+04/12/23 16:34:42| INFO        ref finished [took 29.7996s]
+04/12/23 16:35:34| DEBUG       [size=11] best score = 0.01076030; best param = {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.01, 'confidence': None} [took 51.253s]
+04/12/23 16:37:42| DEBUG       [size=27] best score = 0.00939260; best param = {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.01, 'confidence': None} [took 127.987s]
+04/12/23 16:39:24| DEBUG       [size=21] best score = 0.00927255; best param = {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.02, 'confidence': None} [took 101.698s]
+04/12/23 16:40:06| DEBUG       [size=11] best score = 0.00966141; best param = {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.02, 'confidence': ['isoft']} [took 42.150s]
+----------------------------------------------------------------------------------------------------
+04/12/23 16:42:07| INFO     dataset rcv1_CCAT_1prevs [pool size: 10]
+04/12/23 16:42:11| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+04/12/23 16:42:42| INFO        ref finished [took 29.6268s]
+04/12/23 16:43:25| DEBUG       [size=11] best score = 0.00972917; best param = {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.01, 'confidence': ['isoft']} [took 41.238s]
+04/12/23 16:44:13| DEBUG       [size=11] best score = 0.00952915; best param = {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.01, 'confidence': ['isoft']} [took 47.965s]
+04/12/23 16:45:01| DEBUG       [size=11] best score = 0.00939260; best param = {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.01, 'confidence': None} [took 48.080s]
+04/12/23 16:45:43| DEBUG       [size=11] best score = 0.01299550; best param = {'quantifier__classifier__C': 1000.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.01, 'confidence': None} [took 41.956s]
+04/12/23 16:45:43| DEBUG       [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.01, 'confidence': None} (score=0.00939) [took 179.3460s]
+----------------------------------------------------------------------------------------------------
+04/12/23 16:46:26| INFO     dataset rcv1_CCAT_1prevs [pool size: 10]
+04/12/23 16:46:29| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+04/12/23 16:47:02| INFO        ref finished [took 30.3732s]
+04/12/23 16:47:55| DEBUG       [size=11] best score = 0.01076030; best param = {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.01, 'confidence': None} [took 51.688s]
+04/12/23 16:50:04| DEBUG       [size=27] best score = 0.00939260; best param = {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.01, 'confidence': None} [took 129.776s]
+04/12/23 16:51:47| DEBUG       [size=21] best score = 0.00927255; best param = {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.02, 'confidence': None} [took 102.130s]
+04/12/23 16:52:29| DEBUG       [size=11] best score = 0.00966141; best param = {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.02, 'confidence': ['isoft']} [took 42.833s]
+04/12/23 16:52:30| DEBUG       [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.02, 'confidence': None} (score=0.00927) [took 326.5350s]
+----------------------------------------------------------------------------------------------------
+04/12/23 16:53:28| INFO     dataset rcv1_CCAT_1prevs [pool size: 10]
+04/12/23 16:53:32| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+04/12/23 16:54:04| INFO        ref finished [took 29.7904s]
+04/12/23 16:56:07| DEBUG       [size=11] best score = 0.01076229; best param = {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.060000000000000005, 'confidence': ['isoft']} [took 121.793s]
+04/12/23 16:59:12| DEBUG       [size=26] best score = 0.00924771; best param = {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.060000000000000005, 'confidence': None} [took 184.726s]
+04/12/23 17:02:37| DEBUG       [size=26] best score = 0.00829794; best param = {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.060000000000000005, 'confidence': None} [took 204.889s]
+04/12/23 17:06:58| DEBUG       [size=20] best score = 0.00805111; best param = {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.02, 'confidence': None} [took 261.259s]
+04/12/23 17:08:32| DEBUG       [size=11] best score = 0.00905197; best param = {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.02, 'confidence': ['isoft']} [took 94.310s]
+04/12/23 17:08:32| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.02, 'confidence': None} (score=0.00805) [took 867.0839s]
+04/12/23 17:14:35| INFO        mul_kde_gs finished [took 1229.2690s]
+04/12/23 17:14:35| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs finished [took 1262.4235s]
+----------------------------------------------------------------------------------------------------
+04/12/23 19:10:30| INFO     dataset rcv1_CCAT_1prevs [pool size: 10]
+04/12/23 19:10:34| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+04/12/23 19:11:05| INFO        ref finished [took 29.5641s]
+04/12/23 19:14:33| DEBUG       [size=22] best score = 0.01076229; best param = {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.060000000000000005, 'confidence': ['isoft']} [took 207.207s]
+04/12/23 19:17:29| DEBUG       [size=26] best score = 0.00924771; best param = {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.060000000000000005, 'confidence': None} [took 175.591s]
+04/12/23 19:20:52| DEBUG       [size=26] best score = 0.00829794; best param = {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.060000000000000005, 'confidence': None} [took 203.265s]
+04/12/23 19:25:30| DEBUG       [size=22] best score = 0.00805111; best param = {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.02, 'confidence': None} [took 277.470s]
+04/12/23 19:28:46| DEBUG       [size=22] best score = 0.00905197; best param = {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.02, 'confidence': ['isoft']} [took 196.481s]
+04/12/23 19:28:46| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.02, 'confidence': None} (score=0.00805) [took 1060.1211s]
+04/12/23 19:34:56| INFO        mul_kde_gs finished [took 1429.9534s]
+04/12/23 19:34:56| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs finished [took 1462.4419s]
+----------------------------------------------------------------------------------------------------
+04/12/23 20:04:58| INFO     dataset rcv1_CCAT_1prevs [pool size: 10]
+04/12/23 20:05:02| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+04/12/23 20:05:33| INFO        ref finished [took 29.6333s]
+04/12/23 20:07:40| DEBUG       [size=11] best score = 0.01076229; best param = {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.060000000000000005, 'confidence': ['isoft']} [took 125.855s]
+04/12/23 20:29:29| DEBUG       [size=191] best score = 0.00829794; best param = {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.060000000000000005, 'confidence': None} [took 1308.849s]
+----------------------------------------------------------------------------------------------------
+04/12/23 20:49:59| INFO     dataset rcv1_CCAT_1prevs [pool size: 10]
+04/12/23 20:50:03| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+04/12/23 20:50:36| INFO        ref finished [took 30.1334s]
+04/12/23 20:52:13| DEBUG       [size=11] best score = 0.01443578; best param = {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.060000000000000005, 'confidence': ['isoft']} [took 96.244s]
+04/12/23 20:54:40| DEBUG       [size=26] best score = 0.01203822; best param = {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.060000000000000005, 'confidence': ['isoft']} [took 146.663s]
+04/12/23 20:58:04| DEBUG       [size=21] best score = 0.01098735; best param = {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.01, 'confidence': ['isoft']} [took 203.931s]
+04/12/23 20:59:13| DEBUG       [size=11] best score = 0.01007418; best param = {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.01, 'confidence': ['isoft']} [took 69.051s]
+04/12/23 21:02:14| DEBUG       [size=18] best score = 0.01093643; best param = {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.02, 'confidence': ['isoft']} [took 181.699s]
+04/12/23 21:02:15| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.01, 'confidence': ['isoft']} (score=0.01007) [took 697.6941s]
+----------------------------------------------------------------------------------------------------
+04/12/23 21:02:39| INFO     dataset rcv1_CCAT_1prevs [pool size: 10]
+04/12/23 21:02:43| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+04/12/23 21:03:14| INFO        ref finished [took 29.3140s]
+----------------------------------------------------------------------------------------------------
+04/12/23 22:36:53| INFO     dataset imdb_1prevs [pool size: 10]
+04/12/23 22:37:00| INFO     Dataset sample 0.50 of dataset imdb_1prevs started
+04/12/23 22:37:10| INFO        ref finished [took 8.5163s]
+04/12/23 22:38:43| DEBUG       [size=11] best score = 0.02170395; best param = {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.01, 'confidence': None} [took 90.846s]
+04/12/23 22:42:12| DEBUG       [size=27] best score = 0.01524518; best param = {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.01, 'confidence': None} [took 209.068s]
+04/12/23 22:45:19| DEBUG       [size=21] best score = 0.01507978; best param = {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': None, 'quantifier__bandwidth': 0.01, 'confidence': None} [took 186.754s]
+04/12/23 22:48:27| DEBUG       [size=24] best score = 0.01557248; best param = {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': None, 'quantifier__bandwidth': 0.01, 'confidence': None} [took 188.755s]
+04/12/23 22:48:28| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': None, 'quantifier__bandwidth': 0.01, 'confidence': None} (score=0.01508) [took 675.5291s]
+----------------------------------------------------------------------------------------------------
+04/12/23 22:49:10| INFO     dataset imdb_1prevs [pool size: 10]
+04/12/23 22:49:17| INFO     Dataset sample 0.50 of dataset imdb_1prevs started
+04/12/23 22:49:28| INFO        ref finished [took 9.0866s]
+04/12/23 23:02:32| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': None, 'quantifier__bandwidth': 0.01, 'confidence': None} (score=0.01508) [took 781.9100s]
+----------------------------------------------------------------------------------------------------
+04/12/23 23:04:44| INFO     dataset imdb_1prevs [pool size: 10]
+04/12/23 23:04:51| INFO     Dataset sample 0.50 of dataset imdb_1prevs started
+04/12/23 23:05:02| INFO        ref finished [took 8.9531s]
+04/12/23 23:20:34| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.01, 'confidence': None} (score=0.01353) [took 930.3856s]
+04/12/23 23:26:04| INFO        mul_kde_gs finished [took 1260.3849s]
+04/12/23 23:26:04| INFO     Dataset sample 0.50 of dataset imdb_1prevs finished [took 1272.8386s]
+----------------------------------------------------------------------------------------------------
+04/12/23 23:47:29| INFO     dataset imdb_1prevs [pool size: 10]
+04/12/23 23:47:36| INFO     Dataset sample 0.50 of dataset imdb_1prevs started
+04/12/23 23:47:47| INFO        ref finished [took 8.6752s]
+04/12/23 23:49:39| DEBUG       [size=11] best score = 0.01523944; best param = {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.060000000000000005, 'confidence': ['isoft']} [took 110.470s]
+04/12/23 23:52:47| DEBUG       [size=26] best score = 0.01465952; best param = {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.060000000000000005, 'confidence': ['isoft']} [took 188.587s]
+04/12/23 23:56:38| DEBUG       [size=21] best score = 0.01398823; best param = {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.02, 'confidence': ['isoft']} [took 230.546s]
+04/12/23 23:58:13| DEBUG       [size=11] best score = 0.01437900; best param = {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': None, 'quantifier__bandwidth': 0.02, 'confidence': ['isoft']} [took 95.348s]
+04/12/23 23:58:13| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.02, 'confidence': ['isoft']} (score=0.01399) [took 625.0578s]
+05/12/23 00:03:22| INFO        mul_kde_gs finished [took 933.1236s]
+05/12/23 00:03:22| INFO     Dataset sample 0.50 of dataset imdb_1prevs finished [took 945.3589s]
+----------------------------------------------------------------------------------------------------
+05/12/23 00:04:29| INFO     dataset imdb_1prevs [pool size: 10]
+05/12/23 00:04:35| INFO     Dataset sample 0.50 of dataset imdb_1prevs started
+05/12/23 00:04:46| INFO        ref finished [took 8.7604s]
+05/12/23 00:09:03| DEBUG       [size=33] best score = 0.01437900; best param = {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': None, 'quantifier__bandwidth': 0.02, 'confidence': ['isoft']} [took 255.755s]
+05/12/23 00:12:42| DEBUG       [size=25] best score = 0.01398823; best param = {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.02, 'confidence': ['isoft']} [took 218.245s]
+05/12/23 00:17:16| DEBUG       [size=26] best score = 0.01411134; best param = {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.03, 'confidence': ['isoft']} [took 274.687s]
+05/12/23 00:18:50| DEBUG       [size=11] best score = 0.01433959; best param = {'quantifier__classifier__C': 0.001, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.03, 'confidence': ['isoft']} [took 94.267s]
+05/12/23 00:18:51| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.02, 'confidence': ['isoft']} (score=0.01399) [took 843.0596s]
+05/12/23 00:23:57| INFO        mul_kde_gs finished [took 1149.3991s]
+05/12/23 00:23:57| INFO     Dataset sample 0.50 of dataset imdb_1prevs finished [took 1161.6634s]
+----------------------------------------------------------------------------------------------------
+05/12/23 00:35:15| INFO     dataset imdb_1prevs [pool size: 10]
+05/12/23 00:35:21| INFO     Dataset sample 0.50 of dataset imdb_1prevs started
+05/12/23 00:35:33| INFO        ref finished [took 9.2495s]
+05/12/23 00:37:28| DEBUG       [size=11] best score = 0.01523944; best param = {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.060000000000000005, 'confidence': ['isoft']} [took 113.211s]
+----------------------------------------------------------------------------------------------------
+05/12/23 00:56:08| INFO     dataset imdb_1prevs [pool size: 10]
+05/12/23 00:56:15| INFO     Dataset sample 0.50 of dataset imdb_1prevs started
+05/12/23 00:56:26| INFO        ref finished [took 9.0349s]
+05/12/23 00:58:19| DEBUG       [size=11] best score = 0.01523944; best param = {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.060000000000000005, 'confidence': ['isoft']} [took 111.199s]
+----------------------------------------------------------------------------------------------------
+05/12/23 01:08:17| INFO     dataset imdb_1prevs [pool size: 10]
+05/12/23 01:08:24| INFO     Dataset sample 0.50 of dataset imdb_1prevs started
+05/12/23 01:08:35| INFO        ref finished [took 8.8962s]
+05/12/23 01:10:28| DEBUG       [size=11] best score = 0.01523944; best param = {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.060000000000000005, 'confidence': ['isoft']} [took 112.209s]
+----------------------------------------------------------------------------------------------------
+05/12/23 01:13:23| INFO     dataset imdb_1prevs [pool size: 10]
+05/12/23 01:13:29| INFO     Dataset sample 0.50 of dataset imdb_1prevs started
+05/12/23 01:13:40| INFO        ref finished [took 8.9219s]
+05/12/23 01:15:35| DEBUG       [size=11] best score = 0.01523944; best param = {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.060000000000000005, 'confidence': ['isoft']} [took 113.169s]
+05/12/23 01:15:35| DEBUG       _max_pd_len=110
+05/12/23 01:15:35| DEBUG       _max_pd_len=26
+05/12/23 01:15:35| DEBUG       _new_hyper_len=52
+05/12/23 01:15:35| DEBUG       len(_new_hyper_idx)=52
+05/12/23 01:21:53| DEBUG       [size=52] best score = 0.01465952; best param = {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.060000000000000005, 'confidence': ['isoft']} [took 377.236s]
+05/12/23 01:21:53| DEBUG       _max_pd_len=84
+05/12/23 01:21:53| DEBUG       _max_pd_len=21
+05/12/23 01:21:53| DEBUG       _new_hyper_len=42
+05/12/23 01:21:53| DEBUG       len(_new_hyper_idx)=42
+05/12/23 01:28:05| DEBUG       [size=42] best score = 0.01398823; best param = {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.02, 'confidence': ['isoft']} [took 372.700s]
+05/12/23 01:28:05| DEBUG       _max_pd_len=65
+05/12/23 01:28:05| DEBUG       _max_pd_len=7
+05/12/23 01:28:05| DEBUG       _new_hyper_len=14
+05/12/23 01:28:05| DEBUG       len(_new_hyper_idx)=14
+05/12/23 01:30:07| DEBUG       [size=14] best score = 0.01437900; best param = {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': None, 'quantifier__bandwidth': 0.02, 'confidence': ['isoft']} [took 121.771s]
+05/12/23 01:30:07| DEBUG       _max_pd_len=110
+05/12/23 01:30:07| DEBUG       _max_pd_len=25
+05/12/23 01:30:07| DEBUG       _new_hyper_len=50
+05/12/23 01:30:07| DEBUG       len(_new_hyper_idx)=50
+05/12/23 01:36:16| DEBUG       [size=50] best score = 0.01423332; best param = {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': None, 'quantifier__bandwidth': 0.03, 'confidence': ['isoft']} [took 369.199s]
+05/12/23 01:36:16| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.02, 'confidence': ['isoft']} (score=0.01399) [took 1354.1983s]
+05/12/23 01:41:26| INFO        mul_kde_gs finished [took 1664.2248s]
+05/12/23 01:41:26| INFO     Dataset sample 0.50 of dataset imdb_1prevs finished [took 1676.9504s]
+----------------------------------------------------------------------------------------------------
+05/12/23 01:45:32| INFO     dataset rcv1_CCAT_1prevs [pool size: 10]
+05/12/23 01:45:36| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+05/12/23 01:46:08| INFO        ref finished [took 29.7523s]
+05/12/23 01:47:47| DEBUG       [size=11] best score = 0.01443578; best param = {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.060000000000000005, 'confidence': ['isoft']} [took 97.575s]
+05/12/23 01:50:15| DEBUG       [size=26] best score = 0.01203822; best param = {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.060000000000000005, 'confidence': ['isoft']} [took 148.276s]
+05/12/23 01:53:34| DEBUG       [size=21] best score = 0.01098735; best param = {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.01, 'confidence': ['isoft']} [took 199.290s]
+05/12/23 01:54:24| DEBUG       [size=7] best score = 0.01007418; best param = {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.01, 'confidence': ['isoft']} [took 49.186s]
+05/12/23 01:57:36| DEBUG       [size=19] best score = 0.01093643; best param = {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.02, 'confidence': ['isoft']} [took 192.093s]
+05/12/23 01:58:23| DEBUG       [size=6] best score = 0.01259404; best param = {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.02, 'confidence': ['isoft']} [took 47.156s]
+05/12/23 01:58:23| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.01, 'confidence': ['isoft']} (score=0.01007) [took 733.6881s]
+05/12/23 02:03:52| INFO        m3w_kde_gs finished [took 1062.7084s]
+05/12/23 02:03:52| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs finished [took 1095.7702s]
+----------------------------------------------------------------------------------------------------
+05/12/23 02:12:14| INFO     dataset rcv1_CCAT_1prevs [pool size: 10]
+05/12/23 02:12:18| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+05/12/23 02:12:49| INFO        ref finished [took 29.5758s]
+05/12/23 02:14:27| DEBUG       [size=11] best score = 0.01443578; best param = {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.060000000000000005, 'confidence': ['isoft']} [took 96.355s]
+05/12/23 02:16:54| DEBUG       [size=26] best score = 0.01203822; best param = {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.060000000000000005, 'confidence': ['isoft']} [took 147.306s]
+05/12/23 02:20:11| DEBUG       [size=21] best score = 0.01098735; best param = {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.01, 'confidence': ['isoft']} [took 196.656s]
+05/12/23 02:21:17| DEBUG       [size=11] best score = 0.01007418; best param = {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.01, 'confidence': ['isoft']} [took 66.130s]
+05/12/23 02:24:21| DEBUG       [size=18] best score = 0.01093643; best param = {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.02, 'confidence': ['isoft']} [took 183.756s]
+05/12/23 02:25:43| DEBUG       [size=11] best score = 0.01127876; best param = {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.060000000000000005, 'confidence': None} [took 81.771s]
+05/12/23 02:25:43| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.01, 'confidence': ['isoft']} (score=0.01007) [took 772.0939s]
+05/12/23 02:31:10| INFO        m3w_kde_gs finished [took 1099.3679s]
+05/12/23 02:31:10| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs finished [took 1132.0136s]
+----------------------------------------------------------------------------------------------------
+05/12/23 02:31:17| INFO     dataset rcv1_CCAT_1prevs [pool size: 10]
+05/12/23 02:31:21| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+05/12/23 02:31:52| INFO        ref finished [took 28.9624s]
+05/12/23 02:33:22| DEBUG       [size=11] best score = 0.01443578; best param = {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.060000000000000005, 'confidence': ['isoft']} [took 89.305s]
+05/12/23 02:48:29| DEBUG       [size=191] best score = 0.01007418; best param = {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.01, 'confidence': ['isoft']} [took 907.160s]
+05/12/23 02:53:48| DEBUG       [size=48] best score = 0.01019966; best param = {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.01, 'confidence': None} [took 318.945s]
+05/12/23 02:53:48| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.01, 'confidence': ['isoft']} (score=0.01007) [took 1315.5163s]
+05/12/23 02:59:06| INFO        m3w_kde_gs finished [took 1633.6578s]
+05/12/23 02:59:06| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs finished [took 1665.6408s]
+----------------------------------------------------------------------------------------------------
+05/12/23 12:53:06| INFO     dataset rcv1_CCAT_1prevs [pool size: 10]
+05/12/23 12:53:10| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+05/12/23 12:53:41| INFO        ref finished [took 29.4890s]
+----------------------------------------------------------------------------------------------------
+05/12/23 12:54:16| INFO     dataset rcv1_CCAT_1prevs [pool size: 10]
+05/12/23 12:54:19| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+05/12/23 12:54:51| INFO        ref finished [took 30.1333s]
+05/12/23 12:56:30| DEBUG       [size=11] best score = 0.01443578; best param = {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.060000000000000005, 'confidence': ['isoft']} [took 97.438s]
+05/12/23 12:56:30| WARNING     Method m3w_kde_gs failed. Exception: '<' not supported between instances of 'dict' and 'dict'
+05/12/23 12:56:30| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs finished [took 130.7498s]
+----------------------------------------------------------------------------------------------------
+05/12/23 12:58:08| INFO     dataset rcv1_CCAT_1prevs [pool size: 10]
+05/12/23 12:58:12| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+05/12/23 12:58:43| INFO        ref finished [took 29.1355s]
+05/12/23 13:00:22| DEBUG       [size=11] best score = 0.01443578; best param = {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.060000000000000005, 'confidence': ['isoft']} [took 98.304s]
+05/12/23 13:06:19| DEBUG       [size=61] best score = 0.01007418; best param = {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.01, 'confidence': ['isoft']} [took 356.910s]
+05/12/23 13:14:06| DEBUG       [size=66] best score = 0.00940621; best param = {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': None, 'quantifier__bandwidth': 0.01, 'confidence': None} [took 466.788s]
+05/12/23 13:19:30| DEBUG       [size=45] best score = 0.01029764; best param = {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': None, 'quantifier__bandwidth': 0.02, 'confidence': None} [took 323.882s]
+05/12/23 13:19:30| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': None, 'quantifier__bandwidth': 0.01, 'confidence': None} (score=0.00941) [took 1246.0035s]
+05/12/23 13:24:56| INFO        m3w_kde_gs finished [took 1572.6046s]
+05/12/23 13:24:56| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs finished [took 1604.8060s]
+----------------------------------------------------------------------------------------------------
+05/12/23 13:25:30| INFO     dataset rcv1_CCAT_1prevs [pool size: 10]
+05/12/23 13:25:34| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs started
+05/12/23 13:26:05| INFO        ref finished [took 29.6892s]
+05/12/23 13:27:44| DEBUG       [size=11] best score = 0.01443578; best param = {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.060000000000000005, 'confidence': ['isoft']} [took 97.908s]
+05/12/23 13:30:55| DEBUG       [size=34] best score = 0.01203822; best param = {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.060000000000000005, 'confidence': ['isoft']} [took 191.114s]
+05/12/23 13:36:33| DEBUG       [size=40] best score = 0.01098735; best param = {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.01, 'confidence': ['isoft']} [took 337.309s]
+05/12/23 13:37:59| DEBUG       [size=12] best score = 0.00979333; best param = {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.03, 'confidence': None} [took 86.122s]
+05/12/23 13:43:28| DEBUG       [size=41] best score = 0.00943624; best param = {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.02, 'confidence': None} [took 329.177s]
+05/12/23 13:44:58| DEBUG       [size=14] best score = 0.01029764; best param = {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': None, 'quantifier__bandwidth': 0.02, 'confidence': None} [took 89.662s]
+05/12/23 13:44:58| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.02, 'confidence': None} (score=0.00944) [took 1131.4191s]
+05/12/23 13:50:40| INFO        m3w_kde_gs finished [took 1473.8428s]
+05/12/23 13:50:40| INFO     Dataset sample 0.50 of dataset rcv1_CCAT_1prevs finished [took 1506.5813s]
+----------------------------------------------------------------------------------------------------
+05/12/23 20:31:37| INFO     dataset imdb_1prevs [pool size: 10]
+05/12/23 20:31:43| INFO     Dataset sample 0.50 of dataset imdb_1prevs started
+05/12/23 20:31:54| INFO        ref finished [took 8.9517s]
+05/12/23 20:32:46| DEBUG       [size=11,place=1] best score = 0.01505371; best param = {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.01, 'confidence': None} [took 49.791s]
+05/12/23 20:32:46| DEBUG       [size=11,place=2] best score = 0.01517113; best param = {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.060000000000000005, 'confidence': ['isoft']} [took 49.792s]
+05/12/23 20:35:56| DEBUG       [size=53,place=1] best score = 0.01456629; best param = {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.01, 'confidence': ['isoft']} [took 190.304s]
+05/12/23 20:35:56| DEBUG       [size=53,place=2] best score = 0.01459773; best param = {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.060000000000000005, 'confidence': ['isoft']} [took 190.304s]
+05/12/23 20:37:18| DEBUG       [size=26,place=1] best score = 0.01448093; best param = {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.04, 'confidence': ['isoft']} [took 82.254s]
+05/12/23 20:37:18| DEBUG       [size=26,place=2] best score = 0.01455639; best param = {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.03, 'confidence': ['isoft']} [took 82.255s]
+05/12/23 20:38:16| DEBUG       [size=14,place=1] best score = 0.01391316; best param = {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': None, 'quantifier__bandwidth': 0.03, 'confidence': ['isoft']} [took 57.319s]
+05/12/23 20:38:16| DEBUG       [size=14,place=2] best score = 0.01433061; best param = {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': None, 'quantifier__bandwidth': 0.04, 'confidence': ['isoft']} [took 57.319s]
+05/12/23 20:39:58| DEBUG       [size=31,place=1] best score = 0.01384960; best param = {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': None, 'quantifier__bandwidth': 0.03, 'confidence': None} [took 102.534s]
+05/12/23 20:39:58| DEBUG       [size=31,place=2] best score = 0.01416175; best param = {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': None, 'quantifier__bandwidth': 0.02, 'confidence': ['isoft']} [took 102.535s]
+05/12/23 20:41:41| DEBUG       [size=30,place=1] best score = 0.01376984; best param = {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': None, 'quantifier__bandwidth': 0.02, 'confidence': None} [took 102.546s]
+05/12/23 20:41:41| DEBUG       [size=30,place=2] best score = 0.01418145; best param = {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': None, 'quantifier__bandwidth': 0.01, 'confidence': None} [took 102.547s]
+05/12/23 20:42:29| DEBUG       [size=12,place=1] best score = 0.01452208; best param = {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': None, 'quantifier__bandwidth': 0.02, 'confidence': None} [took 48.046s]
+05/12/23 20:42:29| DEBUG       [size=12,place=2] best score = 0.01475218; best param = {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.02, 'confidence': None} [took 48.046s]
+05/12/23 20:42:29| DEBUG       [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': None, 'quantifier__bandwidth': 0.02, 'confidence': None} (score=0.01377) [took 632.9113s]
+05/12/23 20:47:24| INFO        bin_kde_gs finished [took 927.4720s]
+05/12/23 20:49:18| DEBUG       [size=11,place=1] best score = 0.01523944; best param = {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.060000000000000005, 'confidence': ['isoft']} [took 113.157s]
+05/12/23 20:49:18| DEBUG       [size=11,place=2] best score = 0.01657941; best param = {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.01, 'confidence': None} [took 113.157s]
+05/12/23 20:56:08| DEBUG       [size=53,place=1] best score = 0.01353144; best param = {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.01, 'confidence': None} [took 410.247s]
+05/12/23 20:56:08| DEBUG       [size=53,place=2] best score = 0.01371418; best param = {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.01, 'confidence': None} [took 410.247s]
+05/12/23 21:02:46| DEBUG       [size=42,place=1] best score = 0.01374498; best param = {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.02, 'confidence': None} [took 398.066s]
+05/12/23 21:02:46| DEBUG       [size=42,place=2] best score = 0.01429900; best param = {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.06999999999999999, 'confidence': None} [took 398.066s]
+05/12/23 21:02:46| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.01, 'confidence': None} (score=0.01353) [took 921.5771s]
+05/12/23 21:08:17| INFO        mul_kde_gs finished [took 1251.6993s]
+05/12/23 21:09:52| DEBUG       [size=11,place=1] best score = 0.02170395; best param = {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.01, 'confidence': None} [took 94.042s]
+05/12/23 21:09:52| DEBUG       [size=11,place=2] best score = 0.02494368; best param = {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': None, 'quantifier__bandwidth': 0.09999999999999999, 'confidence': None} [took 94.042s]
+05/12/23 21:16:11| DEBUG       [size=53,place=1] best score = 0.01507978; best param = {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': None, 'quantifier__bandwidth': 0.01, 'confidence': None} [took 378.895s]
+05/12/23 21:16:11| DEBUG       [size=53,place=2] best score = 0.01524518; best param = {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.01, 'confidence': None} [took 378.895s]
+05/12/23 21:19:07| DEBUG       [size=25,place=1] best score = 0.01557248; best param = {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': None, 'quantifier__bandwidth': 0.01, 'confidence': None} [took 175.860s]
+05/12/23 21:19:07| DEBUG       [size=25,place=2] best score = 0.01958569; best param = {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.02, 'confidence': None} [took 175.860s]
+05/12/23 21:19:07| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': None, 'quantifier__bandwidth': 0.01, 'confidence': None} (score=0.01508) [took 648.9043s]
+05/12/23 21:24:58| INFO        m3w_kde_gs finished [took 1000.2752s]
+05/12/23 21:24:58| INFO     Dataset sample 0.50 of dataset imdb_1prevs finished [took 3195.1309s]
+----------------------------------------------------------------------------------------------------
+05/12/23 21:27:58| INFO     dataset imdb_1prevs [pool size: 10]
+05/12/23 21:28:05| INFO     Dataset sample 0.50 of dataset imdb_1prevs started
+05/12/23 21:28:17| INFO        ref finished [took 9.7515s]
+05/12/23 21:35:15| DEBUG       [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': None, 'quantifier__bandwidth': 0.01, 'confidence': None} (score=0.01418) [took 416.2993s]
+05/12/23 21:39:43| INFO        bin_kde_gs finished [took 683.6847s]
+05/12/23 21:54:15| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.01, 'confidence': None} (score=0.01353) [took 871.3118s]
+05/12/23 21:59:37| INFO        mul_kde_gs finished [took 1192.6962s]
+05/12/23 22:11:41| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': None, 'quantifier__bandwidth': 0.01, 'confidence': None} (score=0.01508) [took 723.6967s]
+05/12/23 22:17:23| INFO        m3w_kde_gs finished [took 1065.3950s]
+05/12/23 22:17:23| INFO     Dataset sample 0.50 of dataset imdb_1prevs finished [took 2958.0688s]
