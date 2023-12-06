@@ -9,7 +9,8 @@ import pandas as pd
 from joblib import Parallel, delayed
 from tqdm import tqdm
 
-from quacc.environment import env
+from quacc import logger
+from quacc.environment import env, environ
 
 
 def combine_dataframes(dfs, df_index=[]) -> pd.DataFrame:
@@ -77,16 +78,31 @@ def download_file(url: str, downloaded_path: Path):
         urlretrieve(url, filename=downloaded_path, reporthook=t.update_to)
 
 
-def parallel(func, args, n_jobs, seed=None):
-    """
-    A wrapper of multiprocessing:
+def parallel(
+    func,
+    f_args=None,
+    parallel: Parallel = None,
+    n_jobs=1,
+    verbose=0,
+    _env: environ | dict = None,
+    seed=None,
+):
+    f_args = f_args or []
 
-    >>> Parallel(n_jobs=n_jobs)(
-    >>>      delayed(func)(args_i) for args_i in args
-    >>> )
+    if _env is None:
+        _env = {}
+    elif isinstance(_env, environ):
+        _env = _env.to_dict()
 
-    that takes the `quapy.environ` variable as input silently.
-    Seeds the child processes to ensure reproducibility when n_jobs>1
-    """
+    def wrapper(*args):
+        if seed is not None:
+            nonlocal _env
+            _env = _env | dict(_R_SEED=seed)
 
-    return Parallel(n_jobs=n_jobs, verbose=1)(delayed(func)(_args) for _args in args)
+        with env.load(_env):
+            return func(*args)
+
+    parallel = (
+        Parallel(n_jobs=n_jobs, verbose=verbose) if parallel is None else parallel
+    )
+    return parallel(delayed(wrapper)(*_args) for _args in f_args)
