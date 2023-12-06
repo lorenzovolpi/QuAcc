@@ -11,7 +11,12 @@ import quacc as qc
 from quacc.environment import env
 from quacc.evaluation.report import EvaluationReport
 from quacc.method.base import BQAE, MCAE, BaseAccuracyEstimator
-from quacc.method.model_selection import GridSearchAE
+from quacc.method.model_selection import (
+    GridSearchAE,
+    HalvingSearchAE,
+    RandomizedSearchAE,
+    SpiderSearchAE,
+)
 from quacc.quantification import KDEy
 
 _param_grid = {
@@ -19,6 +24,7 @@ _param_grid = {
         "q__classifier__C": np.logspace(-3, 3, 7),
         "q__classifier__class_weight": [None, "balanced"],
         "q__recalib": [None, "bcts"],
+        # "q__recalib": [None],
         "confidence": [None, ["isoft"], ["max_conf", "entropy"]],
     },
     "pacc": {
@@ -29,8 +35,10 @@ _param_grid = {
     "kde": {
         "q__classifier__C": np.logspace(-3, 3, 7),
         "q__classifier__class_weight": [None, "balanced"],
-        "q__bandwidth": np.linspace(0.01, 0.2, 5),
+        # "q__classifier__class_weight": [None],
+        "q__bandwidth": np.linspace(0.01, 0.2, 20),
         "confidence": [None, ["isoft"]],
+        # "confidence": [None],
     },
 }
 
@@ -96,11 +104,22 @@ class EvaluationMethod:
 @dataclass(frozen=True)
 class EvaluationMethodGridSearch(EvaluationMethod):
     pg: str = "sld"
+    search: str = "grid"
+
+    def get_search(self):
+        match self.search:
+            case "grid":
+                return GridSearchAE
+            case "spider":
+                return SpiderSearchAE
+            case _:
+                return GridSearchAE
 
     def __call__(self, c_model, validation, protocol) -> EvaluationReport:
         v_train, v_val = validation.split_stratified(0.6, random_state=env._R_SEED)
         __grid = _param_grid.get(self.pg, {})
-        est = GridSearchAE(
+        _search_class = self.get_search()
+        est = _search_class(
             model=self.get_est(c_model),
             param_grid=__grid,
             refit=False,
@@ -182,9 +201,9 @@ __methods_set = [
     M("mulis_kde",   __kde_lr(),  "mul", conf="isoft",                        ),
     M("m3wis_kde",   __kde_lr(),  "mul", conf="isoft",                 cf=True),
     # gs kde
-    G("bin_kde_gs",  __kde_lr(),  "bin", pg="kde",                            ),
-    G("mul_kde_gs",  __kde_lr(),  "mul", pg="kde",                            ),
-    G("m3w_kde_gs",  __kde_lr(),  "mul", pg="kde",                     cf=True),
+    G("bin_kde_gs",  __kde_lr(),  "bin", pg="kde", search="spider"            ),
+    G("mul_kde_gs",  __kde_lr(),  "mul", pg="kde", search="spider"            ),
+    G("m3w_kde_gs",  __kde_lr(),  "mul", pg="kde", search="spider",    cf=True),
 ]
 # fmt: on
 
