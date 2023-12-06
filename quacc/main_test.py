@@ -1,13 +1,19 @@
-from time import time
+import logging
+from logging.handlers import QueueHandler
+from multiprocessing import Manager, Queue
+from threading import Thread
+from time import sleep, time
 
 import numpy as np
 import scipy.sparse as sp
+from joblib import Parallel, delayed
 from quapy.protocol import APP
 from sklearn.linear_model import LinearRegression, LogisticRegression
 from sklearn.metrics import accuracy_score
 
 from baselines.mandoline import estimate_performance
 from quacc.dataset import Dataset
+from quacc.logger import logger, logger_manager, setup_logger, setup_worker_logger
 
 
 def test_lr():
@@ -111,5 +117,21 @@ def test_mandoline():
     print(f"time: {time() - tstart}s")
 
 
+def joblib_queue():
+    def worker(q: Queue, i):
+        setup_worker_logger(q)
+        log = logger()
+        log.info(i)
+        sleep(2)
+        print(f"worker {i}")
+
+    setup_logger()
+    log = logger()
+    log.info("start")
+    Parallel(n_jobs=5)(delayed(worker)(logger_manager().q, i) for i in range(5))
+    log.info("end")
+    logger_manager().close()
+
+
 if __name__ == "__main__":
-    test_mandoline()
+    joblib_queue()
