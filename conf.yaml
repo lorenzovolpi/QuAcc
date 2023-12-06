@@ -7,9 +7,16 @@ debug_conf: &debug_conf
     DATASET_PREVS:
       - 0.5
     COMP_ESTIMATORS:
-      - bin_kde_gs
+      # - bin_sld
+      # - mul_sld
+      # - m3w_sld
+      # - bin_sld_gs
       - mul_kde_gs
       - m3w_kde_gs
+      - bin_kde_gs
+      # - m3w_sld_gs
+      # - doc
+      # - atc_mc
     N_JOBS: -2
 
   confs:
@@ -151,4 +158,4 @@ add_conf: &add_conf
       DATASET_TARGET: MCAT
 
 
-exec: *kde_conf
+exec: *debug_conf
