@@ -4,158 +4,284 @@ debug_conf: &debug_conf
       - acc
     OUT_DIR_NAME: output/debug
     DATASET_N_PREVS: 9
-    DATASET_PREVS:
-      - 0.5
     COMP_ESTIMATORS:
-      # - bin_sld
-      # - mul_sld
-      # - m3w_sld
-      # - bin_sld_gs
-      - mul_kde_gs
-      - m3w_kde_gs
-      - bin_kde_gs
-      # - m3w_sld_gs
-      # - doc
-      # - atc_mc
+      - bin_sld_lr
+      - mul_sld_lr
+      - m3w_sld_lr
+      - d_bin_sld_lr
+      - d_mul_sld_lr
+      - d_m3w_sld_lr
+      - d_bin_sld_rbf
+      - d_mul_sld_rbf
+      - d_m3w_sld_rbf
+      - bin_kde_lr
+      - mul_kde_lr
+      - m3w_kde_lr
+      - d_bin_kde_lr
+      - d_mul_kde_lr
+      - d_m3w_kde_lr
+      - d_bin_kde_rbf
+      - d_mul_kde_rbf
+      - d_m3w_kde_rbf
+      # - mandoline
+      # - rca
+      - doc
+      - atc_mc
     N_JOBS: -2
 
   confs:
     - DATASET_NAME: imdb
   other_confs:
+    - DATASET_NAME: twitter_gasp
     - DATASET_NAME: rcv1
       DATASET_TARGET: CCAT
       
-
-kde_conf: &kde_conf
-  global:
-    METRICS: 
-      - acc
-      - f1
-    OUT_DIR_NAME: output/kde/gs
-    DATASET_N_PREVS: 9
-    COMP_ESTIMATORS:
-      - bin_kde_gs
-      - mul_kde_gs
-      - m3w_kde_gs
-    N_JOBS: -2
-
-  confs:
+main:
+  confs: &main_confs
     - DATASET_NAME: rcv1
       DATASET_TARGET: CCAT
   other_confs:
     - DATASET_NAME: imdb
 
-test_conf: &test_conf
-  global:
-    METRICS: 
-      - acc
-      - f1
-    OUT_DIR_NAME: output/test
-    DATASET_N_PREVS: 9
-    # DATASET_PREVS:
-    # - 0.5
-    COMP_ESTIMATORS:
-      - bin_sld
-      - mul_sld
-      - mul3w_sld
-      - binc_sld
-      - mulc_sld
-      - mul3wc_sld
-      - binmc_sld
-      - mulmc_sld
-      - mul3wmc_sld
-      - binne_sld
-      - mulne_sld
-      - mul3wne_sld
-      # - bin_sld_gs
-      # - mul_sld_gs
-      # - mul3w_sld_gs
-      - atc_mc
-      - atc_ne
-      - doc_feat
-      - kfcv
-
-  confs:
-    - DATASET_NAME: cifar10
-      DATASET_TARGET: dog
-  other_confs:
-    - DATASET_NAME: rcv1
-      DATASET_TARGET: GCAT
-    - DATASET_NAME: imdb
-
-main_conf: &main_conf
+sld_lr_conf: &sld_lr_conf
 
   global:
     METRICS: 
       - acc
       - f1
-    OUT_DIR_NAME: output/main
+    OUT_DIR_NAME: output/sld_lr
     DATASET_N_PREVS: 9
+    N_JOBS: -2
     COMP_ESTIMATORS:
-      - bin_sld
-      - mul_sld
-      - m3w_sld
-      - binc_sld
-      - mulc_sld
-      - m3wc_sld
-      - binmc_sld
-      - mulmc_sld
-      - m3wmc_sld
-      - binne_sld
-      - mulne_sld
-      - m3wne_sld
-      - binis_sld
-      - mulis_sld
-      - m3wis_sld
-      - bin_sld_gs
-      - mul_sld_gs
-      - m3w_sld_gs
+      - bin_sld_lr
+      - mul_sld_lr
+      - m3w_sld_lr
+      - bin_sld_lr_c
+      - mul_sld_lr_c
+      - m3w_sld_lr_c
+      - bin_sld_lr_mc
+      - mul_sld_lr_mc
+      - m3w_sld_lr_mc
+      - bin_sld_lr_ne
+      - mul_sld_lr_ne
+      - m3w_sld_lr_ne
+      - bin_sld_lr_is
+      - mul_sld_lr_is
+      - m3w_sld_lr_is
+      - bin_sld_lr_gs
+      - mul_sld_lr_gs
+      - m3w_sld_lr_gs
       - doc
       - atc_mc
-      - gde
-      - rca
-      - rca_star
-      - mandoline
 
-  confs:
-    - DATASET_NAME: cifar10
-      DATASET_TARGET: dog
+  confs: *main_confs
   confs_next:
     - DATASET_NAME: imdb
+    - DATASET_NAME: twitter_gasp
     - DATASET_NAME: rcv1
       DATASET_TARGET: CCAT
     - DATASET_NAME: rcv1
       DATASET_TARGET: GCAT
     - DATASET_NAME: rcv1
       DATASET_TARGET: MCAT
+    - DATASET_NAME: cifar10
+      DATASET_TARGET: dog
 
-add_conf: &add_conf
+d_sld_lr_conf: &d_sld_lr_conf
 
   global:
     METRICS: 
       - acc
       - f1
-    OUT_DIR_NAME: output/add/m3w
+    OUT_DIR_NAME: output/d_sld_lr
     DATASET_N_PREVS: 9
+    N_JOBS: -2
     COMP_ESTIMATORS:
-      - m3w_sld
-      - m3wc_sld
-      - m3wmc_sld
-      - m3wne_sld
-      - m3wis_sld
-      - m3w_sld_gs
+      - d_bin_sld_lr
+      - d_mul_sld_lr
+      - d_m3w_sld_lr
+      - d_bin_sld_lr_c
+      - d_mul_sld_lr_c
+      - d_m3w_sld_lr_c
+      - d_bin_sld_lr_mc
+      - d_mul_sld_lr_mc
+      - d_m3w_sld_lr_mc
+      - d_bin_sld_lr_ne
+      - d_mul_sld_lr_ne
+      - d_m3w_sld_lr_ne
+      - d_bin_sld_lr_is
+      - d_mul_sld_lr_is
+      - d_m3w_sld_lr_is
+      - d_bin_sld_lr_gs
+      - d_mul_sld_lr_gs
+      - d_m3w_sld_lr_gs
+      - doc
+      - atc_mc
 
-  confs:
+  confs: *main_confs
+  confs_next:
+    - DATASET_NAME: rcv1
+      DATASET_TARGET: CCAT
+    - DATASET_NAME: imdb
+    - DATASET_NAME: twitter_gasp
+    - DATASET_NAME: rcv1
+      DATASET_TARGET: GCAT
+    - DATASET_NAME: rcv1
+      DATASET_TARGET: MCAT
     - DATASET_NAME: cifar10
       DATASET_TARGET: dog
+
+d_sld_rbf_conf: &d_sld_rbf_conf
+
+  global:
+    METRICS: 
+      - acc
+      - f1
+    OUT_DIR_NAME: output/d_sld_rbf
+    DATASET_N_PREVS: 9
+    N_JOBS: -2
+    COMP_ESTIMATORS:
+      - d_bin_sld_rbf
+      - d_mul_sld_rbf
+      - d_m3w_sld_rbf
+      - d_bin_sld_rbf_c
+      - d_mul_sld_rbf_c
+      - d_m3w_sld_rbf_c
+      - d_bin_sld_rbf_mc
+      - d_mul_sld_rbf_mc
+      - d_m3w_sld_rbf_mc
+      - d_bin_sld_rbf_ne
+      - d_mul_sld_rbf_ne
+      - d_m3w_sld_rbf_ne
+      - d_bin_sld_rbf_is
+      - d_mul_sld_rbf_is
+      - d_m3w_sld_rbf_is
+      - d_bin_sld_rbf_gs
+      - d_mul_sld_rbf_gs
+      - d_m3w_sld_rbf_gs
+      - doc
+      - atc_mc
+
+  confs: *main_confs
   confs_next:
     - DATASET_NAME: imdb
+    - DATASET_NAME: twitter_gasp
     - DATASET_NAME: rcv1
       DATASET_TARGET: CCAT
     - DATASET_NAME: rcv1
       DATASET_TARGET: GCAT
     - DATASET_NAME: rcv1
       DATASET_TARGET: MCAT
+    - DATASET_NAME: cifar10
+      DATASET_TARGET: dog
+
+kde_lr_conf: &kde_lr_conf
+  global:
+    METRICS: 
+      - acc
+      - f1
+    OUT_DIR_NAME: output/kde_lr
+    DATASET_N_PREVS: 9
+    COMP_ESTIMATORS:
+      - bin_kde_lr
+      - mul_kde_lr
+      - m3w_kde_lr
+      - bin_kde_lr_c
+      - mul_kde_lr_c
+      - m3w_kde_lr_c
+      - bin_kde_lr_mc
+      - mul_kde_lr_mc
+      - m3w_kde_lr_mc
+      - bin_kde_lr_ne
+      - mul_kde_lr_ne
+      - m3w_kde_lr_ne
+      - bin_kde_lr_is
+      - mul_kde_lr_is
+      - m3w_kde_lr_is
+      - bin_kde_lr_gs
+      - mul_kde_lr_gs
+      - m3w_kde_lr_gs
+      - doc
+      - atc_mc
+    N_JOBS: -2
+
+  confs: *main_confs
+  other_confs:
+    - DATASET_NAME: imdb
+    - DATASET_NAME: rcv1
+      DATASET_TARGET: CCAT
+
+d_kde_lr_conf: &d_kde_lr_conf
+  global:
+    METRICS: 
+      - acc
+      - f1
+    OUT_DIR_NAME: output/d_kde_lr
+    DATASET_N_PREVS: 9
+    COMP_ESTIMATORS:
+      - d_bin_kde_lr
+      - d_mul_kde_lr
+      - d_m3w_kde_lr
+      - d_bin_kde_lr_c
+      - d_mul_kde_lr_c
+      - d_m3w_kde_lr_c
+      - d_bin_kde_lr_mc
+      - d_mul_kde_lr_mc
+      - d_m3w_kde_lr_mc
+      - d_bin_kde_lr_ne
+      - d_mul_kde_lr_ne
+      - d_m3w_kde_lr_ne
+      - d_bin_kde_lr_is
+      - d_mul_kde_lr_is
+      - d_m3w_kde_lr_is
+      - d_bin_kde_lr_gs
+      - d_mul_kde_lr_gs
+      - d_m3w_kde_lr_gs
+      - doc
+      - atc_mc
+    N_JOBS: -2
+
+  confs: *main_confs
+  other_confs:
+    - DATASET_NAME: imdb
+    - DATASET_NAME: rcv1
+      DATASET_TARGET: CCAT
+
+d_kde_rbf_conf: &d_kde_rbf_conf
+  global:
+    METRICS: 
+      - acc
+      - f1
+    OUT_DIR_NAME: output/d_kde_rbf
+    DATASET_N_PREVS: 9
+    COMP_ESTIMATORS:
+      - d_bin_kde_rbf
+      - d_mul_kde_rbf
+      - d_m3w_kde_rbf
+      - d_bin_kde_rbf_c
+      - d_mul_kde_rbf_c
+      - d_m3w_kde_rbf_c
+      - d_bin_kde_rbf_mc
+      - d_mul_kde_rbf_mc
+      - d_m3w_kde_rbf_mc
+      - d_bin_kde_rbf_ne
+      - d_mul_kde_rbf_ne
+      - d_m3w_kde_rbf_ne
+      - d_bin_kde_rbf_is
+      - d_mul_kde_rbf_is
+      - d_m3w_kde_rbf_is
+      - d_bin_kde_rbf_gs
+      - d_mul_kde_rbf_gs
+      - d_m3w_kde_rbf_gs
+      - doc
+      - atc_mc
+    N_JOBS: -2
+
+  confs: *main_confs
+  other_confs:
+    - DATASET_NAME: imdb
+    - DATASET_NAME: rcv1
+      DATASET_TARGET: CCAT
 
 
-exec: *debug_conf
+exec: *sld_lr_conf

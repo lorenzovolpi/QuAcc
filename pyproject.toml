@@ -17,7 +17,7 @@ abstention = "^0.1.3.1"
 [tool.poetry.scripts]
 main = "quacc.main:main"
 run = "run:run"
-panel = "qcpanel.run:run"
+pnl = "qcpanel.run:run"
 dash = "qcdash.app:run"
 sync_up = "remote:sync_code"
 sync_down = "remote:sync_output"
@@ -55,7 +55,7 @@ dash-bootstrap-components = "^1.5.0"
 gunicorn = "^21.2.0"
 
 [tool.pytest.ini_options]
-addopts = "--cov=quacc -rA"
+addopts = "--cov=quacc -rA --cov-report html"
 
 [build-system]
 requires = ["poetry-core"]
