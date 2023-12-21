@@ -6,7 +6,12 @@ import pandas as pd
 import panel as pn
 import param
 
-from qcpanel.util import create_result, explore_datasets, valid_plot_modes
+from qcpanel.util import (
+    _get_prev_str,
+    create_result,
+    explore_datasets,
+    valid_plot_modes,
+)
 from quacc.evaluation.estimators import CE
 from quacc.evaluation.report import DatasetReport
 
@@ -308,7 +313,7 @@ class QuaccTestViewer(param.Parameterized):
         if not self.__get_param_init("estimators"):
             self.estimators = _new_estimators
 
-        l_valid_views = [str(round(cr.train_prev[1] * 100)) for cr in l_dr.crs]
+        l_valid_views = [_get_prev_str(cr.train_prev) for cr in l_dr.crs]
         l_valid_views = ["avg"] + l_valid_views
         _old_view = self.plot_view
         self.param["plot_view"].objects = l_valid_views
