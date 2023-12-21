@@ -1,11 +1,14 @@
 import json
 import pickle
+from collections import defaultdict
+from itertools import chain
 from pathlib import Path
 from typing import List, Tuple
 
 import numpy as np
 import pandas as pd
 
+import quacc as qc
 import quacc.plot as plot
 from quacc.utils import fmt_line_md
 
@@ -22,14 +25,24 @@ def _get_estimators(estimators: List[str], cols: np.ndarray):
     return estimators[np.isin(estimators, cols)]
 
 
+def _get_shift(index: np.ndarray, train_prev: np.ndarray):
+    index = np.array([np.array(tp) for tp in index])
+    train_prevs = np.tile(train_prev, (index.shape[0], 1))
+    # assert index.shape[1] == train_prev.shape[0], "Mismatch in prevalence shape"
+    # _shift = np.abs(index - train_prev)[:, 1:].sum(axis=1)
+    _shift = qc.error.nae(index, train_prevs)
+    return np.around(_shift, decimals=2)
+
+
 class EvaluationReport:
     def __init__(self, name=None):
         self.data: pd.DataFrame | None = None
-        self.fit_score = None
         self.name = name if name is not None else "default"
+        self.time = 0.0
 
     def append_row(self, basep: np.ndarray | Tuple, **row):
-        bp = basep[1]
+        # bp = basep[1]
+        bp = tuple(basep)
         _keys, _values = zip(*row.items())
         # _keys = list(row.keys())
         # _values = list(row.values())
@@ -89,7 +102,7 @@ class CompReport:
                 )
                 .swaplevel(0, 1, axis=1)
                 .sort_index(axis=1, level=0, sort_remaining=False)
-                .sort_index(axis=0, level=0)
+                .sort_index(axis=0, level=0, ascending=False, sort_remaining=False)
             )
 
         if times is None:
@@ -97,17 +110,13 @@ class CompReport:
         else:
             self.times = times
 
-        self.times["tot"] = g_time
+        self.times["tot"] = g_time if g_time is not None else 0.0
         self.train_prev = train_prev
         self.valid_prev = valid_prev
 
     @property
     def prevs(self) -> np.ndarray:
-        return np.sort(self._data.index.unique(0))
-
-    @property
-    def np_prevs(self) -> np.ndarray:
-        return np.around([(1.0 - p, p) for p in self.prevs], decimals=2)
+        return self.data().index.unique(0)
 
     def join(self, other, how="update", estimators=None):
         if how not in ["update"]:
@@ -160,16 +169,14 @@ class CompReport:
     def shift_data(
         self, metric: str = None, estimators: List[str] = None
     ) -> pd.DataFrame:
-        shift_idx_0 = np.around(
-            np.abs(
-                self._data.index.get_level_values(0).to_numpy() - self.train_prev[1]
-            ),
-            decimals=2,
+        shift_idx_0 = _get_shift(
+            self._data.index.get_level_values(0).to_numpy(),
+            self.train_prev,
         )
 
-        shift_idx_1 = np.empty(shape=shift_idx_0.shape, dtype="<i4")
+        shift_idx_1 = np.zeros(shape=shift_idx_0.shape[0], dtype="<i4")
         for _id in np.unique(shift_idx_0):
-            _wh = np.where(shift_idx_0 == _id)[0]
+            _wh = (shift_idx_0 == _id).nonzero()[0]
             shift_idx_1[_wh] = np.arange(_wh.shape[0], dtype="<i4")
 
         shift_data = self._data.copy()
@@ -191,26 +198,28 @@ class CompReport:
         self, metric: str = None, estimators: List[str] = None
     ) -> pd.DataFrame:
         f_dict = self.data(metric=metric, estimators=estimators)
-        return f_dict.groupby(level=0).mean()
+        return f_dict.groupby(level=0, sort=False).mean()
 
     def stdev_by_prevs(
         self, metric: str = None, estimators: List[str] = None
     ) -> pd.DataFrame:
         f_dict = self.data(metric=metric, estimators=estimators)
-        return f_dict.groupby(level=0).std()
+        return f_dict.groupby(level=0, sort=False).std()
 
-    def table(self, metric: str = None, estimators: List[str] = None) -> pd.DataFrame:
+    def train_table(
+        self, metric: str = None, estimators: List[str] = None
+    ) -> pd.DataFrame:
         f_data = self.data(metric=metric, estimators=estimators)
-        avg_p = f_data.groupby(level=0).mean()
-        avg_p.loc["avg", :] = f_data.mean()
+        avg_p = f_data.groupby(level=0, sort=False).mean()
+        avg_p.loc["mean", :] = f_data.mean()
         return avg_p
 
     def shift_table(
         self, metric: str = None, estimators: List[str] = None
     ) -> pd.DataFrame:
         f_data = self.shift_data(metric=metric, estimators=estimators)
-        avg_p = f_data.groupby(level=0).mean()
-        avg_p.loc["avg", :] = f_data.mean()
+        avg_p = f_data.groupby(level=0, sort=False).mean()
+        avg_p.loc["mean", :] = f_data.mean()
         return avg_p
 
     def get_plots(
@@ -229,7 +238,7 @@ class CompReport:
                 return None
 
             return plot.plot_delta(
-                base_prevs=self.np_prevs,
+                base_prevs=self.prevs,
                 columns=avg_data.columns.to_numpy(),
                 data=avg_data.T.to_numpy(),
                 metric=metric,
@@ -246,7 +255,7 @@ class CompReport:
 
             st_data = self.stdev_by_prevs(metric=metric, estimators=estimators)
             return plot.plot_delta(
-                base_prevs=self.np_prevs,
+                base_prevs=self.prevs,
                 columns=avg_data.columns.to_numpy(),
                 data=avg_data.T.to_numpy(),
                 metric=metric,
@@ -280,12 +289,13 @@ class CompReport:
             if _shift_data.empty is True:
                 return None
 
-            shift_avg = _shift_data.groupby(level=0).mean()
-            shift_counts = _shift_data.groupby(level=0).count()
-            shift_prevs = np.around(
-                [(1.0 - p, p) for p in np.sort(shift_avg.index.unique(0))],
-                decimals=2,
-            )
+            shift_avg = _shift_data.groupby(level=0, sort=False).mean()
+            shift_counts = _shift_data.groupby(level=0, sort=False).count()
+            shift_prevs = shift_avg.index.unique(0)
+            # shift_prevs = np.around(
+            #     [(1.0 - p, p) for p in np.sort(shift_avg.index.unique(0))],
+            #     decimals=2,
+            # )
             return plot.plot_shift(
                 shift_prevs=shift_prevs,
                 columns=shift_avg.columns.to_numpy(),
@@ -317,7 +327,10 @@ class CompReport:
         res += "\n"
         if "train_table" in modes:
             res += "### table\n"
-            res += self.table(metric=metric, estimators=estimators).to_html() + "\n\n"
+            res += (
+                self.train_table(metric=metric, estimators=estimators).to_html()
+                + "\n\n"
+            )
         if "shift_table" in modes:
             res += "### shift table\n"
             res += (
@@ -369,7 +382,7 @@ class DatasetReport:
 
     def data(self, metric: str = None, estimators: List[str] = None) -> pd.DataFrame:
         def _cr_train_prev(cr: CompReport):
-            return cr.train_prev[1]
+            return tuple(np.around(cr.train_prev, decimals=2))
 
         def _cr_data(cr: CompReport):
             return cr.data(metric, estimators)
@@ -381,11 +394,27 @@ class DatasetReport:
         )
         _crs_train, _crs_data = zip(*_crs_sorted)
 
-        _data = pd.concat(_crs_data, axis=0, keys=np.around(_crs_train, decimals=2))
-        _data = _data.sort_index(axis=0, level=0)
+        _data: pd.DataFrame = pd.concat(
+            _crs_data,
+            axis=0,
+            keys=_crs_train,
+        )
+
+        # The MultiIndex is recreated to make the outer-most level a tuple and not a
+        # sequence of values
+        _len_tr_idx = len(_crs_train[0])
+        _idx = _data.index.to_list()
+        _idx = pd.MultiIndex.from_tuples(
+            [tuple([midx[:_len_tr_idx]] + list(midx[_len_tr_idx:])) for midx in _idx]
+        )
+        _data.index = _idx
+
+        _data = _data.sort_index(axis=0, level=0, ascending=False, sort_remaining=False)
         return _data
 
-    def shift_data(self, metric: str = None, estimators: str = None) -> pd.DataFrame:
+    def shift_data(
+        self, metric: str = None, estimators: List[str] = None
+    ) -> pd.DataFrame:
         _shift_data: pd.DataFrame = pd.concat(
             sorted(
                 [cr.shift_data(metric, estimators) for cr in self.crs],
@@ -423,6 +452,30 @@ class DatasetReport:
         self.add(cr)
         return self
 
+    def train_table(
+        self, metric: str = None, estimators: List[str] = None
+    ) -> pd.DataFrame:
+        f_data = self.data(metric=metric, estimators=estimators)
+        avg_p = f_data.groupby(level=1, sort=False).mean()
+        avg_p.loc["mean", :] = f_data.mean()
+        return avg_p
+
+    def test_table(
+        self, metric: str = None, estimators: List[str] = None
+    ) -> pd.DataFrame:
+        f_data = self.data(metric=metric, estimators=estimators)
+        avg_p = f_data.groupby(level=0, sort=False).mean()
+        avg_p.loc["mean", :] = f_data.mean()
+        return avg_p
+
+    def shift_table(
+        self, metric: str = None, estimators: List[str] = None
+    ) -> pd.DataFrame:
+        f_data = self.shift_data(metric=metric, estimators=estimators)
+        avg_p = f_data.groupby(level=0, sort=False).mean()
+        avg_p.loc["mean", :] = f_data.mean()
+        return avg_p
+
     def get_plots(
         self,
         data=None,
@@ -436,14 +489,15 @@ class DatasetReport:
     ):
         if mode == "delta_train":
             _data = self.data(metric, estimators) if data is None else data
-            avg_on_train = _data.groupby(level=1).mean()
+            avg_on_train = _data.groupby(level=1, sort=False).mean()
             if avg_on_train.empty:
                 return None
-            prevs_on_train = np.sort(avg_on_train.index.unique(0))
+            prevs_on_train = avg_on_train.index.unique(0)
             return plot.plot_delta(
-                base_prevs=np.around(
-                    [(1.0 - p, p) for p in prevs_on_train], decimals=2
-                ),
+                # base_prevs=np.around(
+                #     [(1.0 - p, p) for p in prevs_on_train], decimals=2
+                # ),
+                base_prevs=prevs_on_train,
                 columns=avg_on_train.columns.to_numpy(),
                 data=avg_on_train.T.to_numpy(),
                 metric=metric,
@@ -456,15 +510,16 @@ class DatasetReport:
             )
         elif mode == "stdev_train":
             _data = self.data(metric, estimators) if data is None else data
-            avg_on_train = _data.groupby(level=1).mean()
+            avg_on_train = _data.groupby(level=1, sort=False).mean()
             if avg_on_train.empty:
                 return None
-            prevs_on_train = np.sort(avg_on_train.index.unique(0))
-            stdev_on_train = _data.groupby(level=1).std()
+            prevs_on_train = avg_on_train.index.unique(0)
+            stdev_on_train = _data.groupby(level=1, sort=False).std()
             return plot.plot_delta(
-                base_prevs=np.around(
-                    [(1.0 - p, p) for p in prevs_on_train], decimals=2
-                ),
+                # base_prevs=np.around(
+                #     [(1.0 - p, p) for p in prevs_on_train], decimals=2
+                # ),
+                base_prevs=prevs_on_train,
                 columns=avg_on_train.columns.to_numpy(),
                 data=avg_on_train.T.to_numpy(),
                 metric=metric,
@@ -478,12 +533,13 @@ class DatasetReport:
             )
         elif mode == "delta_test":
             _data = self.data(metric, estimators) if data is None else data
-            avg_on_test = _data.groupby(level=0).mean()
+            avg_on_test = _data.groupby(level=0, sort=False).mean()
             if avg_on_test.empty:
                 return None
-            prevs_on_test = np.sort(avg_on_test.index.unique(0))
+            prevs_on_test = avg_on_test.index.unique(0)
             return plot.plot_delta(
-                base_prevs=np.around([(1.0 - p, p) for p in prevs_on_test], decimals=2),
+                # base_prevs=np.around([(1.0 - p, p) for p in prevs_on_test], decimals=2),
+                base_prevs=prevs_on_test,
                 columns=avg_on_test.columns.to_numpy(),
                 data=avg_on_test.T.to_numpy(),
                 metric=metric,
@@ -496,13 +552,14 @@ class DatasetReport:
             )
         elif mode == "stdev_test":
             _data = self.data(metric, estimators) if data is None else data
-            avg_on_test = _data.groupby(level=0).mean()
+            avg_on_test = _data.groupby(level=0, sort=False).mean()
             if avg_on_test.empty:
                 return None
-            prevs_on_test = np.sort(avg_on_test.index.unique(0))
-            stdev_on_test = _data.groupby(level=0).std()
+            prevs_on_test = avg_on_test.index.unique(0)
+            stdev_on_test = _data.groupby(level=0, sort=False).std()
             return plot.plot_delta(
-                base_prevs=np.around([(1.0 - p, p) for p in prevs_on_test], decimals=2),
+                # base_prevs=np.around([(1.0 - p, p) for p in prevs_on_test], decimals=2),
+                base_prevs=prevs_on_test,
                 columns=avg_on_test.columns.to_numpy(),
                 data=avg_on_test.T.to_numpy(),
                 metric=metric,
@@ -516,13 +573,14 @@ class DatasetReport:
             )
         elif mode == "shift":
             _shift_data = self.shift_data(metric, estimators) if data is None else data
-            avg_shift = _shift_data.groupby(level=0).mean()
+            avg_shift = _shift_data.groupby(level=0, sort=False).mean()
             if avg_shift.empty:
                 return None
-            count_shift = _shift_data.groupby(level=0).count()
-            prevs_shift = np.sort(avg_shift.index.unique(0))
+            count_shift = _shift_data.groupby(level=0, sort=False).count()
+            prevs_shift = avg_shift.index.unique(0)
             return plot.plot_shift(
-                shift_prevs=np.around([(1.0 - p, p) for p in prevs_shift], decimals=2),
+                # shift_prevs=np.around([(1.0 - p, p) for p in prevs_shift], decimals=2),
+                shift_prevs=prevs_shift,
                 columns=avg_shift.columns.to_numpy(),
                 data=avg_shift.T.to_numpy(),
                 metric=metric,
@@ -551,7 +609,14 @@ class DatasetReport:
                 and str(round(cr.train_prev[1] * 100)) not in cr_prevs
             ):
                 continue
-            res += f"{cr.to_md(conf, metric=metric, estimators=estimators, modes=cr_modes, plot_path=plot_path)}\n\n"
+            _md = cr.to_md(
+                conf,
+                metric=metric,
+                estimators=estimators,
+                modes=cr_modes,
+                plot_path=plot_path,
+            )
+            res += f"{_md}\n\n"
 
         _data = self.data(metric=metric, estimators=estimators)
         _shift_data = self.shift_data(metric=metric, estimators=estimators)
@@ -562,7 +627,7 @@ class DatasetReport:
         res += "### avg on train\n"
 
         if "train_table" in dr_modes:
-            avg_on_train_tbl = _data.groupby(level=1).mean()
+            avg_on_train_tbl = _data.groupby(level=1, sort=False).mean()
             avg_on_train_tbl.loc["avg", :] = _data.mean()
             res += avg_on_train_tbl.to_html() + "\n\n"
 
@@ -576,7 +641,8 @@ class DatasetReport:
                 base_path=plot_path,
                 save_fig=True,
             )
-            res += f"![plot_delta]({delta_op.relative_to(delta_op.parents[1]).as_posix()})\n"
+            _op = delta_op.relative_to(delta_op.parents[1]).as_posix()
+            res += f"![plot_delta]({_op})\n"
 
         if "stdev_train" in dr_modes:
             _, delta_stdev_op = self.get_plots(
@@ -588,13 +654,14 @@ class DatasetReport:
                 base_path=plot_path,
                 save_fig=True,
             )
-            res += f"![plot_delta_stdev]({delta_stdev_op.relative_to(delta_stdev_op.parents[1]).as_posix()})\n"
+            _op = delta_stdev_op.relative_to(delta_stdev_op.parents[1]).as_posix()
+            res += f"![plot_delta_stdev]({_op})\n"
 
         ######################## avg on test ########################
         res += "### avg on test\n"
 
         if "test_table" in dr_modes:
-            avg_on_test_tbl = _data.groupby(level=0).mean()
+            avg_on_test_tbl = _data.groupby(level=0, sort=False).mean()
             avg_on_test_tbl.loc["avg", :] = _data.mean()
             res += avg_on_test_tbl.to_html() + "\n\n"
 
@@ -608,7 +675,8 @@ class DatasetReport:
                 base_path=plot_path,
                 save_fig=True,
             )
-            res += f"![plot_delta]({delta_op.relative_to(delta_op.parents[1]).as_posix()})\n"
+            _op = delta_op.relative_to(delta_op.parents[1]).as_posix()
+            res += f"![plot_delta]({_op})\n"
 
         if "stdev_test" in dr_modes:
             _, delta_stdev_op = self.get_plots(
@@ -620,13 +688,14 @@ class DatasetReport:
                 base_path=plot_path,
                 save_fig=True,
             )
-            res += f"![plot_delta_stdev]({delta_stdev_op.relative_to(delta_stdev_op.parents[1]).as_posix()})\n"
+            _op = delta_stdev_op.relative_to(delta_stdev_op.parents[1]).as_posix()
+            res += f"![plot_delta_stdev]({_op})\n"
 
         ######################## avg shift ########################
         res += "### avg dataset shift\n"
 
         if "shift_table" in dr_modes:
-            shift_on_train_tbl = _shift_data.groupby(level=0).mean()
+            shift_on_train_tbl = _shift_data.groupby(level=0, sort=False).mean()
             shift_on_train_tbl.loc["avg", :] = _shift_data.mean()
             res += shift_on_train_tbl.to_html() + "\n\n"
 
@@ -640,7 +709,8 @@ class DatasetReport:
                 base_path=plot_path,
                 save_fig=True,
             )
-            res += f"![plot_shift]({shift_op.relative_to(shift_op.parents[1]).as_posix()})\n"
+            _op = shift_op.relative_to(shift_op.parents[1]).as_posix()
+            res += f"![plot_shift]({_op})\n"
 
         return res
 
@@ -669,7 +739,10 @@ class DatasetReportInfo:
         self.dr = dr
         self.name = str(path.parent)
         _data = dr.data()
-        self.columns = list(_data.columns.unique(1))
+        self.columns = defaultdict(list)
+        for metric, estim in _data.columns:
+            self.columns[estim].append(metric)
+        # self.columns = list(_data.columns.unique(1))
         self.train_prevs = len(self.dr.crs)
         self.test_prevs = len(_data.index.unique(1))
         self.repeats = len(_data.index.unique(2))

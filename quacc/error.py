@@ -1,4 +1,10 @@
+from functools import wraps
+from typing import List
+
 import numpy as np
+import quapy as qp
+
+from quacc.data import ExtendedPrev
 
 
 def from_name(err_name):
@@ -21,30 +27,54 @@ def from_name(err_name):
 #         return 2 * (precision * recall) / (precision + recall)
 
 
-def f1(prev):
-    den = (2 * prev[3]) + prev[1] + prev[2]
-    if den == 0:
-        return 0.0
+def nae(prevs: np.ndarray, prevs_hat: np.ndarray) -> np.ndarray:
+    _ae = qp.error.ae(prevs, prevs_hat)
+    # _zae = (2.0 * (1.0 - prevs.min())) / prevs.shape[1]
+    _zae = 2.0 / prevs.shape[1]
+    return _ae / _zae
+
+
+def f1(prev: np.ndarray | ExtendedPrev) -> float:
+    if isinstance(prev, ExtendedPrev):
+        prev = prev.A
+
+    def _score(idx):
+        _tp = prev[idx, idx]
+        _fn = prev[idx, :].sum() - _tp
+        _fp = prev[:, idx].sum() - _tp
+        _den = 2.0 * _tp + _fp + _fn
+        return 0.0 if _den == 0.0 else (2.0 * _tp) / _den
+
+    if prev.shape[0] == 2:
+        return _score(1)
     else:
-        return (2 * prev[3]) / den
+        _idxs = np.arange(prev.shape[0])
+        return np.array([_score(idx) for idx in _idxs]).mean()
 
 
 def f1e(prev):
     return 1 - f1(prev)
 
 
-def acc(prev: np.ndarray) -> float:
-    return (prev[0] + prev[3]) / np.sum(prev)
+def acc(prev: np.ndarray | ExtendedPrev) -> float:
+    if isinstance(prev, ExtendedPrev):
+        prev = prev.A
+    return np.diag(prev).sum() / prev.sum()
 
 
-def accd(true_prevs: np.ndarray, estim_prevs: np.ndarray) -> np.ndarray:
-    vacc = np.vectorize(acc, signature="(m)->()")
-    a_tp = vacc(true_prevs)
-    a_ep = vacc(estim_prevs)
+def accd(
+    true_prevs: List[np.ndarray | ExtendedPrev],
+    estim_prevs: List[np.ndarray | ExtendedPrev],
+) -> np.ndarray:
+    a_tp = np.array([acc(tp) for tp in true_prevs])
+    a_ep = np.array([acc(ep) for ep in estim_prevs])
     return np.abs(a_tp - a_ep)
 
 
-def maccd(true_prevs: np.ndarray, estim_prevs: np.ndarray) -> float:
+def maccd(
+    true_prevs: List[np.ndarray | ExtendedPrev],
+    estim_prevs: List[np.ndarray | ExtendedPrev],
+) -> float:
     return accd(true_prevs, estim_prevs).mean()
 
 
