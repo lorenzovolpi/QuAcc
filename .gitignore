@@ -9,13 +9,11 @@ baselines/densratio/__pycache__/*
 qcdash/__pycache__/*
 qcpanel/__pycache__/*
 quacc/__pycache__/*
-quacc/evaluation/__pycache__/*
-quacc/method/__pycache__/*
-quacc/quantification/__pycache__/*
-quacc/plot/__pycache__/*
+quacc/*/__pycache__/*
 tests/__pycache__/*
 tests/*/__pycache__/*
 tests/*/*/__pycache__/*
+htmlcov/*
 
 *.coverage
 .coverage
