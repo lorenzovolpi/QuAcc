@@ -12828,3 +12828,1144 @@
 05/12/23 22:11:41| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': None, 'quantifier__bandwidth': 0.01, 'confidence': None} (score=0.01508) [took 723.6967s]
 05/12/23 22:17:23| INFO        m3w_kde_gs finished [took 1065.3950s]
 05/12/23 22:17:23| INFO     Dataset sample 0.50 of dataset imdb_1prevs finished [took 2958.0688s]
+----------------------------------------------------------------------------------------------------
+15/12/23 23:18:38| INFO     dataset imdb [pool size: 10]
+15/12/23 23:18:38| INFO     Dataset sample 0.10 of dataset imdb started
+15/12/23 23:18:50| INFO        ref finished [took 9.7983s]
+15/12/23 23:18:54| INFO        bin_sld finished [took 13.7879s]
+15/12/23 23:18:59| INFO        m3w_sld finished [took 19.2958s]
+15/12/23 23:19:16| INFO        mul_sld finished [took 35.6941s]
+15/12/23 23:19:16| INFO     Dataset sample 0.10 of dataset imdb finished [took 37.4024s]
+15/12/23 23:19:16| INFO     Dataset sample 0.20 of dataset imdb started
+15/12/23 23:19:28| INFO        ref finished [took 10.3197s]
+15/12/23 23:19:31| INFO        bin_sld finished [took 13.7446s]
+15/12/23 23:19:36| INFO        m3w_sld finished [took 18.3097s]
+15/12/23 23:19:48| INFO        mul_sld finished [took 30.1954s]
+15/12/23 23:19:48| INFO     Dataset sample 0.20 of dataset imdb finished [took 31.7515s]
+15/12/23 23:19:48| INFO     Dataset sample 0.30 of dataset imdb started
+15/12/23 23:19:58| INFO        ref finished [took 10.4259s]
+15/12/23 23:20:03| INFO        bin_sld finished [took 13.8350s]
+15/12/23 23:20:08| INFO        m3w_sld finished [took 18.4748s]
+15/12/23 23:20:13| INFO        mul_sld finished [took 23.8319s]
+15/12/23 23:20:13| INFO     Dataset sample 0.30 of dataset imdb finished [took 25.5037s]
+15/12/23 23:20:13| INFO     Dataset sample 0.40 of dataset imdb started
+15/12/23 23:20:24| INFO        ref finished [took 10.3264s]
+15/12/23 23:20:27| INFO        bin_sld finished [took 13.7673s]
+15/12/23 23:20:32| INFO        m3w_sld finished [took 18.2661s]
+15/12/23 23:20:37| INFO        mul_sld finished [took 23.9950s]
+15/12/23 23:20:38| INFO     Dataset sample 0.40 of dataset imdb finished [took 24.4538s]
+15/12/23 23:20:38| INFO     Dataset sample 0.50 of dataset imdb started
+15/12/23 23:20:48| INFO        ref finished [took 10.3124s]
+15/12/23 23:20:52| INFO        bin_sld finished [took 13.9246s]
+15/12/23 23:20:56| INFO        m3w_sld finished [took 18.1226s]
+15/12/23 23:21:02| INFO        mul_sld finished [took 23.8314s]
+15/12/23 23:21:02| INFO     Dataset sample 0.50 of dataset imdb finished [took 24.2684s]
+15/12/23 23:21:02| INFO     Dataset sample 0.60 of dataset imdb started
+15/12/23 23:21:12| INFO        ref finished [took 10.2117s]
+15/12/23 23:21:16| INFO        bin_sld finished [took 13.9558s]
+15/12/23 23:21:20| INFO        m3w_sld finished [took 17.8788s]
+15/12/23 23:21:26| INFO        mul_sld finished [took 23.4688s]
+15/12/23 23:21:26| INFO     Dataset sample 0.60 of dataset imdb finished [took 23.8636s]
+15/12/23 23:21:26| INFO     Dataset sample 0.70 of dataset imdb started
+15/12/23 23:21:36| INFO        ref finished [took 10.2051s]
+15/12/23 23:21:40| INFO        bin_sld finished [took 13.9801s]
+15/12/23 23:21:44| INFO        m3w_sld finished [took 18.2849s]
+15/12/23 23:21:49| INFO        mul_sld finished [took 22.9896s]
+15/12/23 23:21:49| INFO     Dataset sample 0.70 of dataset imdb finished [took 23.4538s]
+15/12/23 23:21:49| INFO     Dataset sample 0.80 of dataset imdb started
+15/12/23 23:22:00| INFO        ref finished [took 10.0650s]
+15/12/23 23:22:03| INFO        bin_sld finished [took 13.7923s]
+15/12/23 23:22:07| INFO        m3w_sld finished [took 17.9177s]
+15/12/23 23:22:12| INFO        mul_sld finished [took 22.7075s]
+15/12/23 23:22:12| INFO     Dataset sample 0.80 of dataset imdb finished [took 23.1720s]
+15/12/23 23:22:12| INFO     Dataset sample 0.90 of dataset imdb started
+15/12/23 23:22:23| INFO        ref finished [took 9.9926s]
+15/12/23 23:22:26| INFO        bin_sld finished [took 13.7956s]
+15/12/23 23:22:33| INFO        m3w_sld finished [took 19.9126s]
+15/12/23 23:22:39| INFO        mul_sld finished [took 26.1949s]
+15/12/23 23:22:39| INFO     Dataset sample 0.90 of dataset imdb finished [took 26.5574s]
+----------------------------------------------------------------------------------------------------
+15/12/23 23:27:44| INFO     dataset imdb [pool size: 10]
+15/12/23 23:27:45| INFO     Dataset sample 0.10 of dataset imdb started
+15/12/23 23:27:56| INFO        ref finished [took 9.7601s]
+15/12/23 23:28:05| INFO        m3w_sld finished [took 18.8685s]
+15/12/23 23:28:13| INFO        bin_sld finished [took 26.4851s]
+15/12/23 23:28:21| INFO        mul_sld finished [took 34.9875s]
+15/12/23 23:28:21| INFO     Dataset sample 0.10 of dataset imdb finished [took 36.7145s]
+15/12/23 23:28:21| INFO     Dataset sample 0.20 of dataset imdb started
+15/12/23 23:28:33| INFO        ref finished [took 9.9667s]
+15/12/23 23:28:41| INFO        m3w_sld finished [took 18.2256s]
+15/12/23 23:28:49| INFO        bin_sld finished [took 26.5535s]
+15/12/23 23:28:52| INFO        mul_sld finished [took 29.3163s]
+15/12/23 23:28:52| INFO     Dataset sample 0.20 of dataset imdb finished [took 30.8125s]
+15/12/23 23:28:52| INFO     Dataset sample 0.30 of dataset imdb started
+15/12/23 23:29:03| INFO        ref finished [took 9.9769s]
+15/12/23 23:29:12| INFO        m3w_sld finished [took 18.0576s]
+15/12/23 23:29:16| INFO        bin_sld finished [took 22.2074s]
+15/12/23 23:29:17| INFO        mul_sld finished [took 23.6766s]
+15/12/23 23:29:17| INFO     Dataset sample 0.30 of dataset imdb finished [took 25.3446s]
+15/12/23 23:29:17| INFO     Dataset sample 0.40 of dataset imdb started
+15/12/23 23:29:28| INFO        ref finished [took 9.8517s]
+15/12/23 23:29:36| INFO        m3w_sld finished [took 18.1394s]
+15/12/23 23:29:39| INFO        bin_sld finished [took 21.3834s]
+15/12/23 23:29:42| INFO        mul_sld finished [took 23.9588s]
+15/12/23 23:29:42| INFO     Dataset sample 0.40 of dataset imdb finished [took 24.4163s]
+15/12/23 23:29:42| INFO     Dataset sample 0.50 of dataset imdb started
+15/12/23 23:29:52| INFO        ref finished [took 10.0248s]
+15/12/23 23:30:00| INFO        m3w_sld finished [took 17.7996s]
+15/12/23 23:30:03| INFO        bin_sld finished [took 20.4716s]
+15/12/23 23:30:06| INFO        mul_sld finished [took 23.7447s]
+15/12/23 23:30:06| INFO     Dataset sample 0.50 of dataset imdb finished [took 24.2009s]
+15/12/23 23:30:06| INFO     Dataset sample 0.60 of dataset imdb started
+15/12/23 23:30:17| INFO        ref finished [took 10.2792s]
+15/12/23 23:30:25| INFO        m3w_sld finished [took 18.5430s]
+15/12/23 23:30:28| INFO        bin_sld finished [took 21.4926s]
+15/12/23 23:30:30| INFO        mul_sld finished [took 23.7315s]
+15/12/23 23:30:30| INFO     Dataset sample 0.60 of dataset imdb finished [took 24.1621s]
+15/12/23 23:30:30| INFO     Dataset sample 0.70 of dataset imdb started
+15/12/23 23:30:41| INFO        ref finished [took 10.2517s]
+15/12/23 23:30:49| INFO        m3w_sld finished [took 18.6595s]
+15/12/23 23:30:52| INFO        bin_sld finished [took 21.7794s]
+15/12/23 23:30:54| INFO        mul_sld finished [took 23.4297s]
+15/12/23 23:30:54| INFO     Dataset sample 0.70 of dataset imdb finished [took 23.8716s]
+15/12/23 23:30:54| INFO     Dataset sample 0.80 of dataset imdb started
+15/12/23 23:31:05| INFO        ref finished [took 10.3056s]
+15/12/23 23:31:13| INFO        m3w_sld finished [took 18.1089s]
+15/12/23 23:31:17| INFO        mul_sld finished [took 22.6673s]
+15/12/23 23:31:19| INFO        bin_sld finished [took 24.6949s]
+15/12/23 23:31:19| INFO     Dataset sample 0.80 of dataset imdb finished [took 25.1665s]
+15/12/23 23:31:19| INFO     Dataset sample 0.90 of dataset imdb started
+15/12/23 23:31:29| INFO        ref finished [took 9.8731s]
+15/12/23 23:31:39| INFO        m3w_sld finished [took 19.8060s]
+15/12/23 23:31:41| INFO        bin_sld finished [took 21.8266s]
+15/12/23 23:31:46| INFO        mul_sld finished [took 26.1323s]
+15/12/23 23:31:46| INFO     Dataset sample 0.90 of dataset imdb finished [took 26.5050s]
+----------------------------------------------------------------------------------------------------
+15/12/23 23:35:52| INFO     dataset twitter_gasp [pool size: 10]
+15/12/23 23:35:52| ERROR    Evaluation over twitter_gasp failed. Exception: prevalences ((0.72, 0.2, 0.08)) wrong range (sum=0.9999999999999999)
+----------------------------------------------------------------------------------------------------
+15/12/23 23:38:47| INFO     dataset twitter_gasp [pool size: 10]
+15/12/23 23:38:48| INFO     Dataset sample 0.10 of dataset twitter_gasp started
+15/12/23 23:38:59| WARNING     Method ref failed. Exception: Target is multiclass but average='binary'. Please choose another average setting, one of [None, 'micro', 'macro', 'weighted'].
+----------------------------------------------------------------------------------------------------
+15/12/23 23:43:04| INFO     dataset twitter_gasp [pool size: 10]
+15/12/23 23:43:05| INFO     Dataset sample 0.10 of dataset twitter_gasp started
+15/12/23 23:43:16| WARNING     Method ref failed. Exception: Target is multiclass but average='binary'. Please choose another average setting, one of [None, 'micro', 'macro', 'weighted'].
+----------------------------------------------------------------------------------------------------
+15/12/23 23:47:20| INFO     dataset twitter_gasp [pool size: 10]
+15/12/23 23:47:20| INFO     Dataset sample 0.10 of dataset twitter_gasp started
+15/12/23 23:47:39| WARNING     Method bin_sld failed. Exception: setting an array element with a sequence. The requested array has an inhomogeneous shape after 1 dimensions. The detected shape was (3,) + inhomogeneous part.
+----------------------------------------------------------------------------------------------------
+15/12/23 23:51:21| INFO     dataset twitter_gasp [pool size: 10]
+15/12/23 23:51:21| INFO     Dataset sample 0.10 of dataset twitter_gasp started
+15/12/23 23:56:02| INFO        ref finished [took 264.4611s]
+15/12/23 23:59:24| WARNING     Method bin_sld failed. Exception: setting an array element with a sequence. The requested array has an inhomogeneous shape after 1 dimensions. The detected shape was (3,) + inhomogeneous part.
+----------------------------------------------------------------------------------------------------
+16/12/23 01:13:28| INFO     dataset twitter_gasp [pool size: 10]
+16/12/23 01:13:29| INFO     Dataset sample 0.10 of dataset twitter_gasp started
+16/12/23 01:13:46| WARNING     Method bin_sld failed. Exception: 'ExtBinPrev' object has no attribute 'extpol'
+16/12/23 01:13:47| WARNING     Method m3w_sld failed. Exception: 'ExtMulPrev' object has no attribute 'extpol'
+16/12/23 01:13:52| WARNING     Method mul_sld failed. Exception: 'ExtMulPrev' object has no attribute 'extpol'
+----------------------------------------------------------------------------------------------------
+16/12/23 01:18:11| INFO     dataset twitter_gasp [pool size: 10]
+16/12/23 01:18:12| INFO     Dataset sample 0.10 of dataset twitter_gasp started
+16/12/23 01:18:29| WARNING     Method bin_sld failed. Exception: 'ExtBinPrev' object has no attribute 'nbcl'
+16/12/23 01:18:30| WARNING     Method m3w_sld failed. Exception: 'ExtMulPrev' object has no attribute 'nbcl'
+16/12/23 01:18:35| WARNING     Method mul_sld failed. Exception: 'ExtMulPrev' object has no attribute 'nbcl'
+----------------------------------------------------------------------------------------------------
+16/12/23 01:24:31| INFO     dataset twitter_gasp [pool size: 10]
+16/12/23 01:24:31| INFO     Dataset sample 0.10 of dataset twitter_gasp started
+16/12/23 01:24:49| WARNING     Method bin_sld failed. Exception: 'ExtBinPrev' object has no attribute 'extpol'
+----------------------------------------------------------------------------------------------------
+16/12/23 01:25:29| INFO     dataset twitter_gasp [pool size: 10]
+16/12/23 01:25:30| INFO     Dataset sample 0.10 of dataset twitter_gasp started
+----------------------------------------------------------------------------------------------------
+16/12/23 01:26:25| INFO     dataset twitter_gasp [pool size: 10]
+16/12/23 01:26:25| INFO     Dataset sample 0.10 of dataset twitter_gasp started
+16/12/23 01:30:03| INFO        ref finished [took 209.8818s]
+16/12/23 01:32:53| INFO        m3w_sld finished [took 379.9077s]
+16/12/23 01:33:27| INFO        mul_sld finished [took 414.0392s]
+16/12/23 01:33:38| INFO        bin_sld finished [took 424.3863s]
+16/12/23 01:33:38| INFO     Dataset sample 0.10 of dataset twitter_gasp finished [took 432.5505s]
+16/12/23 01:33:38| INFO     Dataset sample 0.10 of dataset twitter_gasp started
+16/12/23 01:33:45| WARNING     Method bin_sld failed. Exception: index 0 is out of bounds for axis 0 with size 0
+16/12/23 01:36:36| INFO        ref finished [took 171.5907s]
+16/12/23 01:38:52| INFO        m3w_sld finished [took 307.6356s]
+16/12/23 01:39:21| INFO        mul_sld finished [took 336.3603s]
+16/12/23 01:39:21| INFO     Dataset sample 0.10 of dataset twitter_gasp finished [took 343.2304s]
+16/12/23 01:39:21| INFO     Dataset sample 0.10 of dataset twitter_gasp started
+16/12/23 01:39:32| WARNING     Method bin_sld failed. Exception: This solver needs samples of at least 2 classes in the data, but the data contains only one class: 2
+16/12/23 01:42:18| INFO        ref finished [took 171.0437s]
+16/12/23 01:44:43| INFO        m3w_sld finished [took 316.3492s]
+16/12/23 01:45:14| INFO        mul_sld finished [took 345.3901s]
+16/12/23 01:45:14| INFO     Dataset sample 0.10 of dataset twitter_gasp finished [took 353.0449s]
+16/12/23 01:45:14| INFO     Dataset sample 0.10 of dataset twitter_gasp started
+16/12/23 01:48:38| INFO        ref finished [took 196.3839s]
+16/12/23 01:51:18| INFO        m3w_sld finished [took 357.5066s]
+16/12/23 01:52:21| INFO        mul_sld finished [took 421.0636s]
+16/12/23 01:52:27| INFO        bin_sld finished [took 426.6888s]
+16/12/23 01:52:27| INFO     Dataset sample 0.10 of dataset twitter_gasp finished [took 432.9360s]
+16/12/23 01:52:27| INFO     Dataset sample 0.10 of dataset twitter_gasp started
+16/12/23 01:52:34| WARNING     Method bin_sld failed. Exception: index 0 is out of bounds for axis 0 with size 0
+16/12/23 01:55:35| INFO        ref finished [took 181.0962s]
+16/12/23 01:57:41| INFO        m3w_sld finished [took 306.9233s]
+16/12/23 01:58:01| INFO        mul_sld finished [took 327.1674s]
+16/12/23 01:58:01| INFO     Dataset sample 0.10 of dataset twitter_gasp finished [took 333.9907s]
+16/12/23 01:58:01| INFO     Dataset sample 0.10 of dataset twitter_gasp started
+16/12/23 01:58:12| WARNING     Method bin_sld failed. Exception: This solver needs samples of at least 2 classes in the data, but the data contains only one class: 2
+16/12/23 02:01:03| INFO        ref finished [took 174.1043s]
+16/12/23 02:03:18| INFO        m3w_sld finished [took 310.7019s]
+16/12/23 02:04:01| INFO        mul_sld finished [took 353.3251s]
+16/12/23 02:04:01| INFO     Dataset sample 0.10 of dataset twitter_gasp finished [took 359.3230s]
+16/12/23 02:04:01| INFO     Dataset sample 0.10 of dataset twitter_gasp started
+16/12/23 02:04:07| WARNING     Method bin_sld failed. Exception: index 0 is out of bounds for axis 0 with size 0
+----------------------------------------------------------------------------------------------------
+16/12/23 02:06:51| INFO     dataset twitter_gasp_3prevs [pool size: 10]
+16/12/23 02:06:51| INFO     Dataset sample [0.5611 0.2505 0.1884] of dataset twitter_gasp_3prevs started
+16/12/23 02:10:26| INFO        ref finished [took 207.3402s]
+16/12/23 02:13:13| INFO        m3w_sld finished [took 374.3998s]
+16/12/23 02:13:55| INFO        mul_sld finished [took 416.4183s]
+16/12/23 02:14:42| INFO        bin_sld finished [took 463.0436s]
+16/12/23 02:14:42| INFO     Dataset sample 0.25 of dataset twitter_gasp_3prevs finished [took 471.1245s]
+16/12/23 02:14:42| INFO     Dataset sample [0.3747 0.2505 0.3747] of dataset twitter_gasp_3prevs started
+16/12/23 02:18:13| INFO        ref finished [took 204.7244s]
+16/12/23 02:20:51| INFO        m3w_sld finished [took 362.1438s]
+16/12/23 02:21:40| INFO        mul_sld finished [took 411.6865s]
+16/12/23 02:22:27| INFO        bin_sld finished [took 458.1129s]
+16/12/23 02:22:27| INFO     Dataset sample 0.25 of dataset twitter_gasp_3prevs finished [took 464.9618s]
+16/12/23 02:22:27| INFO     Dataset sample [0.1863 0.2505 0.5631] of dataset twitter_gasp_3prevs started
+16/12/23 02:26:02| INFO        ref finished [took 208.7296s]
+16/12/23 02:28:51| INFO        m3w_sld finished [took 377.4887s]
+16/12/23 02:29:38| INFO        mul_sld finished [took 424.7140s]
+16/12/23 02:29:44| INFO        bin_sld finished [took 430.4206s]
+16/12/23 02:29:44| INFO     Dataset sample 0.25 of dataset twitter_gasp_3prevs finished [took 437.1967s]
+16/12/23 02:29:44| INFO     Dataset sample [0.3747 0.499  0.1263] of dataset twitter_gasp_3prevs started
+16/12/23 02:33:08| INFO        ref finished [took 197.0444s]
+16/12/23 02:35:46| INFO        m3w_sld finished [took 355.4207s]
+16/12/23 02:36:42| INFO        mul_sld finished [took 411.5811s]
+16/12/23 02:37:30| INFO        bin_sld finished [took 459.1495s]
+16/12/23 02:37:30| INFO     Dataset sample 0.50 of dataset twitter_gasp_3prevs finished [took 466.0122s]
+16/12/23 02:37:30| INFO     Dataset sample [0.2505 0.499  0.2505] of dataset twitter_gasp_3prevs started
+16/12/23 02:41:01| INFO        ref finished [took 204.3100s]
+16/12/23 02:43:35| INFO        m3w_sld finished [took 358.2830s]
+16/12/23 02:44:22| INFO        mul_sld finished [took 405.7017s]
+16/12/23 02:45:02| INFO        bin_sld finished [took 445.6279s]
+16/12/23 02:45:02| INFO     Dataset sample 0.50 of dataset twitter_gasp_3prevs finished [took 452.3739s]
+16/12/23 02:45:03| INFO     Dataset sample [0.1242 0.501  0.3747] of dataset twitter_gasp_3prevs started
+16/12/23 02:48:28| INFO        ref finished [took 199.3406s]
+16/12/23 02:51:03| INFO        m3w_sld finished [took 354.7329s]
+16/12/23 02:52:06| INFO        mul_sld finished [took 417.2354s]
+16/12/23 02:52:41| INFO        bin_sld finished [took 451.4204s]
+16/12/23 02:52:41| INFO     Dataset sample 0.50 of dataset twitter_gasp_3prevs finished [took 458.1296s]
+16/12/23 02:52:41| INFO     Dataset sample [0.1863 0.7516 0.0621] of dataset twitter_gasp_3prevs started
+16/12/23 02:53:41| WARNING     Method bin_sld failed. Exception: shape mismatch: value array of shape (2,) could not be broadcast to indexing result of shape (3,)
+16/12/23 02:55:58| INFO        ref finished [took 190.6935s]
+16/12/23 02:58:01| INFO        m3w_sld finished [took 313.6470s]
+16/12/23 02:58:58| INFO        mul_sld finished [took 370.8608s]
+16/12/23 02:58:58| INFO     Dataset sample 0.75 of dataset twitter_gasp_3prevs finished [took 377.2697s]
+16/12/23 02:58:58| INFO     Dataset sample [0.1242 0.7495 0.1263] of dataset twitter_gasp_3prevs started
+16/12/23 03:02:27| INFO        ref finished [took 200.7585s]
+16/12/23 03:04:48| INFO        m3w_sld finished [took 344.8744s]
+16/12/23 03:05:57| INFO        mul_sld finished [took 412.7141s]
+16/12/23 03:06:46| INFO        bin_sld finished [took 462.3730s]
+16/12/23 03:06:46| INFO     Dataset sample 0.75 of dataset twitter_gasp_3prevs finished [took 468.4831s]
+16/12/23 03:06:47| INFO     Dataset sample [0.0621 0.7495 0.1884] of dataset twitter_gasp_3prevs started
+16/12/23 03:06:53| WARNING     Method bin_sld failed. Exception: This solver needs samples of at least 2 classes in the data, but the data contains only one class: 0
+16/12/23 03:09:54| INFO        ref finished [took 180.9554s]
+16/12/23 03:11:58| INFO        m3w_sld finished [took 304.7795s]
+16/12/23 03:12:40| INFO        mul_sld finished [took 346.8529s]
+16/12/23 03:12:40| INFO     Dataset sample 0.75 of dataset twitter_gasp_3prevs finished [took 353.3753s]
+----------------------------------------------------------------------------------------------------
+16/12/23 20:30:43| INFO     dataset twitter_gasp_1prevs [pool size: 10]
+16/12/23 20:30:43| INFO     Dataset sample [0.2497 0.5007 0.2497] of dataset twitter_gasp_1prevs started
+16/12/23 20:31:11| WARNING     Method atc_mc failed. Exception: Target is multiclass but average='binary'. Please choose another average setting, one of [None, 'micro', 'macro', 'weighted'].
+16/12/23 20:37:56| INFO        ref finished [took 409.3260s]
+16/12/23 20:40:19| INFO        gde finished [took 553.6484s]
+16/12/23 20:40:44| INFO        doc finished [took 578.0385s]
+16/12/23 20:41:59| INFO        m3w_sld finished [took 652.8358s]
+16/12/23 20:43:32| INFO        mul_sld finished [took 744.4434s]
+16/12/23 20:43:50| INFO        bin_sld finished [took 763.5882s]
+16/12/23 20:55:11| INFO        mandoline finished [took 1444.3108s]
+----------------------------------------------------------------------------------------------------
+16/12/23 21:25:05| INFO     dataset twitter_gasp_1prevs [pool size: 10]
+16/12/23 21:25:05| ERROR    Evaluation over twitter_gasp_1prevs failed. Exception: min() arg is an empty sequence
+----------------------------------------------------------------------------------------------------
+16/12/23 21:26:02| INFO     dataset twitter_gasp_1prevs [pool size: 10]
+16/12/23 21:26:02| ERROR    Evaluation over twitter_gasp_1prevs failed. Exception: min() arg is an empty sequence
+----------------------------------------------------------------------------------------------------
+16/12/23 21:29:08| INFO     dataset twitter_gasp_3prevs [pool size: 10]
+16/12/23 21:29:08| INFO     Dataset sample [0.2993 0.2    0.5007] of dataset twitter_gasp_3prevs started
+16/12/23 21:35:28| INFO        ref finished [took 359.2931s]
+16/12/23 21:35:53| INFO        atc_mc finished [took 385.1659s]
+16/12/23 21:36:38| INFO        doc finished [took 430.8037s]
+16/12/23 21:37:45| INFO        gde finished [took 498.3944s]
+16/12/23 21:38:47| INFO        m3w_sld finished [took 560.9532s]
+16/12/23 21:39:58| INFO        mul_sld finished [took 629.9490s]
+16/12/23 21:40:31| INFO        bin_sld finished [took 662.9898s]
+16/12/23 21:40:31| INFO     Dataset sample [0.2993 0.2    0.5007] of dataset twitter_gasp_3prevs finished [took 682.6986s]
+----------------------------------------------------------------------------------------------------
+16/12/23 21:57:06| INFO     dataset twitter_gasp_3prevs [pool size: 10]
+16/12/23 21:57:06| INFO     Dataset sample [0.2993 0.2    0.5007] of dataset twitter_gasp_3prevs started
+16/12/23 21:57:33| WARNING     Method mgf_sld failed. Exception: MultiClassAccuracyEstimator.__init__() got an unexpected keyword argument 'group_false'
+16/12/23 21:57:33| WARNING     Method m3w_sld failed. Exception: MultiClassAccuracyEstimator.__init__() got an unexpected keyword argument 'group_false'
+16/12/23 21:57:33| WARNING     Method mul_sld failed. Exception: MultiClassAccuracyEstimator.__init__() got an unexpected keyword argument 'group_false'
+----------------------------------------------------------------------------------------------------
+16/12/23 21:58:53| INFO     dataset twitter_gasp_3prevs [pool size: 10]
+16/12/23 21:58:53| INFO     Dataset sample [0.2993 0.2    0.5007] of dataset twitter_gasp_3prevs started
+16/12/23 22:06:58| INFO        ref finished [took 457.7867s]
+16/12/23 22:07:51| INFO        atc_mc finished [took 512.4870s]
+16/12/23 22:08:50| INFO        doc finished [took 569.8725s]
+16/12/23 22:10:35| INFO        gde finished [took 676.1599s]
+16/12/23 22:11:19| INFO        bgf_sld finished [took 722.8391s]
+16/12/23 22:11:32| INFO        m3w_sld finished [took 733.6622s]
+16/12/23 22:12:04| INFO        mgf_sld finished [took 764.4739s]
+16/12/23 22:12:43| INFO        mul_sld finished [took 803.1343s]
+16/12/23 22:12:49| INFO        bin_sld finished [took 810.4321s]
+16/12/23 22:12:49| INFO     Dataset sample [0.2993 0.2    0.5007] of dataset twitter_gasp_3prevs finished [took 836.2165s]
+----------------------------------------------------------------------------------------------------
+16/12/23 22:14:48| INFO     dataset twitter_gasp_3prevs [pool size: 10]
+16/12/23 22:14:48| INFO     Dataset sample [0.2993 0.2    0.5007] of dataset twitter_gasp_3prevs started
+16/12/23 22:19:36| INFO        ref finished [took 275.5849s]
+16/12/23 22:23:26| INFO        bgfc_sld finished [took 504.7267s]
+16/12/23 22:23:43| INFO        mgfc_sld finished [took 522.5294s]
+16/12/23 22:23:56| INFO        m3wc_sld finished [took 534.8480s]
+16/12/23 22:24:32| INFO        mulc_sld finished [took 571.1795s]
+16/12/23 22:24:47| INFO        binc_sld finished [took 585.8929s]
+16/12/23 22:24:47| INFO     Dataset sample [0.2993 0.2    0.5007] of dataset twitter_gasp_3prevs finished [took 599.0506s]
+----------------------------------------------------------------------------------------------------
+16/12/23 23:57:00| INFO     dataset twitter_gasp [pool size: 10]
+16/12/23 23:57:00| INFO     Dataset sample [0.0993 0.1015 0.7991] of dataset twitter_gasp started
+----------------------------------------------------------------------------------------------------
+17/12/23 00:01:36| INFO     dataset twitter_gasp [pool size: 10]
+17/12/23 00:01:36| INFO     Dataset sample [0.0993 0.1015 0.7991] of dataset twitter_gasp started
+17/12/23 00:02:04| WARNING     Method bin_sld failed. Exception: shape mismatch: value array of shape (2,) could not be broadcast to indexing result of shape (3,)
+----------------------------------------------------------------------------------------------------
+17/12/23 00:03:37| INFO     dataset twitter_gasp [pool size: 10]
+17/12/23 00:03:37| INFO     Dataset sample [0.0993 0.1015 0.7991] of dataset twitter_gasp started
+----------------------------------------------------------------------------------------------------
+17/12/23 00:07:29| INFO     dataset twitter_gasp [pool size: 10]
+17/12/23 00:07:29| INFO     Dataset sample [0.0993 0.1015 0.7991] of dataset twitter_gasp started
+17/12/23 00:16:15| INFO        bin_sld finished [took 521.6439s]
+17/12/23 00:23:44| INFO        bgf_sld finished [took 443.2076s]
+----------------------------------------------------------------------------------------------------
+17/12/23 20:24:07| INFO     dataset twitter_gasp_3prevs [pool size: 10]
+17/12/23 20:24:07| INFO     Dataset sample [0.0993 0.1015 0.7991] of dataset twitter_gasp_3prevs started
+17/12/23 20:26:47| INFO        ref finished [took 155.4064s]
+17/12/23 20:26:59| WARNING     Method bin_sld_gs failed. Exception: no combination of hyperparameters seem to work
+17/12/23 20:26:59| INFO     Dataset sample [0.0993 0.1015 0.7991] of dataset twitter_gasp_3prevs finished [took 171.7853s]
+----------------------------------------------------------------------------------------------------
+17/12/23 20:30:15| INFO     dataset twitter_gasp_3prevs [pool size: 10]
+17/12/23 20:30:15| INFO     Dataset sample [0.0993 0.1015 0.7991] of dataset twitter_gasp_3prevs started
+17/12/23 20:33:04| INFO        ref finished [took 164.0856s]
+17/12/23 20:33:09| WARNING     Method bin_sld_gs failed. Exception: Cannot have number of splits n_splits=5 greater than the number of samples: n_samples=4.
+17/12/23 20:33:09| INFO     Dataset sample [0.0993 0.1015 0.7991] of dataset twitter_gasp_3prevs finished [took 173.5922s]
+----------------------------------------------------------------------------------------------------
+17/12/23 20:36:49| INFO     dataset twitter_gasp_3prevs [pool size: 10]
+17/12/23 20:36:49| INFO     Dataset sample [0.0993 0.1015 0.7991] of dataset twitter_gasp_3prevs started
+17/12/23 20:41:08| INFO        ref finished [took 246.6560s]
+17/12/23 20:44:02| WARNING     Method bin_sld_gs failed. Exception: Cannot have number of splits n_splits=5 greater than the number of samples: n_samples=4.
+17/12/23 20:44:02| INFO     Dataset sample [0.0993 0.1015 0.7991] of dataset twitter_gasp_3prevs finished [took 433.1548s]
+----------------------------------------------------------------------------------------------------
+17/12/23 20:45:13| INFO     dataset twitter_gasp_3prevs [pool size: 10]
+----------------------------------------------------------------------------------------------------
+17/12/23 20:51:31| INFO     dataset twitter_gasp_3prevs [pool size: 10]
+17/12/23 20:51:31| INFO     Dataset sample [0.0993 0.1015 0.7991] of dataset twitter_gasp_3prevs started
+17/12/23 20:54:22| INFO        ref finished [took 166.9835s]
+17/12/23 20:58:05| WARNING     Method mul_kde_gs failed. Exception: Found array with 0 sample(s) (shape=(0, 6)) while a minimum of 1 is required by KernelDensity.
+17/12/23 20:58:05| INFO     Dataset sample [0.0993 0.1015 0.7991] of dataset twitter_gasp_3prevs finished [took 393.6914s]
+----------------------------------------------------------------------------------------------------
+17/12/23 21:21:44| INFO     dataset twitter_gasp_3prevs [pool size: 10]
+17/12/23 21:21:44| INFO     Dataset sample [0.0993 0.1015 0.7991] of dataset twitter_gasp_3prevs started
+17/12/23 21:24:36| INFO        ref finished [took 167.5074s]
+17/12/23 21:30:03| WARNING     Method mul_sld_gs failed. Exception: index 8 is out of bounds for axis 0 with size 6
+17/12/23 21:30:03| INFO     Dataset sample [0.0993 0.1015 0.7991] of dataset twitter_gasp_3prevs finished [took 498.9334s]
+----------------------------------------------------------------------------------------------------
+17/12/23 21:31:22| INFO     dataset twitter_gasp_3prevs [pool size: 10]
+17/12/23 21:31:22| INFO     Dataset sample [0.0993 0.1015 0.7991] of dataset twitter_gasp_3prevs started
+17/12/23 21:34:16| INFO        ref finished [took 169.8440s]
+17/12/23 21:39:38| WARNING     Method mul_sld_gs failed. Exception: index 8 is out of bounds for axis 0 with size 6
+17/12/23 21:39:38| INFO     Dataset sample [0.0993 0.1015 0.7991] of dataset twitter_gasp_3prevs finished [took 496.2793s]
+----------------------------------------------------------------------------------------------------
+17/12/23 21:58:38| INFO     dataset twitter_gasp_3prevs [pool size: 10]
+17/12/23 21:58:38| INFO     Dataset sample [0.0993 0.1015 0.7991] of dataset twitter_gasp_3prevs started
+17/12/23 22:03:03| INFO        ref finished [took 252.5576s]
+17/12/23 22:06:21| WARNING     Method mul_sld_gs failed. Exception: index 8 is out of bounds for axis 0 with size 6
+17/12/23 22:06:21| INFO     Dataset sample [0.0993 0.1015 0.7991] of dataset twitter_gasp_3prevs finished [took 463.4085s]
+----------------------------------------------------------------------------------------------------
+17/12/23 22:06:59| INFO     dataset twitter_gasp_3prevs [pool size: 10]
+17/12/23 22:06:59| INFO     Dataset sample [0.0993 0.1015 0.7991] of dataset twitter_gasp_3prevs started
+17/12/23 22:11:15| INFO        ref finished [took 243.6298s]
+17/12/23 22:18:47| WARNING     Method mul_sld_gs failed. Exception: index 8 is out of bounds for axis 0 with size 6
+17/12/23 22:18:47| INFO     Dataset sample [0.0993 0.1015 0.7991] of dataset twitter_gasp_3prevs finished [took 707.7535s]
+----------------------------------------------------------------------------------------------------
+17/12/23 22:19:35| INFO     dataset twitter_gasp_3prevs [pool size: 10]
+17/12/23 22:19:35| INFO     Dataset sample [0.0993 0.1015 0.7991] of dataset twitter_gasp_3prevs started
+17/12/23 22:23:49| INFO        ref finished [took 241.4581s]
+17/12/23 22:30:36| WARNING     Method mul_sld_gs failed. Exception: index 8 is out of bounds for axis 0 with size 6
+17/12/23 22:30:36| INFO     Dataset sample [0.0993 0.1015 0.7991] of dataset twitter_gasp_3prevs finished [took 660.4766s]
+----------------------------------------------------------------------------------------------------
+17/12/23 22:31:17| INFO     dataset twitter_gasp_3prevs [pool size: 10]
+17/12/23 22:31:17| INFO     Dataset sample [0.0993 0.1015 0.7991] of dataset twitter_gasp_3prevs started
+17/12/23 22:34:02| INFO        ref finished [took 160.0272s]
+17/12/23 22:34:08| WARNING     Method bgf_sld_gs failed. Exception: Cannot have number of splits n_splits=5 greater than the number of samples: n_samples=4.
+17/12/23 22:34:08| INFO     Dataset sample [0.0993 0.1015 0.7991] of dataset twitter_gasp_3prevs finished [took 170.8696s]
+----------------------------------------------------------------------------------------------------
+18/12/23 18:53:11| INFO     dataset imdb_3prevs [pool size: 10]
+18/12/23 18:53:11| INFO     Dataset sample [0.5 0.5] of dataset imdb_3prevs started
+18/12/23 18:53:45| INFO        m3w_sld_lr finished [took 31.3248s]
+18/12/23 18:53:45| INFO        d_bin_sld_lr finished [took 30.7996s]
+18/12/23 18:53:47| INFO        d_m3w_sld_lr finished [took 32.4849s]
+18/12/23 18:53:48| INFO        bin_sld_lr finished [took 34.4828s]
+18/12/23 18:53:55| INFO        mul_sld_lr finished [took 40.6195s]
+18/12/23 18:53:57| INFO        d_mul_sld_lr finished [took 42.1927s]
+----------------------------------------------------------------------------------------------------
+18/12/23 19:20:57| INFO     dataset imdb_3prevs [pool size: 10]
+18/12/23 19:20:58| INFO     Dataset sample [0.5 0.5] of dataset imdb_3prevs started
+18/12/23 19:21:24| INFO        doc finished [took 14.1388s]
+18/12/23 19:21:25| INFO        ref finished [took 16.3040s]
+18/12/23 19:21:32| INFO        atc_mc finished [took 23.1502s]
+18/12/23 19:22:21| INFO        bin_sld_lr finished [took 74.0882s]
+18/12/23 19:22:46| INFO        mul_sld_lr finished [took 99.1091s]
+----------------------------------------------------------------------------------------------------
+18/12/23 19:25:07| INFO     dataset imdb_3prevs [pool size: 10]
+18/12/23 19:25:07| INFO     Dataset sample [0.5 0.5] of dataset imdb_3prevs started
+18/12/23 19:25:09| WARNING     Method bin_sld_lr failed. Exception: ConfidenceBasedAccuracyEstimator.__init__() got an unexpected keyword argument 'dense'
+18/12/23 19:25:10| WARNING     Method d_bin_sld_lr failed. Exception: ConfidenceBasedAccuracyEstimator.__init__() got an unexpected keyword argument 'dense'
+18/12/23 19:25:10| WARNING     Method d_bin_sld_rbf failed. Exception: ConfidenceBasedAccuracyEstimator.__init__() got an unexpected keyword argument 'dense'
+----------------------------------------------------------------------------------------------------
+18/12/23 19:25:50| INFO     dataset imdb_3prevs [pool size: 10]
+18/12/23 19:25:50| INFO     Dataset sample [0.5 0.5] of dataset imdb_3prevs started
+18/12/23 19:26:09| INFO        ref finished [took 15.4305s]
+18/12/23 19:26:11| INFO        d_m3w_sld_lr finished [took 18.2586s]
+18/12/23 19:26:13| INFO        atc_mc finished [took 19.0618s]
+18/12/23 19:26:18| INFO        m3w_sld_lr finished [took 25.0127s]
+18/12/23 19:26:19| INFO        d_bin_sld_lr finished [took 25.0909s]
+18/12/23 19:26:20| INFO        d_mul_sld_lr finished [took 26.1813s]
+18/12/23 19:26:20| INFO        bin_sld_lr finished [took 27.0228s]
+18/12/23 19:26:21| INFO        doc finished [took 11.0007s]
+18/12/23 19:26:24| INFO        mul_sld_lr finished [took 30.9385s]
+18/12/23 19:28:47| INFO        d_bin_sld_rbf finished [took 173.2402s]
+18/12/23 19:31:21| INFO        d_m3w_sld_rbf finished [took 327.2715s]
+18/12/23 19:32:07| INFO        d_mul_sld_rbf finished [took 374.0586s]
+18/12/23 19:32:07| INFO     Dataset sample [0.5 0.5] of dataset imdb_3prevs finished [took 376.8446s]
+----------------------------------------------------------------------------------------------------
+19/12/23 08:04:23| INFO     dataset imdb [pool size: 10]
+19/12/23 08:04:23| INFO     Dataset sample [0.0999 0.9001] of dataset imdb started
+19/12/23 08:04:57| INFO        mul_sld_lr_c finished [took 31.9578s]
+19/12/23 08:04:58| INFO        m3w_sld_lr_c finished [took 31.9112s]
+19/12/23 08:04:58| INFO        m3w_sld_lr_mc finished [took 32.6836s]
+19/12/23 08:05:00| INFO        m3w_sld_lr finished [took 34.7581s]
+19/12/23 08:05:01| INFO        mul_sld_lr_ne finished [took 35.1429s]
+19/12/23 08:05:02| INFO        mul_sld_lr_mc finished [took 36.2360s]
+19/12/23 08:05:02| INFO        bin_sld_lr_c finished [took 36.5580s]
+19/12/23 08:05:02| INFO        bin_sld_lr_ne finished [took 36.3693s]
+19/12/23 08:05:03| INFO        bin_sld_lr finished [took 37.5742s]
+19/12/23 08:05:03| INFO        bin_sld_lr_mc finished [took 37.4665s]
+19/12/23 08:05:06| INFO        mul_sld_lr finished [took 40.4510s]
+19/12/23 08:05:13| INFO        ref finished [took 11.5751s]
+19/12/23 08:05:14| INFO        doc finished [took 11.3389s]
+19/12/23 08:05:17| INFO        atc_mc finished [took 14.5237s]
+19/12/23 08:05:19| INFO        m3w_sld_lr_ne finished [took 21.3295s]
+19/12/23 08:05:21| INFO        mul_sld_lr_is finished [took 22.2360s]
+19/12/23 08:05:23| INFO        m3w_sld_lr_is finished [took 22.3858s]
+19/12/23 08:05:25| INFO        bin_sld_lr_is finished [took 26.7583s]
+19/12/23 08:05:38| DEBUG       [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': None, 'quantifier__recalib': None, 'confidence': ['isoft']} (score=0.01318) [took 12.2365s]
+19/12/23 08:06:00| INFO        bin_sld_lr_gs finished [took 34.2625s]
+19/12/23 08:07:58| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': None, 'quantifier__recalib': None, 'confidence': ['isoft']} (score=0.02635) [took 118.5051s]
+19/12/23 08:08:15| INFO        mul_sld_lr_gs finished [took 135.0721s]
+19/12/23 08:09:45| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__recalib': 'bcts', 'confidence': ['isoft']} (score=0.00803) [took 89.8531s]
+19/12/23 08:10:00| INFO        m3w_sld_lr_gs finished [took 105.1018s]
+19/12/23 08:10:00| INFO     Dataset sample [0.0999 0.9001] of dataset imdb finished [took 337.0951s]
+19/12/23 08:10:00| INFO     Dataset sample [0.2 0.8] of dataset imdb started
+19/12/23 08:10:32| INFO        m3w_sld_lr_c finished [took 30.5840s]
+19/12/23 08:10:32| INFO        m3w_sld_lr finished [took 30.8013s]
+19/12/23 08:10:33| INFO        m3w_sld_lr_mc finished [took 31.5860s]
+19/12/23 08:10:34| INFO        mul_sld_lr_mc finished [took 32.5726s]
+19/12/23 08:10:39| INFO        mul_sld_lr_ne finished [took 37.6666s]
+19/12/23 08:10:39| INFO        mul_sld_lr_c finished [took 38.0058s]
+19/12/23 08:10:40| INFO        mul_sld_lr finished [took 38.7269s]
+19/12/23 08:10:43| INFO        bin_sld_lr finished [took 41.9611s]
+19/12/23 08:10:45| INFO        bin_sld_lr_mc finished [took 43.6857s]
+19/12/23 08:10:45| INFO        bin_sld_lr_ne finished [took 43.6990s]
+19/12/23 08:10:45| INFO        bin_sld_lr_c finished [took 43.8403s]
+19/12/23 08:10:52| INFO        ref finished [took 12.6548s]
+19/12/23 08:10:52| INFO        doc finished [took 12.1395s]
+19/12/23 08:10:55| INFO        m3w_sld_lr_is finished [took 21.0706s]
+19/12/23 08:10:57| INFO        atc_mc finished [took 17.4847s]
+19/12/23 08:10:57| INFO        m3w_sld_lr_ne finished [took 25.1315s]
+19/12/23 08:11:00| INFO        mul_sld_lr_is finished [took 26.7404s]
+19/12/23 08:11:01| INFO        bin_sld_lr_is finished [took 28.9647s]
+19/12/23 08:11:43| DEBUG       [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': None, 'quantifier__recalib': None, 'confidence': ['isoft']} (score=0.01156) [took 41.0017s]
+19/12/23 08:12:06| INFO        bin_sld_lr_gs finished [took 63.5342s]
+19/12/23 08:14:16| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': None, 'quantifier__recalib': 'bcts', 'confidence': ['isoft']} (score=0.00731) [took 129.7441s]
+19/12/23 08:14:33| INFO        mul_sld_lr_gs finished [took 146.8130s]
+19/12/23 08:16:05| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': None, 'quantifier__recalib': 'bcts', 'confidence': ['isoft']} (score=0.00820) [took 91.6456s]
+19/12/23 08:16:20| INFO        m3w_sld_lr_gs finished [took 107.0580s]
+19/12/23 08:16:20| INFO     Dataset sample [0.2 0.8] of dataset imdb finished [took 380.0068s]
+19/12/23 08:16:20| INFO     Dataset sample [0.3 0.7] of dataset imdb started
+19/12/23 08:16:51| INFO        m3w_sld_lr_mc finished [took 30.1975s]
+19/12/23 08:16:53| INFO        m3w_sld_lr finished [took 31.2666s]
+19/12/23 08:16:54| INFO        m3w_sld_lr_c finished [took 32.4483s]
+19/12/23 08:16:57| INFO        mul_sld_lr finished [took 35.4984s]
+19/12/23 08:16:58| INFO        mul_sld_lr_mc finished [took 36.2055s]
+19/12/23 08:16:59| INFO        bin_sld_lr_ne finished [took 37.4649s]
+19/12/23 08:16:59| INFO        bin_sld_lr_mc finished [took 37.7941s]
+19/12/23 08:17:00| INFO        bin_sld_lr finished [took 38.4374s]
+19/12/23 08:17:00| INFO        bin_sld_lr_c finished [took 38.4008s]
+19/12/23 08:17:00| INFO        mul_sld_lr_ne finished [took 38.9703s]
+19/12/23 08:17:01| INFO        mul_sld_lr_c finished [took 39.4205s]
+19/12/23 08:17:09| INFO        ref finished [took 11.3020s]
+19/12/23 08:17:09| INFO        doc finished [took 9.8980s]
+19/12/23 08:17:13| INFO        atc_mc finished [took 14.0075s]
+19/12/23 08:17:14| INFO        m3w_sld_lr_ne finished [took 21.9788s]
+19/12/23 08:17:19| INFO        bin_sld_lr_is finished [took 25.6754s]
+19/12/23 08:17:19| INFO        mul_sld_lr_is finished [took 25.3450s]
+19/12/23 08:17:20| INFO        m3w_sld_lr_is finished [took 22.9292s]
+----------------------------------------------------------------------------------------------------
+19/12/23 12:12:12| INFO     dataset imdb [pool size: 10]
+19/12/23 12:12:12| INFO     Dataset sample [0.0999 0.9001] of dataset imdb started
+19/12/23 12:12:38| INFO        d_bin_sld_lr finished [took 23.5769s]
+19/12/23 12:12:38| INFO        d_m3w_sld_lr_c finished [took 23.4067s]
+19/12/23 12:12:39| INFO        d_mul_sld_lr_c finished [took 24.0236s]
+19/12/23 12:12:39| INFO        d_mul_sld_lr_ne finished [took 24.7490s]
+19/12/23 12:12:40| INFO        d_m3w_sld_lr_mc finished [took 24.8176s]
+19/12/23 12:12:40| INFO        d_mul_sld_lr_mc finished [took 25.1063s]
+19/12/23 12:12:40| INFO        d_m3w_sld_lr finished [took 25.3659s]
+19/12/23 12:12:40| INFO        d_bin_sld_lr_c finished [took 25.5897s]
+19/12/23 12:12:40| INFO        d_mul_sld_lr finished [took 26.1199s]
+19/12/23 12:12:41| INFO        d_bin_sld_lr_ne finished [took 26.8206s]
+19/12/23 12:12:47| INFO        d_bin_sld_lr_mc finished [took 32.5760s]
+19/12/23 12:12:50| INFO        ref finished [took 10.2640s]
+19/12/23 12:12:54| INFO        atc_mc finished [took 13.7748s]
+19/12/23 12:12:55| INFO        d_m3w_sld_lr_ne finished [took 16.3996s]
+19/12/23 12:12:57| INFO        doc finished [took 16.6127s]
+19/12/23 12:12:57| INFO        d_m3w_sld_lr_is finished [took 17.4269s]
+19/12/23 12:12:58| INFO        d_mul_sld_lr_is finished [took 18.9861s]
+19/12/23 12:13:11| INFO        d_bin_sld_lr_is finished [took 32.3425s]
+19/12/23 12:13:18| DEBUG       [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 1000.0, 'quantifier__classifier__class_weight': None, 'quantifier__recalib': None, 'confidence': ['isoft']} (score=0.01022) [took 6.5871s]
+19/12/23 12:13:34| INFO        d_bin_sld_lr_gs finished [took 22.6052s]
+19/12/23 12:13:41| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': None, 'quantifier__recalib': None, 'confidence': ['isoft']} (score=0.00922) [took 6.3093s]
+19/12/23 12:13:56| INFO        d_mul_sld_lr_gs finished [took 21.4558s]
+19/12/23 12:14:05| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': None, 'quantifier__recalib': None, 'confidence': ['isoft']} (score=0.00928) [took 9.2726s]
+19/12/23 12:14:18| INFO        d_m3w_sld_lr_gs finished [took 21.7859s]
+19/12/23 12:14:18| INFO     Dataset sample [0.0999 0.9001] of dataset imdb finished [took 125.5532s]
+19/12/23 12:14:18| INFO     Dataset sample [0.2 0.8] of dataset imdb started
+19/12/23 12:14:35| INFO        d_m3w_sld_lr_mc finished [took 16.7456s]
+19/12/23 12:14:41| INFO        d_m3w_sld_lr_c finished [took 22.4341s]
+19/12/23 12:14:42| INFO        d_m3w_sld_lr finished [took 22.9768s]
+19/12/23 12:14:45| INFO        d_mul_sld_lr_c finished [took 26.5974s]
+19/12/23 12:14:46| INFO        d_mul_sld_lr finished [took 27.5131s]
+19/12/23 12:14:46| INFO        d_mul_sld_lr_ne finished [took 27.4493s]
+19/12/23 12:14:47| INFO        d_mul_sld_lr_mc finished [took 27.9875s]
+19/12/23 12:14:56| INFO        d_m3w_sld_lr_ne finished [took 20.3403s]
+19/12/23 12:15:01| INFO        ref finished [took 14.8631s]
+19/12/23 12:15:08| INFO        atc_mc finished [took 21.0023s]
+19/12/23 12:15:08| INFO        d_mul_sld_lr_is finished [took 26.1071s]
+19/12/23 12:15:08| INFO        d_m3w_sld_lr_is finished [took 22.7698s]
+19/12/23 12:15:09| INFO        d_bin_sld_lr_mc finished [took 50.1163s]
+19/12/23 12:15:11| INFO        d_bin_sld_lr finished [took 52.3635s]
+19/12/23 12:15:11| INFO        d_bin_sld_lr_c finished [took 52.5500s]
+19/12/23 12:15:11| INFO        doc finished [took 24.1438s]
+19/12/23 12:15:12| INFO        d_bin_sld_lr_ne finished [took 53.7682s]
+19/12/23 12:15:19| INFO        d_bin_sld_lr_is finished [took 37.6597s]
+19/12/23 12:15:29| DEBUG       [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 1000.0, 'quantifier__classifier__class_weight': None, 'quantifier__recalib': None, 'confidence': ['isoft']} (score=0.00883) [took 9.2215s]
+19/12/23 12:15:54| INFO        d_bin_sld_lr_gs finished [took 34.5020s]
+19/12/23 12:16:06| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': None, 'quantifier__recalib': 'bcts', 'confidence': ['isoft']} (score=0.00835) [took 10.7495s]
+19/12/23 12:16:21| INFO        d_mul_sld_lr_gs finished [took 26.0411s]
+19/12/23 12:16:31| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__recalib': 'bcts', 'confidence': ['isoft']} (score=0.00795) [took 9.5042s]
+19/12/23 12:16:44| INFO        d_m3w_sld_lr_gs finished [took 22.5833s]
+19/12/23 12:16:44| INFO     Dataset sample [0.2 0.8] of dataset imdb finished [took 145.9757s]
+19/12/23 12:16:44| INFO     Dataset sample [0.3 0.7] of dataset imdb started
+19/12/23 12:17:07| INFO        d_mul_sld_lr finished [took 22.6306s]
+19/12/23 12:17:07| INFO        d_m3w_sld_lr finished [took 22.7425s]
+19/12/23 12:17:08| INFO        d_m3w_sld_lr_c finished [took 22.9796s]
+19/12/23 12:17:08| INFO        d_m3w_sld_lr_mc finished [took 23.5430s]
+19/12/23 12:17:14| INFO        d_mul_sld_lr_c finished [took 29.4356s]
+19/12/23 12:17:14| INFO        d_mul_sld_lr_mc finished [took 29.6841s]
+19/12/23 12:17:15| INFO        d_mul_sld_lr_ne finished [took 30.1389s]
+19/12/23 12:17:16| INFO        d_bin_sld_lr finished [took 31.3105s]
+19/12/23 12:17:16| INFO        d_bin_sld_lr_c finished [took 31.8742s]
+19/12/23 12:17:17| INFO        d_bin_sld_lr_ne finished [took 32.3958s]
+19/12/23 12:17:18| INFO        d_bin_sld_lr_mc finished [took 33.1005s]
+19/12/23 12:17:25| INFO        d_m3w_sld_lr_ne finished [took 16.8702s]
+19/12/23 12:17:27| INFO        d_m3w_sld_lr_is finished [took 18.4621s]
+19/12/23 12:17:28| INFO        ref finished [took 13.7348s]
+19/12/23 12:17:29| INFO        atc_mc finished [took 14.2889s]
+19/12/23 12:17:30| INFO        d_mul_sld_lr_is finished [took 22.3493s]
+19/12/23 12:17:32| INFO        doc finished [took 16.8999s]
+19/12/23 12:17:33| INFO        d_bin_sld_lr_is finished [took 25.3133s]
+19/12/23 12:17:44| DEBUG       [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 1000.0, 'quantifier__classifier__class_weight': None, 'quantifier__recalib': None, 'confidence': ['max_conf', 'entropy']} (score=0.03432) [took 10.1460s]
+19/12/23 12:18:01| INFO        d_bin_sld_lr_gs finished [took 26.9805s]
+19/12/23 12:18:11| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 0.01, 'quantifier__classifier__class_weight': None, 'quantifier__recalib': 'bcts', 'confidence': ['max_conf', 'entropy']} (score=0.01501) [took 10.2821s]
+19/12/23 12:18:29| INFO        d_mul_sld_lr_gs finished [took 27.9071s]
+19/12/23 12:18:38| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__recalib': 'bcts', 'confidence': ['isoft']} (score=0.01173) [took 8.1458s]
+19/12/23 12:18:51| INFO        d_m3w_sld_lr_gs finished [took 21.2281s]
+19/12/23 12:18:51| INFO     Dataset sample [0.3 0.7] of dataset imdb finished [took 127.1257s]
+19/12/23 12:18:51| INFO     Dataset sample [0.3999 0.6001] of dataset imdb started
+19/12/23 12:19:12| INFO        d_m3w_sld_lr finished [took 20.8410s]
+19/12/23 12:19:16| INFO        d_m3w_sld_lr_c finished [took 24.6098s]
+19/12/23 12:19:16| INFO        d_m3w_sld_lr_mc finished [took 24.5984s]
+19/12/23 12:19:18| INFO        d_bin_sld_lr_c finished [took 26.4321s]
+19/12/23 12:19:22| INFO        d_bin_sld_lr_mc finished [took 29.9446s]
+19/12/23 12:19:22| INFO        d_bin_sld_lr_ne finished [took 30.4247s]
+19/12/23 12:19:22| INFO        d_bin_sld_lr finished [took 30.5498s]
+19/12/23 12:19:23| INFO        d_mul_sld_lr finished [took 31.2950s]
+19/12/23 12:19:23| INFO        d_mul_sld_lr_mc finished [took 31.2812s]
+19/12/23 12:19:23| INFO        d_mul_sld_lr_ne finished [took 31.2022s]
+19/12/23 12:19:23| INFO        d_mul_sld_lr_c finished [took 31.3173s]
+19/12/23 12:19:31| INFO        d_m3w_sld_lr_ne finished [took 18.4359s]
+19/12/23 12:19:33| INFO        ref finished [took 10.7696s]
+19/12/23 12:19:35| INFO        d_m3w_sld_lr_is finished [took 17.1168s]
+19/12/23 12:19:36| INFO        atc_mc finished [took 13.8516s]
+19/12/23 12:19:38| INFO        d_bin_sld_lr_is finished [took 20.9677s]
+----------------------------------------------------------------------------------------------------
+19/12/23 14:11:17| INFO     dataset imdb [pool size: 10]
+19/12/23 14:11:17| INFO     Dataset sample [0.0999 0.9001] of dataset imdb started
+19/12/23 14:11:20| WARNING     Method d_bin_kde_lr failed. Exception: This solver needs samples of at least 2 classes in the data, but the data contains only one class: 0
+19/12/23 14:11:20| WARNING     Method d_bin_kde_lr_c failed. Exception: This solver needs samples of at least 2 classes in the data, but the data contains only one class: 0
+19/12/23 14:11:20| WARNING     Method d_bin_kde_lr_mc failed. Exception: This solver needs samples of at least 2 classes in the data, but the data contains only one class: 0
+19/12/23 14:11:20| WARNING     Method d_bin_kde_lr_ne failed. Exception: This solver needs samples of at least 2 classes in the data, but the data contains only one class: 0
+19/12/23 14:11:20| WARNING     Method d_bin_kde_lr_is failed. Exception: This solver needs samples of at least 2 classes in the data, but the data contains only one class: 0
+19/12/23 14:11:32| INFO        ref finished [took 11.4144s]
+19/12/23 14:11:48| INFO        atc_mc finished [took 15.6817s]
+19/12/23 14:12:07| INFO        doc finished [took 18.4461s]
+19/12/23 14:23:39| INFO        d_m3w_kde_lr finished [took 739.0357s]
+19/12/23 14:23:51| INFO        d_m3w_kde_lr_mc finished [took 750.9946s]
+19/12/23 14:24:11| INFO        d_mul_kde_lr_mc finished [took 770.7739s]
+19/12/23 14:24:19| INFO        d_m3w_kde_lr_ne finished [took 779.2079s]
+19/12/23 14:24:31| INFO        d_m3w_kde_lr_is finished [took 790.3422s]
+19/12/23 14:24:34| INFO        d_mul_kde_lr_c finished [took 794.4740s]
+19/12/23 14:24:37| INFO        d_m3w_kde_lr_c finished [took 797.7234s]
+19/12/23 14:24:39| INFO        d_mul_kde_lr finished [took 799.6263s]
+19/12/23 14:25:01| INFO        d_mul_kde_lr_ne finished [took 821.4840s]
+19/12/23 14:25:15| INFO        d_mul_kde_lr_is finished [took 835.0198s]
+19/12/23 14:25:16| WARNING     Method d_bin_kde_lr_gs failed. Exception: unsupported format string passed to NoneType.__format__
+19/12/23 14:25:42| DEBUG       [size=11,place=1] best score = 0.01172040; best param = {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.060000000000000005, 'confidence': ['isoft']} [took 25.656s]
+19/12/23 14:25:42| DEBUG       [size=11,place=2] best score = 0.01482172; best param = {'quantifier__classifier__C': 1000.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.09999999999999999, 'confidence': None} [took 25.656s]
+19/12/23 14:27:38| DEBUG       [size=52,place=1] best score = 0.01051525; best param = {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.09, 'confidence': ['isoft']} [took 115.753s]
+19/12/23 14:27:38| DEBUG       [size=52,place=2] best score = 0.01061149; best param = {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.08, 'confidence': ['isoft']} [took 115.754s]
+19/12/23 14:28:22| DEBUG       [size=16,place=1] best score = 0.01196759; best param = {'quantifier__classifier__C': 1000.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.09, 'confidence': ['isoft']} [took 44.004s]
+19/12/23 14:28:22| DEBUG       [size=16,place=2] best score = 0.01221324; best param = {'quantifier__classifier__C': 1000.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.08, 'confidence': ['isoft']} [took 44.004s]
+19/12/23 14:28:22| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.09, 'confidence': ['isoft']} (score=0.01052) [took 185.5325s]
+19/12/23 14:34:45| INFO        d_mul_kde_lr_gs finished [took 568.3373s]
+19/12/23 14:35:11| DEBUG       [size=11,place=1] best score = 0.01282358; best param = {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.060000000000000005, 'confidence': ['isoft']} [took 25.208s]
+19/12/23 14:35:11| DEBUG       [size=11,place=2] best score = 0.01413512; best param = {'quantifier__classifier__C': 1000.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.09999999999999999, 'confidence': None} [took 25.208s]
+19/12/23 14:36:58| DEBUG       [size=52,place=1] best score = 0.01160240; best param = {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.09999999999999999, 'confidence': ['isoft']} [took 106.975s]
+19/12/23 14:36:58| DEBUG       [size=52,place=2] best score = 0.01168885; best param = {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.09, 'confidence': ['isoft']} [took 106.975s]
+19/12/23 14:37:36| DEBUG       [size=14,place=1] best score = 0.01244108; best param = {'quantifier__classifier__C': 1000.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.09, 'confidence': ['isoft']} [took 38.715s]
+19/12/23 14:37:36| DEBUG       [size=14,place=2] best score = 0.01262105; best param = {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.09999999999999999, 'confidence': ['isoft']} [took 38.716s]
+19/12/23 14:37:36| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__bandwidth': 0.09999999999999999, 'confidence': ['isoft']} (score=0.01160) [took 171.0052s]
+19/12/23 14:43:40| INFO        d_m3w_kde_lr_gs finished [took 534.4784s]
+19/12/23 14:43:40| INFO     Dataset sample [0.0999 0.9001] of dataset imdb finished [took 1942.3285s]
+19/12/23 14:43:40| INFO     Dataset sample [0.2 0.8] of dataset imdb started
+----------------------------------------------------------------------------------------------------
+19/12/23 14:47:16| INFO     dataset imdb [pool size: 10]
+19/12/23 14:47:16| INFO     Dataset sample [0.0999 0.9001] of dataset imdb started
+19/12/23 14:47:19| WARNING     Method d_mul_sld_rbf failed. Exception: Requesting 5-fold cross-validation but provided less than 5 examples for at least one class.
+19/12/23 14:47:19| WARNING     Method d_bin_sld_rbf failed. Exception: Requesting 5-fold cross-validation but provided less than 5 examples for at least one class.
+19/12/23 14:47:19| WARNING     Method d_bin_sld_rbf_c failed. Exception: Requesting 5-fold cross-validation but provided less than 5 examples for at least one class.
+19/12/23 14:47:19| WARNING     Method d_mul_sld_rbf_c failed. Exception: Requesting 5-fold cross-validation but provided less than 5 examples for at least one class.
+19/12/23 14:47:19| WARNING     Method d_bin_sld_rbf_ne failed. Exception: Requesting 5-fold cross-validation but provided less than 5 examples for at least one class.
+19/12/23 14:47:19| WARNING     Method d_mul_sld_rbf_mc failed. Exception: Requesting 5-fold cross-validation but provided less than 5 examples for at least one class.
+19/12/23 14:47:19| WARNING     Method d_mul_sld_rbf_ne failed. Exception: Requesting 5-fold cross-validation but provided less than 5 examples for at least one class.
+19/12/23 14:47:19| WARNING     Method d_bin_sld_rbf_mc failed. Exception: Requesting 5-fold cross-validation but provided less than 5 examples for at least one class.
+19/12/23 14:47:19| WARNING     Method d_bin_sld_rbf_is failed. Exception: Requesting 5-fold cross-validation but provided less than 5 examples for at least one class.
+19/12/23 14:47:19| WARNING     Method d_mul_sld_rbf_is failed. Exception: Requesting 5-fold cross-validation but provided less than 5 examples for at least one class.
+19/12/23 14:47:32| INFO        ref finished [took 13.0182s]
+19/12/23 14:47:34| INFO        atc_mc finished [took 14.8291s]
+19/12/23 14:47:36| INFO        doc finished [took 16.6412s]
+19/12/23 14:49:25| INFO        d_m3w_sld_rbf finished [took 127.1131s]
+19/12/23 14:49:31| INFO        d_m3w_sld_rbf_mc finished [took 132.4058s]
+19/12/23 14:49:32| INFO        d_m3w_sld_rbf_is finished [took 132.4457s]
+19/12/23 14:49:32| INFO        d_m3w_sld_rbf_ne finished [took 132.8916s]
+19/12/23 14:49:45| INFO        d_m3w_sld_rbf_c finished [took 146.6156s]
+19/12/23 14:49:47| WARNING     Method d_bin_sld_rbf_gs failed. Exception: 'BinaryQuantifierAccuracyEstimator' object has no attribute 'confidence_metrics'
+19/12/23 14:49:47| WARNING     Method d_mul_sld_rbf_gs failed. Exception: 'MultiClassAccuracyEstimator' object has no attribute 'confidence_metrics'
+19/12/23 14:49:48| WARNING     Method d_m3w_sld_rbf_gs failed. Exception: 'MultiClassAccuracyEstimator' object has no attribute 'confidence_metrics'
+19/12/23 14:49:48| INFO     Dataset sample [0.0999 0.9001] of dataset imdb finished [took 151.2409s]
+19/12/23 14:49:48| INFO     Dataset sample [0.2 0.8] of dataset imdb started
+19/12/23 14:54:07| INFO        d_bin_sld_rbf finished [took 258.7987s]
+19/12/23 14:54:14| INFO        d_bin_sld_rbf_ne finished [took 265.4206s]
+19/12/23 14:54:19| INFO        d_bin_sld_rbf_c finished [took 270.2145s]
+19/12/23 14:54:26| INFO        d_m3w_sld_rbf finished [took 277.2785s]
+19/12/23 14:54:36| INFO        d_bin_sld_rbf_mc finished [took 287.8546s]
+19/12/23 14:54:43| INFO        d_mul_sld_rbf finished [took 294.4817s]
+19/12/23 14:54:49| INFO        ref finished [took 12.8134s]
+19/12/23 14:54:58| INFO        d_m3w_sld_rbf_mc finished [took 309.6165s]
+19/12/23 14:55:01| INFO        atc_mc finished [took 17.2991s]
+19/12/23 14:55:11| INFO        doc finished [took 21.0645s]
+19/12/23 14:55:12| INFO        d_mul_sld_rbf_mc finished [took 323.5440s]
+19/12/23 14:55:28| INFO        d_mul_sld_rbf_ne finished [took 339.3488s]
+19/12/23 14:55:40| INFO        d_mul_sld_rbf_c finished [took 351.4427s]
+19/12/23 14:55:47| INFO        d_m3w_sld_rbf_c finished [took 358.2209s]
+19/12/23 14:57:14| INFO        d_bin_sld_rbf_is finished [took 179.8537s]
+19/12/23 14:57:42| INFO        d_m3w_sld_rbf_is finished [took 195.9019s]
+19/12/23 14:57:43| INFO        d_m3w_sld_rbf_ne finished [took 215.6346s]
+19/12/23 14:58:07| INFO        d_mul_sld_rbf_is finished [took 227.5608s]
+19/12/23 14:58:07| WARNING     Method d_bin_sld_rbf_gs failed. Exception: 'BinaryQuantifierAccuracyEstimator' object has no attribute 'confidence_metrics'
+19/12/23 14:58:08| WARNING     Method d_mul_sld_rbf_gs failed. Exception: 'MultiClassAccuracyEstimator' object has no attribute 'confidence_metrics'
+19/12/23 14:58:08| WARNING     Method d_m3w_sld_rbf_gs failed. Exception: 'MultiClassAccuracyEstimator' object has no attribute 'confidence_metrics'
+19/12/23 14:58:08| INFO     Dataset sample [0.2 0.8] of dataset imdb finished [took 500.5845s]
+19/12/23 14:58:08| INFO     Dataset sample [0.3 0.7] of dataset imdb started
+19/12/23 15:01:44| INFO        d_bin_sld_rbf_c finished [took 214.5249s]
+19/12/23 15:01:45| INFO        d_bin_sld_rbf finished [took 215.6671s]
+19/12/23 15:02:11| INFO        d_bin_sld_rbf_ne finished [took 241.6636s]
+19/12/23 15:02:39| INFO        d_bin_sld_rbf_mc finished [took 269.8923s]
+19/12/23 15:03:37| INFO        d_m3w_sld_rbf finished [took 327.6107s]
+19/12/23 15:03:49| INFO        ref finished [took 12.4478s]
+19/12/23 15:04:00| INFO        d_mul_sld_rbf finished [took 351.3688s]
+19/12/23 15:04:07| INFO        atc_mc finished [took 17.4847s]
+19/12/23 15:04:12| INFO        d_mul_sld_rbf_mc finished [took 362.9680s]
+19/12/23 15:04:14| INFO        d_m3w_sld_rbf_mc finished [took 364.6319s]
+19/12/23 15:04:21| INFO        doc finished [took 20.4980s]
+19/12/23 15:04:45| INFO        d_mul_sld_rbf_ne finished [took 396.5017s]
+19/12/23 15:04:57| INFO        d_m3w_sld_rbf_c finished [took 408.1937s]
+19/12/23 15:05:09| INFO        d_mul_sld_rbf_c finished [took 419.8011s]
+19/12/23 15:05:46| INFO        d_bin_sld_rbf_is finished [took 241.2130s]
+19/12/23 15:06:38| INFO        d_m3w_sld_rbf_ne finished [took 294.2461s]
+19/12/23 15:07:06| INFO        d_m3w_sld_rbf_is finished [took 266.6259s]
+19/12/23 15:07:15| INFO        d_mul_sld_rbf_is finished [took 303.4879s]
+19/12/23 15:07:15| WARNING     Method d_bin_sld_rbf_gs failed. Exception: 'BinaryQuantifierAccuracyEstimator' object has no attribute 'confidence_metrics'
+19/12/23 15:07:16| WARNING     Method d_mul_sld_rbf_gs failed. Exception: 'MultiClassAccuracyEstimator' object has no attribute 'confidence_metrics'
+19/12/23 15:07:16| WARNING     Method d_m3w_sld_rbf_gs failed. Exception: 'MultiClassAccuracyEstimator' object has no attribute 'confidence_metrics'
+19/12/23 15:07:16| INFO     Dataset sample [0.3 0.7] of dataset imdb finished [took 547.8116s]
+19/12/23 15:07:16| INFO     Dataset sample [0.3999 0.6001] of dataset imdb started
+----------------------------------------------------------------------------------------------------
+19/12/23 16:44:20| INFO     dataset imdb [pool size: 10]
+19/12/23 16:44:21| INFO     Dataset sample [0.0999 0.9001] of dataset imdb started
+19/12/23 16:44:22| WARNING     Method d_mul_sld_rbf_mc failed. Exception: Requesting 5-fold cross-validation but provided less than 5 examples for at least one class.
+19/12/23 16:44:23| WARNING     Method d_mul_sld_rbf failed. Exception: Requesting 5-fold cross-validation but provided less than 5 examples for at least one class.
+19/12/23 16:44:23| WARNING     Method d_bin_sld_rbf failed. Exception: Requesting 5-fold cross-validation but provided less than 5 examples for at least one class.
+19/12/23 16:44:23| WARNING     Method d_mul_sld_rbf_c failed. Exception: Requesting 5-fold cross-validation but provided less than 5 examples for at least one class.
+19/12/23 16:44:23| WARNING     Method d_mul_sld_rbf_ne failed. Exception: Requesting 5-fold cross-validation but provided less than 5 examples for at least one class.
+19/12/23 16:44:23| WARNING     Method d_bin_sld_rbf_mc failed. Exception: Requesting 5-fold cross-validation but provided less than 5 examples for at least one class.
+19/12/23 16:44:23| WARNING     Method d_bin_sld_rbf_ne failed. Exception: Requesting 5-fold cross-validation but provided less than 5 examples for at least one class.
+19/12/23 16:44:23| WARNING     Method d_mul_sld_rbf_is failed. Exception: Requesting 5-fold cross-validation but provided less than 5 examples for at least one class.
+19/12/23 16:44:23| WARNING     Method d_bin_sld_rbf_is failed. Exception: Requesting 5-fold cross-validation but provided less than 5 examples for at least one class.
+19/12/23 16:44:23| WARNING     Method d_bin_sld_rbf_c failed. Exception: Requesting 5-fold cross-validation but provided less than 5 examples for at least one class.
+19/12/23 16:44:33| INFO        ref finished [took 9.8909s]
+19/12/23 16:44:39| INFO        doc finished [took 15.4645s]
+19/12/23 16:44:39| INFO        atc_mc finished [took 15.4954s]
+19/12/23 16:46:27| INFO        d_m3w_sld_rbf finished [took 124.6529s]
+19/12/23 16:46:31| INFO        d_m3w_sld_rbf_is finished [took 127.6940s]
+19/12/23 16:46:37| INFO        d_m3w_sld_rbf_mc finished [took 133.5200s]
+19/12/23 16:46:40| INFO        d_m3w_sld_rbf_ne finished [took 137.4305s]
+19/12/23 16:46:42| INFO        d_m3w_sld_rbf_c finished [took 139.1881s]
+19/12/23 16:46:43| WARNING     Method d_bin_sld_rbf_gs failed. Exception: 'csr_matrix' object has no attribute 'var'
+19/12/23 16:46:43| WARNING     Method d_mul_sld_rbf_gs failed. Exception: 'csr_matrix' object has no attribute 'var'
+19/12/23 16:46:43| WARNING     Method d_m3w_sld_rbf_gs failed. Exception: 'csr_matrix' object has no attribute 'var'
+19/12/23 16:46:43| INFO     Dataset sample [0.0999 0.9001] of dataset imdb finished [took 142.8577s]
+19/12/23 16:46:43| INFO     Dataset sample [0.2 0.8] of dataset imdb started
+----------------------------------------------------------------------------------------------------
+19/12/23 20:10:34| INFO     dataset imdb [pool size: 10]
+19/12/23 20:10:34| INFO     Dataset sample [0.0999 0.9001] of dataset imdb started
+19/12/23 20:10:36| WARNING     Method d_mul_sld_rbf failed. Exception: Requesting 5-fold cross-validation but provided less than 5 examples for at least one class.
+19/12/23 20:10:36| WARNING     Method d_bin_sld_rbf failed. Exception: Requesting 5-fold cross-validation but provided less than 5 examples for at least one class.
+19/12/23 20:10:36| WARNING     Method d_mul_sld_rbf_mc failed. Exception: Requesting 5-fold cross-validation but provided less than 5 examples for at least one class.
+19/12/23 20:10:36| WARNING     Method d_bin_sld_rbf_ne failed. Exception: Requesting 5-fold cross-validation but provided less than 5 examples for at least one class.
+19/12/23 20:10:36| WARNING     Method d_mul_sld_rbf_c failed. Exception: Requesting 5-fold cross-validation but provided less than 5 examples for at least one class.
+19/12/23 20:10:36| WARNING     Method d_bin_sld_rbf_c failed. Exception: Requesting 5-fold cross-validation but provided less than 5 examples for at least one class.
+19/12/23 20:10:37| WARNING     Method d_bin_sld_rbf_mc failed. Exception: Requesting 5-fold cross-validation but provided less than 5 examples for at least one class.
+19/12/23 20:10:37| WARNING     Method d_mul_sld_rbf_ne failed. Exception: Requesting 5-fold cross-validation but provided less than 5 examples for at least one class.
+19/12/23 20:10:37| WARNING     Method d_bin_sld_rbf_is failed. Exception: Requesting 5-fold cross-validation but provided less than 5 examples for at least one class.
+19/12/23 20:10:37| WARNING     Method d_mul_sld_rbf_is failed. Exception: Requesting 5-fold cross-validation but provided less than 5 examples for at least one class.
+19/12/23 20:10:47| INFO        ref finished [took 10.5891s]
+19/12/23 20:10:53| INFO        atc_mc finished [took 16.3191s]
+19/12/23 20:10:57| INFO        doc finished [took 19.7471s]
+19/12/23 20:15:54| INFO        d_m3w_sld_rbf finished [took 317.2413s]
+19/12/23 20:16:04| INFO        d_m3w_sld_rbf_c finished [took 327.9461s]
+19/12/23 20:16:05| INFO        d_m3w_sld_rbf_is finished [took 327.9218s]
+19/12/23 20:16:09| INFO        d_m3w_sld_rbf_mc finished [took 332.9751s]
+19/12/23 20:16:13| INFO        d_m3w_sld_rbf_ne finished [took 336.2182s]
+19/12/23 20:16:15| WARNING     Method d_bin_sld_rbf_gs failed. Exception: unsupported format string passed to NoneType.__format__
+19/12/23 20:16:17| WARNING     Method d_mul_sld_rbf_gs failed. Exception: unsupported format string passed to NoneType.__format__
+19/12/23 20:17:13| DEBUG       [size=11,place=1] best score = 0.01497746; best param = {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__classifier__gamma': 291.8104822363104, 'quantifier__recalib': None, 'confidence': ['isoft']} [took 55.775s]
+19/12/23 20:17:13| DEBUG       [size=11,place=2] best score = 0.05382654; best param = {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': None, 'quantifier__classifier__gamma': 0.2918104822363104, 'quantifier__recalib': None, 'confidence': None} [took 55.776s]
+19/12/23 20:19:26| DEBUG       [size=28,place=1] best score = 0.01003900; best param = {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__classifier__gamma': 29.181048223631038, 'quantifier__recalib': None, 'confidence': ['isoft']} [took 132.599s]
+19/12/23 20:19:26| DEBUG       [size=28,place=2] best score = 0.01017666; best param = {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__classifier__gamma': 291.8104822363104, 'quantifier__recalib': None, 'confidence': None} [took 132.599s]
+19/12/23 20:21:19| DEBUG       [size=21,place=1] best score = 0.00991535; best param = {'quantifier__classifier__C': 1000.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__classifier__gamma': 29.181048223631038, 'quantifier__recalib': None, 'confidence': ['isoft']} [took 113.140s]
+19/12/23 20:21:19| DEBUG       [size=21,place=2] best score = 0.01006300; best param = {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__classifier__gamma': 291.8104822363104, 'quantifier__recalib': None, 'confidence': None} [took 113.141s]
+19/12/23 20:22:15| DEBUG       [size=14,place=1] best score = 0.01100672; best param = {'quantifier__classifier__C': 1000.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__classifier__gamma': 2.918104822363104, 'quantifier__recalib': None, 'confidence': ['isoft']} [took 56.501s]
+19/12/23 20:22:15| DEBUG       [size=14,place=2] best score = 0.01138828; best param = {'quantifier__classifier__C': 1000.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__classifier__gamma': 29.181048223631038, 'quantifier__recalib': None, 'confidence': ['max_conf', 'entropy']} [took 56.502s]
+19/12/23 20:22:15| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 1000.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__classifier__gamma': 29.181048223631038, 'quantifier__recalib': None, 'confidence': ['isoft']} (score=0.00992) [took 358.1243s]
+----------------------------------------------------------------------------------------------------
+19/12/23 20:27:15| INFO     dataset imdb [pool size: 10]
+19/12/23 20:27:15| INFO     Dataset sample [0.0999 0.9001] of dataset imdb started
+19/12/23 20:27:17| WARNING     Method d_mul_sld_rbf failed. Exception: Requesting 5-fold cross-validation but provided less than 5 examples for at least one class.
+19/12/23 20:27:17| WARNING     Method d_bin_sld_rbf_c failed. Exception: Requesting 5-fold cross-validation but provided less than 5 examples for at least one class.
+19/12/23 20:27:17| WARNING     Method d_mul_sld_rbf_mc failed. Exception: Requesting 5-fold cross-validation but provided less than 5 examples for at least one class.
+19/12/23 20:27:17| WARNING     Method d_bin_sld_rbf_mc failed. Exception: Requesting 5-fold cross-validation but provided less than 5 examples for at least one class.
+19/12/23 20:27:17| WARNING     Method d_bin_sld_rbf failed. Exception: Requesting 5-fold cross-validation but provided less than 5 examples for at least one class.
+19/12/23 20:27:17| WARNING     Method d_mul_sld_rbf_c failed. Exception: Requesting 5-fold cross-validation but provided less than 5 examples for at least one class.
+19/12/23 20:27:17| WARNING     Method d_mul_sld_rbf_ne failed. Exception: Requesting 5-fold cross-validation but provided less than 5 examples for at least one class.
+19/12/23 20:27:18| WARNING     Method d_bin_sld_rbf_ne failed. Exception: Requesting 5-fold cross-validation but provided less than 5 examples for at least one class.
+19/12/23 20:27:18| WARNING     Method d_bin_sld_rbf_is failed. Exception: Requesting 5-fold cross-validation but provided less than 5 examples for at least one class.
+19/12/23 20:27:18| WARNING     Method d_mul_sld_rbf_is failed. Exception: Requesting 5-fold cross-validation but provided less than 5 examples for at least one class.
+19/12/23 20:27:29| INFO        ref finished [took 11.4706s]
+19/12/23 20:27:36| INFO        atc_mc finished [took 17.5881s]
+19/12/23 20:27:36| INFO        doc finished [took 18.0804s]
+19/12/23 20:32:33| INFO        d_m3w_sld_rbf finished [took 315.9366s]
+19/12/23 20:32:43| INFO        d_m3w_sld_rbf_mc finished [took 325.5450s]
+19/12/23 20:32:43| INFO        d_m3w_sld_rbf_c finished [took 325.8360s]
+19/12/23 20:32:53| INFO        d_m3w_sld_rbf_is finished [took 334.7291s]
+19/12/23 20:32:59| INFO        d_m3w_sld_rbf_ne finished [took 341.2558s]
+19/12/23 20:33:08| WARNING     Method d_bin_sld_rbf_gs failed. Exception: no combination of hyperparameters seem to work
+19/12/23 20:34:51| WARNING     Method d_mul_sld_rbf_gs failed. Exception: no combination of hyperparameters seem to work
+19/12/23 20:35:48| DEBUG       [size=11,place=1] best score = 0.01497746; best param = {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__classifier__gamma': 291.8104822363104, 'quantifier__recalib': None, 'confidence': ['isoft']} [took 55.869s]
+19/12/23 20:35:48| DEBUG       [size=11,place=2] best score = 0.05382654; best param = {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': None, 'quantifier__classifier__gamma': 0.2918104822363104, 'quantifier__recalib': None, 'confidence': None} [took 55.869s]
+19/12/23 20:37:59| DEBUG       [size=28,place=1] best score = 0.01003900; best param = {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__classifier__gamma': 29.181048223631038, 'quantifier__recalib': None, 'confidence': ['isoft']} [took 130.680s]
+19/12/23 20:37:59| DEBUG       [size=28,place=2] best score = 0.01017666; best param = {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__classifier__gamma': 291.8104822363104, 'quantifier__recalib': None, 'confidence': None} [took 130.681s]
+19/12/23 20:39:55| DEBUG       [size=21,place=1] best score = 0.00991535; best param = {'quantifier__classifier__C': 1000.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__classifier__gamma': 29.181048223631038, 'quantifier__recalib': None, 'confidence': ['isoft']} [took 116.366s]
+19/12/23 20:39:55| DEBUG       [size=21,place=2] best score = 0.01006300; best param = {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__classifier__gamma': 291.8104822363104, 'quantifier__recalib': None, 'confidence': None} [took 116.366s]
+----------------------------------------------------------------------------------------------------
+19/12/23 20:41:05| INFO     dataset imdb [pool size: 10]
+19/12/23 20:41:05| INFO     Dataset sample [0.0999 0.9001] of dataset imdb started
+19/12/23 20:43:28| INFO        d_bin_sld_rbf_ne finished [took 140.7696s]
+19/12/23 20:43:29| INFO        d_bin_sld_rbf finished [took 141.4976s]
+19/12/23 20:43:29| INFO        d_bin_sld_rbf_mc finished [took 141.5107s]
+19/12/23 20:43:31| INFO        d_m3w_sld_rbf finished [took 144.2906s]
+19/12/23 20:43:32| INFO        d_bin_sld_rbf_c finished [took 144.3612s]
+19/12/23 20:43:35| INFO        d_m3w_sld_rbf_mc finished [took 148.0538s]
+19/12/23 20:43:38| INFO        d_mul_sld_rbf finished [took 150.3864s]
+19/12/23 20:43:39| INFO        d_m3w_sld_rbf_c finished [took 151.8399s]
+19/12/23 20:43:40| INFO        d_mul_sld_rbf_mc finished [took 152.5530s]
+19/12/23 20:43:44| INFO        ref finished [took 12.4418s]
+19/12/23 20:43:45| INFO        d_mul_sld_rbf_ne finished [took 157.3052s]
+19/12/23 20:43:49| INFO        d_mul_sld_rbf_c finished [took 162.0868s]
+19/12/23 20:43:53| INFO        atc_mc finished [took 16.8411s]
+19/12/23 20:43:57| INFO        doc finished [took 18.6178s]
+19/12/23 20:45:05| INFO        d_bin_sld_rbf_is finished [took 95.8316s]
+19/12/23 20:45:08| INFO        d_m3w_sld_rbf_ne finished [took 99.1260s]
+19/12/23 20:45:11| INFO        d_m3w_sld_rbf_is finished [took 98.7975s]
+19/12/23 20:45:21| INFO        d_mul_sld_rbf_is finished [took 111.8837s]
+19/12/23 20:45:37| DEBUG       [size=11,place=1] best score = 0.01060973; best param = {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__classifier__gamma': 291.8104822363104, 'quantifier__recalib': None, 'confidence': ['isoft']} [took 15.366s]
+19/12/23 20:45:37| DEBUG       [size=11,place=2] best score = 0.02776150; best param = {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': None, 'quantifier__classifier__gamma': 0.2918104822363104, 'quantifier__recalib': None, 'confidence': None} [took 15.366s]
+19/12/23 20:48:03| DEBUG       [size=28,place=1] best score = 0.01059030; best param = {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__classifier__gamma': 291.8104822363104, 'quantifier__recalib': None, 'confidence': ['isoft']} [took 145.853s]
+19/12/23 20:48:03| DEBUG       [size=28,place=2] best score = 0.01088026; best param = {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__classifier__gamma': 291.8104822363104, 'quantifier__recalib': None, 'confidence': ['isoft']} [took 145.853s]
+19/12/23 20:48:20| DEBUG       [size=16,place=1] best score = 0.01129506; best param = {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__classifier__gamma': 291.8104822363104, 'quantifier__recalib': None, 'confidence': ['max_conf', 'entropy']} [took 17.318s]
+19/12/23 20:48:20| DEBUG       [size=16,place=2] best score = 0.01176145; best param = {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__classifier__gamma': 291.8104822363104, 'quantifier__recalib': None, 'confidence': ['max_conf', 'entropy']} [took 17.318s]
+19/12/23 20:48:20| DEBUG       [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__classifier__gamma': 291.8104822363104, 'quantifier__recalib': None, 'confidence': ['isoft']} (score=0.01059) [took 178.6487s]
+19/12/23 20:50:26| INFO        d_bin_sld_rbf_gs finished [took 304.4977s]
+19/12/23 20:50:48| DEBUG       [size=11,place=1] best score = 0.04774805; best param = {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': None, 'quantifier__classifier__gamma': 0.2918104822363104, 'quantifier__recalib': None, 'confidence': None} [took 21.309s]
+19/12/23 20:50:48| DEBUG       [size=11,place=2] best score = 0.05873846; best param = {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': None, 'quantifier__classifier__gamma': 2.918104822363104, 'quantifier__recalib': None, 'confidence': None} [took 21.309s]
+19/12/23 20:51:09| DEBUG       [size=26,place=1] best score = 0.02601943; best param = {'quantifier__classifier__C': 0.01, 'quantifier__classifier__class_weight': None, 'quantifier__classifier__gamma': 0.2918104822363104, 'quantifier__recalib': None, 'confidence': None} [took 20.871s]
+19/12/23 20:51:09| DEBUG       [size=26,place=2] best score = 0.03089002; best param = {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': None, 'quantifier__classifier__gamma': 0.02918104822363104, 'quantifier__recalib': None, 'confidence': None} [took 20.871s]
+19/12/23 20:51:26| DEBUG       [size=13,place=1] best score = 0.02875396; best param = {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': None, 'quantifier__classifier__gamma': 0.02918104822363104, 'quantifier__recalib': None, 'confidence': ['max_conf', 'entropy']} [took 16.504s]
+19/12/23 20:51:26| DEBUG       [size=13,place=2] best score = 0.02972597; best param = {'quantifier__classifier__C': 0.01, 'quantifier__classifier__class_weight': None, 'quantifier__classifier__gamma': 0.2918104822363104, 'quantifier__recalib': None, 'confidence': ['max_conf', 'entropy']} [took 16.505s]
+19/12/23 20:51:26| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 0.01, 'quantifier__classifier__class_weight': None, 'quantifier__classifier__gamma': 0.2918104822363104, 'quantifier__recalib': None, 'confidence': None} (score=0.02602) [took 58.7936s]
+19/12/23 20:52:41| INFO        d_mul_sld_rbf_gs finished [took 134.3242s]
+19/12/23 20:53:02| DEBUG       [size=11,place=1] best score = 0.01194631; best param = {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': None, 'quantifier__classifier__gamma': 0.02918104822363104, 'quantifier__recalib': 'bcts', 'confidence': ['isoft']} [took 20.162s]
+19/12/23 20:53:02| DEBUG       [size=11,place=2] best score = 0.01633117; best param = {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': None, 'quantifier__classifier__gamma': 0.2918104822363104, 'quantifier__recalib': None, 'confidence': None} [took 20.162s]
+19/12/23 20:53:36| DEBUG       [size=28,place=1] best score = 0.00950562; best param = {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__classifier__gamma': 0.02918104822363104, 'quantifier__recalib': 'bcts', 'confidence': ['isoft']} [took 33.700s]
+19/12/23 20:53:36| DEBUG       [size=28,place=2] best score = 0.01054428; best param = {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': None, 'quantifier__classifier__gamma': 0.02918104822363104, 'quantifier__recalib': 'bcts', 'confidence': ['isoft']} [took 33.700s]
+19/12/23 20:54:24| DEBUG       [size=20,place=1] best score = 0.01098297; best param = {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__classifier__gamma': 0.02918104822363104, 'quantifier__recalib': 'bcts', 'confidence': ['isoft']} [took 48.316s]
+19/12/23 20:54:24| DEBUG       [size=20,place=2] best score = 0.01131095; best param = {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__classifier__gamma': 0.02918104822363104, 'quantifier__recalib': 'bcts', 'confidence': ['isoft']} [took 48.316s]
+19/12/23 20:54:24| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__classifier__gamma': 0.02918104822363104, 'quantifier__recalib': 'bcts', 'confidence': ['isoft']} (score=0.00951) [took 102.3277s]
+19/12/23 20:58:08| INFO        d_m3w_sld_rbf_gs finished [took 326.8948s]
+19/12/23 20:58:08| INFO     Dataset sample [0.0999 0.9001] of dataset imdb finished [took 1023.6512s]
+19/12/23 20:58:08| INFO     Dataset sample [0.2 0.8] of dataset imdb started
+----------------------------------------------------------------------------------------------------
+19/12/23 20:59:19| INFO     dataset imdb [pool size: 10]
+19/12/23 20:59:19| INFO     Dataset sample [0.0999 0.9001] of dataset imdb started
+19/12/23 21:01:43| INFO        d_bin_sld_rbf_mc finished [took 141.9833s]
+19/12/23 21:01:44| INFO        d_bin_sld_rbf finished [took 142.2850s]
+19/12/23 21:01:45| INFO        d_bin_sld_rbf_ne finished [took 142.8713s]
+19/12/23 21:01:45| INFO        d_bin_sld_rbf_c finished [took 143.3864s]
+19/12/23 21:01:45| INFO        d_m3w_sld_rbf finished [took 143.4971s]
+19/12/23 21:01:47| INFO        d_m3w_sld_rbf_mc finished [took 145.2026s]
+19/12/23 21:01:53| INFO        d_mul_sld_rbf finished [took 151.2858s]
+19/12/23 21:01:54| INFO        d_m3w_sld_rbf_c finished [took 151.9442s]
+19/12/23 21:01:59| INFO        d_mul_sld_rbf_ne finished [took 156.9816s]
+19/12/23 21:01:59| INFO        ref finished [took 13.2396s]
+19/12/23 21:02:00| INFO        d_mul_sld_rbf_mc finished [took 158.8049s]
+19/12/23 21:02:03| INFO        d_mul_sld_rbf_c finished [took 161.3393s]
+19/12/23 21:02:05| INFO        atc_mc finished [took 17.3331s]
+19/12/23 21:02:12| INFO        doc finished [took 18.6089s]
+19/12/23 21:03:22| INFO        d_bin_sld_rbf_is finished [took 97.1091s]
+19/12/23 21:03:23| INFO        d_m3w_sld_rbf_ne finished [took 98.8245s]
+19/12/23 21:03:25| INFO        d_m3w_sld_rbf_is finished [took 99.4925s]
+19/12/23 21:03:38| INFO        d_mul_sld_rbf_is finished [took 113.1227s]
+19/12/23 21:09:52| DEBUG       [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 0.01, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__classifier__gamma': 291.8104822363104, 'quantifier__recalib': None, 'confidence': ['max_conf', 'entropy']} (score=0.01048) [took 372.8064s]
+19/12/23 21:12:15| INFO        d_bin_sld_rbf_gs finished [took 516.3199s]
+----------------------------------------------------------------------------------------------------
+19/12/23 21:22:23| INFO     dataset imdb [pool size: 10]
+19/12/23 21:22:23| INFO     Dataset sample [0.0999 0.9001] of dataset imdb started
+19/12/23 21:24:07| INFO        d_m3w_sld_rbf finished [took 102.4440s]
+19/12/23 21:24:34| INFO        d_m3w_sld_rbf_mc finished [took 128.5265s]
+19/12/23 21:24:40| INFO        d_bin_sld_rbf_ne finished [took 134.4084s]
+19/12/23 21:24:41| INFO        d_bin_sld_rbf finished [took 135.3869s]
+19/12/23 21:24:42| INFO        d_bin_sld_rbf_mc finished [took 137.0802s]
+19/12/23 21:24:44| INFO        d_bin_sld_rbf_c finished [took 139.4842s]
+19/12/23 21:24:51| INFO        d_mul_sld_rbf finished [took 145.4620s]
+19/12/23 21:24:53| INFO        d_m3w_sld_rbf_c finished [took 147.6271s]
+19/12/23 21:24:53| INFO        d_mul_sld_rbf_mc finished [took 147.9748s]
+19/12/23 21:24:54| INFO        d_mul_sld_rbf_ne finished [took 149.1261s]
+19/12/23 21:24:56| INFO        ref finished [took 13.1790s]
+19/12/23 21:24:58| INFO        d_mul_sld_rbf_c finished [took 153.1788s]
+19/12/23 21:25:01| INFO        atc_mc finished [took 16.3094s]
+19/12/23 21:25:06| INFO        doc finished [took 15.5825s]
+19/12/23 21:25:56| INFO        d_m3w_sld_rbf_ne finished [took 108.4590s]
+19/12/23 21:26:05| INFO        d_bin_sld_rbf_is finished [took 91.2383s]
+19/12/23 21:26:18| INFO        d_m3w_sld_rbf_is finished [took 97.0688s]
+19/12/23 21:26:25| INFO        d_mul_sld_rbf_is finished [took 105.3666s]
+19/12/23 21:26:41| DEBUG       [size=11,place=1] best score = 0.01060973; best param = {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__classifier__gamma': 291.8104822363104, 'quantifier__recalib': None, 'confidence': ['isoft']} [took 15.455s]
+19/12/23 21:26:41| DEBUG       [size=11,place=2] best score = 0.02776150; best param = {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': None, 'quantifier__classifier__gamma': 0.2918104822363104, 'quantifier__recalib': None, 'confidence': None} [took 15.455s]
+19/12/23 21:26:41| DEBUG       [size=11,place=3] best score = 0.04385925; best param = {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': None, 'quantifier__classifier__gamma': 2.918104822363104, 'quantifier__recalib': None, 'confidence': None} [took 15.455s]
+19/12/23 21:29:03| DEBUG       [size=40,place=1] best score = 0.01059030; best param = {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__classifier__gamma': 291.8104822363104, 'quantifier__recalib': None, 'confidence': ['isoft']} [took 141.716s]
+19/12/23 21:29:03| DEBUG       [size=40,place=2] best score = 0.01088026; best param = {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__classifier__gamma': 291.8104822363104, 'quantifier__recalib': None, 'confidence': ['isoft']} [took 141.717s]
+19/12/23 21:29:03| DEBUG       [size=40,place=3] best score = 0.01139805; best param = {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__classifier__gamma': 291.8104822363104, 'quantifier__recalib': None, 'confidence': ['max_conf', 'entropy']} [took 141.717s]
+19/12/23 21:31:10| DEBUG       [size=26,place=1] best score = 0.01047923; best param = {'quantifier__classifier__C': 0.01, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__classifier__gamma': 291.8104822363104, 'quantifier__recalib': None, 'confidence': ['max_conf', 'entropy']} [took 127.049s]
+19/12/23 21:31:10| DEBUG       [size=26,place=2] best score = 0.01104285; best param = {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__classifier__gamma': 291.8104822363104, 'quantifier__recalib': None, 'confidence': ['max_conf', 'entropy']} [took 127.049s]
+19/12/23 21:31:10| DEBUG       [size=26,place=3] best score = 0.01129506; best param = {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__classifier__gamma': 291.8104822363104, 'quantifier__recalib': None, 'confidence': ['max_conf', 'entropy']} [took 127.050s]
+19/12/23 21:31:33| DEBUG       [size=20,place=1] best score = 0.01138846; best param = {'quantifier__classifier__C': 0.01, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__classifier__gamma': 291.8104822363104, 'quantifier__recalib': None, 'confidence': None} [took 22.909s]
+19/12/23 21:31:33| DEBUG       [size=20,place=2] best score = 0.01211995; best param = {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__classifier__gamma': 29.181048223631038, 'quantifier__recalib': None, 'confidence': ['max_conf', 'entropy']} [took 22.909s]
+19/12/23 21:31:33| DEBUG       [size=20,place=3] best score = 0.01254719; best param = {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__classifier__gamma': 0.2918104822363104, 'quantifier__recalib': None, 'confidence': ['max_conf', 'entropy']} [took 22.910s]
+19/12/23 21:31:33| DEBUG       [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 0.01, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__classifier__gamma': 291.8104822363104, 'quantifier__recalib': None, 'confidence': ['max_conf', 'entropy']} (score=0.01048) [took 307.2672s]
+19/12/23 21:33:59| INFO        d_bin_sld_rbf_gs finished [took 453.0048s]
+19/12/23 21:34:19| DEBUG       [size=11,place=1] best score = 0.04774805; best param = {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': None, 'quantifier__classifier__gamma': 0.2918104822363104, 'quantifier__recalib': None, 'confidence': None} [took 19.071s]
+19/12/23 21:34:19| DEBUG       [size=11,place=2] best score = 0.05873846; best param = {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': None, 'quantifier__classifier__gamma': 2.918104822363104, 'quantifier__recalib': None, 'confidence': None} [took 19.072s]
+19/12/23 21:34:19| DEBUG       [size=11,place=3] best score = 0.07000238; best param = {'quantifier__classifier__C': 0.01, 'quantifier__classifier__class_weight': None, 'quantifier__classifier__gamma': 29.181048223631038, 'quantifier__recalib': None, 'confidence': None} [took 19.072s]
+19/12/23 21:34:46| DEBUG       [size=36,place=1] best score = 0.02601943; best param = {'quantifier__classifier__C': 0.01, 'quantifier__classifier__class_weight': None, 'quantifier__classifier__gamma': 0.2918104822363104, 'quantifier__recalib': None, 'confidence': None} [took 27.753s]
+19/12/23 21:34:46| DEBUG       [size=36,place=2] best score = 0.03089002; best param = {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': None, 'quantifier__classifier__gamma': 0.02918104822363104, 'quantifier__recalib': None, 'confidence': None} [took 27.753s]
+19/12/23 21:34:46| DEBUG       [size=36,place=3] best score = 0.03089050; best param = {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': None, 'quantifier__classifier__gamma': 0.02918104822363104, 'quantifier__recalib': None, 'confidence': None} [took 27.753s]
+19/12/23 21:35:08| DEBUG       [size=15,place=1] best score = 0.02875396; best param = {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': None, 'quantifier__classifier__gamma': 0.02918104822363104, 'quantifier__recalib': None, 'confidence': ['max_conf', 'entropy']} [took 22.068s]
+19/12/23 21:35:08| DEBUG       [size=15,place=2] best score = 0.02875460; best param = {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': None, 'quantifier__classifier__gamma': 0.02918104822363104, 'quantifier__recalib': None, 'confidence': ['max_conf', 'entropy']} [took 22.069s]
+19/12/23 21:35:08| DEBUG       [size=15,place=3] best score = 0.02972597; best param = {'quantifier__classifier__C': 0.01, 'quantifier__classifier__class_weight': None, 'quantifier__classifier__gamma': 0.2918104822363104, 'quantifier__recalib': None, 'confidence': ['max_conf', 'entropy']} [took 22.069s]
+19/12/23 21:35:08| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 0.01, 'quantifier__classifier__class_weight': None, 'quantifier__classifier__gamma': 0.2918104822363104, 'quantifier__recalib': None, 'confidence': None} (score=0.02602) [took 69.0009s]
+19/12/23 21:36:17| INFO        d_mul_sld_rbf_gs finished [took 137.1613s]
+19/12/23 21:36:36| DEBUG       [size=11,place=1] best score = 0.01194631; best param = {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': None, 'quantifier__classifier__gamma': 0.02918104822363104, 'quantifier__recalib': 'bcts', 'confidence': ['isoft']} [took 19.019s]
+19/12/23 21:36:36| DEBUG       [size=11,place=2] best score = 0.01633117; best param = {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': None, 'quantifier__classifier__gamma': 0.2918104822363104, 'quantifier__recalib': None, 'confidence': None} [took 19.020s]
+19/12/23 21:36:36| DEBUG       [size=11,place=3] best score = 0.01831691; best param = {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': None, 'quantifier__classifier__gamma': 0.02918104822363104, 'quantifier__recalib': 'bcts', 'confidence': None} [took 19.020s]
+19/12/23 21:38:22| DEBUG       [size=40,place=1] best score = 0.00950562; best param = {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__classifier__gamma': 0.02918104822363104, 'quantifier__recalib': 'bcts', 'confidence': ['isoft']} [took 106.343s]
+19/12/23 21:38:22| DEBUG       [size=40,place=2] best score = 0.01054428; best param = {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': None, 'quantifier__classifier__gamma': 0.02918104822363104, 'quantifier__recalib': 'bcts', 'confidence': ['isoft']} [took 106.344s]
+19/12/23 21:38:22| DEBUG       [size=40,place=3] best score = 0.01108507; best param = {'quantifier__classifier__C': 0.01, 'quantifier__classifier__class_weight': None, 'quantifier__classifier__gamma': 0.02918104822363104, 'quantifier__recalib': 'bcts', 'confidence': ['isoft']} [took 106.344s]
+19/12/23 21:39:10| DEBUG       [size=25,place=1] best score = 0.01098297; best param = {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__classifier__gamma': 0.02918104822363104, 'quantifier__recalib': 'bcts', 'confidence': ['isoft']} [took 47.983s]
+19/12/23 21:39:10| DEBUG       [size=25,place=2] best score = 0.01131095; best param = {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__classifier__gamma': 0.02918104822363104, 'quantifier__recalib': 'bcts', 'confidence': ['isoft']} [took 47.983s]
+19/12/23 21:39:10| DEBUG       [size=25,place=3] best score = 0.01181042; best param = {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__classifier__gamma': 0.02918104822363104, 'quantifier__recalib': 'bcts', 'confidence': ['isoft']} [took 47.983s]
+19/12/23 21:39:10| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__classifier__gamma': 0.02918104822363104, 'quantifier__recalib': 'bcts', 'confidence': ['isoft']} (score=0.00951) [took 173.4552s]
+19/12/23 21:42:34| INFO        d_m3w_sld_rbf_gs finished [took 377.7000s]
+19/12/23 21:42:34| INFO     Dataset sample [0.0999 0.9001] of dataset imdb finished [took 1211.5869s]
+19/12/23 21:42:34| INFO     Dataset sample [0.2 0.8] of dataset imdb started
+19/12/23 21:44:51| INFO        d_bin_sld_rbf_ne finished [took 136.1246s]
+19/12/23 21:45:19| INFO        d_bin_sld_rbf_mc finished [took 163.5738s]
+19/12/23 21:45:40| INFO        d_bin_sld_rbf_c finished [took 184.3139s]
+19/12/23 21:45:40| INFO        d_bin_sld_rbf finished [took 184.5857s]
+19/12/23 21:45:45| INFO        d_m3w_sld_rbf_c finished [took 189.6897s]
+19/12/23 21:45:53| INFO        d_m3w_sld_rbf finished [took 198.0153s]
+19/12/23 21:45:57| INFO        ref finished [took 12.0643s]
+19/12/23 21:46:09| INFO        d_m3w_sld_rbf_mc finished [took 213.9189s]
+19/12/23 21:46:10| INFO        atc_mc finished [took 16.5145s]
+19/12/23 21:46:17| INFO        d_mul_sld_rbf_mc finished [took 221.9991s]
+19/12/23 21:46:18| INFO        doc finished [took 20.0289s]
+19/12/23 21:46:22| INFO        d_mul_sld_rbf_ne finished [took 226.8677s]
+19/12/23 21:46:22| INFO        d_mul_sld_rbf finished [took 226.8229s]
+19/12/23 21:46:27| INFO        d_mul_sld_rbf_c finished [took 231.4018s]
+19/12/23 21:47:27| INFO        d_bin_sld_rbf_is finished [took 127.1947s]
+19/12/23 21:47:37| INFO        d_m3w_sld_rbf_ne finished [took 165.5889s]
+19/12/23 21:47:55| INFO        d_m3w_sld_rbf_is finished [took 134.7268s]
+19/12/23 21:47:59| INFO        d_mul_sld_rbf_is finished [took 138.8934s]
+19/12/23 21:48:14| DEBUG       [size=11,place=1] best score = 0.01023390; best param = {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__classifier__gamma': 409.16042668167097, 'quantifier__recalib': None, 'confidence': ['isoft']} [took 14.156s]
+19/12/23 21:48:14| DEBUG       [size=11,place=2] best score = 0.01375599; best param = {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__classifier__gamma': 0.40916042668167096, 'quantifier__recalib': 'bcts', 'confidence': ['max_conf', 'entropy']} [took 14.157s]
+19/12/23 21:48:14| DEBUG       [size=11,place=3] best score = 0.02354112; best param = {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': None, 'quantifier__classifier__gamma': 0.0409160426681671, 'quantifier__recalib': 'bcts', 'confidence': None} [took 14.157s]
+19/12/23 21:50:48| DEBUG       [size=42,place=1] best score = 0.00759012; best param = {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__classifier__gamma': 0.0409160426681671, 'quantifier__recalib': None, 'confidence': ['isoft']} [took 153.909s]
+19/12/23 21:50:48| DEBUG       [size=42,place=2] best score = 0.00833266; best param = {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__classifier__gamma': 0.40916042668167096, 'quantifier__recalib': None, 'confidence': ['isoft']} [took 153.910s]
+19/12/23 21:50:48| DEBUG       [size=42,place=3] best score = 0.00865113; best param = {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__classifier__gamma': 0.40916042668167096, 'quantifier__recalib': 'bcts', 'confidence': ['max_conf', 'entropy']} [took 153.910s]
+19/12/23 21:51:23| DEBUG       [size=26,place=1] best score = 0.00780784; best param = {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__classifier__gamma': 0.0409160426681671, 'quantifier__recalib': None, 'confidence': ['isoft']} [took 35.435s]
+19/12/23 21:51:23| DEBUG       [size=26,place=2] best score = 0.00832052; best param = {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__classifier__gamma': 0.0409160426681671, 'quantifier__recalib': None, 'confidence': ['isoft']} [took 35.435s]
+19/12/23 21:51:23| DEBUG       [size=26,place=3] best score = 0.00836788; best param = {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__classifier__gamma': 0.40916042668167096, 'quantifier__recalib': None, 'confidence': ['max_conf', 'entropy']} [took 35.436s]
+19/12/23 21:51:23| DEBUG       [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__classifier__gamma': 0.0409160426681671, 'quantifier__recalib': None, 'confidence': ['isoft']} (score=0.00759) [took 203.6329s]
+19/12/23 21:53:43| INFO        d_bin_sld_rbf_gs finished [took 343.5686s]
+19/12/23 21:54:03| DEBUG       [size=11,place=1] best score = 0.01100832; best param = {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__classifier__gamma': 0.40916042668167096, 'quantifier__recalib': 'bcts', 'confidence': ['max_conf', 'entropy']} [took 19.836s]
+19/12/23 21:54:03| DEBUG       [size=11,place=2] best score = 0.01945958; best param = {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': None, 'quantifier__classifier__gamma': 0.0409160426681671, 'quantifier__recalib': 'bcts', 'confidence': None} [took 19.836s]
+19/12/23 21:54:03| DEBUG       [size=11,place=3] best score = 0.02105467; best param = {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': None, 'quantifier__classifier__gamma': 40.916042668167094, 'quantifier__recalib': 'bcts', 'confidence': ['max_conf', 'entropy']} [took 19.836s]
+19/12/23 21:58:56| DEBUG       [size=42,place=1] best score = 0.00776952; best param = {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__classifier__gamma': 0.40916042668167096, 'quantifier__recalib': 'bcts', 'confidence': ['max_conf', 'entropy']} [took 292.090s]
+19/12/23 21:58:56| DEBUG       [size=42,place=2] best score = 0.00990603; best param = {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__classifier__gamma': 4.091604266816709, 'quantifier__recalib': 'bcts', 'confidence': ['max_conf', 'entropy']} [took 292.090s]
+19/12/23 21:58:56| DEBUG       [size=42,place=3] best score = 0.01011631; best param = {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__classifier__gamma': 40.916042668167094, 'quantifier__recalib': 'bcts', 'confidence': ['max_conf', 'entropy']} [took 292.090s]
+19/12/23 22:01:31| DEBUG       [size=26,place=1] best score = 0.00738092; best param = {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__classifier__gamma': 0.40916042668167096, 'quantifier__recalib': None, 'confidence': ['max_conf', 'entropy']} [took 155.144s]
+19/12/23 22:01:31| DEBUG       [size=26,place=2] best score = 0.00918911; best param = {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__classifier__gamma': 0.40916042668167096, 'quantifier__recalib': 'bcts', 'confidence': None} [took 155.145s]
+19/12/23 22:01:31| DEBUG       [size=26,place=3] best score = 0.00934195; best param = {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__classifier__gamma': 4.091604266816709, 'quantifier__recalib': 'bcts', 'confidence': ['max_conf', 'entropy']} [took 155.145s]
+19/12/23 22:02:29| DEBUG       [size=25,place=1] best score = 0.00881681; best param = {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__classifier__gamma': 0.40916042668167096, 'quantifier__recalib': None, 'confidence': ['isoft']} [took 58.407s]
+19/12/23 22:02:29| DEBUG       [size=25,place=2] best score = 0.00976098; best param = {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__classifier__gamma': 4.091604266816709, 'quantifier__recalib': 'bcts', 'confidence': ['isoft']} [took 58.407s]
+19/12/23 22:02:29| DEBUG       [size=25,place=3] best score = 0.00997026; best param = {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': None, 'quantifier__classifier__gamma': 0.40916042668167096, 'quantifier__recalib': 'bcts', 'confidence': None} [took 58.408s]
+19/12/23 22:02:29| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__classifier__gamma': 0.40916042668167096, 'quantifier__recalib': None, 'confidence': ['max_conf', 'entropy']} (score=0.00738) [took 525.6123s]
+19/12/23 22:05:15| INFO        d_mul_sld_rbf_gs finished [took 691.8646s]
+19/12/23 22:05:36| DEBUG       [size=11,place=1] best score = 0.00841352; best param = {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__classifier__gamma': 0.40916042668167096, 'quantifier__recalib': 'bcts', 'confidence': ['max_conf', 'entropy']} [took 20.445s]
+19/12/23 22:05:36| DEBUG       [size=11,place=2] best score = 0.01306115; best param = {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__classifier__gamma': 409.16042668167097, 'quantifier__recalib': None, 'confidence': ['isoft']} [took 20.446s]
+19/12/23 22:05:36| DEBUG       [size=11,place=3] best score = 0.01358931; best param = {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': None, 'quantifier__classifier__gamma': 40.916042668167094, 'quantifier__recalib': 'bcts', 'confidence': ['max_conf', 'entropy']} [took 20.446s]
+19/12/23 22:11:17| DEBUG       [size=42,place=1] best score = 0.00830974; best param = {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__classifier__gamma': 0.40916042668167096, 'quantifier__recalib': 'bcts', 'confidence': ['isoft']} [took 340.230s]
+19/12/23 22:11:17| DEBUG       [size=42,place=2] best score = 0.00878761; best param = {'quantifier__classifier__C': 1000.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__classifier__gamma': 0.40916042668167096, 'quantifier__recalib': 'bcts', 'confidence': ['max_conf', 'entropy']} [took 340.231s]
+19/12/23 22:11:17| DEBUG       [size=42,place=3] best score = 0.00879920; best param = {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__classifier__gamma': 0.40916042668167096, 'quantifier__recalib': 'bcts', 'confidence': None} [took 340.231s]
+19/12/23 22:19:52| DEBUG       [size=30,place=1] best score = 0.00842792; best param = {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__classifier__gamma': 0.40916042668167096, 'quantifier__recalib': 'bcts', 'confidence': ['isoft']} [took 515.576s]
+19/12/23 22:19:52| DEBUG       [size=30,place=2] best score = 0.00886425; best param = {'quantifier__classifier__C': 1000.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__classifier__gamma': 0.0409160426681671, 'quantifier__recalib': 'bcts', 'confidence': ['max_conf', 'entropy']} [took 515.576s]
+19/12/23 22:19:52| DEBUG       [size=30,place=3] best score = 0.00891389; best param = {'quantifier__classifier__C': 1000.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__classifier__gamma': 0.40916042668167096, 'quantifier__recalib': 'bcts', 'confidence': ['isoft']} [took 515.577s]
+19/12/23 22:19:52| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__classifier__gamma': 0.40916042668167096, 'quantifier__recalib': 'bcts', 'confidence': ['isoft']} (score=0.00831) [took 876.3647s]
+19/12/23 22:21:37| INFO        d_m3w_sld_rbf_gs finished [took 980.7143s]
+19/12/23 22:21:37| INFO     Dataset sample [0.2 0.8] of dataset imdb finished [took 2342.1963s]
+19/12/23 22:21:37| INFO     Dataset sample [0.3 0.7] of dataset imdb started
+19/12/23 22:24:10| INFO        d_m3w_sld_rbf_mc finished [took 151.2631s]
+19/12/23 22:24:12| INFO        d_bin_sld_rbf_ne finished [took 152.9099s]
+19/12/23 22:24:21| INFO        d_bin_sld_rbf_c finished [took 162.3003s]
+19/12/23 22:24:28| INFO        d_bin_sld_rbf finished [took 170.6132s]
+19/12/23 22:24:35| INFO        d_bin_sld_rbf_mc finished [took 176.3800s]
+19/12/23 22:24:48| INFO        ref finished [took 12.0345s]
+19/12/23 22:25:05| INFO        atc_mc finished [took 16.8417s]
+19/12/23 22:25:26| INFO        doc finished [took 20.0653s]
+19/12/23 22:25:38| INFO        d_m3w_sld_rbf finished [took 239.4454s]
+19/12/23 22:25:39| INFO        d_mul_sld_rbf finished [took 239.6765s]
+19/12/23 22:25:45| INFO        d_mul_sld_rbf_c finished [took 245.8710s]
+19/12/23 22:25:48| INFO        d_m3w_sld_rbf_c finished [took 249.2694s]
+19/12/23 22:25:50| INFO        d_mul_sld_rbf_mc finished [took 250.4887s]
+19/12/23 22:25:53| INFO        d_mul_sld_rbf_ne finished [took 254.7549s]
+19/12/23 22:26:46| INFO        d_bin_sld_rbf_is finished [took 153.5942s]
+19/12/23 22:26:46| INFO        d_m3w_sld_rbf_ne finished [took 155.5633s]
+19/12/23 22:27:23| INFO        d_m3w_sld_rbf_is finished [took 175.2918s]
+19/12/23 22:27:47| INFO        d_mul_sld_rbf_is finished [took 204.8334s]
+19/12/23 22:28:03| DEBUG       [size=11,place=1] best score = 0.02192853; best param = {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': None, 'quantifier__classifier__gamma': 55.150738286634635, 'quantifier__recalib': 'bcts', 'confidence': ['max_conf', 'entropy']} [took 15.731s]
+19/12/23 22:28:03| DEBUG       [size=11,place=2] best score = 0.02561059; best param = {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__classifier__gamma': 551.5073828663463, 'quantifier__recalib': None, 'confidence': ['isoft']} [took 15.732s]
+19/12/23 22:28:03| DEBUG       [size=11,place=3] best score = 0.02924295; best param = {'quantifier__classifier__C': 0.001, 'quantifier__classifier__class_weight': None, 'quantifier__classifier__gamma': 55.150738286634635, 'quantifier__recalib': 'bcts', 'confidence': None} [took 15.732s]
+19/12/23 22:32:39| DEBUG       [size=40,place=1] best score = 0.01425644; best param = {'quantifier__classifier__C': 0.01, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__classifier__gamma': 551.5073828663463, 'quantifier__recalib': None, 'confidence': ['isoft']} [took 275.584s]
+19/12/23 22:32:39| DEBUG       [size=40,place=2] best score = 0.02194697; best param = {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': None, 'quantifier__classifier__gamma': 551.5073828663463, 'quantifier__recalib': 'bcts', 'confidence': ['max_conf', 'entropy']} [took 275.584s]
+19/12/23 22:32:39| DEBUG       [size=40,place=3] best score = 0.02275157; best param = {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': None, 'quantifier__classifier__gamma': 55.150738286634635, 'quantifier__recalib': 'bcts', 'confidence': ['max_conf', 'entropy']} [took 275.584s]
+19/12/23 22:40:29| DEBUG       [size=24,place=1] best score = 0.01524908; best param = {'quantifier__classifier__C': 0.01, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__classifier__gamma': 551.5073828663463, 'quantifier__recalib': None, 'confidence': ['max_conf', 'entropy']} [took 470.426s]
+19/12/23 22:40:29| DEBUG       [size=24,place=2] best score = 0.01919959; best param = {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': None, 'quantifier__classifier__gamma': 551.5073828663463, 'quantifier__recalib': 'bcts', 'confidence': ['max_conf', 'entropy']} [took 470.426s]
+19/12/23 22:40:29| DEBUG       [size=24,place=3] best score = 0.01971381; best param = {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': None, 'quantifier__classifier__gamma': 551.5073828663463, 'quantifier__recalib': None, 'confidence': ['max_conf', 'entropy']} [took 470.426s]
+19/12/23 22:40:29| DEBUG       [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 0.01, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__classifier__gamma': 551.5073828663463, 'quantifier__recalib': None, 'confidence': ['isoft']} (score=0.01426) [took 761.8520s]
+19/12/23 22:43:32| INFO        d_bin_sld_rbf_gs finished [took 944.8587s]
+19/12/23 22:43:58| DEBUG       [size=11,place=1] best score = 0.02076101; best param = {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': None, 'quantifier__classifier__gamma': 55.150738286634635, 'quantifier__recalib': 'bcts', 'confidence': ['max_conf', 'entropy']} [took 25.008s]
+19/12/23 22:43:58| DEBUG       [size=11,place=2] best score = 0.02373897; best param = {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__classifier__gamma': 551.5073828663463, 'quantifier__recalib': None, 'confidence': ['isoft']} [took 25.008s]
+19/12/23 22:43:58| DEBUG       [size=11,place=3] best score = 0.02553505; best param = {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': None, 'quantifier__classifier__gamma': 0.05515073828663464, 'quantifier__recalib': 'bcts', 'confidence': None} [took 25.009s]
+19/12/23 22:48:47| DEBUG       [size=42,place=1] best score = 0.01922494; best param = {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': None, 'quantifier__classifier__gamma': 551.5073828663463, 'quantifier__recalib': 'bcts', 'confidence': None} [took 289.150s]
+19/12/23 22:48:47| DEBUG       [size=42,place=2] best score = 0.01943518; best param = {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': None, 'quantifier__classifier__gamma': 55.150738286634635, 'quantifier__recalib': None, 'confidence': ['max_conf', 'entropy']} [took 289.150s]
+19/12/23 22:48:47| DEBUG       [size=42,place=3] best score = 0.01976916; best param = {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__classifier__gamma': 551.5073828663463, 'quantifier__recalib': 'bcts', 'confidence': ['isoft']} [took 289.150s]
+19/12/23 22:57:04| DEBUG       [size=36,place=1] best score = 0.01680873; best param = {'quantifier__classifier__C': 1000.0, 'quantifier__classifier__class_weight': None, 'quantifier__classifier__gamma': 55.150738286634635, 'quantifier__recalib': None, 'confidence': ['max_conf', 'entropy']} [took 497.281s]
+19/12/23 22:57:04| DEBUG       [size=36,place=2] best score = 0.01792388; best param = {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': None, 'quantifier__classifier__gamma': 551.5073828663463, 'quantifier__recalib': 'bcts', 'confidence': ['max_conf', 'entropy']} [took 497.282s]
+19/12/23 22:57:04| DEBUG       [size=36,place=3] best score = 0.01823610; best param = {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': None, 'quantifier__classifier__gamma': 551.5073828663463, 'quantifier__recalib': 'bcts', 'confidence': ['isoft']} [took 497.282s]
+19/12/23 23:06:06| DEBUG       [size=25,place=1] best score = 0.01580744; best param = {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': None, 'quantifier__classifier__gamma': 5.515073828663463, 'quantifier__recalib': 'bcts', 'confidence': ['max_conf', 'entropy']} [took 541.663s]
+19/12/23 23:06:06| DEBUG       [size=25,place=2] best score = 0.01732318; best param = {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': None, 'quantifier__classifier__gamma': 551.5073828663463, 'quantifier__recalib': 'bcts', 'confidence': ['isoft']} [took 541.663s]
+19/12/23 23:06:06| DEBUG       [size=25,place=3] best score = 0.01854836; best param = {'quantifier__classifier__C': 1000.0, 'quantifier__classifier__class_weight': None, 'quantifier__classifier__gamma': 551.5073828663463, 'quantifier__recalib': 'bcts', 'confidence': ['max_conf', 'entropy']} [took 541.664s]
+19/12/23 23:11:23| DEBUG       [size=15,place=1] best score = 0.01819077; best param = {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': None, 'quantifier__classifier__gamma': 0.05515073828663464, 'quantifier__recalib': 'bcts', 'confidence': ['isoft']} [took 317.497s]
+19/12/23 23:11:23| DEBUG       [size=15,place=2] best score = 0.01910830; best param = {'quantifier__classifier__C': 1000.0, 'quantifier__classifier__class_weight': None, 'quantifier__classifier__gamma': 5.515073828663463, 'quantifier__recalib': 'bcts', 'confidence': ['max_conf', 'entropy']} [took 317.498s]
+19/12/23 23:11:23| DEBUG       [size=15,place=3] best score = 0.01950554; best param = {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': None, 'quantifier__classifier__gamma': 5.515073828663463, 'quantifier__recalib': 'bcts', 'confidence': ['isoft']} [took 317.498s]
+19/12/23 23:11:23| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': None, 'quantifier__classifier__gamma': 5.515073828663463, 'quantifier__recalib': 'bcts', 'confidence': ['max_conf', 'entropy']} (score=0.01581) [took 1670.7454s]
+19/12/23 23:12:49| INFO        d_mul_sld_rbf_gs finished [took 1756.7890s]
+19/12/23 23:13:14| DEBUG       [size=11,place=1] best score = 0.01980739; best param = {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__classifier__gamma': 0.5515073828663464, 'quantifier__recalib': 'bcts', 'confidence': ['max_conf', 'entropy']} [took 23.807s]
+19/12/23 23:13:14| DEBUG       [size=11,place=2] best score = 0.01985869; best param = {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': None, 'quantifier__classifier__gamma': 55.150738286634635, 'quantifier__recalib': 'bcts', 'confidence': ['max_conf', 'entropy']} [took 23.807s]
+19/12/23 23:13:14| DEBUG       [size=11,place=3] best score = 0.02147280; best param = {'quantifier__classifier__C': 0.001, 'quantifier__classifier__class_weight': None, 'quantifier__classifier__gamma': 55.150738286634635, 'quantifier__recalib': 'bcts', 'confidence': None} [took 23.808s]
+19/12/23 23:19:29| DEBUG       [size=40,place=1] best score = 0.01573720; best param = {'quantifier__classifier__C': 0.001, 'quantifier__classifier__class_weight': None, 'quantifier__classifier__gamma': 551.5073828663463, 'quantifier__recalib': 'bcts', 'confidence': None} [took 375.849s]
+19/12/23 23:19:29| DEBUG       [size=40,place=2] best score = 0.01796630; best param = {'quantifier__classifier__C': 0.01, 'quantifier__classifier__class_weight': None, 'quantifier__classifier__gamma': 55.150738286634635, 'quantifier__recalib': 'bcts', 'confidence': ['max_conf', 'entropy']} [took 375.850s]
+19/12/23 23:19:29| DEBUG       [size=40,place=3] best score = 0.01916539; best param = {'quantifier__classifier__C': 1000.0, 'quantifier__classifier__class_weight': None, 'quantifier__classifier__gamma': 55.150738286634635, 'quantifier__recalib': 'bcts', 'confidence': ['max_conf', 'entropy']} [took 375.850s]
+19/12/23 23:30:21| DEBUG       [size=24,place=1] best score = 0.01590004; best param = {'quantifier__classifier__C': 0.001, 'quantifier__classifier__class_weight': None, 'quantifier__classifier__gamma': 551.5073828663463, 'quantifier__recalib': 'bcts', 'confidence': ['max_conf', 'entropy']} [took 651.760s]
+19/12/23 23:30:21| DEBUG       [size=24,place=2] best score = 0.01593510; best param = {'quantifier__classifier__C': 0.01, 'quantifier__classifier__class_weight': None, 'quantifier__classifier__gamma': 551.5073828663463, 'quantifier__recalib': 'bcts', 'confidence': ['max_conf', 'entropy']} [took 651.761s]
+19/12/23 23:30:21| DEBUG       [size=24,place=3] best score = 0.01612127; best param = {'quantifier__classifier__C': 0.01, 'quantifier__classifier__class_weight': None, 'quantifier__classifier__gamma': 551.5073828663463, 'quantifier__recalib': 'bcts', 'confidence': None} [took 651.761s]
+19/12/23 23:30:21| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 0.001, 'quantifier__classifier__class_weight': None, 'quantifier__classifier__gamma': 551.5073828663463, 'quantifier__recalib': 'bcts', 'confidence': None} (score=0.01574) [took 1051.5272s]
+19/12/23 23:32:58| INFO        d_m3w_sld_rbf_gs finished [took 1207.7707s]
+19/12/23 23:32:58| INFO     Dataset sample [0.3 0.7] of dataset imdb finished [took 4280.8946s]
+19/12/23 23:32:58| INFO     Dataset sample [0.3999 0.6001] of dataset imdb started
+19/12/23 23:35:07| INFO        d_bin_sld_rbf_ne finished [took 127.3095s]
+19/12/23 23:35:08| INFO        d_bin_sld_rbf_c finished [took 128.0716s]
+19/12/23 23:35:29| INFO        d_bin_sld_rbf finished [took 150.5435s]
+19/12/23 23:35:33| INFO        d_bin_sld_rbf_mc finished [took 153.0340s]
+19/12/23 23:36:46| INFO        d_mul_sld_rbf finished [took 227.7837s]
+19/12/23 23:36:53| INFO        d_m3w_sld_rbf_c finished [took 232.9017s]
+19/12/23 23:36:54| INFO        d_mul_sld_rbf_ne finished [took 233.6819s]
+19/12/23 23:36:58| INFO        ref finished [took 11.3555s]
+19/12/23 23:36:59| INFO        d_m3w_sld_rbf finished [took 240.4900s]
+19/12/23 23:37:03| INFO        d_m3w_sld_rbf_mc finished [took 242.6943s]
+19/12/23 23:37:10| INFO        atc_mc finished [took 16.6080s]
+19/12/23 23:37:11| INFO        d_mul_sld_rbf_c finished [took 251.4695s]
+19/12/23 23:37:12| INFO        doc finished [took 17.6747s]
+19/12/23 23:37:22| INFO        d_mul_sld_rbf_mc finished [took 262.5936s]
+19/12/23 23:37:36| INFO        d_bin_sld_rbf_is finished [took 148.5276s]
+19/12/23 23:38:28| INFO        d_m3w_sld_rbf_ne finished [took 200.2703s]
+19/12/23 23:38:36| INFO        d_m3w_sld_rbf_is finished [took 182.5739s]
+19/12/23 23:38:45| INFO        d_mul_sld_rbf_is finished [took 195.6879s]
+19/12/23 23:39:00| DEBUG       [size=11,place=1] best score = 0.01359629; best param = {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__classifier__gamma': 0.6736070303013437, 'quantifier__recalib': 'bcts', 'confidence': ['max_conf', 'entropy']} [took 14.289s]
+19/12/23 23:39:00| DEBUG       [size=11,place=2] best score = 0.01674229; best param = {'quantifier__classifier__C': 0.01, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__classifier__gamma': 0.6736070303013437, 'quantifier__recalib': None, 'confidence': None} [took 14.290s]
+19/12/23 23:39:00| DEBUG       [size=11,place=3] best score = 0.01914111; best param = {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__classifier__gamma': 673.6070303013437, 'quantifier__recalib': None, 'confidence': ['isoft']} [took 14.290s]
+19/12/23 23:40:27| DEBUG       [size=42,place=1] best score = 0.01258506; best param = {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__classifier__gamma': 0.6736070303013437, 'quantifier__recalib': 'bcts', 'confidence': ['isoft']} [took 87.146s]
+19/12/23 23:40:27| DEBUG       [size=42,place=2] best score = 0.01261284; best param = {'quantifier__classifier__C': 0.01, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__classifier__gamma': 6.736070303013436, 'quantifier__recalib': None, 'confidence': None} [took 87.146s]
+19/12/23 23:40:27| DEBUG       [size=42,place=3] best score = 0.01270060; best param = {'quantifier__classifier__C': 1000.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__classifier__gamma': 0.6736070303013437, 'quantifier__recalib': 'bcts', 'confidence': ['max_conf', 'entropy']} [took 87.146s]
+19/12/23 23:44:47| DEBUG       [size=29,place=1] best score = 0.01275629; best param = {'quantifier__classifier__C': 1000.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__classifier__gamma': 0.6736070303013437, 'quantifier__recalib': 'bcts', 'confidence': ['isoft']} [took 260.067s]
+19/12/23 23:44:47| DEBUG       [size=29,place=2] best score = 0.01298527; best param = {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__classifier__gamma': 0.6736070303013437, 'quantifier__recalib': None, 'confidence': ['isoft']} [took 260.067s]
+19/12/23 23:44:47| DEBUG       [size=29,place=3] best score = 0.01303598; best param = {'quantifier__classifier__C': 0.01, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__classifier__gamma': 6.736070303013436, 'quantifier__recalib': None, 'confidence': ['isoft']} [took 260.067s]
+19/12/23 23:44:47| DEBUG       [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__classifier__gamma': 0.6736070303013437, 'quantifier__recalib': 'bcts', 'confidence': ['isoft']} (score=0.01259) [took 361.6140s]
+----------------------------------------------------------------------------------------------------
+20/12/23 10:20:50| INFO     dataset imdb [pool size: 10]
+20/12/23 10:20:50| INFO     Dataset sample [0.0999 0.9001] of dataset imdb started
+20/12/23 10:20:52| WARNING     Method bin_sld_lr_mc failed. Exception: 'coo_matrix' object is not subscriptable
+20/12/23 10:20:52| WARNING     Method bin_sld_lr failed. Exception: 'coo_matrix' object is not subscriptable
+20/12/23 10:20:52| WARNING     Method bin_sld_lr_c failed. Exception: 'coo_matrix' object is not subscriptable
+20/12/23 10:20:53| WARNING     Method bin_sld_lr_ne failed. Exception: 'coo_matrix' object is not subscriptable
+20/12/23 10:20:53| WARNING     Method bin_sld_lr_is failed. Exception: 'coo_matrix' object is not subscriptable
+20/12/23 10:21:10| INFO        ref finished [took 16.8025s]
+20/12/23 10:21:29| INFO        atc_mc finished [took 18.4451s]
+20/12/23 10:21:40| INFO        m3w_sld_lr_c finished [took 47.9577s]
+20/12/23 10:21:41| INFO        m3w_sld_lr_ne finished [took 48.1798s]
+20/12/23 10:21:42| INFO        mul_sld_lr_is finished [took 48.6494s]
+20/12/23 10:21:43| INFO        m3w_sld_lr_is finished [took 49.2860s]
+20/12/23 10:21:43| INFO        m3w_sld_lr_mc finished [took 50.0781s]
+20/12/23 10:21:43| INFO        m3w_sld_lr finished [took 50.8334s]
+20/12/23 10:21:43| INFO        mul_sld_lr_c finished [took 51.4041s]
+20/12/23 10:21:44| INFO        mul_sld_lr_ne finished [took 51.3204s]
+20/12/23 10:21:44| INFO        mul_sld_lr_mc finished [took 51.6963s]
+----------------------------------------------------------------------------------------------------
+20/12/23 10:23:21| INFO     dataset imdb [pool size: 10]
+20/12/23 10:23:21| INFO     Dataset sample [0.0999 0.9001] of dataset imdb started
+20/12/23 10:23:53| INFO        m3w_sld_lr_c finished [took 29.7964s]
+20/12/23 10:23:55| INFO        m3w_sld_lr_mc finished [took 30.9568s]
+20/12/23 10:23:56| INFO        m3w_sld_lr finished [took 32.4531s]
+20/12/23 10:23:56| INFO        mul_sld_lr_ne finished [took 32.5751s]
+20/12/23 10:23:58| INFO        bin_sld_lr_mc finished [took 33.9540s]
+20/12/23 10:23:58| INFO        mul_sld_lr_c finished [took 34.3342s]
+20/12/23 10:24:00| INFO        mul_sld_lr_mc finished [took 36.0798s]
+20/12/23 10:24:00| INFO        bin_sld_lr_ne finished [took 36.3441s]
+20/12/23 10:24:01| INFO        bin_sld_lr finished [took 37.5019s]
+20/12/23 10:24:02| INFO        bin_sld_lr_c finished [took 37.9181s]
+20/12/23 10:24:05| INFO        mul_sld_lr finished [took 41.7458s]
+----------------------------------------------------------------------------------------------------
+20/12/23 10:24:33| INFO     dataset imdb [pool size: 10]
+20/12/23 10:24:33| INFO     Dataset sample [0.0999 0.9001] of dataset imdb started
+20/12/23 10:25:20| INFO        m3w_sld_lr_c finished [took 35.5213s]
+20/12/23 10:25:23| INFO        m3w_sld_lr finished [took 40.6148s]
+20/12/23 10:25:24| INFO        mul_sld_lr_mc finished [took 38.1662s]
+20/12/23 10:25:27| INFO        mul_sld_lr finished [took 45.1495s]
+20/12/23 10:25:28| INFO        m3w_sld_lr_mc finished [took 41.7214s]
+20/12/23 10:25:28| INFO        mul_sld_lr_c finished [took 43.9173s]
+20/12/23 10:25:28| INFO        mul_sld_lr_ne finished [took 41.0378s]
+20/12/23 10:25:46| INFO        ref finished [took 17.5308s]
+20/12/23 10:25:52| INFO        atc_mc finished [took 24.2389s]
+20/12/23 10:25:54| INFO        m3w_sld_lr_ne finished [took 33.4339s]
+20/12/23 10:25:58| INFO        doc finished [took 29.2259s]
+20/12/23 10:25:58| INFO        mul_sld_lr_is finished [took 34.2513s]
+20/12/23 10:26:00| INFO        m3w_sld_lr_is finished [took 32.6867s]
+----------------------------------------------------------------------------------------------------
+20/12/23 10:26:27| INFO     dataset imdb [pool size: 10]
+20/12/23 10:26:27| INFO     Dataset sample [0.0999 0.9001] of dataset imdb started
+20/12/23 10:27:31| INFO        bin_sld_lr finished [took 55.8984s]
+20/12/23 10:27:32| INFO        m3w_sld_lr_c finished [took 53.2241s]
+20/12/23 10:27:32| INFO        m3w_sld_lr finished [took 56.0702s]
+20/12/23 10:27:34| INFO        mul_sld_lr_c finished [took 56.0379s]
+20/12/23 10:27:34| INFO        mul_sld_lr_mc finished [took 54.6543s]
+20/12/23 10:27:36| INFO        m3w_sld_lr_mc finished [took 55.7297s]
+20/12/23 10:27:36| INFO        mul_sld_lr_ne finished [took 54.6050s]
+20/12/23 10:27:43| INFO        mul_sld_lr finished [took 67.1825s]
+20/12/23 10:27:43| INFO        bin_sld_lr_c finished [took 66.1768s]
+20/12/23 10:27:45| INFO        bin_sld_lr_ne finished [took 64.2141s]
+20/12/23 10:27:45| INFO        bin_sld_lr_mc finished [took 66.3553s]
+20/12/23 10:27:56| INFO        ref finished [took 21.7923s]
+20/12/23 10:28:04| INFO        atc_mc finished [took 27.8282s]
+20/12/23 10:28:09| INFO        doc finished [took 32.3460s]
+20/12/23 10:28:09| INFO        mul_sld_lr_is finished [took 36.5316s]
+20/12/23 10:28:09| INFO        m3w_sld_lr_ne finished [took 37.5858s]
+20/12/23 10:28:11| INFO        m3w_sld_lr_is finished [took 36.7785s]
+21/12/23 10:41:35| ERROR    estimate comparison failed. Exception: Invalid target None
+----------------------------------------------------------------------------------------------------
+21/12/23 10:42:32| INFO     dataset rcv1_CCAT [pool size: 10]
+21/12/23 10:42:32| INFO     Dataset sample [0.1 0.9] of dataset rcv1_CCAT started
+21/12/23 13:15:06| ERROR    estimate comparison failed. Exception: 'str' object has no attribute 'copy'
+----------------------------------------------------------------------------------------------------
+21/12/23 13:18:37| INFO     dataset rcv1_CCAT [pool size: 10]
+21/12/23 13:18:37| INFO     Dataset sample [0.1 0.9] of dataset rcv1_CCAT started
+----------------------------------------------------------------------------------------------------
+21/12/23 13:19:20| INFO     dataset imdb [pool size: 10]
+21/12/23 13:19:20| INFO     Dataset sample [0.1 0.9] of dataset imdb started

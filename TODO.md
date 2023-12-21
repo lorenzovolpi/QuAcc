@@ -51,3 +51,13 @@
 - [ ] significatività statistica (lunedì ore 10.00)
 - [ ] usare un metodo diverso di classificazione sia di partenza che dentro quantificatore per cifar10
 - [ ] valutare altre possibili esplorazioni del caso binario
+
+multiclass:
+- [x] aggiungere classe per gestire risultato estimator (ExtendedPrev)
+- [x] sistemare return in MCAE e BQAE estimate
+- [x] modificare acc e f1 in error.py
+- [x] modificare report.py in modo che l'index del dataframe sia una tupla di prevalence
+- [x] modificare plot per adattarsi a modifiche report
+- [x] aggiungere supporto a multiclass in dataset.py
+- [x] aggiungere group_false in ExtensionPolicy
+- [ ] modificare BQAE in modo che i quantifier si adattino alla casistica(binary/multi in base a group_false)
