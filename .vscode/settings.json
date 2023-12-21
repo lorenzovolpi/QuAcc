@@ -5,5 +5,6 @@
             "args": ["-c", "ssh volpi@ilona.isti.cnr.it",],
             "overrideName": true,
         },
-    }
+    },
+    "python.analysis.autoImportCompletions": true
 }
