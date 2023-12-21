@@ -69,7 +69,9 @@ class PlotlyPlot(BasePlot):
         legend=True,
     ) -> go.Figure:
         fig = go.Figure()
-        x = base_prevs[:, pos_class]
+        if isinstance(base_prevs[0], float):
+            base_prevs = np.around([(1 - bp, bp) for bp in base_prevs], decimals=4)
+        x = [str(tuple(bp)) for bp in base_prevs]
         line_colors = self.get_colors(len(columns))
         for name, delta in zip(columns, data):
             color = next(line_colors)
@@ -177,7 +179,8 @@ class PlotlyPlot(BasePlot):
         legend=True,
     ) -> go.Figure:
         fig = go.Figure()
-        x = shift_prevs[:, pos_class]
+        # x = shift_prevs[:, pos_class]
+        x = shift_prevs
         line_colors = self.get_colors(len(columns))
         for name, delta in zip(columns, data):
             col_idx = (columns == name).nonzero()[0][0]

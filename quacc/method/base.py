@@ -9,7 +9,14 @@ from quapy.method.aggregative import BaseQuantifier
 from sklearn.base import BaseEstimator
 
 import quacc.method.confidence as conf
-from quacc.data import ExtendedCollection, ExtendedData, ExtensionPolicy
+from quacc.data import (
+    ExtBinPrev,
+    ExtendedCollection,
+    ExtendedData,
+    ExtendedPrev,
+    ExtensionPolicy,
+    ExtMulPrev,
+)
 
 
 class BaseAccuracyEstimator(BaseQuantifier):
@@ -17,10 +24,11 @@ class BaseAccuracyEstimator(BaseQuantifier):
         self,
         classifier: BaseEstimator,
         quantifier: BaseQuantifier,
+        dense=False,
     ):
         self.__check_classifier(classifier)
         self.quantifier = quantifier
-        self.extpol = ExtensionPolicy()
+        self.extpol = ExtensionPolicy(dense=dense)
 
     def __check_classifier(self, classifier):
         if not hasattr(classifier, "predict_proba"):
@@ -46,8 +54,12 @@ class BaseAccuracyEstimator(BaseQuantifier):
         ...
 
     @abstractmethod
-    def estimate(self, instances, ext=False) -> np.ndarray:
+    def estimate(self, instances, ext=False) -> ExtendedPrev:
         ...
+
+    @property
+    def dense(self):
+        return self.extpol.dense
 
 
 class ConfidenceBasedAccuracyEstimator(BaseAccuracyEstimator):
@@ -98,9 +110,20 @@ class ConfidenceBasedAccuracyEstimator(BaseAccuracyEstimator):
 
         return np.concatenate([_conf_ext, _pred_ext], axis=1)
 
-    def extend(self, coll: LabelledCollection, pred_proba=None) -> ExtendedCollection:
+    def extend(
+        self, coll: LabelledCollection, pred_proba=None, prefit=False
+    ) -> ExtendedCollection:
         if pred_proba is None:
             pred_proba = self.classifier.predict_proba(coll.X)
+
+        if prefit:
+            self._fit_confidence(coll.X, coll.y, pred_proba)
+        else:
+            if not hasattr(self, "confidence_metrics"):
+                raise AttributeError(
+                    "Confidence metrics are not fit and cannot be computed."
+                    "Consider setting prefit to True."
+                )
 
         _ext = self.__get_ext(coll.X, pred_proba)
         return ExtendedCollection.from_lc(
@@ -125,17 +148,23 @@ class MultiClassAccuracyEstimator(ConfidenceBasedAccuracyEstimator):
         quantifier: BaseQuantifier,
         confidence: str = None,
         collapse_false=False,
+        group_false=False,
+        dense=False,
     ):
         super().__init__(
             classifier=classifier,
             quantifier=quantifier,
             confidence=confidence,
         )
-        self.extpol = ExtensionPolicy(collapse_false=collapse_false)
+        self.extpol = ExtensionPolicy(
+            collapse_false=collapse_false,
+            group_false=group_false,
+            dense=dense,
+        )
         self.e_train = None
 
-    def _get_pred_ext(self, pred_proba: np.ndarray):
-        return np.argmax(pred_proba, axis=1, keepdims=True)
+    # def _get_pred_ext(self, pred_proba: np.ndarray):
+    #     return np.argmax(pred_proba, axis=1, keepdims=True)
 
     def fit(self, train: LabelledCollection):
         pred_proba = self.classifier.predict_proba(train.X)
@@ -148,30 +177,26 @@ class MultiClassAccuracyEstimator(ConfidenceBasedAccuracyEstimator):
 
     def estimate(
         self, instances: ExtendedData | np.ndarray | sp.csr_matrix
-    ) -> np.ndarray:
+    ) -> ExtendedPrev:
         e_inst = instances
         if not isinstance(e_inst, ExtendedData):
             e_inst = self._extend_instances(instances)
 
         estim_prev = self.quantifier.quantify(e_inst.X)
-        estim_prev = self._check_prevalence_classes(
-            estim_prev, self.quantifier.classes_
+        return ExtMulPrev(
+            estim_prev,
+            e_inst.nbcl,
+            q_classes=self.quantifier.classes_,
+            extpol=self.extpol,
         )
-        if self.extpol.collapse_false:
-            estim_prev = np.insert(estim_prev, 2, 0.0)
-
-        return estim_prev
-
-    def _check_prevalence_classes(self, estim_prev, estim_classes) -> np.ndarray:
-        true_classes = self.e_train.classes_
-        for _cls in true_classes:
-            if _cls not in estim_classes:
-                estim_prev = np.insert(estim_prev, _cls, [0.0], axis=0)
-        return estim_prev
 
     @property
     def collapse_false(self):
         return self.extpol.collapse_false
+
+    @property
+    def group_false(self):
+        return self.extpol.group_false
 
 
 class BinaryQuantifierAccuracyEstimator(ConfidenceBasedAccuracyEstimator):
@@ -180,6 +205,8 @@ class BinaryQuantifierAccuracyEstimator(ConfidenceBasedAccuracyEstimator):
         classifier: BaseEstimator,
         quantifier: BaseAccuracyEstimator,
         confidence: str = None,
+        group_false: bool = False,
+        dense: bool = False,
     ):
         super().__init__(
             classifier=classifier,
@@ -187,6 +214,10 @@ class BinaryQuantifierAccuracyEstimator(ConfidenceBasedAccuracyEstimator):
             confidence=confidence,
         )
         self.quantifiers = []
+        self.extpol = ExtensionPolicy(
+            group_false=group_false,
+            dense=dense,
+        )
 
     def fit(self, train: LabelledCollection | ExtendedCollection):
         pred_proba = self.classifier.predict_proba(train.X)
@@ -215,9 +246,14 @@ class BinaryQuantifierAccuracyEstimator(ConfidenceBasedAccuracyEstimator):
         norms = [s_i.shape[0] / len(e_inst) for s_i in s_inst]
         estim_prevs = self._quantify_helper(s_inst, norms)
 
-        # estim_prev = np.array([prev_row for prev_row in zip(*estim_prevs)]).flatten()
-        estim_prev = np.concatenate(estim_prevs.T)
-        return estim_prev
+        # estim_prev = np.concatenate(estim_prevs.T)
+        # return ExtendedPrev(estim_prev, e_inst.nbcl, extpol=self.extpol)
+        return ExtBinPrev(
+            estim_prevs,
+            e_inst.nbcl,
+            q_classes=[quant.classes_ for quant in self.quantifiers],
+            extpol=self.extpol,
+        )
 
     def _quantify_helper(
         self,
@@ -229,9 +265,14 @@ class BinaryQuantifierAccuracyEstimator(ConfidenceBasedAccuracyEstimator):
             if inst.shape[0] > 0:
                 estim_prevs.append(quant.quantify(inst) * norm)
             else:
-                estim_prevs.append(np.asarray([0.0, 0.0]))
+                estim_prevs.append(np.zeros((len(quant.classes_),)))
 
-        return np.array(estim_prevs)
+        # return np.array(estim_prevs)
+        return estim_prevs
+
+    @property
+    def group_false(self):
+        return self.extpol.group_false
 
 
 BAE = BaseAccuracyEstimator

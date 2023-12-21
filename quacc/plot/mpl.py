@@ -1,9 +1,11 @@
 from pathlib import Path
+from re import X
 
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 from cycler import cycler
+from sklearn import base
 
 from quacc import utils
 from quacc.plot.base import BasePlot
@@ -48,10 +50,15 @@ class MplPlot(BasePlot):
             cm = plt.get_cmap("tab20")
         cy = cycler(color=[cm(i) for i in range(NUM_COLORS)])
 
-        base_prevs = base_prevs[:, pos_class]
+        # base_prevs = base_prevs[:, pos_class]
+        if isinstance(base_prevs[0], float):
+            base_prevs = np.around([(1 - bp, bp) for bp in base_prevs], decimals=4)
+        str_base_prevs = [str(tuple(bp)) for bp in base_prevs]
+        # xticks = [str(bp) for bp in base_prevs]
+        xticks = np.arange(len(base_prevs))
         for method, deltas, _cy in zip(columns, data, cy):
             ax.plot(
-                base_prevs,
+                xticks,
                 deltas,
                 label=method,
                 color=_cy["color"],
@@ -67,7 +74,7 @@ class MplPlot(BasePlot):
                     np.where(deltas != np.nan)[0],
                     np.where(stdev != np.nan)[0],
                 )
-                _bps, _ds, _st = base_prevs[nn_idx], deltas[nn_idx], stdev[nn_idx]
+                _bps, _ds, _st = xticks[nn_idx], deltas[nn_idx], stdev[nn_idx]
                 ax.fill_between(
                     _bps,
                     _ds - _st,
@@ -75,6 +82,15 @@ class MplPlot(BasePlot):
                     color=_cy["color"],
                     alpha=0.25,
                 )
+
+        def format_fn(tick_val, tick_pos):
+            if int(tick_val) in xticks:
+                return str_base_prevs[int(tick_val)]
+
+            return ""
+
+        ax.xaxis.set_major_locator(plt.MaxNLocator(nbins=6, integer=True, prune="both"))
+        ax.xaxis.set_major_formatter(format_fn)
 
         ax.set(
             xlabel=f"{x_label} prevalence",
@@ -187,7 +203,7 @@ class MplPlot(BasePlot):
             cm = plt.get_cmap("tab20")
         cy = cycler(color=[cm(i) for i in range(NUM_COLORS)])
 
-        shift_prevs = shift_prevs[:, pos_class]
+        # shift_prevs = shift_prevs[:, pos_class]
         for method, shifts, _cy in zip(columns, data, cy):
             ax.plot(
                 shift_prevs,

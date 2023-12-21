@@ -16,7 +16,7 @@ from quapy.protocol import (
 import quacc as qc
 import quacc.error
 from quacc.data import ExtendedCollection
-from quacc.evaluation import evaluate
+from quacc.evaluation.evaluate import evaluate
 from quacc.logger import logger
 from quacc.method.base import (
     BaseAccuracyEstimator,
@@ -194,14 +194,16 @@ class GridSearchAE(BaseAccuracyEstimator):
                 f"\tException: {e}",
                 level=1,
             )
-            raise e
+            # raise e
             score = None
 
         return params, score, model
 
-    def extend(self, coll: LabelledCollection, pred_proba=None) -> ExtendedCollection:
+    def extend(
+        self, coll: LabelledCollection, pred_proba=None, prefit=False
+    ) -> ExtendedCollection:
         assert hasattr(self, "best_model_"), "quantify called before fit"
-        return self.best_model().extend(coll, pred_proba=pred_proba)
+        return self.best_model().extend(coll, pred_proba=pred_proba, prefit=prefit)
 
     def estimate(self, instances):
         """Estimate class prevalence values using the best model found after calling the :meth:`fit` method.
@@ -392,6 +394,19 @@ class SpiderSearchAE(GridSearchAE):
                     [(params, training) for params in _hyper],
                     parallel=parallel,
                 )
+
+                # if all scores are None, select a new random batch
+                if all([s[1] is None for s in _iter_scores]):
+                    rand_index = np.arange(len(_hyper_remaining))
+                    np.random.shuffle(rand_index)
+                    rand_index = rand_index[:batch_size]
+                    remaining_index = np.setdiff1d(
+                        np.arange(len(_hyper_remaining)), rand_index
+                    )
+                    _hyper = _hyper_remaining[rand_index]
+                    _hyper_remaining = _hyper_remaining[remaining_index]
+                    continue
+
                 _sorted_idx = np.argsort(
                     [1.0 if s is None else s for _, s, _ in _iter_scores]
                 )

@@ -2,6 +2,7 @@ import os
 import time
 from traceback import print_exception as traceback
 
+import numpy as np
 import pandas as pd
 import quapy as qp
 from joblib import Parallel, delayed
@@ -76,7 +77,8 @@ def evaluate_comparison(dataset: Dataset, estimators=None) -> DatasetReport:
     log.info(f"dataset {dataset.name} [pool size: {__pool_size}]")
     for d in dataset():
         log.info(
-            f"Dataset sample {d.train_prev[1]:.2f} of dataset {dataset.name} started"
+            f"Dataset sample {np.around(d.train_prev, decimals=2)} "
+            f"of dataset {dataset.name} started"
         )
         par_tasks, seq_tasks = split_tasks(
             CE.func[estimators],
@@ -93,7 +95,8 @@ def evaluate_comparison(dataset: Dataset, estimators=None) -> DatasetReport:
 
             g_time = time.time() - tstart
             log.info(
-                f"Dataset sample {d.train_prev[1]:.2f} of dataset {dataset.name} finished "
+                f"Dataset sample {np.around(d.train_prev, decimals=2)} "
+                f"of dataset {dataset.name} finished "
                 f"[took {g_time:.4f}s]"
             )
 
@@ -108,7 +111,8 @@ def evaluate_comparison(dataset: Dataset, estimators=None) -> DatasetReport:
 
         except Exception as e:
             log.warning(
-                f"Dataset sample {d.train_prev[1]:.2f} of dataset {dataset.name} failed. "
+                f"Dataset sample {np.around(d.train_prev, decimals=2)} "
+                f"of dataset {dataset.name} failed. "
                 f"Exception: {e}"
             )
             traceback(e)

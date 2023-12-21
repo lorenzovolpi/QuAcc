@@ -1,3 +1,4 @@
+import itertools
 import math
 import os
 import pickle
@@ -119,35 +120,23 @@ class DatasetSample:
         return {"train": self.train_prev, "validation": self.validation_prev}
 
 
-class Dataset:
-    def __init__(self, name, n_prevalences=9, prevs=None, target=None):
-        self._name = name
-        self._target = target
-
-        self.prevs = None
-        self.n_prevs = n_prevalences
-        if prevs is not None:
-            prevs = np.unique([p for p in prevs if p > 0.0 and p < 1.0])
-            if prevs.shape[0] > 0:
-                self.prevs = np.sort(prevs)
-                self.n_prevs = self.prevs.shape[0]
-
-    def __spambase(self):
+class DatasetProvider:
+    def __spambase(self, **kwargs):
         return qp.datasets.fetch_UCIDataset("spambase", verbose=False).train_test
 
     # provare min_df=5
-    def __imdb(self):
+    def __imdb(self, **kwargs):
         return qp.datasets.fetch_reviews("imdb", tfidf=True, min_df=3).train_test
 
-    def __rcv1(self):
+    def __rcv1(self, target, **kwargs):
         n_train = 23149
         available_targets = ["CCAT", "GCAT", "MCAT"]
 
-        if self._target is None or self._target not in available_targets:
-            raise ValueError(f"Invalid target {self._target}")
+        if target is None or target not in available_targets:
+            raise ValueError(f"Invalid target {target}")
 
         dataset = fetch_rcv1()
-        target_index = np.where(dataset.target_names == self._target)[0]
+        target_index = np.where(dataset.target_names == target)[0]
         all_train_d = dataset.data[:n_train, :]
         test_d = dataset.data[n_train:, :]
         labels = dataset.target[:, target_index].toarray().flatten()
@@ -157,14 +146,14 @@ class Dataset:
 
         return all_train, test
 
-    def __cifar10(self):
+    def __cifar10(self, target, **kwargs):
         dataset = fetch_cifar10()
         available_targets: list = dataset.label_names
 
-        if self._target is None or self._target not in available_targets:
-            raise ValueError(f"Invalid target {self._target}")
+        if target is None or self._target not in available_targets:
+            raise ValueError(f"Invalid target {target}")
 
-        target_index = available_targets.index(self._target)
+        target_index = available_targets.index(target)
         all_train_d = dataset.train.data
         all_train_l = (dataset.train.labels == target_index).astype(int)
         test_d = dataset.test.data
@@ -174,14 +163,14 @@ class Dataset:
 
         return all_train, test
 
-    def __cifar100(self):
+    def __cifar100(self, target, **kwargs):
         dataset = fetch_cifar100()
         available_targets: list = dataset.coarse_label_names
 
-        if self._target is None or self._target not in available_targets:
-            raise ValueError(f"Invalid target {self._target}")
+        if target is None or target not in available_targets:
+            raise ValueError(f"Invalid target {target}")
 
-        target_index = available_targets.index(self._target)
+        target_index = available_targets.index(target)
         all_train_d = dataset.train.data
         all_train_l = (dataset.train.coarse_labels == target_index).astype(int)
         test_d = dataset.test.data
@@ -191,68 +180,123 @@ class Dataset:
 
         return all_train, test
 
-    def __train_test(self) -> Tuple[LabelledCollection, LabelledCollection]:
+    def __twitter_gasp(self, **kwargs):
+        return qp.datasets.fetch_twitter("gasp", min_df=3).train_test
+
+    def alltrain_test(
+        self, name: str, target: str | None
+    ) -> Tuple[LabelledCollection, LabelledCollection]:
         all_train, test = {
             "spambase": self.__spambase,
             "imdb": self.__imdb,
             "rcv1": self.__rcv1,
             "cifar10": self.__cifar10,
             "cifar100": self.__cifar100,
-        }[self._name]()
+            "twitter_gasp": self.__twitter_gasp,
+        }[name](target=target)
 
         return all_train, test
 
-    def get_raw(self) -> DatasetSample:
-        all_train, test = self.__train_test()
 
-        train, val = all_train.split_stratified(
-            train_prop=TRAIN_VAL_PROP, random_state=env._R_SEED
-        )
+class Dataset(DatasetProvider):
+    def __init__(self, name, n_prevalences=9, prevs=None, target=None):
+        self._name = name
+        self._target = target
 
-        return DatasetSample(train, val, test)
+        self.all_train, self.test = self.alltrain_test(self._name, self._target)
+        self.__resample_all_train()
 
-    def get(self) -> List[DatasetSample]:
-        all_train, test = self.__train_test()
+        self.prevs = None
+        self._n_prevs = n_prevalences
+        self.__check_prevs(prevs)
+        self.prevs = self.__build_prevs()
 
-        # resample all_train set to have (0.5, 0.5) prevalence
-        at_positives = np.sum(all_train.y)
-        all_train = all_train.sampling(
-            min(at_positives, len(all_train) - at_positives) * 2,
-            0.5,
+    def __resample_all_train(self):
+        tr_counts, tr_ncl = self.all_train.counts(), self.all_train.n_classes
+        _resample_prevs = np.full((tr_ncl,), fill_value=1.0 / tr_ncl)
+        self.all_train = self.all_train.sampling(
+            np.min(tr_counts) * tr_ncl,
+            *_resample_prevs.tolist(),
             random_state=env._R_SEED,
         )
 
-        # sample prevalences
+    def __check_prevs(self, prevs):
+        try:
+            iter(prevs)
+        except TypeError:
+            return
+
+        if prevs is None or len(prevs) == 0:
+            return
+
+        def is_float_iterable(obj):
+            try:
+                it = iter(obj)
+                return all([isinstance(o, float) for o in it])
+            except TypeError:
+                return False
+
+        if not all([is_float_iterable(p) for p in prevs]):
+            return
+
+        if not all([len(p) == self.all_train.n_classes for p in prevs]):
+            return
+
+        if not all([sum(p) == 1.0 for p in prevs]):
+            return
+
+        self.prevs = np.unique(prevs, axis=0)
+
+    def __build_prevs(self):
         if self.prevs is not None:
-            prevs = self.prevs
-        else:
-            prevs = np.linspace(0.0, 1.0, num=self.n_prevs + 1, endpoint=False)[1:]
+            return self.prevs
 
-        at_size = min(math.floor(len(all_train) * 0.5 / p) for p in prevs)
-        datasets = []
-        for p in 1.0 - prevs:
-            all_train_sampled = all_train.sampling(at_size, p, random_state=env._R_SEED)
-            train, validation = all_train_sampled.split_stratified(
-                train_prop=TRAIN_VAL_PROP, random_state=env._R_SEED
-            )
-            datasets.append(DatasetSample(train, validation, test))
+        dim = self.all_train.n_classes
+        lspace = np.linspace(0.0, 1.0, num=self._n_prevs + 1, endpoint=False)[1:]
+        mesh = np.array(np.meshgrid(*[lspace for _ in range(dim)])).T.reshape(-1, dim)
+        mesh = mesh[np.where(mesh.sum(axis=1) == 1.0)]
+        return np.around(np.unique(mesh, axis=0), decimals=4)
 
-        return datasets
+    def __build_sample(
+        self,
+        p: np.ndarray,
+        at_size: int,
+    ):
+        all_train_sampled = self.all_train.sampling(
+            at_size, *(p[:-1]), random_state=env._R_SEED
+        )
+        train, validation = all_train_sampled.split_stratified(
+            train_prop=TRAIN_VAL_PROP, random_state=env._R_SEED
+        )
+        return DatasetSample(train, validation, self.test)
+
+    def get(self) -> List[DatasetSample]:
+        at_size = min(
+            math.floor(len(self.all_train) * (1.0 / self.all_train.n_classes) / p)
+            for _prev in self.prevs
+            for p in _prev
+        )
+
+        return [self.__build_sample(p, at_size) for p in self.prevs]
 
     def __call__(self):
         return self.get()
 
     @property
     def name(self):
-        match (self._name, self.n_prevs):
+        match (self._name, self._n_prevs):
             case (("rcv1" | "cifar10" | "cifar100"), 9):
                 return f"{self._name}_{self._target}"
             case (("rcv1" | "cifar10" | "cifar100"), _):
-                return f"{self._name}_{self._target}_{self.n_prevs}prevs"
+                return f"{self._name}_{self._target}_{self._n_prevs}prevs"
             case (_, 9):
                 return f"{self._name}"
             case (_, _):
-                return f"{self._name}_{self.n_prevs}prevs"
+                return f"{self._name}_{self._n_prevs}prevs"
+
+    @property
+    def nprevs(self):
+        return self.prevs.shape[0]
 
 
 # >>> fetch_rcv1().target_names

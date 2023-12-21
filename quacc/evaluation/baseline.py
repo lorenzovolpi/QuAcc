@@ -43,6 +43,7 @@ def kfcv(
     predict_method="predict",
 ):
     c_model_predict = getattr(c_model, predict_method)
+    f1_average = "binary" if validation.n_classes == 2 else "macro"
 
     scoring = ["accuracy", "f1_macro"]
     scores = cross_validate(c_model, validation.X, validation.y, scoring=scoring)
@@ -53,7 +54,9 @@ def kfcv(
     for test in protocol():
         test_preds = c_model_predict(test.X)
         meta_acc = abs(acc_score - metrics.accuracy_score(test.y, test_preds))
-        meta_f1 = abs(f1_score - metrics.f1_score(test.y, test_preds))
+        meta_f1 = abs(
+            f1_score - metrics.f1_score(test.y, test_preds, average=f1_average)
+        )
         report.append_row(
             test.prevalence(),
             acc_score=acc_score,
@@ -72,13 +75,15 @@ def ref(
     protocol: AbstractStochasticSeededProtocol,
 ):
     c_model_predict = getattr(c_model, "predict")
+    f1_average = "binary" if validation.n_classes == 2 else "macro"
+
     report = EvaluationReport(name="ref")
     for test in protocol():
         test_preds = c_model_predict(test.X)
         report.append_row(
             test.prevalence(),
             acc_score=metrics.accuracy_score(test.y, test_preds),
-            f1_score=metrics.f1_score(test.y, test_preds),
+            f1_score=metrics.f1_score(test.y, test_preds, average=f1_average),
         )
 
     return report
@@ -93,6 +98,7 @@ def atc_mc(
 ):
     """garg"""
     c_model_predict = getattr(c_model, predict_method)
+    f1_average = "binary" if validation.n_classes == 2 else "macro"
 
     ## Load ID validation data probs and labels
     val_probs, val_labels = c_model_predict(validation.X), validation.y
@@ -110,8 +116,12 @@ def atc_mc(
         test_scores = atc.get_max_conf(test_probs)
         atc_accuracy = atc.get_ATC_acc(atc_thres, test_scores)
         meta_acc = abs(atc_accuracy - metrics.accuracy_score(test.y, test_preds))
-        f1_score = atc.get_ATC_f1(atc_thres, test_scores, test_probs)
-        meta_f1 = abs(f1_score - metrics.f1_score(test.y, test_preds))
+        f1_score = atc.get_ATC_f1(
+            atc_thres, test_scores, test_probs, average=f1_average
+        )
+        meta_f1 = abs(
+            f1_score - metrics.f1_score(test.y, test_preds, average=f1_average)
+        )
         report.append_row(
             test.prevalence(),
             acc=meta_acc,
@@ -132,6 +142,7 @@ def atc_ne(
 ):
     """garg"""
     c_model_predict = getattr(c_model, predict_method)
+    f1_average = "binary" if validation.n_classes == 2 else "macro"
 
     ## Load ID validation data probs and labels
     val_probs, val_labels = c_model_predict(validation.X), validation.y
@@ -149,8 +160,12 @@ def atc_ne(
         test_scores = atc.get_entropy(test_probs)
         atc_accuracy = atc.get_ATC_acc(atc_thres, test_scores)
         meta_acc = abs(atc_accuracy - metrics.accuracy_score(test.y, test_preds))
-        f1_score = atc.get_ATC_f1(atc_thres, test_scores, test_probs)
-        meta_f1 = abs(f1_score - metrics.f1_score(test.y, test_preds))
+        f1_score = atc.get_ATC_f1(
+            atc_thres, test_scores, test_probs, average=f1_average
+        )
+        meta_f1 = abs(
+            f1_score - metrics.f1_score(test.y, test_preds, average=f1_average)
+        )
         report.append_row(
             test.prevalence(),
             acc=meta_acc,
@@ -170,11 +185,14 @@ def doc(
     predict_method="predict_proba",
 ):
     c_model_predict = getattr(c_model, predict_method)
+    f1_average = "binary" if validation.n_classes == 2 else "macro"
+
     val1, val2 = validation.split_stratified(train_prop=0.5, random_state=env._R_SEED)
     val1_probs = c_model_predict(val1.X)
     val1_mc = np.max(val1_probs, axis=-1)
     val1_preds = np.argmax(val1_probs, axis=-1)
     val1_acc = metrics.accuracy_score(val1.y, val1_preds)
+    val1_f1 = metrics.f1_score(val1.y, val1_preds, average=f1_average)
     val2_protocol = APP(
         val2,
         n_prevalences=21,
@@ -193,26 +211,44 @@ def doc(
         val2_prot_y.append(v2.y)
 
     val_scores = np.array([doclib.get_doc(val1_mc, v2_mc) for v2_mc in val2_prot_mc])
-    val_targets = np.array(
+    val_targets_acc = np.array(
         [
             val1_acc - metrics.accuracy_score(v2_y, v2_preds)
             for v2_y, v2_preds in zip(val2_prot_y, val2_prot_preds)
         ]
     )
-    reg = LinearRegression().fit(
-        val_scores.reshape((val_scores.shape[0], 1)), val_targets
+    reg_acc = LinearRegression().fit(val_scores[:, np.newaxis], val_targets_acc)
+    val_targets_f1 = np.array(
+        [
+            val1_f1 - metrics.f1_score(v2_y, v2_preds, average=f1_average)
+            for v2_y, v2_preds in zip(val2_prot_y, val2_prot_preds)
+        ]
     )
+    reg_f1 = LinearRegression().fit(val_scores[:, np.newaxis], val_targets_f1)
 
     report = EvaluationReport(name="doc")
     for test in protocol():
         test_probs = c_model_predict(test.X)
         test_preds = np.argmax(test_probs, axis=-1)
         test_mc = np.max(test_probs, axis=-1)
-        score = (
-            val1_acc - reg.predict(np.array([[doclib.get_doc(val1_mc, test_mc)]]))[0]
+        acc_score = (
+            val1_acc
+            - reg_acc.predict(np.array([[doclib.get_doc(val1_mc, test_mc)]]))[0]
         )
-        meta_acc = abs(score - metrics.accuracy_score(test.y, test_preds))
-        report.append_row(test.prevalence(), acc=meta_acc, acc_score=score)
+        f1_score = (
+            val1_f1 - reg_f1.predict(np.array([[doclib.get_doc(val1_mc, test_mc)]]))[0]
+        )
+        meta_acc = abs(acc_score - metrics.accuracy_score(test.y, test_preds))
+        meta_f1 = abs(
+            f1_score - metrics.f1_score(test.y, test_preds, average=f1_average)
+        )
+        report.append_row(
+            test.prevalence(),
+            acc=meta_acc,
+            acc_score=acc_score,
+            f1=meta_f1,
+            f1_score=f1_score,
+        )
 
     return report
 
