@@ -34,8 +34,17 @@ dash = "gunicorn qcdash.app:server -b ilona.isti.cnr.it:33421"
 shell = """
     scp {$HOST}:~/tesi/quacc.log ~/tesi/remote.log &> /dev/null
     ssh {$HOST} tail -n 0 -f /home/volpi/tesi/quacc.log >> ~/tesi/remote.log
+
 """
-interpreter="fish"
+
+[tool.poe.tasks.logrf]
+shell = """
+    scp {$HOST}:~/tesi/quacc.log ~/tesi/remote.log &> /dev/null
+    ssh {$HOST} tail -n 500 -f /home/volpi/tesi/quacc.log | bat --paging=never --language log
+
+"""
+
+interpreter = "fish"
 env = { HOST = "volpi@ilona.isti.cnr.it" }
 
 [tool.poetry.group.dev.dependencies]
@@ -60,5 +69,3 @@ addopts = "--cov=quacc -rA --cov-report html"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
-
-

@@ -284,4 +284,4 @@ d_kde_rbf_conf: &d_kde_rbf_conf
       DATASET_TARGET: CCAT
 
 
-exec: *sld_lr_conf
+exec: *kde_lr_conf
