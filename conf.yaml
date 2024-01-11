@@ -39,9 +39,13 @@ debug_conf: &debug_conf
 main:
   confs: &main_confs
     - DATASET_NAME: rcv1
-      DATASET_TARGET: CCAT
+      DATASET_TARGET: MCAT
   other_confs:
     - DATASET_NAME: imdb
+    - DATASET_NAME: rcv1
+      DATASET_TARGET: CCAT
+    - DATASET_NAME: rcv1
+      DATASET_TARGET: GCAT
 
 sld_lr_conf: &sld_lr_conf
 
@@ -284,4 +288,4 @@ d_kde_rbf_conf: &d_kde_rbf_conf
       DATASET_TARGET: CCAT
 
 
-exec: *kde_lr_conf
+exec: *d_sld_rbf_conf

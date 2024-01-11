@@ -46,10 +46,13 @@ class PlotlyPlot(BasePlot):
 
     def update_layout(self, fig, title, x_label, y_label):
         fig.update_layout(
-            title=title,
+            # title=title,
             xaxis_title=x_label,
             yaxis_title=y_label,
             template=self.theme["template"],
+            font=dict(
+                size=18,
+            ),
         )
 
     def save_fig(self, fig, base_path, title) -> Path:
