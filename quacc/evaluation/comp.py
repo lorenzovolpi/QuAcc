@@ -57,6 +57,8 @@ def estimate_worker(_estimate, train, validation, test, q=None):
 def split_tasks(estimators, train, validation, test, q):
     _par, _seq = [], []
     for estim in estimators:
+        if hasattr(estim, "nocall"):
+            continue
         _task = [estim, train, validation, test]
         match estim.name:
             case n if n.endswith("_gs"):

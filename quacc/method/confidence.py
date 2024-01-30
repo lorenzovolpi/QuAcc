@@ -63,6 +63,13 @@ class Threshold(ConfidenceMetric):
         _exp = scores - self.threshold
         return _exp
 
+    # def conf(self, X, probas):
+    #     scores = self.get_scores(probas)
+    #     _exp = np.where(
+    #         scores >= self.threshold, np.ones(scores.shape), np.zeros(scores.shape)
+    #     )
+    #     return _exp[:, np.newaxis]
+
 
 @metric("linreg")
 class LinReg(ConfidenceMetric):

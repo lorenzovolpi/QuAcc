@@ -142,3 +142,37 @@ def plot_shift(
         return fig, output_path
 
     return fig
+
+
+def plot_fit_scores(
+    train_prevs,
+    scores,
+    *,
+    pos_class=1,
+    metric="acc",
+    name="default",
+    legend=True,
+    save_fig=False,
+    base_path=None,
+    backend=None,
+):
+    backend = __backend if backend is None else backend
+    title = f"fit_scores_{name}_avg_{metric}"
+
+    x_label = "train prev."
+    y_label = "position"
+    fig = backend.plot_fit_scores(
+        train_prevs,
+        scores,
+        pos_class=pos_class,
+        title=title,
+        x_label=x_label,
+        y_label=y_label,
+        legend=legend,
+    )
+
+    if save_fig:
+        output_path = backend.save_fig(fig, base_path, title)
+        return fig, output_path
+
+    return fig

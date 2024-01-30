@@ -8,10 +8,38 @@ import plotly.graph_objects as go
 from quacc.plot.base import BasePlot
 
 
+class PlotCfg:
+    def __init__(self, mode, lwidth, font=None, legend=None, template="seaborn"):
+        self.mode = mode
+        self.lwidth = lwidth
+        self.legend = {} if legend is None else legend
+        self.font = {} if font is None else font
+        self.template = template
+
+
+web_cfg = PlotCfg("lines+markers", 2)
+png_cfg = PlotCfg(
+    "lines",
+    5,
+    legend=dict(
+        orientation="h",
+        yanchor="bottom",
+        xanchor="right",
+        y=1.02,
+        x=1,
+        font=dict(size=24),
+    ),
+    font=dict(size=24),
+    # template="ggplot2",
+)
+
+_cfg = png_cfg
+
+
 class PlotlyPlot(BasePlot):
     __themes = defaultdict(
         lambda: {
-            "template": "seaborn",
+            "template": _cfg.template,
         }
     )
     __themes = __themes | {
@@ -35,7 +63,7 @@ class PlotlyPlot(BasePlot):
             case v if v > 10:
                 __colors = plotly.colors.qualitative.Light24
             case _:
-                __colors = plotly.colors.qualitative.Plotly
+                __colors = plotly.colors.qualitative.G10
 
         def __generator(cs):
             while True:
@@ -50,9 +78,8 @@ class PlotlyPlot(BasePlot):
             xaxis_title=x_label,
             yaxis_title=y_label,
             template=self.theme["template"],
-            font=dict(
-                size=18,
-            ),
+            font=_cfg.font,
+            legend=_cfg.legend,
         )
 
     def save_fig(self, fig, base_path, title) -> Path:
@@ -82,9 +109,9 @@ class PlotlyPlot(BasePlot):
                 go.Scatter(
                     x=x,
                     y=delta,
-                    mode="lines+markers",
+                    mode=_cfg.mode,
                     name=name,
-                    line=dict(color=self.hex_to_rgb(color)),
+                    line=dict(color=self.hex_to_rgb(color), width=_cfg.lwidth),
                     hovertemplate="prev.: %{x}<br>error: %{y:,.4f}",
                 )
             ]
@@ -193,15 +220,41 @@ class PlotlyPlot(BasePlot):
                     x=x,
                     y=delta,
                     customdata=np.stack((counts[col_idx],), axis=-1),
-                    mode="lines+markers",
+                    mode=_cfg.mode,
                     name=name,
-                    line=dict(color=self.hex_to_rgb(color)),
+                    line=dict(color=self.hex_to_rgb(color), width=_cfg.lwidth),
                     hovertemplate="shift: %{x}<br>error: %{y}"
                     + "<br>count: %{customdata[0]}"
                     if counts is not None
                     else "",
                 )
             )
+
+        self.update_layout(fig, title, x_label, y_label)
+        return fig
+
+    def plot_fit_scores(
+        self,
+        train_prevs,
+        scores,
+        *,
+        pos_class=1,
+        title="default",
+        x_label="prev.",
+        y_label="position",
+        legend=True,
+    ) -> go.Figure:
+        fig = go.Figure()
+        # x = train_prevs
+        x = [str(tuple(bp)) for bp in train_prevs]
+        fig.add_trace(
+            go.Scatter(
+                x=x,
+                y=scores,
+                mode="lines+markers",
+                showlegend=False,
+            ),
+        )
 
         self.update_layout(fig, title, x_label, y_label)
         return fig

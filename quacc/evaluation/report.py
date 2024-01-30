@@ -1,7 +1,6 @@
 import json
 import pickle
 from collections import defaultdict
-from itertools import chain
 from pathlib import Path
 from typing import List, Tuple
 
@@ -39,6 +38,7 @@ class EvaluationReport:
         self.data: pd.DataFrame | None = None
         self.name = name if name is not None else "default"
         self.time = 0.0
+        self.fit_score = None
 
     def append_row(self, basep: np.ndarray | Tuple, **row):
         # bp = basep[1]
@@ -89,6 +89,7 @@ class CompReport:
         train_prev: np.ndarray = None,
         valid_prev: np.ndarray = None,
         times=None,
+        fit_scores=None,
         g_time=None,
     ):
         if isinstance(datas, pd.DataFrame):
@@ -105,6 +106,13 @@ class CompReport:
                 .sort_index(axis=0, level=0, ascending=False, sort_remaining=False)
             )
 
+        if fit_scores is None:
+            self.fit_scores = {
+                er.name: er.fit_score for er in datas if er.fit_score is not None
+            }
+        else:
+            self.fit_scores = fit_scores
+
         if times is None:
             self.times = {er.name: er.time for er in datas}
         else:
@@ -113,6 +121,51 @@ class CompReport:
         self.times["tot"] = g_time if g_time is not None else 0.0
         self.train_prev = train_prev
         self.valid_prev = valid_prev
+
+    def postprocess(
+        self,
+        f_data: pd.DataFrame,
+        _data: pd.DataFrame,
+        metric=None,
+        estimators=None,
+    ) -> pd.DataFrame:
+        _mapping = {
+            "sld_lr_gs": [
+                "bin_sld_lr_gs",
+                "mul_sld_lr_gs",
+                "m3w_sld_lr_gs",
+            ],
+            "kde_lr_gs": [
+                "bin_kde_lr_gs",
+                "mul_kde_lr_gs",
+                "m3w_kde_lr_gs",
+            ],
+        }
+
+        for name, methods in _mapping.items():
+            if estimators is not None and name not in estimators:
+                continue
+
+            if len(np.where(np.in1d(methods, self._data.columns.unique(1)))[0]) != len(
+                methods
+            ):
+                continue
+
+            _metric = _get_metric(metric)
+            m_data = _data.loc[:, (_metric, methods)]
+            _fit_scores = [(k, v) for (k, v) in self.fit_scores.items() if k in methods]
+            _best_method = [k for k, v in _fit_scores][
+                np.argmin([v for k, v in _fit_scores])
+            ]
+            _metric = (
+                [_metric]
+                if _metric is isinstance(_metric, str)
+                else m_data.columns.unique(0)
+            )
+            for _m in _metric:
+                f_data.loc[:, (_m, name)] = m_data.loc[:, (_m, _best_method)]
+
+        return f_data
 
     @property
     def prevs(self) -> np.ndarray:
@@ -149,6 +202,7 @@ class CompReport:
             train_prev=self.train_prev,
             valid_prev=self.valid_prev,
             times=self.times | other.times,
+            fit_scores=self.fit_scores | other.fit_scores,
             g_time=self.times["tot"] + other.times["tot"],
         )
 
@@ -159,7 +213,10 @@ class CompReport:
         _estimators = _get_estimators(
             estimators, self._data.loc[:, (_metric, slice(None))].columns.unique(1)
         )
-        f_data: pd.DataFrame = self._data.copy().loc[:, (_metric, _estimators)]
+        _data: pd.DataFrame = self._data.copy()
+        f_data: pd.DataFrame = _data.loc[:, (_metric, _estimators)]
+
+        f_data = self.postprocess(f_data, _data, metric=metric, estimators=estimators)
 
         if len(f_data.columns.unique(0)) == 1:
             f_data = f_data.droplevel(level=0, axis=1)
@@ -187,7 +244,11 @@ class CompReport:
         _estimators = _get_estimators(
             estimators, shift_data.loc[:, (_metric, slice(None))].columns.unique(1)
         )
+        s_data: pd.DataFrame = shift_data
         shift_data: pd.DataFrame = shift_data.loc[:, (_metric, _estimators)]
+        shift_data = self.postprocess(
+            shift_data, s_data, metric=metric, estimators=estimators
+        )
 
         if len(shift_data.columns.unique(0)) == 1:
             shift_data = shift_data.droplevel(level=0, axis=1)
@@ -354,17 +415,27 @@ class CompReport:
         return res
 
 
+def _cr_train_prev(cr: CompReport):
+    return tuple(np.around(cr.train_prev, decimals=2))
+
+
+def _cr_data(cr: CompReport, metric=None, estimators=None):
+    return cr.data(metric, estimators)
+
+
 class DatasetReport:
     _default_dr_modes = [
         "delta_train",
         "stdev_train",
         "train_table",
+        "train_std_table",
         "shift",
         "shift_table",
         "delta_test",
         "stdev_test",
         "test_table",
         "stats_table",
+        "fit_scores",
     ]
     _default_cr_modes = CompReport._default_modes
 
@@ -380,15 +451,62 @@ class DatasetReport:
 
         return DatasetReport(self.name, _crs)
 
+    def fit_scores(self, metric: str = None, estimators: List[str] = None):
+        def _get_sort_idx(arr):
+            return np.array([np.searchsorted(np.sort(a), a) + 1 for a in arr])
+
+        def _get_best_idx(arr):
+            return np.argmin(arr, axis=1)
+
+        def _fdata_idx(idx) -> np.ndarray:
+            return _fdata.loc[(idx, slice(None), slice(None)), :].to_numpy()
+
+        _crs_train = [_cr_train_prev(cr) for cr in self.crs]
+
+        for cr in self.crs:
+            if not hasattr(cr, "fit_scores"):
+                return None
+
+        _crs_fit_scores = [cr.fit_scores for cr in self.crs]
+
+        _fit_scores = pd.DataFrame(_crs_fit_scores, index=_crs_train)
+        _fit_scores = _fit_scores.sort_index(axis=0, ascending=False)
+
+        _estimators = _get_estimators(estimators, _fit_scores.columns)
+        if _estimators.shape[0] == 0:
+            return None
+
+        _fdata = self.data(metric=metric, estimators=_estimators)
+
+        # ensure that columns in _fit_scores have the same ordering of _fdata
+        _fit_scores = _fit_scores.loc[:, _fdata.columns]
+
+        _best_fit_estimators = _get_best_idx(_fit_scores.to_numpy())
+
+        # scores = np.array(
+        #     [
+        #         _get_sort_idx(
+        #             _fdata.loc[(idx, slice(None), slice(None)), :].to_numpy()
+        #         )[:, cl].mean()
+        #         for idx, cl in zip(_fit_scores.index, _best_fit_estimators)
+        #     ]
+        # )
+        # for idx, cl in zip(_fit_scores.index, _best_fit_estimators):
+        #     print(_fdata_idx(idx)[:, cl])
+        #     print(_fdata_idx(idx).min(axis=1), end="\n\n")
+
+        scores = np.array(
+            [
+                np.abs(_fdata_idx(idx)[:, cl] - _fdata_idx(idx).min(axis=1)).mean()
+                for idx, cl in zip(_fit_scores.index, _best_fit_estimators)
+            ]
+        )
+
+        return scores
+
     def data(self, metric: str = None, estimators: List[str] = None) -> pd.DataFrame:
-        def _cr_train_prev(cr: CompReport):
-            return tuple(np.around(cr.train_prev, decimals=2))
-
-        def _cr_data(cr: CompReport):
-            return cr.data(metric, estimators)
-
         _crs_sorted = sorted(
-            [(_cr_train_prev(cr), _cr_data(cr)) for cr in self.crs],
+            [(_cr_train_prev(cr), _cr_data(cr, metric, estimators)) for cr in self.crs],
             key=lambda cr: len(cr[1].columns),
             reverse=True,
         )
@@ -459,6 +577,15 @@ class DatasetReport:
         avg_p = f_data.groupby(level=1, sort=False).mean()
         avg_p.loc["mean", :] = f_data.mean()
         return avg_p
+
+    def train_std_table(self, metric: str = None, estimators: List[str] = None):
+        f_data = self.data(metric=metric, estimators=estimators)
+        avg_p = f_data.groupby(level=1, sort=False).mean()
+        avg_p.loc["mean", :] = f_data.mean()
+        avg_s = f_data.groupby(level=1, sort=False).std()
+        avg_s.loc["mean", :] = f_data.std()
+        avg_r = pd.concat([avg_p, avg_s], axis=1, keys=["avg", "std"])
+        return avg_r
 
     def test_table(
         self, metric: str = None, estimators: List[str] = None
@@ -587,6 +714,20 @@ class DatasetReport:
                 name=conf,
                 train_prev=None,
                 counts=count_shift.T.to_numpy(),
+                save_fig=save_fig,
+                base_path=base_path,
+                backend=backend,
+            )
+        elif mode == "fit_scores":
+            _fit_scores = self.fit_scores(metric, estimators) if data is None else data
+            if _fit_scores is None:
+                return None
+            train_prevs = self.data(metric, estimators).index.unique(0)
+            return plot.plot_fit_scores(
+                train_prevs=train_prevs,
+                scores=_fit_scores,
+                metric=metric,
+                name=conf,
                 save_fig=save_fig,
                 base_path=base_path,
                 backend=backend,
