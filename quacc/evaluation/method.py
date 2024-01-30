@@ -380,9 +380,9 @@ __kde_lr_set = [
     M("mul_kde_lr_a",  __kde_lr(), "mul", conf=["max_conf", "entropy", "isoft"],         ),
     M("m3w_kde_lr_a",  __kde_lr(), "mul", conf=["max_conf", "entropy", "isoft"],  cf=True),
     # gs kde
-    G("bin_kde_lr_gs", __kde_lr(), "bin", pg="kde_lr", search="grid"         ),
-    G("mul_kde_lr_gs", __kde_lr(), "mul", pg="kde_lr", search="grid"         ),
-    G("m3w_kde_lr_gs", __kde_lr(), "mul", pg="kde_lr", search="grid", cf=True),
+    G("bin_kde_lr_gs", __kde_lr(), "bin", pg="kde_lr", search="spider"         ),
+    G("mul_kde_lr_gs", __kde_lr(), "mul", pg="kde_lr", search="spider"         ),
+    G("m3w_kde_lr_gs", __kde_lr(), "mul", pg="kde_lr", search="spider", cf=True),
     E("kde_lr_gs"),
 ]
 
