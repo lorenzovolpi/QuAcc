@@ -85,6 +85,8 @@ def get_table(dr: DatasetReport, metric, estimators, view, mode):
         case ("avg", "train_table"):
             # return dr.data(metric=metric, estimators=estimators).groupby(level=1).mean()
             return dr.train_table(metric=metric, estimators=estimators)
+        case ("avg", "train_std_table"):
+            return dr.train_std_table(metric=metric, estimators=estimators)
         case ("avg", "test_table"):
             # return dr.data(metric=metric, estimators=estimators).groupby(level=0).mean()
             return dr.test_table(metric=metric, estimators=estimators)
@@ -121,24 +123,44 @@ def get_DataTable(df, mode):
 
     _index_name = dict(
         train_table="test prev.",
+        train_std_table="train prev.",
         test_table="train prev.",
         shift_table="shift",
         stats_table="method",
     )
     df = df.reset_index()
+
+    if mode == "train_std_table":
+        columns_format = Format()
+        df_columns = np.concatenate([["index"], df.columns.unique(1)[1:]])
+        data = [
+            dict(
+                index="(" + ", ".join([f"{v:.2f}" for v in idx]) + ")"
+                if isinstance(idx, tuple | list | np.ndarray)
+                else str(idx)
+            )
+            | {
+                k: f"{df.loc[i,('avg',k)]:.4f}~{df.loc[i,('std',k)]:.3f}"
+                for k in df.columns.unique(1)[1:]
+            }
+            for i, idx in zip(df.index, df.loc[:, ("index", "")])
+        ]
+    else:
+        columns_format = Format(precision=6, scheme=Scheme.exponent, nully="nan")
+        df_columns = df.columns
+        data = df.to_dict("records")
+
     columns = {
         c: dict(
             id=c,
             name=_index_name[mode] if c == "index" else c,
             type="numeric",
-            format=Format(precision=6, scheme=Scheme.exponent, nully="nan"),
+            format=columns_format,
         )
-        for c in df.columns
+        for c in df_columns
     }
-    # columns["index"]["format"] = Format(precision=2, scheme=Scheme.fixed)
     columns["index"]["format"] = Format()
     columns = list(columns.values())
-    data = df.to_dict("records")
     for d in data:
         if isinstance(d["index"], tuple | list | np.ndarray):
             d["index"] = "(" + ", ".join([f"{v:.2f}" for v in d["index"]]) + ")"

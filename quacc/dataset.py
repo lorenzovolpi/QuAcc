@@ -320,25 +320,59 @@ def rcv1_info():
     n_train = 23149
 
     targets = []
-    for target in range(103):
-        train_t_prev = np.average(dataset.target[:n_train, target].toarray().flatten())
-        test_t_prev = np.average(dataset.target[n_train:, target].toarray().flatten())
+    for target in ["CCAT", "MCAT", "GCAT"]:
+        target_index = np.where(dataset.target_names == target)[0]
+        train_t_prev = np.average(
+            dataset.target[:n_train, target_index].toarray().flatten()
+        )
+        test_t_prev = np.average(
+            dataset.target[n_train:, target_index].toarray().flatten()
+        )
+        d = Dataset(name="rcv1", target=target)()[0]
         targets.append(
             (
-                dataset.target_names[target],
+                target,
                 {
                     "train": (1.0 - train_t_prev, train_t_prev),
                     "test": (1.0 - test_t_prev, test_t_prev),
+                    "train_size": len(d.train),
+                    "val_size": len(d.validation),
+                    "test_size": len(d.test),
                 },
             )
         )
 
-    targets.sort(key=lambda t: t[1]["train"][1])
     for n, d in targets:
         print(f"{n}:")
-        for k, (fp, tp) in d.items():
-            print(f"\t{k}: {fp:.4f}, {tp:.4f}")
+        for k, v in d.items():
+            if isinstance(v, tuple):
+                print(f"\t{k}: {v[0]:.4f}, {v[1]:.4f}")
+            else:
+                print(f"\t{k}: {v}")
+
+
+def imdb_info():
+    train, test = qp.datasets.fetch_reviews("imdb", tfidf=True, min_df=3).train_test
+
+    train_t_prev = train.prevalence()
+    test_t_prev = test.prevalence()
+    dst = Dataset(name="imdb")()[0]
+    d = {
+        "train": (train_t_prev[0], train_t_prev[1]),
+        "test": (test_t_prev[0], test_t_prev[1]),
+        "train_size": len(dst.train),
+        "val_size": len(dst.validation),
+        "test_size": len(dst.test),
+    }
+
+    print("imdb:")
+    for k, v in d.items():
+        if isinstance(v, tuple):
+            print(f"\t{k}: {v[0]:.4f}, {v[1]:.4f}")
+        else:
+            print(f"\t{k}: {v}")
 
 
 if __name__ == "__main__":
-    fetch_cifar100()
+    rcv1_info()
+    imdb_info()

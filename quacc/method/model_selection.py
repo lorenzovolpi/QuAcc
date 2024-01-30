@@ -242,6 +242,11 @@ class GridSearchAE(BaseAccuracyEstimator):
             return self.best_model_
         raise ValueError("best_model called before fit")
 
+    def best_score(self):
+        if hasattr(self, "best_score_"):
+            return self.best_score_
+        raise ValueError("best_score called before fit")
+
 
 class RandomizedSearchAE(GridSearchAE):
     ERR_THRESHOLD = 1e-4
@@ -473,3 +478,4 @@ class SpiderSearchAE(GridSearchAE):
                 score += 1
 
         return score
+

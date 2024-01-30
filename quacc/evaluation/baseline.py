@@ -288,21 +288,76 @@ def rca(
 ):
     """elsahar19"""
     c_model_predict = getattr(c_model, predict_method)
-    val_pred1 = c_model_predict(validation.X)
+    f1_average = "binary" if validation.n_classes == 2 else "macro"
+    val1, val2 = validation.split_stratified(train_prop=0.5, random_state=env._R_SEED)
+    val1_pred1 = c_model_predict(val1.X)
+
+    val2_protocol = APP(
+        val2,
+        n_prevalences=21,
+        repeats=100,
+        return_type="labelled_collection",
+    )
+    val2_prot_preds = []
+    val2_rca = []
+    val2_prot_preds = []
+    val2_prot_y = []
+    for v2 in val2_protocol():
+        _preds = c_model_predict(v2.X)
+        try:
+            c_model2 = clone_fit(c_model, v2.X, _preds)
+            c_model2_predict = getattr(c_model2, predict_method)
+            val1_pred2 = c_model2_predict(val1.X)
+            rca_score = 1.0 - rcalib.get_score(val1_pred1, val1_pred2, val1.y)
+            val2_rca.append(rca_score)
+            val2_prot_preds.append(_preds)
+            val2_prot_y.append(v2.y)
+        except ValueError:
+            pass
+
+    val_targets_acc = np.array(
+        [
+            metrics.accuracy_score(v2_y, v2_preds)
+            for v2_y, v2_preds in zip(val2_prot_y, val2_prot_preds)
+        ]
+    )
+    reg_acc = LinearRegression().fit(np.array(val2_rca)[:, np.newaxis], val_targets_acc)
+    val_targets_f1 = np.array(
+        [
+            metrics.f1_score(v2_y, v2_preds, average=f1_average)
+            for v2_y, v2_preds in zip(val2_prot_y, val2_prot_preds)
+        ]
+    )
+    reg_f1 = LinearRegression().fit(np.array(val2_rca)[:, np.newaxis], val_targets_f1)
 
     report = EvaluationReport(name="rca")
     for test in protocol():
         try:
-            test_pred = c_model_predict(test.X)
-            c_model2 = clone_fit(c_model, test.X, test_pred)
+            test_preds = c_model_predict(test.X)
+            c_model2 = clone_fit(c_model, test.X, test_preds)
             c_model2_predict = getattr(c_model2, predict_method)
-            val_pred2 = c_model2_predict(validation.X)
-            rca_score = 1.0 - rcalib.get_score(val_pred1, val_pred2, validation.y)
-            meta_score = abs(rca_score - metrics.accuracy_score(test.y, test_pred))
-            report.append_row(test.prevalence(), acc=meta_score, acc_score=rca_score)
+            val1_pred2 = c_model2_predict(val1.X)
+            rca_score = 1.0 - rcalib.get_score(val1_pred1, val1_pred2, val1.y)
+            acc_score = reg_acc.predict(np.array([[rca_score]]))[0]
+            f1_score = reg_f1.predict(np.array([[rca_score]]))[0]
+            meta_acc = abs(acc_score - metrics.accuracy_score(test.y, test_preds))
+            meta_f1 = abs(
+                f1_score - metrics.f1_score(test.y, test_preds, average=f1_average)
+            )
+            report.append_row(
+                test.prevalence(),
+                acc=meta_acc,
+                acc_score=acc_score,
+                f1=meta_f1,
+                f1_score=f1_score,
+            )
         except ValueError:
             report.append_row(
-                test.prevalence(), acc=float("nan"), acc_score=float("nan")
+                test.prevalence(),
+                acc=np.nan,
+                acc_score=np.nan,
+                f1=np.nan,
+                f1_score=np.nan,
             )
 
     return report
@@ -317,13 +372,56 @@ def rca_star(
 ):
     """elsahar19"""
     c_model_predict = getattr(c_model, predict_method)
-    validation1, validation2 = validation.split_stratified(
+    f1_average = "binary" if validation.n_classes == 2 else "macro"
+    validation1, val2 = validation.split_stratified(
         train_prop=0.5, random_state=env._R_SEED
     )
-    val1_pred = c_model_predict(validation1.X)
-    c_model1 = clone_fit(c_model, validation1.X, val1_pred)
+    val11, val12 = validation1.split_stratified(
+        train_prop=0.5, random_state=env._R_SEED
+    )
+
+    val11_pred = c_model_predict(val11.X)
+    c_model1 = clone_fit(c_model, val11.X, val11_pred)
     c_model1_predict = getattr(c_model1, predict_method)
-    val2_pred1 = c_model1_predict(validation2.X)
+    val12_pred1 = c_model1_predict(val12.X)
+
+    val2_protocol = APP(
+        val2,
+        n_prevalences=21,
+        repeats=100,
+        return_type="labelled_collection",
+    )
+    val2_prot_preds = []
+    val2_rca = []
+    val2_prot_preds = []
+    val2_prot_y = []
+    for v2 in val2_protocol():
+        _preds = c_model_predict(v2.X)
+        try:
+            c_model2 = clone_fit(c_model, v2.X, _preds)
+            c_model2_predict = getattr(c_model2, predict_method)
+            val12_pred2 = c_model2_predict(val12.X)
+            rca_score = 1.0 - rcalib.get_score(val12_pred1, val12_pred2, val12.y)
+            val2_rca.append(rca_score)
+            val2_prot_preds.append(_preds)
+            val2_prot_y.append(v2.y)
+        except ValueError:
+            pass
+
+    val_targets_acc = np.array(
+        [
+            metrics.accuracy_score(v2_y, v2_preds)
+            for v2_y, v2_preds in zip(val2_prot_y, val2_prot_preds)
+        ]
+    )
+    reg_acc = LinearRegression().fit(np.array(val2_rca)[:, np.newaxis], val_targets_acc)
+    val_targets_f1 = np.array(
+        [
+            metrics.f1_score(v2_y, v2_preds, average=f1_average)
+            for v2_y, v2_preds in zip(val2_prot_y, val2_prot_preds)
+        ]
+    )
+    reg_f1 = LinearRegression().fit(np.array(val2_rca)[:, np.newaxis], val_targets_f1)
 
     report = EvaluationReport(name="rca_star")
     for test in protocol():
@@ -331,17 +429,28 @@ def rca_star(
             test_pred = c_model_predict(test.X)
             c_model2 = clone_fit(c_model, test.X, test_pred)
             c_model2_predict = getattr(c_model2, predict_method)
-            val2_pred2 = c_model2_predict(validation2.X)
-            rca_star_score = 1.0 - rcalib.get_score(
-                val2_pred1, val2_pred2, validation2.y
+            val12_pred2 = c_model2_predict(val12.X)
+            rca_star_score = 1.0 - rcalib.get_score(val12_pred1, val12_pred2, val12.y)
+            acc_score = reg_acc.predict(np.array([[rca_star_score]]))[0]
+            f1_score = reg_f1.predict(np.array([[rca_score]]))[0]
+            meta_acc = abs(acc_score - metrics.accuracy_score(test.y, test_pred))
+            meta_f1 = abs(
+                f1_score - metrics.f1_score(test.y, test_pred, average=f1_average)
             )
-            meta_score = abs(rca_star_score - metrics.accuracy_score(test.y, test_pred))
             report.append_row(
-                test.prevalence(), acc=meta_score, acc_score=rca_star_score
+                test.prevalence(),
+                acc=meta_acc,
+                acc_score=acc_score,
+                f1=meta_f1,
+                f1_score=f1_score,
             )
         except ValueError:
             report.append_row(
-                test.prevalence(), acc=float("nan"), acc_score=float("nan")
+                test.prevalence(),
+                acc=np.nan,
+                acc_score=np.nan,
+                f1=np.nan,
+                f1_score=np.nan,
             )
 
     return report
@@ -447,3 +556,4 @@ def kdex2(
         report.append_row(test.prevalence(), acc=meta_score, acc_score=estim_acc)
 
     return report
+

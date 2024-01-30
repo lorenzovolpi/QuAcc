@@ -5,47 +5,80 @@ debug_conf: &debug_conf
     OUT_DIR_NAME: output/debug
     DATASET_N_PREVS: 9
     COMP_ESTIMATORS:
-      - bin_sld_lr
-      - mul_sld_lr
-      - m3w_sld_lr
-      - d_bin_sld_lr
-      - d_mul_sld_lr
-      - d_m3w_sld_lr
-      - d_bin_sld_rbf
-      - d_mul_sld_rbf
-      - d_m3w_sld_rbf
-      - bin_kde_lr
-      - mul_kde_lr
-      - m3w_kde_lr
-      - d_bin_kde_lr
-      - d_mul_kde_lr
-      - d_m3w_kde_lr
-      - d_bin_kde_rbf
-      - d_mul_kde_rbf
-      - d_m3w_kde_rbf
+      # - bin_sld_lr
+      # - mul_sld_lr
+      # - m3w_sld_lr
+      # - d_bin_sld_lr
+      # - d_mul_sld_lr
+      # - d_m3w_sld_lr
+      # - d_bin_sld_rbf
+      # - d_mul_sld_rbf
+      # - d_m3w_sld_rbf
+      # - bin_kde_lr
+      # - mul_kde_lr
+      # - m3w_kde_lr
+      # - d_bin_kde_lr
+      # - d_mul_kde_lr
+      # - d_m3w_kde_lr
+      # - d_bin_kde_rbf
+      # - d_mul_kde_rbf
+      # - d_m3w_kde_rbf
       # - mandoline
-      # - rca
+      - bin_sld_lr_is
+      - mul_sld_lr_is
+      - m3w_sld_lr_is
+      - rca
+      - rca_star
       - doc
       - atc_mc
     N_JOBS: -2
 
   confs:
     - DATASET_NAME: imdb
+    - DATASET_NAME: rcv1
+      DATASET_TARGET: CCAT
   other_confs:
     - DATASET_NAME: twitter_gasp
     - DATASET_NAME: rcv1
       DATASET_TARGET: CCAT
+
+test_conf: &test_conf
+  global:
+    METRICS: 
+      - acc
+      - f1
+    OUT_DIR_NAME: output/test
+    DATASET_N_PREVS: 9
+    COMP_ESTIMATORS:
+      - cross
+      - cross2
+      - bin_sld_lr
+      - mul_sld_lr
+      - m3w_sld_lr
+      - bin_sld_lr_is
+      - mul_sld_lr_is
+      - m3w_sld_lr_is
+      - doc 
+      - atc_mc
+    N_JOBS: -2
+
+  confs:
+    - DATASET_NAME: imdb
+    - DATASET_NAME: rcv1
+      DATASET_TARGET: CCAT
+  other_confs:
+    - DATASET_NAME: twitter_gasp
       
 main:
   confs: &main_confs
     - DATASET_NAME: rcv1
-      DATASET_TARGET: MCAT
+      DATASET_TARGET: CCAT
   other_confs:
     - DATASET_NAME: imdb
     - DATASET_NAME: rcv1
-      DATASET_TARGET: CCAT
-    - DATASET_NAME: rcv1
       DATASET_TARGET: GCAT
+    - DATASET_NAME: rcv1
+      DATASET_TARGET: MCAT
 
 sld_lr_conf: &sld_lr_conf
 
@@ -72,6 +105,9 @@ sld_lr_conf: &sld_lr_conf
       - bin_sld_lr_is
       - mul_sld_lr_is
       - m3w_sld_lr_is
+      - bin_sld_lr_a
+      - mul_sld_lr_a
+      - m3w_sld_lr_a
       - bin_sld_lr_gs
       - mul_sld_lr_gs
       - m3w_sld_lr_gs
@@ -116,6 +152,9 @@ d_sld_lr_conf: &d_sld_lr_conf
       - d_bin_sld_lr_is
       - d_mul_sld_lr_is
       - d_m3w_sld_lr_is
+      - d_bin_sld_lr_a
+      - d_mul_sld_lr_a
+      - d_m3w_sld_lr_a
       - d_bin_sld_lr_gs
       - d_mul_sld_lr_gs
       - d_m3w_sld_lr_gs
@@ -160,6 +199,9 @@ d_sld_rbf_conf: &d_sld_rbf_conf
       - d_bin_sld_rbf_is
       - d_mul_sld_rbf_is
       - d_m3w_sld_rbf_is
+      - d_bin_sld_rbf_a
+      - d_mul_sld_rbf_a
+      - d_m3w_sld_rbf_a
       - d_bin_sld_rbf_gs
       - d_mul_sld_rbf_gs
       - d_m3w_sld_rbf_gs
@@ -202,6 +244,9 @@ kde_lr_conf: &kde_lr_conf
       - bin_kde_lr_is
       - mul_kde_lr_is
       - m3w_kde_lr_is
+      - bin_kde_lr_a
+      - mul_kde_lr_a
+      - m3w_kde_lr_a
       - bin_kde_lr_gs
       - mul_kde_lr_gs
       - m3w_kde_lr_gs
@@ -238,6 +283,9 @@ d_kde_lr_conf: &d_kde_lr_conf
       - d_bin_kde_lr_is
       - d_mul_kde_lr_is
       - d_m3w_kde_lr_is
+      - d_bin_kde_lr_a
+      - d_mul_kde_lr_a
+      - d_m3w_kde_lr_a
       - d_bin_kde_lr_gs
       - d_mul_kde_lr_gs
       - d_m3w_kde_lr_gs
@@ -274,6 +322,9 @@ d_kde_rbf_conf: &d_kde_rbf_conf
       - d_bin_kde_rbf_is
       - d_mul_kde_rbf_is
       - d_m3w_kde_rbf_is
+      - d_bin_kde_rbf_a
+      - d_mul_kde_rbf_a
+      - d_m3w_kde_rbf_a
       - d_bin_kde_rbf_gs
       - d_mul_kde_rbf_gs
       - d_m3w_kde_rbf_gs
@@ -287,5 +338,72 @@ d_kde_rbf_conf: &d_kde_rbf_conf
     - DATASET_NAME: rcv1
       DATASET_TARGET: CCAT
 
+baselines_conf: &baselines_conf
+  global:
+    METRICS: 
+      - acc
+      - f1
+    OUT_DIR_NAME: output/baselines
+    DATASET_N_PREVS: 9
+    COMP_ESTIMATORS:
+      - doc
+      - atc_mc
+      - mandoline
+      - rca
+      - rca_star
+    N_JOBS: -2
 
-exec: *d_sld_rbf_conf
+  confs: *main_confs
+  other_confs:
+    - DATASET_NAME: imdb
+    - DATASET_NAME: rcv1
+      DATASET_TARGET: CCAT
+
+kde_lr_gs_conf: &kde_lr_gs_conf
+  global:
+    METRICS: 
+      - acc
+      - f1
+    OUT_DIR_NAME: output/kde_lr_gs
+    DATASET_N_PREVS: 9
+    COMP_ESTIMATORS:
+      - bin_kde_lr_gs
+      - mul_kde_lr_gs
+      - m3w_kde_lr_gs
+    N_JOBS: -2
+
+  confs: *main_confs
+
+timing_conf: &timing_conf
+  global:
+    METRICS:
+      - acc
+      - f1
+    OUT_DIR_NAME: output/timing
+    DATASET_N_PREVS: 1
+    COMP_ESTIMATORS:
+      - bin_sld_lr_a
+      - mul_sld_lr_a
+      - m3w_sld_lr_a
+      - bin_kde_lr_a
+      - mul_kde_lr_a
+      - m3w_kde_lr_a
+      - bin_sld_lr_gs
+      - mul_sld_lr_gs
+      - m3w_sld_lr_gs
+      - bin_kde_lr_gs
+      - mul_kde_lr_gs
+      - m3w_kde_lr_gs
+      - doc 
+      - atc_mc
+      - rca
+      - rca_star
+      - mandoline
+    N_JOBS: 1
+    PROTOCOL_N_PREVS: 1,
+    PROTOCOL_REPEATS: 1,
+    SAMPLE_SIZE: 1000,
+
+  confs: *main_confs
+
+exec: *kde_lr_gs_conf

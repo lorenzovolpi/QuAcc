@@ -52,3 +52,16 @@ class BasePlot:
         legend=True,
     ):
         ...
+
+    @classmethod
+    def plot_fit_scores(
+        train_prevs,
+        scores,
+        *,
+        pos_class=1,
+        title="default",
+        x_label="prev.",
+        y_label="position",
+        legend=True,
+    ):
+        ...

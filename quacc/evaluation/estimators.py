@@ -2,7 +2,7 @@ from typing import List
 
 import numpy as np
 
-from quacc.evaluation import baseline, method
+from quacc.evaluation import baseline, method, alt
 
 
 class CompEstimatorFunc_:
@@ -40,7 +40,7 @@ class CompEstimatorName_:
 
 class CompEstimator:
     def __get(cls, e: str | List[str], get_ref=True):
-        _dict = method._methods | baseline._baselines
+        _dict = alt._alts | method._methods | baseline._baselines
 
         match e:
             case "__all":

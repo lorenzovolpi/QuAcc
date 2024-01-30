@@ -42,7 +42,7 @@ class BaseAccuracyEstimator(BaseQuantifier):
             pred_proba = self.classifier.predict_proba(coll.X)
 
         return ExtendedCollection.from_lc(
-            coll, pred_proba=pred_proba, extpol=self.extpol
+            coll, pred_proba=pred_proba, ext=pred_proba, extpol=self.extpol
         )
 
     def _extend_instances(self, instances: np.ndarray | sp.csr_matrix):

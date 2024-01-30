@@ -26,7 +26,12 @@ def _param_grid(method, X_fit: np.ndarray):
                 "q__classifier__C": np.logspace(-3, 3, 7),
                 "q__classifier__class_weight": [None, "balanced"],
                 "q__recalib": [None, "bcts"],
-                "confidence": [None, ["isoft"], ["max_conf", "entropy"]],
+                "confidence": [
+                    None,
+                    ["isoft"],
+                    ["max_conf", "entropy"],
+                    ["max_conf", "entropy", "isoft"],
+                ],
             }
         case "sld_rbf":
             _scale = 1.0 / (X_fit.shape[1] * X_fit.var())
@@ -35,7 +40,12 @@ def _param_grid(method, X_fit: np.ndarray):
                 "q__classifier__class_weight": [None, "balanced"],
                 "q__classifier__gamma": _scale * np.logspace(-2, 2, 5),
                 "q__recalib": [None, "bcts"],
-                "confidence": [None, ["isoft"], ["max_conf", "entropy"]],
+                "confidence": [
+                    None,
+                    ["isoft"],
+                    ["max_conf", "entropy"],
+                    ["max_conf", "entropy", "isoft"],
+                ],
             }
         case "pacc":
             return {
@@ -48,7 +58,7 @@ def _param_grid(method, X_fit: np.ndarray):
                 "q__classifier__C": np.logspace(-3, 3, 7),
                 "q__classifier__class_weight": [None, "balanced"],
                 "q__bandwidth": np.linspace(0.01, 0.2, 20),
-                "confidence": [None, ["isoft"]],
+                "confidence": [None, ["isoft"], ["max_conf", "entropy", "isoft"]],
             }
         case "kde_rbf":
             _scale = 1.0 / (X_fit.shape[1] * X_fit.var())
@@ -57,7 +67,7 @@ def _param_grid(method, X_fit: np.ndarray):
                 "q__classifier__class_weight": [None, "balanced"],
                 "q__classifier__gamma": _scale * np.logspace(-2, 2, 5),
                 "q__bandwidth": np.linspace(0.01, 0.2, 20),
-                "confidence": [None, ["isoft"]],
+                "confidence": [None, ["isoft"], ["max_conf", "entropy", "isoft"]],
             }
 
 
@@ -94,6 +104,15 @@ def evaluation_report(
             )
 
     return report
+
+
+@dataclass(frozen=True)
+class EmptyMethod:
+    name: str
+    nocall: bool = True
+
+    def __call__(self, c_model, validation, protocol) -> EvaluationReport:
+        pass
 
 
 @dataclass(frozen=True)
@@ -162,13 +181,16 @@ class EvaluationMethodGridSearch(EvaluationMethod):
             verbose=False,
             **_search_params,
         ).fit(v_train)
-        return evaluation_report(
+        er = evaluation_report(
             estimator=est,
             protocol=protocol,
             method_name=self.name,
         )
+        er.fit_score = est.best_score()
+        return er
 
 
+E = EmptyMethod
 M = EvaluationMethod
 G = EvaluationMethodGridSearch
 
@@ -229,12 +251,19 @@ __sld_lr_set = [
     M("mul_sld_lr_is",   __sld_lr(),  "mul", conf="isoft",                        ),
     M("m3w_sld_lr_is",   __sld_lr(),  "mul", conf="isoft",                 cf=True),
     M("mgf_sld_lr_is",   __sld_lr(),  "mul", conf="isoft",                 gf=True),
+    # sld all
+    M("bin_sld_lr_a",   __sld_lr(),  "bin", conf=["max_conf", "entropy", "isoft"],         ),
+    M("bgf_sld_lr_a",   __sld_lr(),  "bin", conf=["max_conf", "entropy", "isoft"],  gf=True),
+    M("mul_sld_lr_a",   __sld_lr(),  "mul", conf=["max_conf", "entropy", "isoft"],         ),
+    M("m3w_sld_lr_a",   __sld_lr(),  "mul", conf=["max_conf", "entropy", "isoft"],  cf=True),
+    M("mgf_sld_lr_a",   __sld_lr(),  "mul", conf=["max_conf", "entropy", "isoft"],  gf=True),
     # gs sld
     G("bin_sld_lr_gs",   __sld_lr(),  "bin", pg="sld_lr"                          ),
     G("bgf_sld_lr_gs",   __sld_lr(),  "bin", pg="sld_lr",                  gf=True),
     G("mul_sld_lr_gs",   __sld_lr(),  "mul", pg="sld_lr"                          ),
     G("m3w_sld_lr_gs",   __sld_lr(),  "mul", pg="sld_lr",                  cf=True),
     G("mgf_sld_lr_gs",   __sld_lr(),  "mul", pg="sld_lr",                  gf=True),
+    E("sld_lr_gs"),
 ]
 
 __dense_sld_lr_set = [
@@ -267,12 +296,18 @@ __dense_sld_lr_set = [
     M("d_mul_sld_lr_is",   __sld_lr(),  "mul", d=True, conf="isoft",                        ),
     M("d_m3w_sld_lr_is",   __sld_lr(),  "mul", d=True, conf="isoft",                 cf=True),
     M("d_mgf_sld_lr_is",   __sld_lr(),  "mul", d=True, conf="isoft",                 gf=True),
+    # sld all
+    M("d_bin_sld_lr_a",    __sld_lr(),  "bin", d=True, conf=["max_conf", "entropy", "isoft"],         ),
+    M("d_bgf_sld_lr_a",    __sld_lr(),  "bin", d=True, conf=["max_conf", "entropy", "isoft"],  gf=True),
+    M("d_mul_sld_lr_a",    __sld_lr(),  "mul", d=True, conf=["max_conf", "entropy", "isoft"],         ),
+    M("d_m3w_sld_lr_a",    __sld_lr(),  "mul", d=True, conf=["max_conf", "entropy", "isoft"],  cf=True),
+    M("d_mgf_sld_lr_a",    __sld_lr(),  "mul", d=True, conf=["max_conf", "entropy", "isoft"],  gf=True),
     # gs sld
-    G("d_bin_sld_lr_gs",   __sld_lr(),  "bin", d=True, pg="sld_lr"                             ),
-    G("d_bgf_sld_lr_gs",   __sld_lr(),  "bin", d=True, pg="sld_lr",                     gf=True),
-    G("d_mul_sld_lr_gs",   __sld_lr(),  "mul", d=True, pg="sld_lr"                             ),
-    G("d_m3w_sld_lr_gs",   __sld_lr(),  "mul", d=True, pg="sld_lr",                     cf=True),
-    G("d_mgf_sld_lr_gs",   __sld_lr(),  "mul", d=True, pg="sld_lr",                     gf=True),
+    G("d_bin_sld_lr_gs",   __sld_lr(),  "bin", d=True, pg="sld_lr"                          ),
+    G("d_bgf_sld_lr_gs",   __sld_lr(),  "bin", d=True, pg="sld_lr",                  gf=True),
+    G("d_mul_sld_lr_gs",   __sld_lr(),  "mul", d=True, pg="sld_lr"                          ),
+    G("d_m3w_sld_lr_gs",   __sld_lr(),  "mul", d=True, pg="sld_lr",                  cf=True),
+    G("d_mgf_sld_lr_gs",   __sld_lr(),  "mul", d=True, pg="sld_lr",                  gf=True),
 ]
 
 __dense_sld_rbf_set = [
@@ -305,6 +340,12 @@ __dense_sld_rbf_set = [
     M("d_mul_sld_rbf_is", __sld_rbf(), "mul", d=True, conf="isoft",                          ),
     M("d_m3w_sld_rbf_is", __sld_rbf(), "mul", d=True, conf="isoft",                   cf=True),
     M("d_mgf_sld_rbf_is", __sld_rbf(), "mul", d=True, conf="isoft",                   gf=True),
+    # sld all
+    M("d_bin_sld_rbf_a",  __sld_rbf(), "bin", d=True, conf=["max_conf", "entropy", "isoft"],         ),
+    M("d_bgf_sld_rbf_a",  __sld_rbf(), "bin", d=True, conf=["max_conf", "entropy", "isoft"],  gf=True),
+    M("d_mul_sld_rbf_a",  __sld_rbf(), "mul", d=True, conf=["max_conf", "entropy", "isoft"],         ),
+    M("d_m3w_sld_rbf_a",  __sld_rbf(), "mul", d=True, conf=["max_conf", "entropy", "isoft"],  cf=True),
+    M("d_mgf_sld_rbf_a",  __sld_rbf(), "mul", d=True, conf=["max_conf", "entropy", "isoft"],  gf=True),
     # gs sld
     G("d_bin_sld_rbf_gs", __sld_rbf(), "bin", d=True, pg="sld_rbf", search="spider",        ),
     G("d_bgf_sld_rbf_gs", __sld_rbf(), "bin", d=True, pg="sld_rbf", search="spider", gf=True),
@@ -334,10 +375,15 @@ __kde_lr_set = [
     M("bin_kde_lr_is", __kde_lr(), "bin", conf="isoft",                        ),
     M("mul_kde_lr_is", __kde_lr(), "mul", conf="isoft",                        ),
     M("m3w_kde_lr_is", __kde_lr(), "mul", conf="isoft",                 cf=True),
+    # kde all
+    M("bin_kde_lr_a",  __kde_lr(), "bin", conf=["max_conf", "entropy", "isoft"],         ),
+    M("mul_kde_lr_a",  __kde_lr(), "mul", conf=["max_conf", "entropy", "isoft"],         ),
+    M("m3w_kde_lr_a",  __kde_lr(), "mul", conf=["max_conf", "entropy", "isoft"],  cf=True),
     # gs kde
-    G("bin_kde_lr_gs", __kde_lr(), "bin", pg="kde_lr", search="spider"         ),
-    G("mul_kde_lr_gs", __kde_lr(), "mul", pg="kde_lr", search="spider"         ),
-    G("m3w_kde_lr_gs", __kde_lr(), "mul", pg="kde_lr", search="spider", cf=True),
+    G("bin_kde_lr_gs", __kde_lr(), "bin", pg="kde_lr", search="grid"         ),
+    G("mul_kde_lr_gs", __kde_lr(), "mul", pg="kde_lr", search="grid"         ),
+    G("m3w_kde_lr_gs", __kde_lr(), "mul", pg="kde_lr", search="grid", cf=True),
+    E("kde_lr_gs"),
 ]
 
 __dense_kde_lr_set = [
@@ -361,6 +407,10 @@ __dense_kde_lr_set = [
     M("d_bin_kde_lr_is", __kde_lr(), "bin", d=True, conf="isoft",                        ),
     M("d_mul_kde_lr_is", __kde_lr(), "mul", d=True, conf="isoft",                        ),
     M("d_m3w_kde_lr_is", __kde_lr(), "mul", d=True, conf="isoft",                 cf=True),
+    # kde all
+    M("d_bin_kde_lr_a",  __kde_lr(), "bin", d=True, conf=["max_conf", "entropy", "isoft"],         ),
+    M("d_mul_kde_lr_a",  __kde_lr(), "mul", d=True, conf=["max_conf", "entropy", "isoft"],         ),
+    M("d_m3w_kde_lr_a",  __kde_lr(), "mul", d=True, conf=["max_conf", "entropy", "isoft"],  cf=True),
     # gs kde                             
     G("d_bin_kde_lr_gs", __kde_lr(), "bin", d=True, pg="kde_lr", search="spider"            ),
     G("d_mul_kde_lr_gs", __kde_lr(), "mul", d=True, pg="kde_lr", search="spider"            ),
@@ -388,6 +438,10 @@ __dense_kde_rbf_set = [
     M("d_bin_kde_rbf_is", __kde_rbf(), "bin", d=True, conf="isoft",                         ),
     M("d_mul_kde_rbf_is", __kde_rbf(), "mul", d=True, conf="isoft",                         ),
     M("d_m3w_kde_rbf_is", __kde_rbf(), "mul", d=True, conf="isoft",                  cf=True),
+    # kde all
+    M("d_bin_kde_rbf_a",  __kde_rbf(), "bin", d=True, conf=["max_conf", "entropy", "isoft"],         ),
+    M("d_mul_kde_rbf_a",  __kde_rbf(), "mul", d=True, conf=["max_conf", "entropy", "isoft"],         ),
+    M("d_m3w_kde_rbf_a",  __kde_rbf(), "mul", d=True, conf=["max_conf", "entropy", "isoft"],  cf=True),
     # gs kde
     G("d_bin_kde_rbf_gs", __kde_rbf(), "bin", d=True, pg="kde_rbf", search="spider"          ),
     G("d_mul_kde_rbf_gs", __kde_rbf(), "mul", d=True, pg="kde_rbf", search="spider"          ),

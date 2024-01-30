@@ -1,0 +1,8 @@
+#!/bin/bash
+
+if [[ "${1}" == "r" ]]; then
+	scp volpi@ilona.isti.cnr.it:~/tesi/quacc.log ~/tesi/remote.log &>/dev/null
+	ssh volpi@ilona.isti.cnr.it tail -n 500 -f /home/volpi/tesi/quacc.log | bat -P --language=log
+else
+	tail -n 500 -f /home/lorev/tesi/quacc.log | bat --paging=never --language log
+fi
