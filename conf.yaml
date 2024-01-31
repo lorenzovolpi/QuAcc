@@ -348,9 +348,10 @@ baselines_conf: &baselines_conf
     COMP_ESTIMATORS:
       - doc
       - atc_mc
-      - mandoline
-      - rca
-      - rca_star
+      - naive
+      # - mandoline
+      # - rca
+      # - rca_star
     N_JOBS: -2
 
   confs: *main_confs
