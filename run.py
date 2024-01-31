@@ -15,3 +15,7 @@ def run():
         run_local()
     elif args.remote:
         run_remote(detatch=args.detatch)
+
+
+if __name__ == "__main__":
+    run()

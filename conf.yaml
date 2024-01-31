@@ -71,14 +71,14 @@ test_conf: &test_conf
       
 main:
   confs: &main_confs
+    - DATASET_NAME: imdb
     - DATASET_NAME: rcv1
       DATASET_TARGET: CCAT
-  other_confs:
-    - DATASET_NAME: imdb
     - DATASET_NAME: rcv1
       DATASET_TARGET: GCAT
     - DATASET_NAME: rcv1
       DATASET_TARGET: MCAT
+  other_confs:
 
 sld_lr_conf: &sld_lr_conf
 
@@ -348,9 +348,7 @@ baselines_conf: &baselines_conf
     COMP_ESTIMATORS:
       - doc
       - atc_mc
-      - mandoline
-      - rca
-      - rca_star
+      - naive
     N_JOBS: -2
 
   confs: *main_confs
@@ -406,4 +404,4 @@ timing_conf: &timing_conf
 
   confs: *main_confs
 
-exec: *kde_lr_gs_conf
+exec: *baselines_conf
