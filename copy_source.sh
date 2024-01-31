@@ -1,7 +1,9 @@
 #!/bin/bash
 
-CMD="cp"
-DEST="~/tesi_docker/"
+# CMD="cp"
+# DEST="~/tesi_docker/"
+CMD="scp"
+DEST="andreaesuli@edge-nd1.isti.cnr.it:/home/andreaesuli/raid/lorenzo/"
 
 bash -c "${CMD} -r quacc ${DEST}"
 bash -c "${CMD} -r baselines ${DEST}"
