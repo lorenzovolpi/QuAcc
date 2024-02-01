@@ -1,0 +1,56 @@
+----------------------------------------------------------------------------------------------------
+31/01/24 17:15:29| INFO     dataset imdb [pool size: 205]
+31/01/24 17:15:29| INFO     Dataset sample [0.1 0.9] of dataset imdb started
+31/01/24 17:15:43| INFO        ref finished [took 10.0773s]
+31/01/24 17:15:43| INFO        naive finished [took 10.1612s]
+31/01/24 17:15:47| INFO        atc_mc finished [took 13.7677s]
+31/01/24 17:15:50| INFO        doc finished [took 16.6477s]
+31/01/24 17:15:50| INFO     Dataset sample [0.1 0.9] of dataset imdb finished [took 20.2776s]
+31/01/24 17:15:50| INFO     Dataset sample [0.2 0.8] of dataset imdb started
+31/01/24 17:16:02| INFO        naive finished [took 10.3841s]
+31/01/24 17:16:02| INFO        ref finished [took 10.4946s]
+31/01/24 17:16:05| INFO        atc_mc finished [took 13.8311s]
+31/01/24 17:16:08| INFO        doc finished [took 16.3300s]
+31/01/24 17:16:08| INFO     Dataset sample [0.2 0.8] of dataset imdb finished [took 18.0390s]
+31/01/24 17:16:08| INFO     Dataset sample [0.3 0.7] of dataset imdb started
+31/01/24 17:16:19| INFO        ref finished [took 10.0849s]
+31/01/24 17:16:20| INFO        naive finished [took 10.7268s]
+31/01/24 17:16:23| INFO        atc_mc finished [took 13.7652s]
+31/01/24 17:16:26| INFO        doc finished [took 16.6781s]
+31/01/24 17:16:26| INFO     Dataset sample [0.3 0.7] of dataset imdb finished [took 18.2875s]
+31/01/24 17:16:26| INFO     Dataset sample [0.4 0.6] of dataset imdb started
+31/01/24 17:16:38| INFO        ref finished [took 10.5390s]
+31/01/24 17:16:39| INFO        naive finished [took 10.9703s]
+31/01/24 17:16:42| INFO        atc_mc finished [took 13.9938s]
+31/01/24 17:16:45| INFO        doc finished [took 17.0890s]
+31/01/24 17:16:45| INFO     Dataset sample [0.4 0.6] of dataset imdb finished [took 18.7180s]
+31/01/24 17:16:45| INFO     Dataset sample [0.5 0.5] of dataset imdb started
+31/01/24 17:16:57| INFO        ref finished [took 10.9516s]
+31/01/24 17:16:57| INFO        naive finished [took 11.1058s]
+31/01/24 17:17:00| INFO        atc_mc finished [took 14.0372s]
+31/01/24 17:17:04| INFO        doc finished [took 17.5797s]
+31/01/24 17:17:04| INFO     Dataset sample [0.5 0.5] of dataset imdb finished [took 19.2590s]
+31/01/24 17:17:04| INFO     Dataset sample [0.6 0.4] of dataset imdb started
+31/01/24 17:17:16| INFO        ref finished [took 10.7139s]
+31/01/24 17:17:16| INFO        naive finished [took 10.6547s]
+31/01/24 17:17:20| INFO        atc_mc finished [took 14.3194s]
+31/01/24 17:17:23| INFO        doc finished [took 16.9946s]
+31/01/24 17:17:23| INFO     Dataset sample [0.6 0.4] of dataset imdb finished [took 18.7681s]
+31/01/24 17:17:23| INFO     Dataset sample [0.7 0.3] of dataset imdb started
+31/01/24 17:17:35| INFO        naive finished [took 10.2167s]
+31/01/24 17:17:35| INFO        ref finished [took 10.2050s]
+31/01/24 17:17:38| INFO        atc_mc finished [took 13.8028s]
+31/01/24 17:17:41| INFO        doc finished [took 16.6469s]
+31/01/24 17:17:41| INFO     Dataset sample [0.7 0.3] of dataset imdb finished [took 18.4131s]
+31/01/24 17:17:41| INFO     Dataset sample [0.8 0.2] of dataset imdb started
+31/01/24 17:17:53| INFO        naive finished [took 10.5230s]
+31/01/24 17:17:54| INFO        ref finished [took 10.7186s]
+31/01/24 17:17:56| INFO        atc_mc finished [took 13.5648s]
+31/01/24 17:18:00| INFO        doc finished [took 16.9703s]
+31/01/24 17:18:00| INFO     Dataset sample [0.8 0.2] of dataset imdb finished [took 18.6598s]
+31/01/24 17:18:00| INFO     Dataset sample [0.9 0.1] of dataset imdb started
+31/01/24 17:18:12| INFO        ref finished [took 10.1649s]
+31/01/24 17:18:12| INFO        naive finished [took 10.5537s]
+31/01/24 17:18:16| INFO        atc_mc finished [took 14.0827s]
+31/01/24 17:18:19| INFO        doc finished [took 16.9335s]
+31/01/24 17:18:19| INFO     Dataset sample [0.9 0.1] of dataset imdb finished [took 18.7413s]
