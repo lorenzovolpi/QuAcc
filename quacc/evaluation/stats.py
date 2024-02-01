@@ -25,6 +25,7 @@ def wilcoxon(
 ) -> pd.DataFrame:
     _data = r.data(metric, estimators)
 
+    _data = _data.dropna(axis=0, how="any")
     _wilcoxon = {}
     for est in _data.columns.unique(0):
         _wilcoxon[est] = [

@@ -3,7 +3,7 @@ from typing import Callable, List, Union
 
 import numpy as np
 from matplotlib.pylab import rand
-from quapy.method.aggregative import PACC, SLD, BaseQuantifier
+from quapy.method.aggregative import CC, PACC, SLD, BaseQuantifier
 from quapy.protocol import UPP, AbstractProtocol, OnLabelledCollectionProtocol
 from sklearn.linear_model import LogisticRegression
 from sklearn.svm import SVC, LinearSVC
@@ -52,6 +52,17 @@ def _param_grid(method, X_fit: np.ndarray):
                 "q__classifier__C": np.logspace(-3, 3, 7),
                 "q__classifier__class_weight": [None, "balanced"],
                 "confidence": [None, ["isoft"], ["max_conf", "entropy"]],
+            }
+        case "cc_lr":
+            return {
+                "q__classifier__C": np.logspace(-3, 3, 7),
+                "q__classifier__class_weight": [None, "balanced"],
+                "confidence": [
+                    None,
+                    ["isoft"],
+                    ["max_conf", "entropy"],
+                    ["max_conf", "entropy", "isoft"],
+                ],
             }
         case "kde_lr":
             return {
@@ -217,6 +228,10 @@ def __sld_lsvc():
 
 def __pacc_lr():
     return PACC(LogisticRegression())
+
+
+def __cc_lr():
+    return CC(LogisticRegression())
 
 
 # fmt: off
@@ -448,6 +463,37 @@ __dense_kde_rbf_set = [
     G("d_m3w_kde_rbf_gs", __kde_rbf(), "mul", d=True, pg="kde_rbf", search="spider", cf=True),
 ]
 
+__cc_lr_set = [
+    # base cc
+    M("bin_cc_lr",    __cc_lr(), "bin"                                       ),
+    M("mul_cc_lr",    __cc_lr(), "mul"                                       ),
+    M("m3w_cc_lr",    __cc_lr(), "mul",                               cf=True),
+    # max_conf + entropy cc
+    M("bin_cc_lr_c",  __cc_lr(), "bin", conf=["max_conf", "entropy"]         ),
+    M("mul_cc_lr_c",  __cc_lr(), "mul", conf=["max_conf", "entropy"]         ),
+    M("m3w_cc_lr_c",  __cc_lr(), "mul", conf=["max_conf", "entropy"], cf=True),
+    # max_conf cc
+    M("bin_cc_lr_mc", __cc_lr(), "bin", conf="max_conf",                     ),
+    M("mul_cc_lr_mc", __cc_lr(), "mul", conf="max_conf",                     ),
+    M("m3w_cc_lr_mc", __cc_lr(), "mul", conf="max_conf",              cf=True),
+    # entropy cc
+    M("bin_cc_lr_ne", __cc_lr(), "bin", conf="entropy",                      ),
+    M("mul_cc_lr_ne", __cc_lr(), "mul", conf="entropy",                      ),
+    M("m3w_cc_lr_ne", __cc_lr(), "mul", conf="entropy",               cf=True),
+    # inverse softmax cc
+    M("bin_cc_lr_is", __cc_lr(), "bin", conf="isoft",                        ),
+    M("mul_cc_lr_is", __cc_lr(), "mul", conf="isoft",                        ),
+    M("m3w_cc_lr_is", __cc_lr(), "mul", conf="isoft",                 cf=True),
+    # cc all
+    M("bin_cc_lr_a",  __cc_lr(), "bin", conf=["max_conf", "entropy", "isoft"],         ),
+    M("mul_cc_lr_a",  __cc_lr(), "mul", conf=["max_conf", "entropy", "isoft"],         ),
+    M("m3w_cc_lr_a",  __cc_lr(), "mul", conf=["max_conf", "entropy", "isoft"],  cf=True),
+    # gs cc
+    G("bin_cc_lr_gs", __cc_lr(), "bin", pg="cc_lr", search="grid"         ),
+    G("mul_cc_lr_gs", __cc_lr(), "mul", pg="cc_lr", search="grid"         ),
+    G("m3w_cc_lr_gs", __cc_lr(), "mul", pg="cc_lr", search="grid", cf=True),
+    E("cc_lr_gs"),
+]
 
 # fmt: on
 
@@ -458,6 +504,7 @@ __methods_set = (
     + __kde_lr_set
     + __dense_kde_lr_set
     + __dense_kde_rbf_set
+    + __cc_lr_set
     + [E("QuAcc")]
 )
 
