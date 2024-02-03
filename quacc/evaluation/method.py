@@ -362,11 +362,11 @@ __dense_sld_rbf_set = [
     M("d_m3w_sld_rbf_a",  __sld_rbf(), "mul", d=True, conf=["max_conf", "entropy", "isoft"],  cf=True),
     M("d_mgf_sld_rbf_a",  __sld_rbf(), "mul", d=True, conf=["max_conf", "entropy", "isoft"],  gf=True),
     # gs sld
-    G("d_bin_sld_rbf_gs", __sld_rbf(), "bin", d=True, pg="sld_rbf", search="spider",        ),
-    G("d_bgf_sld_rbf_gs", __sld_rbf(), "bin", d=True, pg="sld_rbf", search="spider", gf=True),
-    G("d_mul_sld_rbf_gs", __sld_rbf(), "mul", d=True, pg="sld_rbf", search="spider",        ),
-    G("d_m3w_sld_rbf_gs", __sld_rbf(), "mul", d=True, pg="sld_rbf", search="spider", cf=True),
-    G("d_mgf_sld_rbf_gs", __sld_rbf(), "mul", d=True, pg="sld_rbf", search="spider", gf=True),
+    G("d_bin_sld_rbf_gs", __sld_rbf(), "bin", d=True, pg="sld_rbf", search="grid",        ),
+    G("d_bgf_sld_rbf_gs", __sld_rbf(), "bin", d=True, pg="sld_rbf", search="grid", gf=True),
+    G("d_mul_sld_rbf_gs", __sld_rbf(), "mul", d=True, pg="sld_rbf", search="grid",        ),
+    G("d_m3w_sld_rbf_gs", __sld_rbf(), "mul", d=True, pg="sld_rbf", search="grid", cf=True),
+    G("d_mgf_sld_rbf_gs", __sld_rbf(), "mul", d=True, pg="sld_rbf", search="grid", gf=True),
 ]
 
 __kde_lr_set = [
@@ -427,9 +427,9 @@ __dense_kde_lr_set = [
     M("d_mul_kde_lr_a",  __kde_lr(), "mul", d=True, conf=["max_conf", "entropy", "isoft"],         ),
     M("d_m3w_kde_lr_a",  __kde_lr(), "mul", d=True, conf=["max_conf", "entropy", "isoft"],  cf=True),
     # gs kde                             
-    G("d_bin_kde_lr_gs", __kde_lr(), "bin", d=True, pg="kde_lr", search="spider"            ),
-    G("d_mul_kde_lr_gs", __kde_lr(), "mul", d=True, pg="kde_lr", search="spider"            ),
-    G("d_m3w_kde_lr_gs", __kde_lr(), "mul", d=True, pg="kde_lr", search="spider",    cf=True),
+    G("d_bin_kde_lr_gs", __kde_lr(), "bin", d=True, pg="kde_lr", search="grid"            ),
+    G("d_mul_kde_lr_gs", __kde_lr(), "mul", d=True, pg="kde_lr", search="grid"            ),
+    G("d_m3w_kde_lr_gs", __kde_lr(), "mul", d=True, pg="kde_lr", search="grid",    cf=True),
 ]
 
 __dense_kde_rbf_set = [

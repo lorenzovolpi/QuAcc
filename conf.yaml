@@ -456,4 +456,4 @@ timing_gs_conf: &timing_gs_conf
 
   confs: *main_confs
 
-exec: *timing_gs_conf
+exec: *d_sld_rbf_conf
