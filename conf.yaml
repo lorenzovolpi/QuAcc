@@ -72,17 +72,13 @@ test_conf: &test_conf
 main:
   confs: &main_confs
     - DATASET_NAME: imdb
-<<<<<<< HEAD
-=======
   other_confs:
->>>>>>> docker
     - DATASET_NAME: rcv1
       DATASET_TARGET: CCAT
     - DATASET_NAME: rcv1
       DATASET_TARGET: GCAT
     - DATASET_NAME: rcv1
       DATASET_TARGET: MCAT
-  other_confs:
 
 sld_lr_conf: &sld_lr_conf
 
@@ -390,12 +386,9 @@ baselines_conf: &baselines_conf
       - doc
       - atc_mc
       - naive
-<<<<<<< HEAD
       # - mandoline
       # - rca
       # - rca_star
-=======
->>>>>>> docker
     N_JOBS: -2
 
   confs: *main_confs
