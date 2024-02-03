@@ -5,6 +5,7 @@ import numpy as np
 import plotly
 import plotly.graph_objects as go
 
+from quacc.evaluation.estimators import _renames
 from quacc.plot.base import BasePlot
 
 
@@ -50,6 +51,7 @@ class PlotlyPlot(BasePlot):
 
     def __init__(self, theme=None):
         self.theme = PlotlyPlot.__themes[theme]
+        self.rename = True
 
     def hex_to_rgb(self, hex: str, t: float | None = None):
         hex = hex.lstrip("#")
@@ -85,6 +87,24 @@ class PlotlyPlot(BasePlot):
     def save_fig(self, fig, base_path, title) -> Path:
         return None
 
+    def rename_plots(
+        self,
+        columns,
+    ):
+        if not self.rename:
+            return columns
+
+        new_columns = []
+        for c in columns:
+            nc = c
+            for old, new in _renames.items():
+                if c.startswith(old):
+                    nc = new + c[len(old) :]
+
+            new_columns.append(nc)
+
+        return np.array(new_columns)
+
     def plot_delta(
         self,
         base_prevs,
@@ -102,6 +122,7 @@ class PlotlyPlot(BasePlot):
         if isinstance(base_prevs[0], float):
             base_prevs = np.around([(1 - bp, bp) for bp in base_prevs], decimals=4)
         x = [str(tuple(bp)) for bp in base_prevs]
+        columns = self.rename_plots(columns)
         line_colors = self.get_colors(len(columns))
         for name, delta in zip(columns, data):
             color = next(line_colors)
@@ -150,6 +171,7 @@ class PlotlyPlot(BasePlot):
     ) -> go.Figure:
         fig = go.Figure()
         x = reference
+        columns = self.rename_plots(columns)
         line_colors = self.get_colors(len(columns))
 
         _edges = (np.min([np.min(x), np.min(data)]), np.max([np.max(x), np.max(data)]))
@@ -211,6 +233,7 @@ class PlotlyPlot(BasePlot):
         fig = go.Figure()
         # x = shift_prevs[:, pos_class]
         x = shift_prevs
+        columns = self.rename_plots(columns)
         line_colors = self.get_colors(len(columns))
         for name, delta in zip(columns, data):
             col_idx = (columns == name).nonzero()[0][0]
