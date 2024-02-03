@@ -27,6 +27,9 @@ def _get_prev_str(prev: np.ndarray):
 
 
 def rename_estimators(estimators, rev=False):
+    if estimators is None:
+        return None
+
     _rnm = _renames
     if rev:
         _rnm = {v: k for k, v in _renames.items()}
