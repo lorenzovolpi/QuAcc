@@ -72,6 +72,10 @@ test_conf: &test_conf
 main:
   confs: &main_confs
     - DATASET_NAME: imdb
+<<<<<<< HEAD
+=======
+  other_confs:
+>>>>>>> docker
     - DATASET_NAME: rcv1
       DATASET_TARGET: CCAT
     - DATASET_NAME: rcv1
@@ -338,6 +342,43 @@ d_kde_rbf_conf: &d_kde_rbf_conf
     - DATASET_NAME: rcv1
       DATASET_TARGET: CCAT
 
+cc_lr_conf: &cc_lr_conf
+  global:
+    METRICS: 
+      - acc
+      - f1
+    OUT_DIR_NAME: output/cc_lr
+    DATASET_N_PREVS: 9
+    COMP_ESTIMATORS:
+      # - bin_cc_lr
+      # - mul_cc_lr
+      # - m3w_cc_lr
+      # - bin_cc_lr_c
+      # - mul_cc_lr_c
+      # - m3w_cc_lr_c
+      # - bin_cc_lr_mc
+      # - mul_cc_lr_mc
+      # - m3w_cc_lr_mc
+      # - bin_cc_lr_ne
+      # - mul_cc_lr_ne
+      # - m3w_cc_lr_ne
+      # - bin_cc_lr_is
+      # - mul_cc_lr_is
+      # - m3w_cc_lr_is
+      # - bin_cc_lr_a
+      # - mul_cc_lr_a
+      # - m3w_cc_lr_a
+      - bin_cc_lr_gs
+      - mul_cc_lr_gs
+      - m3w_cc_lr_gs
+    N_JOBS: -2
+
+  confs: *main_confs
+  other_confs:
+    - DATASET_NAME: imdb
+    - DATASET_NAME: rcv1
+      DATASET_TARGET: CCAT
+
 baselines_conf: &baselines_conf
   global:
     METRICS: 
@@ -349,9 +390,12 @@ baselines_conf: &baselines_conf
       - doc
       - atc_mc
       - naive
+<<<<<<< HEAD
       # - mandoline
       # - rca
       # - rca_star
+=======
+>>>>>>> docker
     N_JOBS: -2
 
   confs: *main_confs
@@ -389,22 +433,34 @@ timing_conf: &timing_conf
       - bin_kde_lr_a
       - mul_kde_lr_a
       - m3w_kde_lr_a
+      - doc 
+      - atc_mc
+      - rca
+      - rca_star
+      - mandoline
+      - naive
+    N_JOBS: 1
+    PROTOCOL_REPEATS: 1
+
+  confs: *main_confs
+
+timing_gs_conf: &timing_gs_conf
+  global:
+    METRICS:
+      - acc
+      - f1
+    OUT_DIR_NAME: output/timing_gs
+    DATASET_N_PREVS: 1
+    COMP_ESTIMATORS:
       - bin_sld_lr_gs
       - mul_sld_lr_gs
       - m3w_sld_lr_gs
       - bin_kde_lr_gs
       - mul_kde_lr_gs
       - m3w_kde_lr_gs
-      - doc 
-      - atc_mc
-      - rca
-      - rca_star
-      - mandoline
-    N_JOBS: 1
-    PROTOCOL_N_PREVS: 1,
-    PROTOCOL_REPEATS: 1,
-    SAMPLE_SIZE: 1000,
+    N_JOBS: -1
+    PROTOCOL_REPEATS: 1
 
   confs: *main_confs
 
-exec: *baselines_conf
+exec: *timing_gs_conf

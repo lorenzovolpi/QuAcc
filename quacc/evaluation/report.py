@@ -140,6 +140,19 @@ class CompReport:
                 "mul_kde_lr_gs",
                 "m3w_kde_lr_gs",
             ],
+            "cc_lr_gs": [
+                "bin_cc_lr_gs",
+                "mul_cc_lr_gs",
+                "m3w_cc_lr_gs",
+            ],
+            "QuAcc": [
+                "bin_sld_lr_gs",
+                "mul_sld_lr_gs",
+                "m3w_sld_lr_gs",
+                "bin_kde_lr_gs",
+                "mul_kde_lr_gs",
+                "m3w_kde_lr_gs",
+            ],
         }
 
         for name, methods in _mapping.items():

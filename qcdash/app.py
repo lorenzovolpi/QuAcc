@@ -13,7 +13,7 @@ from dash import Dash, Input, Output, State, callback, ctx, dash_table, dcc, htm
 from dash.dash_table.Format import Align, Format, Scheme
 
 from quacc import plot
-from quacc.evaluation.estimators import CE
+from quacc.evaluation.estimators import CE, _renames
 from quacc.evaluation.report import CompReport, DatasetReport
 from quacc.evaluation.stats import wilcoxon
 
@@ -24,6 +24,23 @@ root_folder = "output"
 
 def _get_prev_str(prev: np.ndarray):
     return str(tuple(np.around(prev, decimals=2)))
+
+
+def rename_estimators(estimators, rev=False):
+    _rnm = _renames
+    if rev:
+        _rnm = {v: k for k, v in _renames.items()}
+
+    new_estimators = []
+    for c in estimators:
+        nc = c
+        for old, new in _rnm.items():
+            if c.startswith(old):
+                nc = new + c[len(old) :]
+
+        new_estimators.append(nc)
+
+    return new_estimators
 
 
 def get_datasets(root: str | Path) -> List[DatasetReport]:
@@ -153,7 +170,7 @@ def get_DataTable(df, mode):
     columns = {
         c: dict(
             id=c,
-            name=_index_name[mode] if c == "index" else c,
+            name=_index_name[mode] if c == "index" else rename_estimators([c])[0],
             type="numeric",
             format=columns_format,
         )
@@ -412,12 +429,13 @@ def update_estimators(href, dataset, metric, curr_estimators, root):
             old_estimators = json.loads(old_estimators)
         except JSONDecodeError:
             old_estimators = []
+    old_estimators = rename_estimators(old_estimators, rev=True)
     valid_estimators: np.ndarray = dr.data(metric=metric).columns.unique(0).to_numpy()
     new_estimators = valid_estimators[
         np.isin(valid_estimators, old_estimators)
     ].tolist()
     valid_estimators = CE.name.sort(valid_estimators.tolist())
-    return valid_estimators, new_estimators
+    return rename_estimators(valid_estimators), rename_estimators(new_estimators)
 
 
 @callback(
@@ -473,6 +491,7 @@ def update_content(dataset, metric, estimators, view, mode, root):
         quote_via=quote,
     )
     dr = get_dr(root, dataset)
+    estimators = rename_estimators(estimators, rev=True)
     match mode:
         case m if m.endswith("table"):
             df = get_table(

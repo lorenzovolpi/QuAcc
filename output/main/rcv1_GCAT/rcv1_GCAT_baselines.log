@@ -1,0 +1,56 @@
+----------------------------------------------------------------------------------------------------
+31/01/24 17:25:42| INFO     dataset rcv1_GCAT [pool size: 205]
+31/01/24 17:25:42| INFO     Dataset sample [0.1 0.9] of dataset rcv1_GCAT started
+31/01/24 17:26:23| INFO        naive finished [took 39.6940s]
+31/01/24 17:26:24| INFO        ref finished [took 39.4058s]
+31/01/24 17:26:28| INFO        atc_mc finished [took 42.9347s]
+31/01/24 17:26:30| INFO        doc finished [took 45.1748s]
+31/01/24 17:26:30| INFO     Dataset sample [0.1 0.9] of dataset rcv1_GCAT finished [took 48.0319s]
+31/01/24 17:26:30| INFO     Dataset sample [0.2 0.8] of dataset rcv1_GCAT started
+31/01/24 17:27:11| INFO        ref finished [took 39.0655s]
+31/01/24 17:27:12| INFO        naive finished [took 39.4454s]
+31/01/24 17:27:15| INFO        atc_mc finished [took 42.4982s]
+31/01/24 17:27:17| INFO        doc finished [took 44.9882s]
+31/01/24 17:27:18| INFO     Dataset sample [0.2 0.8] of dataset rcv1_GCAT finished [took 47.5222s]
+31/01/24 17:27:18| INFO     Dataset sample [0.3 0.7] of dataset rcv1_GCAT started
+31/01/24 17:27:58| INFO        ref finished [took 39.3154s]
+31/01/24 17:27:59| INFO        naive finished [took 39.8133s]
+31/01/24 17:28:02| INFO        atc_mc finished [took 42.9022s]
+31/01/24 17:28:05| INFO        doc finished [took 45.4015s]
+31/01/24 17:28:05| INFO     Dataset sample [0.3 0.7] of dataset rcv1_GCAT finished [took 47.2620s]
+31/01/24 17:28:05| INFO     Dataset sample [0.4 0.6] of dataset rcv1_GCAT started
+31/01/24 17:28:46| INFO        ref finished [took 39.6887s]
+31/01/24 17:28:46| INFO        naive finished [took 40.0151s]
+31/01/24 17:28:49| INFO        atc_mc finished [took 42.6354s]
+31/01/24 17:28:52| INFO        doc finished [took 45.2833s]
+31/01/24 17:28:52| INFO     Dataset sample [0.4 0.6] of dataset rcv1_GCAT finished [took 47.0396s]
+31/01/24 17:28:52| INFO     Dataset sample [0.5 0.5] of dataset rcv1_GCAT started
+31/01/24 17:29:33| INFO        ref finished [took 39.5281s]
+31/01/24 17:29:33| INFO        naive finished [took 39.5491s]
+31/01/24 17:29:36| INFO        atc_mc finished [took 42.8285s]
+31/01/24 17:29:39| INFO        doc finished [took 45.3354s]
+31/01/24 17:29:39| INFO     Dataset sample [0.5 0.5] of dataset rcv1_GCAT finished [took 46.9929s]
+31/01/24 17:29:39| INFO     Dataset sample [0.6 0.4] of dataset rcv1_GCAT started
+31/01/24 17:30:20| INFO        ref finished [took 39.3746s]
+31/01/24 17:30:20| INFO        naive finished [took 40.2261s]
+31/01/24 17:30:23| INFO        atc_mc finished [took 42.9582s]
+31/01/24 17:30:26| INFO        doc finished [took 45.6614s]
+31/01/24 17:30:26| INFO     Dataset sample [0.6 0.4] of dataset rcv1_GCAT finished [took 47.2295s]
+31/01/24 17:30:26| INFO     Dataset sample [0.7 0.3] of dataset rcv1_GCAT started
+31/01/24 17:31:07| INFO        ref finished [took 39.2815s]
+31/01/24 17:31:07| INFO        naive finished [took 39.7243s]
+31/01/24 17:31:11| INFO        atc_mc finished [took 43.1285s]
+31/01/24 17:31:13| INFO        doc finished [took 45.4893s]
+31/01/24 17:31:13| INFO     Dataset sample [0.7 0.3] of dataset rcv1_GCAT finished [took 47.1849s]
+31/01/24 17:31:13| INFO     Dataset sample [0.8 0.2] of dataset rcv1_GCAT started
+31/01/24 17:31:54| INFO        naive finished [took 39.0724s]
+31/01/24 17:31:54| INFO        ref finished [took 39.7045s]
+31/01/24 17:31:58| INFO        atc_mc finished [took 43.4484s]
+31/01/24 17:32:01| INFO        doc finished [took 46.0497s]
+31/01/24 17:32:01| INFO     Dataset sample [0.8 0.2] of dataset rcv1_GCAT finished [took 47.6653s]
+31/01/24 17:32:01| INFO     Dataset sample [0.9 0.1] of dataset rcv1_GCAT started
+31/01/24 17:32:41| INFO        ref finished [took 38.3900s]
+31/01/24 17:32:43| INFO        naive finished [took 39.7034s]
+31/01/24 17:32:47| INFO        atc_mc finished [took 43.7301s]
+31/01/24 17:32:48| INFO        doc finished [took 44.9713s]
+31/01/24 17:32:48| INFO     Dataset sample [0.9 0.1] of dataset rcv1_GCAT finished [took 47.3187s]

@@ -39,8 +39,16 @@ def plot_delta(
     else:
         title = f"{_base_title}_{name}_avg_{avg}_{metric}"
 
-    x_label = f"{'test' if avg is None or avg == 'train' else 'train'} prevalence"
-    y_label = f"{metric} error"
+    if avg is None or avg == "train":
+        x_label = "Test Prevalence"
+    else:
+        x_label = "Train Prevalence"
+    if metric == "acc":
+        y_label = "Prediction Error for Vanilla Accuracy"
+    elif metric == "f1":
+        y_label = "Prediction Error for F1"
+    else:
+        y_label = f"{metric} error"
     fig = backend.plot_delta(
         base_prevs,
         columns,
@@ -81,8 +89,12 @@ def plot_diagonal(
     else:
         title = f"diagonal_{name}_{metric}"
 
-    x_label = f"true {metric}"
-    y_label = f"estim. {metric}"
+    if metric == "acc":
+        x_label = "True Vanilla Accuracy"
+        y_label = "Estimated Vanilla Accuracy"
+    else:
+        x_label = f"true {metric}"
+        y_label = f"estim. {metric}"
     fig = backend.plot_diagonal(
         reference,
         columns,
@@ -123,8 +135,13 @@ def plot_shift(
     else:
         title = f"shift_{name}_avg_{metric}"
 
-    x_label = "dataset shift"
-    y_label = f"{metric} error"
+    x_label = "Amount of Prior Probability Shift"
+    if metric == "acc":
+        y_label = "Prediction Error for Vanilla Accuracy"
+    elif metric == "f1":
+        y_label = "Prediction Error for F1"
+    else:
+        y_label = f"{metric} error"
     fig = backend.plot_shift(
         shift_prevs,
         columns,
