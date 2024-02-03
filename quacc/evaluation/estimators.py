@@ -78,3 +78,33 @@ class CompEstimator:
 
 
 CE = CompEstimator()
+
+_renames = {
+    "bin_sld_lr": "(2x2)_SLD_LR",
+    "mul_sld_lr": "(1x4)_SLD_LR",
+    "m3w_sld_lr": "(1x3)_SLD_LR",
+    "d_bin_sld_lr": "d_(2x2)_SLD_LR",
+    "d_mul_sld_lr": "d_(1x4)_SLD_LR",
+    "d_m3w_sld_lr": "d_(1x3)_SLD_LR",
+    "d_bin_sld_rbf": "(2x2)_SLD_RBF",
+    "d_mul_sld_rbf": "(1x4)_SLD_RBF",
+    "d_m3w_sld_rbf": "(1x3)_SLD_RBF",
+    "sld_lr": "SLD_LR",
+    "bin_kde_lr": "(2x2)_KDEy_LR",
+    "mul_kde_lr": "(1x4)_KDEy_LR",
+    "m3w_kde_lr": "(1x3)_KDEy_LR",
+    "d_bin_kde_lr": "d_(2x2)_KDEy_LR",
+    "d_mul_kde_lr": "d_(1x4)_KDEy_LR",
+    "d_m3w_kde_lr": "d_(1x3)_KDEy_LR",
+    "bin_cc_lr": "(2x2)_CC_LR",
+    "mul_cc_lr": "(1x4)_CC_LR",
+    "m3w_cc_lr": "(1x3)_CC_LR",
+    "kde_lr": "KDEy_LR",
+    "cc_lr": "CC_LR",
+    "atc_mc": "ATC",
+    "doc": "DoC",
+    "mandoline": "Mandoline",
+    "rca": "RCA",
+    "rca_star": "RCA*",
+    "naive": "Naive",
+}
