@@ -5,7 +5,7 @@ import numpy as np
 import plotly
 import plotly.graph_objects as go
 
-from quacc.evaluation.estimators import _renames
+from quacc.evaluation.estimators import CE, _renames
 from quacc.plot.base import BasePlot
 
 
@@ -19,7 +19,7 @@ class PlotCfg:
 
 
 web_cfg = PlotCfg("lines+markers", 2)
-png_cfg = PlotCfg(
+png_cfg_old = PlotCfg(
     "lines",
     5,
     legend=dict(
@@ -29,6 +29,18 @@ png_cfg = PlotCfg(
         y=1.02,
         x=1,
         font=dict(size=24),
+    ),
+    font=dict(size=24),
+    # template="ggplot2",
+)
+png_cfg = PlotCfg(
+    "lines",
+    5,
+    legend=dict(
+        font=dict(
+            family="DejaVu Sans",
+            size=24,
+        ),
     ),
     font=dict(size=24),
     # template="ggplot2",
@@ -122,16 +134,21 @@ class PlotlyPlot(BasePlot):
         if isinstance(base_prevs[0], float):
             base_prevs = np.around([(1 - bp, bp) for bp in base_prevs], decimals=4)
         x = [str(tuple(bp)) for bp in base_prevs]
-        columns = self.rename_plots(columns)
+        named_data = {c: d for c, d in zip(columns, data)}
+        r_columns = {c: r for c, r in zip(columns, self.rename_plots(columns))}
         line_colors = self.get_colors(len(columns))
-        for name, delta in zip(columns, data):
+        # for name, delta in zip(columns, data):
+        columns = np.array(CE.name.sort(columns))
+        for name in columns:
+            delta = named_data[name]
+            r_name = r_columns[name]
             color = next(line_colors)
             _line = [
                 go.Scatter(
                     x=x,
                     y=delta,
                     mode=_cfg.mode,
-                    name=name,
+                    name=r_name,
                     line=dict(color=self.hex_to_rgb(color), width=_cfg.lwidth),
                     hovertemplate="prev.: %{x}<br>error: %{y:,.4f}",
                 )
@@ -171,13 +188,17 @@ class PlotlyPlot(BasePlot):
     ) -> go.Figure:
         fig = go.Figure()
         x = reference
-        columns = self.rename_plots(columns)
         line_colors = self.get_colors(len(columns))
 
         _edges = (np.min([np.min(x), np.min(data)]), np.max([np.max(x), np.max(data)]))
         _lims = np.array([[_edges[0], _edges[1]], [_edges[0], _edges[1]]])
 
-        for name, val in zip(columns, data):
+        named_data = {c: d for c, d in zip(columns, data)}
+        r_columns = {c: r for c, r in zip(columns, self.rename_plots(columns))}
+        columns = np.array(CE.name.sort(columns))
+        for name in columns:
+            val = named_data[name]
+            r_name = r_columns[name]
             color = next(line_colors)
             slope, interc = np.polyfit(x, val, 1)
             y_lr = np.array([slope * _x + interc for _x in _lims[0]])
@@ -188,7 +209,7 @@ class PlotlyPlot(BasePlot):
                         y=val,
                         customdata=np.stack((val - x,), axis=-1),
                         mode="markers",
-                        name=name,
+                        name=r_name,
                         line=dict(color=self.hex_to_rgb(color, t=0.5)),
                         hovertemplate="true acc: %{x:,.4f}<br>estim. acc: %{y:,.4f}<br>acc err.: %{customdata[0]:,.4f}",
                     ),
@@ -233,9 +254,13 @@ class PlotlyPlot(BasePlot):
         fig = go.Figure()
         # x = shift_prevs[:, pos_class]
         x = shift_prevs
-        columns = self.rename_plots(columns)
         line_colors = self.get_colors(len(columns))
-        for name, delta in zip(columns, data):
+        named_data = {c: d for c, d in zip(columns, data)}
+        r_columns = {c: r for c, r in zip(columns, self.rename_plots(columns))}
+        columns = np.array(CE.name.sort(columns))
+        for name in columns:
+            delta = named_data[name]
+            r_name = r_columns[name]
             col_idx = (columns == name).nonzero()[0][0]
             color = next(line_colors)
             fig.add_trace(
@@ -244,7 +269,7 @@ class PlotlyPlot(BasePlot):
                     y=delta,
                     customdata=np.stack((counts[col_idx],), axis=-1),
                     mode=_cfg.mode,
-                    name=name,
+                    name=r_name,
                     line=dict(color=self.hex_to_rgb(color), width=_cfg.lwidth),
                     hovertemplate="shift: %{x}<br>error: %{y}"
                     + "<br>count: %{customdata[0]}"

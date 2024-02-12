@@ -69,6 +69,27 @@ def kfcv(
 
 
 @baseline
+def ref(
+    c_model: BaseEstimator,
+    validation: LabelledCollection,
+    protocol: AbstractStochasticSeededProtocol,
+):
+    c_model_predict = getattr(c_model, "predict")
+    f1_average = "binary" if validation.n_classes == 2 else "macro"
+
+    report = EvaluationReport(name="ref")
+    for test in protocol():
+        test_preds = c_model_predict(test.X)
+        report.append_row(
+            test.prevalence(),
+            acc_score=metrics.accuracy_score(test.y, test_preds),
+            f1_score=metrics.f1_score(test.y, test_preds, average=f1_average),
+        )
+
+    return report
+
+
+@baseline
 def naive(
     c_model: BaseEstimator,
     validation: LabelledCollection,
@@ -101,22 +122,205 @@ def naive(
 
 
 @baseline
-def ref(
+def mandoline(
     c_model: BaseEstimator,
     validation: LabelledCollection,
     protocol: AbstractStochasticSeededProtocol,
-):
-    c_model_predict = getattr(c_model, "predict")
-    f1_average = "binary" if validation.n_classes == 2 else "macro"
+    predict_method="predict_proba",
+) -> EvaluationReport:
+    c_model_predict = getattr(c_model, predict_method)
 
-    report = EvaluationReport(name="ref")
+    val_probs = c_model_predict(validation.X)
+    val_preds = np.argmax(val_probs, axis=1)
+    D_val = mandolib.get_slices(val_probs)
+    emprical_mat_list_val = (1.0 * (val_preds == validation.y))[:, np.newaxis]
+
+    report = EvaluationReport(name="mandoline")
     for test in protocol():
-        test_preds = c_model_predict(test.X)
-        report.append_row(
-            test.prevalence(),
-            acc_score=metrics.accuracy_score(test.y, test_preds),
-            f1_score=metrics.f1_score(test.y, test_preds, average=f1_average),
-        )
+        test_probs = c_model_predict(test.X)
+        test_pred = np.argmax(test_probs, axis=1)
+        D_test = mandolib.get_slices(test_probs)
+        wp = mandolib.estimate_performance(D_val, D_test, None, emprical_mat_list_val)
+        score = wp.all_estimates[0].weighted[0]
+        meta_score = abs(score - metrics.accuracy_score(test.y, test_pred))
+        report.append_row(test.prevalence(), acc=meta_score, acc_score=score)
+
+    return report
+
+
+@baseline
+def rca(
+    c_model: BaseEstimator,
+    validation: LabelledCollection,
+    protocol: AbstractStochasticSeededProtocol,
+    predict_method="predict",
+):
+    """elsahar19"""
+    c_model_predict = getattr(c_model, predict_method)
+    f1_average = "binary" if validation.n_classes == 2 else "macro"
+    val1, val2 = validation.split_stratified(train_prop=0.5, random_state=env._R_SEED)
+    val1_pred1 = c_model_predict(val1.X)
+
+    val2_protocol = APP(
+        val2,
+        n_prevalences=21,
+        repeats=100,
+        return_type="labelled_collection",
+    )
+    val2_prot_preds = []
+    val2_rca = []
+    val2_prot_preds = []
+    val2_prot_y = []
+    for v2 in val2_protocol():
+        _preds = c_model_predict(v2.X)
+        try:
+            c_model2 = clone_fit(c_model, v2.X, _preds)
+            c_model2_predict = getattr(c_model2, predict_method)
+            val1_pred2 = c_model2_predict(val1.X)
+            rca_score = 1.0 - rcalib.get_score(val1_pred1, val1_pred2, val1.y)
+            val2_rca.append(rca_score)
+            val2_prot_preds.append(_preds)
+            val2_prot_y.append(v2.y)
+        except ValueError:
+            pass
+
+    val_targets_acc = np.array(
+        [
+            metrics.accuracy_score(v2_y, v2_preds)
+            for v2_y, v2_preds in zip(val2_prot_y, val2_prot_preds)
+        ]
+    )
+    reg_acc = LinearRegression().fit(np.array(val2_rca)[:, np.newaxis], val_targets_acc)
+    val_targets_f1 = np.array(
+        [
+            metrics.f1_score(v2_y, v2_preds, average=f1_average)
+            for v2_y, v2_preds in zip(val2_prot_y, val2_prot_preds)
+        ]
+    )
+    reg_f1 = LinearRegression().fit(np.array(val2_rca)[:, np.newaxis], val_targets_f1)
+
+    report = EvaluationReport(name="rca")
+    for test in protocol():
+        try:
+            test_preds = c_model_predict(test.X)
+            c_model2 = clone_fit(c_model, test.X, test_preds)
+            c_model2_predict = getattr(c_model2, predict_method)
+            val1_pred2 = c_model2_predict(val1.X)
+            rca_score = 1.0 - rcalib.get_score(val1_pred1, val1_pred2, val1.y)
+            acc_score = reg_acc.predict(np.array([[rca_score]]))[0]
+            f1_score = reg_f1.predict(np.array([[rca_score]]))[0]
+            meta_acc = abs(acc_score - metrics.accuracy_score(test.y, test_preds))
+            meta_f1 = abs(
+                f1_score - metrics.f1_score(test.y, test_preds, average=f1_average)
+            )
+            report.append_row(
+                test.prevalence(),
+                acc=meta_acc,
+                acc_score=acc_score,
+                f1=meta_f1,
+                f1_score=f1_score,
+            )
+        except ValueError:
+            report.append_row(
+                test.prevalence(),
+                acc=np.nan,
+                acc_score=np.nan,
+                f1=np.nan,
+                f1_score=np.nan,
+            )
+
+    return report
+
+
+@baseline
+def rca_star(
+    c_model: BaseEstimator,
+    validation: LabelledCollection,
+    protocol: AbstractStochasticSeededProtocol,
+    predict_method="predict",
+):
+    """elsahar19"""
+    c_model_predict = getattr(c_model, predict_method)
+    f1_average = "binary" if validation.n_classes == 2 else "macro"
+    validation1, val2 = validation.split_stratified(
+        train_prop=0.5, random_state=env._R_SEED
+    )
+    val11, val12 = validation1.split_stratified(
+        train_prop=0.5, random_state=env._R_SEED
+    )
+
+    val11_pred = c_model_predict(val11.X)
+    c_model1 = clone_fit(c_model, val11.X, val11_pred)
+    c_model1_predict = getattr(c_model1, predict_method)
+    val12_pred1 = c_model1_predict(val12.X)
+
+    val2_protocol = APP(
+        val2,
+        n_prevalences=21,
+        repeats=100,
+        return_type="labelled_collection",
+    )
+    val2_prot_preds = []
+    val2_rca = []
+    val2_prot_preds = []
+    val2_prot_y = []
+    for v2 in val2_protocol():
+        _preds = c_model_predict(v2.X)
+        try:
+            c_model2 = clone_fit(c_model, v2.X, _preds)
+            c_model2_predict = getattr(c_model2, predict_method)
+            val12_pred2 = c_model2_predict(val12.X)
+            rca_score = 1.0 - rcalib.get_score(val12_pred1, val12_pred2, val12.y)
+            val2_rca.append(rca_score)
+            val2_prot_preds.append(_preds)
+            val2_prot_y.append(v2.y)
+        except ValueError:
+            pass
+
+    val_targets_acc = np.array(
+        [
+            metrics.accuracy_score(v2_y, v2_preds)
+            for v2_y, v2_preds in zip(val2_prot_y, val2_prot_preds)
+        ]
+    )
+    reg_acc = LinearRegression().fit(np.array(val2_rca)[:, np.newaxis], val_targets_acc)
+    val_targets_f1 = np.array(
+        [
+            metrics.f1_score(v2_y, v2_preds, average=f1_average)
+            for v2_y, v2_preds in zip(val2_prot_y, val2_prot_preds)
+        ]
+    )
+    reg_f1 = LinearRegression().fit(np.array(val2_rca)[:, np.newaxis], val_targets_f1)
+
+    report = EvaluationReport(name="rca_star")
+    for test in protocol():
+        try:
+            test_pred = c_model_predict(test.X)
+            c_model2 = clone_fit(c_model, test.X, test_pred)
+            c_model2_predict = getattr(c_model2, predict_method)
+            val12_pred2 = c_model2_predict(val12.X)
+            rca_star_score = 1.0 - rcalib.get_score(val12_pred1, val12_pred2, val12.y)
+            acc_score = reg_acc.predict(np.array([[rca_star_score]]))[0]
+            f1_score = reg_f1.predict(np.array([[rca_score]]))[0]
+            meta_acc = abs(acc_score - metrics.accuracy_score(test.y, test_pred))
+            meta_f1 = abs(
+                f1_score - metrics.f1_score(test.y, test_pred, average=f1_average)
+            )
+            report.append_row(
+                test.prevalence(),
+                acc=meta_acc,
+                acc_score=acc_score,
+                f1=meta_f1,
+                f1_score=f1_score,
+            )
+        except ValueError:
+            report.append_row(
+                test.prevalence(),
+                acc=np.nan,
+                acc_score=np.nan,
+                f1=np.nan,
+                f1_score=np.nan,
+            )
 
     return report
 
@@ -312,183 +516,6 @@ def doc_feat(
 
 
 @baseline
-def rca(
-    c_model: BaseEstimator,
-    validation: LabelledCollection,
-    protocol: AbstractStochasticSeededProtocol,
-    predict_method="predict",
-):
-    """elsahar19"""
-    c_model_predict = getattr(c_model, predict_method)
-    f1_average = "binary" if validation.n_classes == 2 else "macro"
-    val1, val2 = validation.split_stratified(train_prop=0.5, random_state=env._R_SEED)
-    val1_pred1 = c_model_predict(val1.X)
-
-    val2_protocol = APP(
-        val2,
-        n_prevalences=21,
-        repeats=100,
-        return_type="labelled_collection",
-    )
-    val2_prot_preds = []
-    val2_rca = []
-    val2_prot_preds = []
-    val2_prot_y = []
-    for v2 in val2_protocol():
-        _preds = c_model_predict(v2.X)
-        try:
-            c_model2 = clone_fit(c_model, v2.X, _preds)
-            c_model2_predict = getattr(c_model2, predict_method)
-            val1_pred2 = c_model2_predict(val1.X)
-            rca_score = 1.0 - rcalib.get_score(val1_pred1, val1_pred2, val1.y)
-            val2_rca.append(rca_score)
-            val2_prot_preds.append(_preds)
-            val2_prot_y.append(v2.y)
-        except ValueError:
-            pass
-
-    val_targets_acc = np.array(
-        [
-            metrics.accuracy_score(v2_y, v2_preds)
-            for v2_y, v2_preds in zip(val2_prot_y, val2_prot_preds)
-        ]
-    )
-    reg_acc = LinearRegression().fit(np.array(val2_rca)[:, np.newaxis], val_targets_acc)
-    val_targets_f1 = np.array(
-        [
-            metrics.f1_score(v2_y, v2_preds, average=f1_average)
-            for v2_y, v2_preds in zip(val2_prot_y, val2_prot_preds)
-        ]
-    )
-    reg_f1 = LinearRegression().fit(np.array(val2_rca)[:, np.newaxis], val_targets_f1)
-
-    report = EvaluationReport(name="rca")
-    for test in protocol():
-        try:
-            test_preds = c_model_predict(test.X)
-            c_model2 = clone_fit(c_model, test.X, test_preds)
-            c_model2_predict = getattr(c_model2, predict_method)
-            val1_pred2 = c_model2_predict(val1.X)
-            rca_score = 1.0 - rcalib.get_score(val1_pred1, val1_pred2, val1.y)
-            acc_score = reg_acc.predict(np.array([[rca_score]]))[0]
-            f1_score = reg_f1.predict(np.array([[rca_score]]))[0]
-            meta_acc = abs(acc_score - metrics.accuracy_score(test.y, test_preds))
-            meta_f1 = abs(
-                f1_score - metrics.f1_score(test.y, test_preds, average=f1_average)
-            )
-            report.append_row(
-                test.prevalence(),
-                acc=meta_acc,
-                acc_score=acc_score,
-                f1=meta_f1,
-                f1_score=f1_score,
-            )
-        except ValueError:
-            report.append_row(
-                test.prevalence(),
-                acc=np.nan,
-                acc_score=np.nan,
-                f1=np.nan,
-                f1_score=np.nan,
-            )
-
-    return report
-
-
-@baseline
-def rca_star(
-    c_model: BaseEstimator,
-    validation: LabelledCollection,
-    protocol: AbstractStochasticSeededProtocol,
-    predict_method="predict",
-):
-    """elsahar19"""
-    c_model_predict = getattr(c_model, predict_method)
-    f1_average = "binary" if validation.n_classes == 2 else "macro"
-    validation1, val2 = validation.split_stratified(
-        train_prop=0.5, random_state=env._R_SEED
-    )
-    val11, val12 = validation1.split_stratified(
-        train_prop=0.5, random_state=env._R_SEED
-    )
-
-    val11_pred = c_model_predict(val11.X)
-    c_model1 = clone_fit(c_model, val11.X, val11_pred)
-    c_model1_predict = getattr(c_model1, predict_method)
-    val12_pred1 = c_model1_predict(val12.X)
-
-    val2_protocol = APP(
-        val2,
-        n_prevalences=21,
-        repeats=100,
-        return_type="labelled_collection",
-    )
-    val2_prot_preds = []
-    val2_rca = []
-    val2_prot_preds = []
-    val2_prot_y = []
-    for v2 in val2_protocol():
-        _preds = c_model_predict(v2.X)
-        try:
-            c_model2 = clone_fit(c_model, v2.X, _preds)
-            c_model2_predict = getattr(c_model2, predict_method)
-            val12_pred2 = c_model2_predict(val12.X)
-            rca_score = 1.0 - rcalib.get_score(val12_pred1, val12_pred2, val12.y)
-            val2_rca.append(rca_score)
-            val2_prot_preds.append(_preds)
-            val2_prot_y.append(v2.y)
-        except ValueError:
-            pass
-
-    val_targets_acc = np.array(
-        [
-            metrics.accuracy_score(v2_y, v2_preds)
-            for v2_y, v2_preds in zip(val2_prot_y, val2_prot_preds)
-        ]
-    )
-    reg_acc = LinearRegression().fit(np.array(val2_rca)[:, np.newaxis], val_targets_acc)
-    val_targets_f1 = np.array(
-        [
-            metrics.f1_score(v2_y, v2_preds, average=f1_average)
-            for v2_y, v2_preds in zip(val2_prot_y, val2_prot_preds)
-        ]
-    )
-    reg_f1 = LinearRegression().fit(np.array(val2_rca)[:, np.newaxis], val_targets_f1)
-
-    report = EvaluationReport(name="rca_star")
-    for test in protocol():
-        try:
-            test_pred = c_model_predict(test.X)
-            c_model2 = clone_fit(c_model, test.X, test_pred)
-            c_model2_predict = getattr(c_model2, predict_method)
-            val12_pred2 = c_model2_predict(val12.X)
-            rca_star_score = 1.0 - rcalib.get_score(val12_pred1, val12_pred2, val12.y)
-            acc_score = reg_acc.predict(np.array([[rca_star_score]]))[0]
-            f1_score = reg_f1.predict(np.array([[rca_score]]))[0]
-            meta_acc = abs(acc_score - metrics.accuracy_score(test.y, test_pred))
-            meta_f1 = abs(
-                f1_score - metrics.f1_score(test.y, test_pred, average=f1_average)
-            )
-            report.append_row(
-                test.prevalence(),
-                acc=meta_acc,
-                acc_score=acc_score,
-                f1=meta_f1,
-                f1_score=f1_score,
-            )
-        except ValueError:
-            report.append_row(
-                test.prevalence(),
-                acc=np.nan,
-                acc_score=np.nan,
-                f1=np.nan,
-                f1_score=np.nan,
-            )
-
-    return report
-
-
-@baseline
 def gde(
     c_model: BaseEstimator,
     validation: LabelledCollection,
@@ -508,33 +535,6 @@ def gde(
         test_pred1 = c_model1_predict(test.X)
         test_pred2 = c_model2_predict(test.X)
         score = gdelib.get_score(test_pred1, test_pred2)
-        meta_score = abs(score - metrics.accuracy_score(test.y, test_pred))
-        report.append_row(test.prevalence(), acc=meta_score, acc_score=score)
-
-    return report
-
-
-@baseline
-def mandoline(
-    c_model: BaseEstimator,
-    validation: LabelledCollection,
-    protocol: AbstractStochasticSeededProtocol,
-    predict_method="predict_proba",
-) -> EvaluationReport:
-    c_model_predict = getattr(c_model, predict_method)
-
-    val_probs = c_model_predict(validation.X)
-    val_preds = np.argmax(val_probs, axis=1)
-    D_val = mandolib.get_slices(val_probs)
-    emprical_mat_list_val = (1.0 * (val_preds == validation.y))[:, np.newaxis]
-
-    report = EvaluationReport(name="mandoline")
-    for test in protocol():
-        test_probs = c_model_predict(test.X)
-        test_pred = np.argmax(test_probs, axis=1)
-        D_test = mandolib.get_slices(test_probs)
-        wp = mandolib.estimate_performance(D_val, D_test, None, emprical_mat_list_val)
-        score = wp.all_estimates[0].weighted[0]
         meta_score = abs(score - metrics.accuracy_score(test.y, test_pred))
         report.append_row(test.prevalence(), acc=meta_score, acc_score=score)
 

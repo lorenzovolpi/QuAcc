@@ -71,14 +71,14 @@ test_conf: &test_conf
       
 main:
   confs: &main_confs
-    - DATASET_NAME: imdb
-  other_confs:
-    - DATASET_NAME: rcv1
-      DATASET_TARGET: CCAT
     - DATASET_NAME: rcv1
       DATASET_TARGET: GCAT
     - DATASET_NAME: rcv1
       DATASET_TARGET: MCAT
+  other_confs:
+    - DATASET_NAME: imdb
+    - DATASET_NAME: rcv1
+      DATASET_TARGET: CCAT
 
 sld_lr_conf: &sld_lr_conf
 
@@ -453,4 +453,4 @@ timing_gs_conf: &timing_gs_conf
 
   confs: *main_confs
 
-exec: *timing_gs_conf
+exec: *d_kde_lr_conf

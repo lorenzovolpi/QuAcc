@@ -159,10 +159,10 @@ class CompReport:
             if estimators is not None and name not in estimators:
                 continue
 
-            if len(np.where(np.in1d(methods, self._data.columns.unique(1)))[0]) != len(
-                methods
-            ):
+            available_idx = np.where(np.in1d(methods, self._data.columns.unique(1)))[0]
+            if len(available_idx) == 0:
                 continue
+            methods = np.array(methods)[available_idx]
 
             _metric = _get_metric(metric)
             m_data = _data.loc[:, (_metric, methods)]
