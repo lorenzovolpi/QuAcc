@@ -242,12 +242,6 @@ __sld_lr_set = [
     M("mul_sld_lr",      __sld_lr(),  "mul"                                       ),
     M("m3w_sld_lr",      __sld_lr(),  "mul",                               cf=True),
     M("mgf_sld_lr",      __sld_lr(),  "mul",                               gf=True),
-    # max_conf + entropy sld
-    M("bin_sld_lr_c",    __sld_lr(),  "bin", conf=["max_conf", "entropy"]         ),
-    M("bgf_sld_lr_c",    __sld_lr(),  "bin", conf=["max_conf", "entropy"], gf=True),
-    M("mul_sld_lr_c",    __sld_lr(),  "mul", conf=["max_conf", "entropy"]         ),
-    M("m3w_sld_lr_c",    __sld_lr(),  "mul", conf=["max_conf", "entropy"], cf=True),
-    M("mgf_sld_lr_c",    __sld_lr(),  "mul", conf=["max_conf", "entropy"], gf=True),
     # max_conf sld
     M("bin_sld_lr_mc",   __sld_lr(),  "bin", conf="max_conf",                     ),
     M("bgf_sld_lr_mc",   __sld_lr(),  "bin", conf="max_conf",              gf=True),
@@ -266,6 +260,12 @@ __sld_lr_set = [
     M("mul_sld_lr_is",   __sld_lr(),  "mul", conf="isoft",                        ),
     M("m3w_sld_lr_is",   __sld_lr(),  "mul", conf="isoft",                 cf=True),
     M("mgf_sld_lr_is",   __sld_lr(),  "mul", conf="isoft",                 gf=True),
+    # max_conf + entropy sld
+    M("bin_sld_lr_c",    __sld_lr(),  "bin", conf=["max_conf", "entropy"]         ),
+    M("bgf_sld_lr_c",    __sld_lr(),  "bin", conf=["max_conf", "entropy"], gf=True),
+    M("mul_sld_lr_c",    __sld_lr(),  "mul", conf=["max_conf", "entropy"]         ),
+    M("m3w_sld_lr_c",    __sld_lr(),  "mul", conf=["max_conf", "entropy"], cf=True),
+    M("mgf_sld_lr_c",    __sld_lr(),  "mul", conf=["max_conf", "entropy"], gf=True),
     # sld all
     M("bin_sld_lr_a",   __sld_lr(),  "bin", conf=["max_conf", "entropy", "isoft"],         ),
     M("bgf_sld_lr_a",   __sld_lr(),  "bin", conf=["max_conf", "entropy", "isoft"],  gf=True),
@@ -278,7 +278,6 @@ __sld_lr_set = [
     G("mul_sld_lr_gs",   __sld_lr(),  "mul", pg="sld_lr"                          ),
     G("m3w_sld_lr_gs",   __sld_lr(),  "mul", pg="sld_lr",                  cf=True),
     G("mgf_sld_lr_gs",   __sld_lr(),  "mul", pg="sld_lr",                  gf=True),
-    E("sld_lr_gs"),
 ]
 
 __dense_sld_lr_set = [
@@ -287,12 +286,6 @@ __dense_sld_lr_set = [
     M("d_mul_sld_lr",      __sld_lr(),  "mul", d=True,                                      ),
     M("d_m3w_sld_lr",      __sld_lr(),  "mul", d=True,                               cf=True),
     M("d_mgf_sld_lr",      __sld_lr(),  "mul", d=True,                               gf=True),
-    # max_conf + entropy sld
-    M("d_bin_sld_lr_c",    __sld_lr(),  "bin", d=True, conf=["max_conf", "entropy"]         ),
-    M("d_bgf_sld_lr_c",    __sld_lr(),  "bin", d=True, conf=["max_conf", "entropy"], gf=True),
-    M("d_mul_sld_lr_c",    __sld_lr(),  "mul", d=True, conf=["max_conf", "entropy"]         ),
-    M("d_m3w_sld_lr_c",    __sld_lr(),  "mul", d=True, conf=["max_conf", "entropy"], cf=True),
-    M("d_mgf_sld_lr_c",    __sld_lr(),  "mul", d=True, conf=["max_conf", "entropy"], gf=True),
     # max_conf sld
     M("d_bin_sld_lr_mc",   __sld_lr(),  "bin", d=True, conf="max_conf",                     ),
     M("d_bgf_sld_lr_mc",   __sld_lr(),  "bin", d=True, conf="max_conf",              gf=True),
@@ -311,6 +304,12 @@ __dense_sld_lr_set = [
     M("d_mul_sld_lr_is",   __sld_lr(),  "mul", d=True, conf="isoft",                        ),
     M("d_m3w_sld_lr_is",   __sld_lr(),  "mul", d=True, conf="isoft",                 cf=True),
     M("d_mgf_sld_lr_is",   __sld_lr(),  "mul", d=True, conf="isoft",                 gf=True),
+    # max_conf + entropy sld
+    M("d_bin_sld_lr_c",    __sld_lr(),  "bin", d=True, conf=["max_conf", "entropy"]         ),
+    M("d_bgf_sld_lr_c",    __sld_lr(),  "bin", d=True, conf=["max_conf", "entropy"], gf=True),
+    M("d_mul_sld_lr_c",    __sld_lr(),  "mul", d=True, conf=["max_conf", "entropy"]         ),
+    M("d_m3w_sld_lr_c",    __sld_lr(),  "mul", d=True, conf=["max_conf", "entropy"], cf=True),
+    M("d_mgf_sld_lr_c",    __sld_lr(),  "mul", d=True, conf=["max_conf", "entropy"], gf=True),
     # sld all
     M("d_bin_sld_lr_a",    __sld_lr(),  "bin", d=True, conf=["max_conf", "entropy", "isoft"],         ),
     M("d_bgf_sld_lr_a",    __sld_lr(),  "bin", d=True, conf=["max_conf", "entropy", "isoft"],  gf=True),
@@ -331,12 +330,6 @@ __dense_sld_rbf_set = [
     M("d_mul_sld_rbf",    __sld_rbf(), "mul", d=True,                                       ),
     M("d_m3w_sld_rbf",    __sld_rbf(), "mul", d=True,                                 cf=True),
     M("d_mgf_sld_rbf",    __sld_rbf(), "mul", d=True,                                 gf=True),
-    # max_conf + entropy sld
-    M("d_bin_sld_rbf_c",  __sld_rbf(), "bin", d=True, conf=["max_conf", "entropy"]           ),
-    M("d_bgf_sld_rbf_c",  __sld_rbf(), "bin", d=True, conf=["max_conf", "entropy"],   gf=True),
-    M("d_mul_sld_rbf_c",  __sld_rbf(), "mul", d=True, conf=["max_conf", "entropy"]           ),
-    M("d_m3w_sld_rbf_c",  __sld_rbf(), "mul", d=True, conf=["max_conf", "entropy"],   cf=True),
-    M("d_mgf_sld_rbf_c",  __sld_rbf(), "mul", d=True, conf=["max_conf", "entropy"],   gf=True),
     # max_conf sld
     M("d_bin_sld_rbf_mc", __sld_rbf(), "bin", d=True, conf="max_conf",                       ),
     M("d_bgf_sld_rbf_mc", __sld_rbf(), "bin", d=True, conf="max_conf",                gf=True),
@@ -355,6 +348,12 @@ __dense_sld_rbf_set = [
     M("d_mul_sld_rbf_is", __sld_rbf(), "mul", d=True, conf="isoft",                          ),
     M("d_m3w_sld_rbf_is", __sld_rbf(), "mul", d=True, conf="isoft",                   cf=True),
     M("d_mgf_sld_rbf_is", __sld_rbf(), "mul", d=True, conf="isoft",                   gf=True),
+    # max_conf + entropy sld
+    M("d_bin_sld_rbf_c",  __sld_rbf(), "bin", d=True, conf=["max_conf", "entropy"]           ),
+    M("d_bgf_sld_rbf_c",  __sld_rbf(), "bin", d=True, conf=["max_conf", "entropy"],   gf=True),
+    M("d_mul_sld_rbf_c",  __sld_rbf(), "mul", d=True, conf=["max_conf", "entropy"]           ),
+    M("d_m3w_sld_rbf_c",  __sld_rbf(), "mul", d=True, conf=["max_conf", "entropy"],   cf=True),
+    M("d_mgf_sld_rbf_c",  __sld_rbf(), "mul", d=True, conf=["max_conf", "entropy"],   gf=True),
     # sld all
     M("d_bin_sld_rbf_a",  __sld_rbf(), "bin", d=True, conf=["max_conf", "entropy", "isoft"],         ),
     M("d_bgf_sld_rbf_a",  __sld_rbf(), "bin", d=True, conf=["max_conf", "entropy", "isoft"],  gf=True),
@@ -362,11 +361,11 @@ __dense_sld_rbf_set = [
     M("d_m3w_sld_rbf_a",  __sld_rbf(), "mul", d=True, conf=["max_conf", "entropy", "isoft"],  cf=True),
     M("d_mgf_sld_rbf_a",  __sld_rbf(), "mul", d=True, conf=["max_conf", "entropy", "isoft"],  gf=True),
     # gs sld
-    G("d_bin_sld_rbf_gs", __sld_rbf(), "bin", d=True, pg="sld_rbf", search="spider",        ),
-    G("d_bgf_sld_rbf_gs", __sld_rbf(), "bin", d=True, pg="sld_rbf", search="spider", gf=True),
-    G("d_mul_sld_rbf_gs", __sld_rbf(), "mul", d=True, pg="sld_rbf", search="spider",        ),
-    G("d_m3w_sld_rbf_gs", __sld_rbf(), "mul", d=True, pg="sld_rbf", search="spider", cf=True),
-    G("d_mgf_sld_rbf_gs", __sld_rbf(), "mul", d=True, pg="sld_rbf", search="spider", gf=True),
+    G("d_bin_sld_rbf_gs", __sld_rbf(), "bin", d=True, pg="sld_rbf", search="grid",        ),
+    G("d_bgf_sld_rbf_gs", __sld_rbf(), "bin", d=True, pg="sld_rbf", search="grid", gf=True),
+    G("d_mul_sld_rbf_gs", __sld_rbf(), "mul", d=True, pg="sld_rbf", search="grid",        ),
+    G("d_m3w_sld_rbf_gs", __sld_rbf(), "mul", d=True, pg="sld_rbf", search="grid", cf=True),
+    G("d_mgf_sld_rbf_gs", __sld_rbf(), "mul", d=True, pg="sld_rbf", search="grid", gf=True),
 ]
 
 __kde_lr_set = [
@@ -374,10 +373,6 @@ __kde_lr_set = [
     M("bin_kde_lr",    __kde_lr(), "bin"                                       ),
     M("mul_kde_lr",    __kde_lr(), "mul"                                       ),
     M("m3w_kde_lr",    __kde_lr(), "mul",                               cf=True),
-    # max_conf + entropy kde
-    M("bin_kde_lr_c",  __kde_lr(), "bin", conf=["max_conf", "entropy"]         ),
-    M("mul_kde_lr_c",  __kde_lr(), "mul", conf=["max_conf", "entropy"]         ),
-    M("m3w_kde_lr_c",  __kde_lr(), "mul", conf=["max_conf", "entropy"], cf=True),
     # max_conf kde
     M("bin_kde_lr_mc", __kde_lr(), "bin", conf="max_conf",                     ),
     M("mul_kde_lr_mc", __kde_lr(), "mul", conf="max_conf",                     ),
@@ -390,6 +385,10 @@ __kde_lr_set = [
     M("bin_kde_lr_is", __kde_lr(), "bin", conf="isoft",                        ),
     M("mul_kde_lr_is", __kde_lr(), "mul", conf="isoft",                        ),
     M("m3w_kde_lr_is", __kde_lr(), "mul", conf="isoft",                 cf=True),
+    # max_conf + entropy kde
+    M("bin_kde_lr_c",  __kde_lr(), "bin", conf=["max_conf", "entropy"]         ),
+    M("mul_kde_lr_c",  __kde_lr(), "mul", conf=["max_conf", "entropy"]         ),
+    M("m3w_kde_lr_c",  __kde_lr(), "mul", conf=["max_conf", "entropy"], cf=True),
     # kde all
     M("bin_kde_lr_a",  __kde_lr(), "bin", conf=["max_conf", "entropy", "isoft"],         ),
     M("mul_kde_lr_a",  __kde_lr(), "mul", conf=["max_conf", "entropy", "isoft"],         ),
@@ -398,7 +397,6 @@ __kde_lr_set = [
     G("bin_kde_lr_gs", __kde_lr(), "bin", pg="kde_lr", search="grid"         ),
     G("mul_kde_lr_gs", __kde_lr(), "mul", pg="kde_lr", search="grid"         ),
     G("m3w_kde_lr_gs", __kde_lr(), "mul", pg="kde_lr", search="grid", cf=True),
-    E("kde_lr_gs"),
 ]
 
 __dense_kde_lr_set = [
@@ -406,10 +404,6 @@ __dense_kde_lr_set = [
     M("d_bin_kde_lr",    __kde_lr(), "bin", d=True,                                      ),
     M("d_mul_kde_lr",    __kde_lr(), "mul", d=True,                                      ),
     M("d_m3w_kde_lr",    __kde_lr(), "mul", d=True,                               cf=True),
-    # max_conf + entropy kde               
-    M("d_bin_kde_lr_c",  __kde_lr(), "bin", d=True, conf=["max_conf", "entropy"]         ),
-    M("d_mul_kde_lr_c",  __kde_lr(), "mul", d=True, conf=["max_conf", "entropy"]         ),
-    M("d_m3w_kde_lr_c",  __kde_lr(), "mul", d=True, conf=["max_conf", "entropy"], cf=True),
     # max_conf kde                       
     M("d_bin_kde_lr_mc", __kde_lr(), "bin", d=True, conf="max_conf",                     ),
     M("d_mul_kde_lr_mc", __kde_lr(), "mul", d=True, conf="max_conf",                     ),
@@ -422,14 +416,18 @@ __dense_kde_lr_set = [
     M("d_bin_kde_lr_is", __kde_lr(), "bin", d=True, conf="isoft",                        ),
     M("d_mul_kde_lr_is", __kde_lr(), "mul", d=True, conf="isoft",                        ),
     M("d_m3w_kde_lr_is", __kde_lr(), "mul", d=True, conf="isoft",                 cf=True),
+    # max_conf + entropy kde               
+    M("d_bin_kde_lr_c",  __kde_lr(), "bin", d=True, conf=["max_conf", "entropy"]         ),
+    M("d_mul_kde_lr_c",  __kde_lr(), "mul", d=True, conf=["max_conf", "entropy"]         ),
+    M("d_m3w_kde_lr_c",  __kde_lr(), "mul", d=True, conf=["max_conf", "entropy"], cf=True),
     # kde all
     M("d_bin_kde_lr_a",  __kde_lr(), "bin", d=True, conf=["max_conf", "entropy", "isoft"],         ),
     M("d_mul_kde_lr_a",  __kde_lr(), "mul", d=True, conf=["max_conf", "entropy", "isoft"],         ),
     M("d_m3w_kde_lr_a",  __kde_lr(), "mul", d=True, conf=["max_conf", "entropy", "isoft"],  cf=True),
     # gs kde                             
-    G("d_bin_kde_lr_gs", __kde_lr(), "bin", d=True, pg="kde_lr", search="spider"            ),
-    G("d_mul_kde_lr_gs", __kde_lr(), "mul", d=True, pg="kde_lr", search="spider"            ),
-    G("d_m3w_kde_lr_gs", __kde_lr(), "mul", d=True, pg="kde_lr", search="spider",    cf=True),
+    G("d_bin_kde_lr_gs", __kde_lr(), "bin", d=True, pg="kde_lr", search="grid"            ),
+    G("d_mul_kde_lr_gs", __kde_lr(), "mul", d=True, pg="kde_lr", search="grid"            ),
+    G("d_m3w_kde_lr_gs", __kde_lr(), "mul", d=True, pg="kde_lr", search="grid",    cf=True),
 ]
 
 __dense_kde_rbf_set = [
@@ -437,10 +435,6 @@ __dense_kde_rbf_set = [
     M("d_bin_kde_rbf",    __kde_rbf(), "bin", d=True,                                       ),
     M("d_mul_kde_rbf",    __kde_rbf(), "mul", d=True,                                       ),
     M("d_m3w_kde_rbf",    __kde_rbf(), "mul", d=True,                                cf=True),
-    # max_conf + entropy kde
-    M("d_bin_kde_rbf_c",  __kde_rbf(), "bin", d=True, conf=["max_conf", "entropy"]          ),
-    M("d_mul_kde_rbf_c",  __kde_rbf(), "mul", d=True, conf=["max_conf", "entropy"]          ),
-    M("d_m3w_kde_rbf_c",  __kde_rbf(), "mul", d=True, conf=["max_conf", "entropy"],  cf=True),
     # max_conf kde
     M("d_bin_kde_rbf_mc", __kde_rbf(), "bin", d=True, conf="max_conf",                      ),
     M("d_mul_kde_rbf_mc", __kde_rbf(), "mul", d=True, conf="max_conf",                      ),
@@ -453,6 +447,10 @@ __dense_kde_rbf_set = [
     M("d_bin_kde_rbf_is", __kde_rbf(), "bin", d=True, conf="isoft",                         ),
     M("d_mul_kde_rbf_is", __kde_rbf(), "mul", d=True, conf="isoft",                         ),
     M("d_m3w_kde_rbf_is", __kde_rbf(), "mul", d=True, conf="isoft",                  cf=True),
+    # max_conf + entropy kde
+    M("d_bin_kde_rbf_c",  __kde_rbf(), "bin", d=True, conf=["max_conf", "entropy"]          ),
+    M("d_mul_kde_rbf_c",  __kde_rbf(), "mul", d=True, conf=["max_conf", "entropy"]          ),
+    M("d_m3w_kde_rbf_c",  __kde_rbf(), "mul", d=True, conf=["max_conf", "entropy"],  cf=True),
     # kde all
     M("d_bin_kde_rbf_a",  __kde_rbf(), "bin", d=True, conf=["max_conf", "entropy", "isoft"],         ),
     M("d_mul_kde_rbf_a",  __kde_rbf(), "mul", d=True, conf=["max_conf", "entropy", "isoft"],         ),
@@ -468,10 +466,6 @@ __cc_lr_set = [
     M("bin_cc_lr",    __cc_lr(), "bin"                                       ),
     M("mul_cc_lr",    __cc_lr(), "mul"                                       ),
     M("m3w_cc_lr",    __cc_lr(), "mul",                               cf=True),
-    # max_conf + entropy cc
-    M("bin_cc_lr_c",  __cc_lr(), "bin", conf=["max_conf", "entropy"]         ),
-    M("mul_cc_lr_c",  __cc_lr(), "mul", conf=["max_conf", "entropy"]         ),
-    M("m3w_cc_lr_c",  __cc_lr(), "mul", conf=["max_conf", "entropy"], cf=True),
     # max_conf cc
     M("bin_cc_lr_mc", __cc_lr(), "bin", conf="max_conf",                     ),
     M("mul_cc_lr_mc", __cc_lr(), "mul", conf="max_conf",                     ),
@@ -484,6 +478,10 @@ __cc_lr_set = [
     M("bin_cc_lr_is", __cc_lr(), "bin", conf="isoft",                        ),
     M("mul_cc_lr_is", __cc_lr(), "mul", conf="isoft",                        ),
     M("m3w_cc_lr_is", __cc_lr(), "mul", conf="isoft",                 cf=True),
+    # max_conf + entropy cc
+    M("bin_cc_lr_c",  __cc_lr(), "bin", conf=["max_conf", "entropy"]         ),
+    M("mul_cc_lr_c",  __cc_lr(), "mul", conf=["max_conf", "entropy"]         ),
+    M("m3w_cc_lr_c",  __cc_lr(), "mul", conf=["max_conf", "entropy"], cf=True),
     # cc all
     M("bin_cc_lr_a",  __cc_lr(), "bin", conf=["max_conf", "entropy", "isoft"],         ),
     M("mul_cc_lr_a",  __cc_lr(), "mul", conf=["max_conf", "entropy", "isoft"],         ),
@@ -492,7 +490,13 @@ __cc_lr_set = [
     G("bin_cc_lr_gs", __cc_lr(), "bin", pg="cc_lr", search="grid"         ),
     G("mul_cc_lr_gs", __cc_lr(), "mul", pg="cc_lr", search="grid"         ),
     G("m3w_cc_lr_gs", __cc_lr(), "mul", pg="cc_lr", search="grid", cf=True),
+]
+
+__ms_set = [
+    E("sld_lr_gs"),
+    E("kde_lr_gs"),
     E("cc_lr_gs"),
+    E("QuAcc"),
 ]
 
 # fmt: on
@@ -505,7 +509,7 @@ __methods_set = (
     + __dense_kde_lr_set
     + __dense_kde_rbf_set
     + __cc_lr_set
-    + [E("QuAcc")]
+    + __ms_set
 )
 
 _methods = {m.name: m for m in __methods_set}
