@@ -17,6 +17,7 @@ class BasePlot:
         title="default",
         x_label="true",
         y_label="estim.",
+        fixed_lim=False,
         legend=True,
     ):
         ...
