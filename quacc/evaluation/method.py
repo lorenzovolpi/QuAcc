@@ -493,9 +493,9 @@ __cc_lr_set = [
 ]
 
 __ms_set = [
+    E("cc_lr_gs"),
     E("sld_lr_gs"),
     E("kde_lr_gs"),
-    E("cc_lr_gs"),
     E("QuAcc"),
 ]
 

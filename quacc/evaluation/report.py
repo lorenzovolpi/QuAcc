@@ -447,6 +447,7 @@ class DatasetReport:
         "delta_test",
         "stdev_test",
         "test_table",
+        "diagonal",
         "stats_table",
         "fit_scores",
     ]
@@ -741,6 +742,25 @@ class DatasetReport:
                 scores=_fit_scores,
                 metric=metric,
                 name=conf,
+                save_fig=save_fig,
+                base_path=base_path,
+                backend=backend,
+            )
+        elif mode == "diagonal":
+            f_data = self.data(metric=metric + "_score", estimators=estimators)
+            if f_data.empty:
+                return None
+
+            ref: pd.Series = f_data.loc[:, "ref"]
+            f_data.drop(columns=["ref"], inplace=True)
+            return plot.plot_diagonal(
+                reference=ref.to_numpy(),
+                columns=f_data.columns.to_numpy(),
+                data=f_data.T.to_numpy(),
+                metric=metric,
+                name=conf,
+                # train_prev=self.train_prev,
+                fixed_lim=True,
                 save_fig=save_fig,
                 base_path=base_path,
                 backend=backend,
