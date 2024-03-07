@@ -5,7 +5,7 @@ import numpy as np
 import plotly
 import plotly.graph_objects as go
 
-from quacc.evaluation.estimators import _renames
+from quacc.evaluation.estimators import CE, _renames
 from quacc.plot.base import BasePlot
 
 
@@ -19,7 +19,7 @@ class PlotCfg:
 
 
 web_cfg = PlotCfg("lines+markers", 2)
-png_cfg = PlotCfg(
+png_cfg_old = PlotCfg(
     "lines",
     5,
     legend=dict(
@@ -29,6 +29,18 @@ png_cfg = PlotCfg(
         y=1.02,
         x=1,
         font=dict(size=24),
+    ),
+    font=dict(size=24),
+    # template="ggplot2",
+)
+png_cfg = PlotCfg(
+    "lines",
+    5,
+    legend=dict(
+        font=dict(
+            family="DejaVu Sans",
+            size=24,
+        ),
     ),
     font=dict(size=24),
     # template="ggplot2",
@@ -122,16 +134,21 @@ class PlotlyPlot(BasePlot):
         if isinstance(base_prevs[0], float):
             base_prevs = np.around([(1 - bp, bp) for bp in base_prevs], decimals=4)
         x = [str(tuple(bp)) for bp in base_prevs]
-        columns = self.rename_plots(columns)
+        named_data = {c: d for c, d in zip(columns, data)}
+        r_columns = {c: r for c, r in zip(columns, self.rename_plots(columns))}
         line_colors = self.get_colors(len(columns))
-        for name, delta in zip(columns, data):
+        # for name, delta in zip(columns, data):
+        columns = np.array(CE.name.sort(columns))
+        for name in columns:
+            delta = named_data[name]
+            r_name = r_columns[name]
             color = next(line_colors)
             _line = [
                 go.Scatter(
                     x=x,
                     y=delta,
                     mode=_cfg.mode,
-                    name=name,
+                    name=r_name,
                     line=dict(color=self.hex_to_rgb(color), width=_cfg.lwidth),
                     hovertemplate="prev.: %{x}<br>error: %{y:,.4f}",
                 )
@@ -167,20 +184,31 @@ class PlotlyPlot(BasePlot):
         title="default",
         x_label="true",
         y_label="estim.",
+        fixed_lim=False,
         legend=True,
     ) -> go.Figure:
         fig = go.Figure()
         x = reference
-        columns = self.rename_plots(columns)
         line_colors = self.get_colors(len(columns))
 
-        _edges = (np.min([np.min(x), np.min(data)]), np.max([np.max(x), np.max(data)]))
-        _lims = np.array([[_edges[0], _edges[1]], [_edges[0], _edges[1]]])
+        if fixed_lim:
+            _lims = np.array([[0.0, 1.0], [0.0, 1.0]])
+        else:
+            _edges = (
+                np.min([np.min(x), np.min(data)]),
+                np.max([np.max(x), np.max(data)]),
+            )
+            _lims = np.array([[_edges[0], _edges[1]], [_edges[0], _edges[1]]])
 
-        for name, val in zip(columns, data):
+        named_data = {c: d for c, d in zip(columns, data)}
+        r_columns = {c: r for c, r in zip(columns, self.rename_plots(columns))}
+        columns = np.array(CE.name.sort(columns))
+        for name in columns:
+            val = named_data[name]
+            r_name = r_columns[name]
             color = next(line_colors)
             slope, interc = np.polyfit(x, val, 1)
-            y_lr = np.array([slope * _x + interc for _x in _lims[0]])
+            # y_lr = np.array([slope * _x + interc for _x in _lims[0]])
             fig.add_traces(
                 [
                     go.Scatter(
@@ -188,18 +216,26 @@ class PlotlyPlot(BasePlot):
                         y=val,
                         customdata=np.stack((val - x,), axis=-1),
                         mode="markers",
-                        name=name,
-                        line=dict(color=self.hex_to_rgb(color, t=0.5)),
+                        name=r_name,
+                        marker=dict(color=self.hex_to_rgb(color, t=0.5)),
                         hovertemplate="true acc: %{x:,.4f}<br>estim. acc: %{y:,.4f}<br>acc err.: %{customdata[0]:,.4f}",
+                        # showlegend=False,
                     ),
-                    go.Scatter(
-                        x=_lims[0],
-                        y=y_lr,
-                        mode="lines",
-                        name=name,
-                        line=dict(color=self.hex_to_rgb(color), width=3),
-                        showlegend=False,
-                    ),
+                    # go.Scatter(
+                    #     x=[x[-1]],
+                    #     y=[val[-1]],
+                    #     mode="markers",
+                    #     marker=dict(color=self.hex_to_rgb(color), size=8),
+                    #     name=r_name,
+                    # ),
+                    # go.Scatter(
+                    #     x=_lims[0],
+                    #     y=y_lr,
+                    #     mode="lines",
+                    #     name=name,
+                    #     line=dict(color=self.hex_to_rgb(color), width=3),
+                    #     showlegend=False,
+                    # ),
                 ]
             )
         fig.add_trace(
@@ -214,7 +250,14 @@ class PlotlyPlot(BasePlot):
         )
 
         self.update_layout(fig, title, x_label, y_label)
-        fig.update_layout(yaxis_scaleanchor="x", yaxis_scaleratio=1.0)
+        fig.update_layout(
+            autosize=False,
+            width=1300,
+            height=1000,
+            yaxis_scaleanchor="x",
+            yaxis_scaleratio=1.0,
+            yaxis_range=[-0.1, 1.1],
+        )
         return fig
 
     def plot_shift(
@@ -233,9 +276,13 @@ class PlotlyPlot(BasePlot):
         fig = go.Figure()
         # x = shift_prevs[:, pos_class]
         x = shift_prevs
-        columns = self.rename_plots(columns)
         line_colors = self.get_colors(len(columns))
-        for name, delta in zip(columns, data):
+        named_data = {c: d for c, d in zip(columns, data)}
+        r_columns = {c: r for c, r in zip(columns, self.rename_plots(columns))}
+        columns = np.array(CE.name.sort(columns))
+        for name in columns:
+            delta = named_data[name]
+            r_name = r_columns[name]
             col_idx = (columns == name).nonzero()[0][0]
             color = next(line_colors)
             fig.add_trace(
@@ -244,7 +291,7 @@ class PlotlyPlot(BasePlot):
                     y=delta,
                     customdata=np.stack((counts[col_idx],), axis=-1),
                     mode=_cfg.mode,
-                    name=name,
+                    name=r_name,
                     line=dict(color=self.hex_to_rgb(color), width=_cfg.lwidth),
                     hovertemplate="shift: %{x}<br>error: %{y}"
                     + "<br>count: %{customdata[0]}"

@@ -77,6 +77,7 @@ def plot_diagonal(
     metric="acc",
     name="default",
     train_prev=None,
+    fixed_lim=False,
     legend=True,
     save_fig=False,
     base_path=None,
@@ -103,6 +104,7 @@ def plot_diagonal(
         title=title,
         x_label=x_label,
         y_label=y_label,
+        fixed_lim=fixed_lim,
         legend=legend,
     )
 
