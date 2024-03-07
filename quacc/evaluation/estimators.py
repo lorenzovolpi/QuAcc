@@ -40,20 +40,19 @@ class CompEstimatorName_:
 
 class CompEstimator:
     def __get(cls, e: str | List[str], get_ref=True):
-        _dict = alt._alts | method._methods | baseline._baselines
+        _dict = alt._alts | baseline._baselines | method._methods
 
-        match e:
-            case "__all":
-                e = list(_dict.keys())
-            case "__baselines":
-                e = list(baseline._baselines.keys())
+        if isinstance(e, str) and e == "__all":
+            e = list(_dict.keys())
+        if isinstance(e, str) and e == "__baselines":
+            e = list(baseline._baselines.keys())
 
         if isinstance(e, str):
             try:
                 return {e: _dict[e]}
             except KeyError:
                 raise KeyError(f"Invalid estimator: estimator {e} does not exist")
-        elif isinstance(e, list):
+        elif isinstance(e, list) or isinstance(e, np.ndarray):
             _subtr = np.setdiff1d(e, list(_dict.keys()))
             if len(_subtr) > 0:
                 raise KeyError(
@@ -89,7 +88,8 @@ _renames = {
     "d_bin_sld_rbf": "(2x2)_SLD_RBF",
     "d_mul_sld_rbf": "(1x4)_SLD_RBF",
     "d_m3w_sld_rbf": "(1x3)_SLD_RBF",
-    "sld_lr": "SLD_LR",
+    # "sld_lr_gs": "MS_SLD_LR",
+    "sld_lr_gs": "QuAcc(SLD)",
     "bin_kde_lr": "(2x2)_KDEy_LR",
     "mul_kde_lr": "(1x4)_KDEy_LR",
     "m3w_kde_lr": "(1x3)_KDEy_LR",
@@ -99,8 +99,10 @@ _renames = {
     "bin_cc_lr": "(2x2)_CC_LR",
     "mul_cc_lr": "(1x4)_CC_LR",
     "m3w_cc_lr": "(1x3)_CC_LR",
-    "kde_lr": "KDEy_LR",
-    "cc_lr": "CC_LR",
+    # "kde_lr_gs": "MS_KDEy_LR",
+    "kde_lr_gs": "QuAcc(KDEy)",
+    # "cc_lr_gs": "MS_CC_LR",
+    "cc_lr_gs": "QuAcc(CC)",
     "atc_mc": "ATC",
     "doc": "DoC",
     "mandoline": "Mandoline",
