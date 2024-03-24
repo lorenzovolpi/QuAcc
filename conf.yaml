@@ -3,7 +3,8 @@ debug_conf: &debug_conf
     METRICS: 
       - acc
     OUT_DIR_NAME: output/debug
-    DATASET_N_PREVS: 9
+    DATASET_N_PREVS: 4
+    # DATASET_PREVS: [[0.1, 0.1, 0.8]]
     COMP_ESTIMATORS:
       # - bin_sld_lr
       # - mul_sld_lr
@@ -24,21 +25,25 @@ debug_conf: &debug_conf
       # - d_mul_kde_rbf
       # - d_m3w_kde_rbf
       # - mandoline
-      - bin_sld_lr_is
-      - mul_sld_lr_is
-      - m3w_sld_lr_is
-      - rca
-      - rca_star
+      # - bin_sld_lr_is
+      - bin_sld_lr_gs
+      - mul_sld_lr_gs
+      # - m3w_sld_lr_is
+      # - rca
+      # - rca_star
       - doc
       - atc_mc
     N_JOBS: -2
 
   confs:
-    - DATASET_NAME: imdb
-    - DATASET_NAME: rcv1
-      DATASET_TARGET: CCAT
-  other_confs:
     - DATASET_NAME: twitter_gasp
+  other_confs:
+    - DATASET_NAME: rcv1
+      DATASET_TARGET: GCAT
+    - DATASET_NAME: rcv1
+      DATASET_TARGET: MCAT
+    - DATASET_NAME: imdb
+    - DATASET_NAME: imdb
     - DATASET_NAME: rcv1
       DATASET_TARGET: CCAT
 
@@ -456,4 +461,4 @@ timing_gs_conf: &timing_gs_conf
 
   confs: *main_confs
 
-exec: *d_sld_rbf_conf
+exec: *debug_conf
