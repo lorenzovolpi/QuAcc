@@ -17192,3 +17192,687 @@ LinearRegression does not accept missing values encoded as NaN natively. For sup
 24/01/24 12:22:49| INFO        mul_sld_lr_is finished [took 22.1600s]
 24/01/24 12:22:56| INFO        bin_sld_lr_is finished [took 29.8913s]
 24/01/24 12:22:56| INFO     Dataset sample [0.9 0.1] of dataset imdb finished [took 30.3839s]
+----------------------------------------------------------------------------------------------------
+07/03/24 19:58:33| INFO     dataset imdb [pool size: 10]
+07/03/24 19:58:34| INFO     Dataset sample [0.1 0.9] of dataset imdb started
+07/03/24 19:58:44| INFO        ref finished [took 8.8355s]
+07/03/24 19:58:47| INFO        atc_mc finished [took 12.2906s]
+07/03/24 19:58:49| INFO        doc finished [took 14.4880s]
+07/03/24 19:59:02| DEBUG       [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': None, 'quantifier__recalib': None, 'confidence': ['max_conf', 'entropy', 'isoft']} (score=0.01297) [took 12.3215s]
+07/03/24 19:59:24| INFO        bin_sld_lr_gs finished [took 34.5666s]
+07/03/24 19:59:24| INFO     Dataset sample [0.1 0.9] of dataset imdb finished [took 50.8695s]
+07/03/24 19:59:24| INFO     Dataset sample [0.2 0.8] of dataset imdb started
+07/03/24 19:59:34| INFO        ref finished [took 9.1637s]
+07/03/24 19:59:37| INFO        atc_mc finished [took 11.8823s]
+07/03/24 19:59:40| INFO        doc finished [took 14.8240s]
+07/03/24 20:00:07| DEBUG       [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 1000.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__recalib': 'bcts', 'confidence': ['max_conf', 'entropy']} (score=0.00805) [took 27.2140s]
+----------------------------------------------------------------------------------------------------
+07/03/24 20:00:35| INFO     dataset rcv1_GCAT [pool size: 10]
+07/03/24 20:00:35| INFO     Dataset sample [0.1 0.9] of dataset rcv1_GCAT started
+07/03/24 20:01:05| INFO        ref finished [took 28.5818s]
+07/03/24 20:01:08| INFO        atc_mc finished [took 31.6592s]
+07/03/24 20:01:11| INFO        doc finished [took 33.9302s]
+07/03/24 20:01:13| WARNING     Method bin_sld_lr_gs failed. Exception: no combination of hyperparameters seem to work
+07/03/24 20:01:13| INFO     Dataset sample [0.1 0.9] of dataset rcv1_GCAT finished [took 38.0514s]
+07/03/24 20:01:13| INFO     Dataset sample [0.2 0.8] of dataset rcv1_GCAT started
+----------------------------------------------------------------------------------------------------
+07/03/24 20:06:41| INFO     dataset rcv1_GCAT [pool size: 10]
+07/03/24 20:06:41| INFO     Dataset sample [0.1 0.9] of dataset rcv1_GCAT started
+07/03/24 20:07:11| INFO        ref finished [took 28.1024s]
+07/03/24 20:07:14| INFO        atc_mc finished [took 31.6235s]
+07/03/24 20:07:16| INFO        doc finished [took 33.7466s]
+07/03/24 20:07:19| WARNING     Method bin_sld_lr_gs failed. Exception: no combination of hyperparameters seem to work
+07/03/24 20:07:19| INFO     Dataset sample [0.1 0.9] of dataset rcv1_GCAT finished [took 37.8741s]
+----------------------------------------------------------------------------------------------------
+07/03/24 20:07:32| INFO     dataset rcv1_GCAT [pool size: 10]
+07/03/24 20:07:32| INFO     Dataset sample [0.1 0.9] of dataset rcv1_GCAT started
+07/03/24 20:07:34| WARNING     Method bin_sld_lr_is failed. Exception: This solver needs samples of at least 2 classes in the data, but the data contains only one class: 0
+07/03/24 20:08:03| INFO        ref finished [took 28.6003s]
+07/03/24 20:08:06| INFO        atc_mc finished [took 31.9771s]
+07/03/24 20:08:07| INFO        doc finished [took 33.3084s]
+07/03/24 20:08:10| WARNING     Method bin_sld_lr_gs failed. Exception: no combination of hyperparameters seem to work
+07/03/24 20:08:10| INFO     Dataset sample [0.1 0.9] of dataset rcv1_GCAT finished [took 37.3895s]
+----------------------------------------------------------------------------------------------------
+19/03/24 13:45:06| INFO     dataset rcv1_GCAT [pool size: 10]
+19/03/24 13:45:06| INFO     Dataset sample [0.1 0.9] of dataset rcv1_GCAT started
+19/03/24 13:45:07| WARNING     Method bin_sld_lr_is failed. Exception: This solver needs samples of at least 2 classes in the data, but the data contains only one class: 0
+19/03/24 13:45:35| INFO        ref finished [took 27.7958s]
+19/03/24 13:45:38| INFO        atc_mc finished [took 31.0394s]
+19/03/24 13:45:41| INFO        doc finished [took 33.5261s]
+19/03/24 13:45:43| WARNING     Method bin_sld_lr_gs failed. Exception: no combination of hyperparameters seem to work
+19/03/24 13:45:44| INFO     Dataset sample [0.1 0.9] of dataset rcv1_GCAT finished [took 38.0286s]
+----------------------------------------------------------------------------------------------------
+19/03/24 13:46:06| INFO     dataset rcv1_GCAT [pool size: 10]
+19/03/24 13:46:06| INFO     Dataset sample [0.1 0.9] of dataset rcv1_GCAT started
+19/03/24 13:46:07| WARNING     Method bin_sld_lr_is failed. Exception: This solver needs samples of at least 2 classes in the data, but the data contains only one class: 0
+19/03/24 13:46:35| INFO        ref finished [took 27.7592s]
+19/03/24 13:46:39| INFO        atc_mc finished [took 31.2291s]
+19/03/24 13:46:41| INFO        doc finished [took 33.4684s]
+19/03/24 13:46:41| INFO     Dataset sample [0.1 0.9] of dataset rcv1_GCAT finished [took 35.3567s]
+----------------------------------------------------------------------------------------------------
+19/03/24 13:48:21| INFO     dataset rcv1_GCAT [pool size: 10]
+19/03/24 13:48:21| INFO     Dataset sample [0.1 0.9] of dataset rcv1_GCAT started
+19/03/24 13:48:22| WARNING     Method bin_sld_lr_is failed. Exception: This solver needs samples of at least 2 classes in the data, but the data contains only one class: 0
+19/03/24 13:48:50| INFO        ref finished [took 27.4811s]
+19/03/24 13:48:54| INFO        atc_mc finished [took 31.5975s]
+19/03/24 13:48:56| INFO        doc finished [took 33.6588s]
+19/03/24 13:48:56| INFO     Dataset sample [0.1 0.9] of dataset rcv1_GCAT finished [took 35.4838s]
+----------------------------------------------------------------------------------------------------
+19/03/24 13:49:52| INFO     dataset rcv1_GCAT [pool size: 10]
+19/03/24 13:49:52| INFO     Dataset sample [0.1 0.9] of dataset rcv1_GCAT started
+19/03/24 13:49:54| WARNING     Method bin_sld_lr_is failed. Exception: This solver needs samples of at least 2 classes in the data, but the data contains only one class: 0
+19/03/24 13:50:22| INFO        ref finished [took 27.8656s]
+19/03/24 13:50:25| INFO        atc_mc finished [took 30.5674s]
+19/03/24 13:50:27| INFO        doc finished [took 33.0146s]
+19/03/24 13:50:27| INFO     Dataset sample [0.1 0.9] of dataset rcv1_GCAT finished [took 34.9069s]
+----------------------------------------------------------------------------------------------------
+19/03/24 18:16:33| INFO     dataset rcv1_GCAT [pool size: 10]
+19/03/24 18:16:34| INFO     Dataset sample [0.1 0.9] of dataset rcv1_GCAT started
+19/03/24 18:16:35| WARNING     Method bin_sld_lr_is failed. Exception: This solver needs samples of at least 2 classes in the data, but the data contains only one class: 0
+19/03/24 18:17:03| INFO        ref finished [took 28.0456s]
+19/03/24 18:17:07| INFO        atc_mc finished [took 31.8627s]
+19/03/24 18:17:09| INFO        doc finished [took 33.9372s]
+19/03/24 18:17:09| INFO     Dataset sample [0.1 0.9] of dataset rcv1_GCAT finished [took 35.8737s]
+----------------------------------------------------------------------------------------------------
+22/03/24 17:39:01| INFO     dataset rcv1_GCAT [pool size: 10]
+22/03/24 17:39:01| INFO     Dataset sample [0.1 0.9] of dataset rcv1_GCAT started
+22/03/24 17:39:03| WARNING     Method bin_sld_lr_is failed. Exception: This solver needs samples of at least 2 classes in the data, but the data contains only one class: 0
+22/03/24 17:39:32| INFO        ref finished [took 28.5519s]
+22/03/24 17:39:34| INFO        atc_mc finished [took 31.3473s]
+22/03/24 17:39:37| INFO        doc finished [took 33.8775s]
+22/03/24 17:39:37| INFO     Dataset sample [0.1 0.9] of dataset rcv1_GCAT finished [took 35.7640s]
+----------------------------------------------------------------------------------------------------
+22/03/24 17:40:03| INFO     dataset rcv1_GCAT [pool size: 10]
+22/03/24 17:40:03| INFO     Dataset sample [0.1 0.9] of dataset rcv1_GCAT started
+22/03/24 17:40:05| WARNING     Method bin_sld_lr_is failed. Exception: 'numpy.ndarray' object has no attribute 'Xy'
+22/03/24 17:40:33| INFO        ref finished [took 28.3034s]
+22/03/24 17:40:37| INFO        atc_mc finished [took 32.0578s]
+22/03/24 17:40:38| INFO        doc finished [took 33.4997s]
+22/03/24 17:40:38| INFO     Dataset sample [0.1 0.9] of dataset rcv1_GCAT finished [took 35.3824s]
+----------------------------------------------------------------------------------------------------
+22/03/24 17:41:41| INFO     dataset rcv1_GCAT [pool size: 10]
+22/03/24 17:41:41| INFO     Dataset sample [0.1 0.9] of dataset rcv1_GCAT started
+----------------------------------------------------------------------------------------------------
+22/03/24 17:45:54| INFO     dataset rcv1_GCAT [pool size: 10]
+22/03/24 17:45:54| INFO     Dataset sample [0.1 0.9] of dataset rcv1_GCAT started
+22/03/24 17:46:24| INFO        ref finished [took 28.5613s]
+22/03/24 17:46:28| INFO        atc_mc finished [took 32.3978s]
+22/03/24 17:46:30| INFO        doc finished [took 34.5604s]
+22/03/24 17:46:33| INFO        bin_sld_lr_is finished [took 37.7079s]
+22/03/24 17:46:33| INFO     Dataset sample [0.1 0.9] of dataset rcv1_GCAT finished [took 39.5748s]
+----------------------------------------------------------------------------------------------------
+23/03/24 13:00:32| INFO     dataset rcv1_GCAT [pool size: 10]
+23/03/24 13:00:32| INFO     Dataset sample [0.1 0.9] of dataset rcv1_GCAT started
+23/03/24 13:01:04| INFO        ref finished [took 30.7154s]
+23/03/24 13:01:08| INFO        atc_mc finished [took 34.5902s]
+23/03/24 13:01:10| INFO        doc finished [took 36.6377s]
+23/03/24 13:01:14| INFO        bin_sld_lr_is finished [took 40.2864s]
+23/03/24 13:01:14| INFO     Dataset sample [0.1 0.9] of dataset rcv1_GCAT finished [took 42.3007s]
+----------------------------------------------------------------------------------------------------
+23/03/24 13:01:54| INFO     dataset rcv1_GCAT [pool size: 10]
+23/03/24 13:01:54| INFO     Dataset sample [0.1 0.9] of dataset rcv1_GCAT started
+23/03/24 13:02:26| INFO        ref finished [took 30.4022s]
+23/03/24 13:02:30| INFO        atc_mc finished [took 34.2698s]
+23/03/24 13:02:32| INFO        doc finished [took 35.8748s]
+23/03/24 13:02:34| INFO        bin_sld_lr_is finished [took 38.3595s]
+23/03/24 13:02:34| INFO     Dataset sample [0.1 0.9] of dataset rcv1_GCAT finished [took 40.4090s]
+----------------------------------------------------------------------------------------------------
+23/03/24 13:03:49| INFO     dataset rcv1_GCAT [pool size: 10]
+23/03/24 13:03:49| INFO     Dataset sample [0.1 0.9] of dataset rcv1_GCAT started
+23/03/24 13:04:19| INFO        ref finished [took 28.5940s]
+23/03/24 13:04:22| INFO        atc_mc finished [took 32.1501s]
+23/03/24 13:04:25| INFO        doc finished [took 34.3531s]
+23/03/24 13:04:28| INFO        bin_sld_lr_is finished [took 37.5110s]
+23/03/24 13:04:28| INFO     Dataset sample [0.1 0.9] of dataset rcv1_GCAT finished [took 39.3598s]
+----------------------------------------------------------------------------------------------------
+23/03/24 13:05:25| INFO     dataset rcv1_GCAT [pool size: 10]
+23/03/24 13:05:25| INFO     Dataset sample [0.1 0.9] of dataset rcv1_GCAT started
+23/03/24 13:05:55| INFO        ref finished [took 28.5704s]
+23/03/24 13:05:59| INFO        atc_mc finished [took 32.0294s]
+23/03/24 13:06:01| INFO        doc finished [took 34.5325s]
+23/03/24 13:06:05| INFO        bin_sld_lr_is finished [took 37.9766s]
+23/03/24 13:06:05| INFO     Dataset sample [0.1 0.9] of dataset rcv1_GCAT finished [took 39.8671s]
+----------------------------------------------------------------------------------------------------
+23/03/24 13:07:02| INFO     dataset rcv1_GCAT [pool size: 10]
+23/03/24 13:07:02| INFO     Dataset sample [0.1 0.9] of dataset rcv1_GCAT started
+23/03/24 13:07:35| INFO        ref finished [took 31.4744s]
+23/03/24 13:07:39| INFO        atc_mc finished [took 35.0584s]
+23/03/24 13:07:41| INFO        doc finished [took 37.2185s]
+23/03/24 13:07:45| INFO        bin_sld_lr_is finished [took 40.7480s]
+23/03/24 13:07:45| INFO     Dataset sample [0.1 0.9] of dataset rcv1_GCAT finished [took 42.7163s]
+----------------------------------------------------------------------------------------------------
+23/03/24 13:24:27| INFO     dataset rcv1_GCAT [pool size: 10]
+23/03/24 13:24:27| INFO     Dataset sample [0.1 0.9] of dataset rcv1_GCAT started
+23/03/24 13:24:59| INFO        ref finished [took 30.9595s]
+23/03/24 13:25:03| INFO        atc_mc finished [took 34.8632s]
+23/03/24 13:25:06| INFO        doc finished [took 37.2251s]
+23/03/24 13:25:08| INFO        bin_sld_lr_is finished [took 40.1157s]
+23/03/24 13:25:09| INFO     Dataset sample [0.1 0.9] of dataset rcv1_GCAT finished [took 42.1099s]
+----------------------------------------------------------------------------------------------------
+23/03/24 13:26:22| INFO     dataset rcv1_GCAT [pool size: 10]
+23/03/24 13:26:22| INFO     Dataset sample [0.1 0.9] of dataset rcv1_GCAT started
+23/03/24 13:26:55| INFO        ref finished [took 31.6397s]
+23/03/24 13:26:58| INFO        atc_mc finished [took 34.9376s]
+23/03/24 13:27:01| INFO        doc finished [took 37.2554s]
+23/03/24 13:27:04| INFO        bin_sld_lr_is finished [took 40.7601s]
+23/03/24 13:27:05| INFO     Dataset sample [0.1 0.9] of dataset rcv1_GCAT finished [took 42.7638s]
+----------------------------------------------------------------------------------------------------
+23/03/24 13:28:54| INFO     dataset rcv1_GCAT [pool size: 10]
+23/03/24 13:28:54| INFO     Dataset sample [0.1 0.9] of dataset rcv1_GCAT started
+23/03/24 13:29:26| INFO        ref finished [took 30.7394s]
+23/03/24 13:29:30| INFO        atc_mc finished [took 34.5038s]
+23/03/24 13:29:36| INFO        doc finished [took 40.0651s]
+23/03/24 13:29:36| INFO        bin_sld_lr_is finished [took 40.2645s]
+23/03/24 13:29:36| INFO     Dataset sample [0.1 0.9] of dataset rcv1_GCAT finished [took 42.2545s]
+----------------------------------------------------------------------------------------------------
+23/03/24 13:30:00| INFO     dataset rcv1_GCAT [pool size: 10]
+23/03/24 13:30:00| INFO     Dataset sample [0.1 0.9] of dataset rcv1_GCAT started
+23/03/24 13:30:33| INFO        ref finished [took 31.7178s]
+23/03/24 13:30:36| INFO        atc_mc finished [took 34.7653s]
+23/03/24 13:30:38| INFO        doc finished [took 36.7705s]
+23/03/24 13:30:42| INFO        bin_sld_lr_is finished [took 40.1862s]
+23/03/24 13:30:42| INFO     Dataset sample [0.1 0.9] of dataset rcv1_GCAT finished [took 42.2471s]
+----------------------------------------------------------------------------------------------------
+23/03/24 13:35:15| INFO     dataset rcv1_GCAT [pool size: 10]
+23/03/24 13:35:15| INFO     Dataset sample [0.1 0.9] of dataset rcv1_GCAT started
+23/03/24 13:35:49| INFO        ref finished [took 31.5491s]
+23/03/24 13:35:52| INFO        atc_mc finished [took 35.1538s]
+23/03/24 13:35:54| INFO        doc finished [took 36.8684s]
+23/03/24 13:35:56| INFO        bin_sld_lr_is finished [took 38.4952s]
+23/03/24 13:35:56| INFO     Dataset sample [0.1 0.9] of dataset rcv1_GCAT finished [took 40.4850s]
+----------------------------------------------------------------------------------------------------
+23/03/24 13:36:24| INFO     dataset rcv1_GCAT [pool size: 10]
+23/03/24 13:36:24| INFO     Dataset sample [0.1 0.9] of dataset rcv1_GCAT started
+23/03/24 13:36:57| INFO        ref finished [took 31.4153s]
+23/03/24 13:37:00| INFO        atc_mc finished [took 34.5550s]
+23/03/24 13:37:03| INFO        doc finished [took 37.0116s]
+23/03/24 13:37:06| INFO        bin_sld_lr_is finished [took 40.0674s]
+23/03/24 13:37:06| INFO     Dataset sample [0.1 0.9] of dataset rcv1_GCAT finished [took 42.0524s]
+----------------------------------------------------------------------------------------------------
+23/03/24 13:37:34| INFO     dataset rcv1_GCAT [pool size: 10]
+23/03/24 13:37:34| INFO     Dataset sample [0.1 0.9] of dataset rcv1_GCAT started
+23/03/24 13:38:07| INFO        ref finished [took 30.9769s]
+23/03/24 13:38:11| INFO        atc_mc finished [took 34.5735s]
+23/03/24 13:38:13| INFO        doc finished [took 36.7363s]
+23/03/24 13:38:16| INFO        bin_sld_lr_is finished [took 40.1879s]
+23/03/24 13:38:17| INFO     Dataset sample [0.1 0.9] of dataset rcv1_GCAT finished [took 42.2425s]
+----------------------------------------------------------------------------------------------------
+23/03/24 14:13:28| INFO     dataset rcv1_GCAT [pool size: 10]
+23/03/24 14:13:28| INFO     Dataset sample [0.1 0.9] of dataset rcv1_GCAT started
+23/03/24 14:14:01| INFO        ref finished [took 31.4967s]
+23/03/24 14:14:04| INFO        atc_mc finished [took 34.6677s]
+23/03/24 14:14:06| INFO        doc finished [took 36.7043s]
+23/03/24 14:14:10| INFO        bin_sld_lr_is finished [took 40.2211s]
+23/03/24 14:14:10| INFO     Dataset sample [0.1 0.9] of dataset rcv1_GCAT finished [took 42.2654s]
+----------------------------------------------------------------------------------------------------
+23/03/24 14:16:10| INFO     dataset rcv1_GCAT [pool size: 10]
+23/03/24 14:16:10| INFO     Dataset sample [0.1 0.9] of dataset rcv1_GCAT started
+23/03/24 14:16:43| INFO        ref finished [took 31.1894s]
+23/03/24 14:16:47| INFO        atc_mc finished [took 34.8766s]
+23/03/24 14:16:49| INFO        doc finished [took 37.0967s]
+23/03/24 14:16:53| INFO        bin_sld_lr_is finished [took 41.1031s]
+23/03/24 14:16:53| INFO     Dataset sample [0.1 0.9] of dataset rcv1_GCAT finished [took 43.1300s]
+----------------------------------------------------------------------------------------------------
+23/03/24 14:22:37| INFO     dataset rcv1_GCAT [pool size: 10]
+23/03/24 14:22:37| INFO     Dataset sample [0.1 0.9] of dataset rcv1_GCAT started
+23/03/24 14:23:10| INFO        ref finished [took 31.1393s]
+23/03/24 14:23:14| INFO        atc_mc finished [took 35.0549s]
+23/03/24 14:23:17| INFO        doc finished [took 37.5532s]
+23/03/24 14:23:20| INFO        bin_sld_lr_is finished [took 40.7132s]
+23/03/24 14:23:20| INFO     Dataset sample [0.1 0.9] of dataset rcv1_GCAT finished [took 42.7365s]
+----------------------------------------------------------------------------------------------------
+23/03/24 14:27:10| INFO     dataset rcv1_GCAT [pool size: 10]
+23/03/24 14:27:10| INFO     Dataset sample [0.1 0.9] of dataset rcv1_GCAT started
+23/03/24 14:27:43| INFO        ref finished [took 31.1400s]
+23/03/24 14:27:46| INFO        atc_mc finished [took 34.6528s]
+23/03/24 14:27:49| INFO        doc finished [took 37.0410s]
+23/03/24 14:27:52| INFO        bin_sld_lr_is finished [took 40.2650s]
+23/03/24 14:27:52| INFO     Dataset sample [0.1 0.9] of dataset rcv1_GCAT finished [took 42.1148s]
+----------------------------------------------------------------------------------------------------
+23/03/24 16:54:56| INFO     dataset rcv1_GCAT [pool size: 10]
+23/03/24 16:54:56| INFO     Dataset sample [0.1 0.9] of dataset rcv1_GCAT started
+23/03/24 16:55:27| INFO        ref finished [took 29.0701s]
+23/03/24 16:55:29| INFO        atc_mc finished [took 31.9601s]
+23/03/24 16:55:32| INFO        doc finished [took 34.4162s]
+23/03/24 16:55:36| INFO        bin_sld_lr_is finished [took 38.5255s]
+23/03/24 16:55:36| INFO     Dataset sample [0.1 0.9] of dataset rcv1_GCAT finished [took 40.3901s]
+----------------------------------------------------------------------------------------------------
+23/03/24 17:26:57| INFO     dataset rcv1_GCAT [pool size: 10]
+23/03/24 17:26:57| INFO     Dataset sample [0.1 0.9] of dataset rcv1_GCAT started
+23/03/24 17:26:59| WARNING     Method bin_sld_lr_is failed. Exception: This solver needs samples of at least 2 classes in the data, but the data contains only one class: 0
+23/03/24 17:27:27| INFO        ref finished [took 28.2144s]
+23/03/24 17:27:31| INFO        atc_mc finished [took 32.2246s]
+23/03/24 17:27:33| INFO        doc finished [took 34.0537s]
+23/03/24 17:27:33| INFO     Dataset sample [0.1 0.9] of dataset rcv1_GCAT finished [took 35.9403s]
+----------------------------------------------------------------------------------------------------
+23/03/24 17:27:49| INFO     dataset rcv1_GCAT [pool size: 10]
+23/03/24 17:27:49| INFO     Dataset sample [0.2 0.8] of dataset rcv1_GCAT started
+23/03/24 17:28:19| INFO        ref finished [took 28.9425s]
+23/03/24 17:28:23| INFO        atc_mc finished [took 32.7912s]
+23/03/24 17:28:25| INFO        doc finished [took 34.3141s]
+23/03/24 17:28:27| INFO        bin_sld_lr_is finished [took 36.4641s]
+23/03/24 17:28:27| INFO     Dataset sample [0.2 0.8] of dataset rcv1_GCAT finished [took 38.2816s]
+----------------------------------------------------------------------------------------------------
+23/03/24 17:28:39| INFO     dataset rcv1_GCAT [pool size: 10]
+23/03/24 17:28:39| INFO     Dataset sample [0.2 0.8] of dataset rcv1_GCAT started
+23/03/24 17:29:10| INFO        ref finished [took 29.1823s]
+23/03/24 17:29:14| INFO        atc_mc finished [took 32.6478s]
+23/03/24 17:29:16| INFO        doc finished [took 34.7360s]
+23/03/24 17:29:18| INFO        bin_sld_lr_is finished [took 36.4193s]
+23/03/24 17:29:18| INFO     Dataset sample [0.2 0.8] of dataset rcv1_GCAT finished [took 38.3387s]
+----------------------------------------------------------------------------------------------------
+23/03/24 17:30:52| INFO     dataset rcv1_GCAT [pool size: 10]
+23/03/24 17:30:52| INFO     Dataset sample [0.2 0.8] of dataset rcv1_GCAT started
+----------------------------------------------------------------------------------------------------
+23/03/24 17:32:15| INFO     dataset rcv1_GCAT [pool size: 10]
+23/03/24 17:32:15| INFO     Dataset sample [0.2 0.8] of dataset rcv1_GCAT started
+23/03/24 17:32:45| INFO        ref finished [took 29.1730s]
+23/03/24 17:32:49| INFO        atc_mc finished [took 32.2855s]
+23/03/24 17:32:51| INFO        doc finished [took 34.7664s]
+23/03/24 17:32:58| INFO        bin_sld_lr_is finished [took 41.7819s]
+23/03/24 17:32:58| INFO     Dataset sample [0.2 0.8] of dataset rcv1_GCAT finished [took 43.7025s]
+----------------------------------------------------------------------------------------------------
+23/03/24 17:34:24| INFO     dataset rcv1_GCAT [pool size: 10]
+23/03/24 17:34:24| INFO     Dataset sample [0.2 0.8] of dataset rcv1_GCAT started
+23/03/24 17:34:55| INFO        ref finished [took 29.2206s]
+23/03/24 17:34:59| INFO        atc_mc finished [took 32.8052s]
+23/03/24 17:35:00| INFO        doc finished [took 34.2601s]
+23/03/24 17:35:06| INFO        bin_sld_lr_is finished [took 40.7150s]
+23/03/24 17:35:07| INFO     Dataset sample [0.2 0.8] of dataset rcv1_GCAT finished [took 42.6306s]
+----------------------------------------------------------------------------------------------------
+23/03/24 17:36:08| INFO     dataset rcv1_GCAT [pool size: 10]
+23/03/24 17:36:08| INFO     Dataset sample [0.2 0.8] of dataset rcv1_GCAT started
+23/03/24 17:36:39| INFO        ref finished [took 29.4468s]
+23/03/24 17:36:42| INFO        atc_mc finished [took 32.4536s]
+23/03/24 17:36:44| INFO        doc finished [took 34.3966s]
+23/03/24 17:36:52| INFO        bin_sld_lr_is finished [took 42.2660s]
+23/03/24 17:36:52| INFO     Dataset sample [0.2 0.8] of dataset rcv1_GCAT finished [took 44.2113s]
+----------------------------------------------------------------------------------------------------
+23/03/24 17:37:09| INFO     dataset rcv1_GCAT [pool size: 10]
+23/03/24 17:37:09| INFO     Dataset sample [0.2 0.8] of dataset rcv1_GCAT started
+23/03/24 17:37:11| INFO        ref finished [took 0.3189s]
+23/03/24 17:37:11| INFO        atc_mc finished [took 0.3843s]
+23/03/24 17:37:11| INFO        bin_sld_lr_is finished [took 0.5766s]
+23/03/24 17:37:16| INFO        doc finished [took 5.0570s]
+23/03/24 17:37:16| INFO     Dataset sample [0.2 0.8] of dataset rcv1_GCAT finished [took 6.9932s]
+----------------------------------------------------------------------------------------------------
+23/03/24 17:38:05| INFO     dataset rcv1_GCAT [pool size: 10]
+23/03/24 17:38:05| INFO     Dataset sample [0.2 0.8] of dataset rcv1_GCAT started
+23/03/24 17:38:07| INFO        ref finished [took 0.3215s]
+23/03/24 17:38:07| INFO        atc_mc finished [took 0.3767s]
+23/03/24 17:38:07| INFO        bin_sld_lr_is finished [took 0.5589s]
+23/03/24 17:38:12| INFO        doc finished [took 5.1400s]
+23/03/24 17:38:12| INFO     Dataset sample [0.2 0.8] of dataset rcv1_GCAT finished [took 7.0756s]
+----------------------------------------------------------------------------------------------------
+23/03/24 17:38:19| INFO     dataset rcv1_GCAT [pool size: 10]
+23/03/24 17:38:19| INFO     Dataset sample [0.2 0.8] of dataset rcv1_GCAT started
+23/03/24 17:38:21| INFO        ref finished [took 0.3299s]
+23/03/24 17:38:21| INFO        atc_mc finished [took 0.3700s]
+23/03/24 17:38:22| INFO        bin_sld_lr_is finished [took 0.5536s]
+23/03/24 17:38:26| INFO        doc finished [took 5.1714s]
+23/03/24 17:38:26| INFO     Dataset sample [0.2 0.8] of dataset rcv1_GCAT finished [took 7.1128s]
+----------------------------------------------------------------------------------------------------
+23/03/24 17:38:33| INFO     dataset rcv1_GCAT [pool size: 10]
+23/03/24 17:38:33| INFO     Dataset sample [0.2 0.8] of dataset rcv1_GCAT started
+23/03/24 17:39:04| INFO        ref finished [took 29.4347s]
+23/03/24 17:39:08| INFO        atc_mc finished [took 32.6589s]
+23/03/24 17:39:09| INFO        doc finished [took 34.0316s]
+23/03/24 17:39:15| INFO        bin_sld_lr_is finished [took 40.3601s]
+23/03/24 17:39:16| INFO     Dataset sample [0.2 0.8] of dataset rcv1_GCAT finished [took 42.2535s]
+----------------------------------------------------------------------------------------------------
+23/03/24 17:40:25| INFO     dataset rcv1_GCAT [pool size: 10]
+23/03/24 17:40:25| INFO     Dataset sample [0.2 0.8] of dataset rcv1_GCAT started
+23/03/24 17:40:56| INFO        ref finished [took 29.4779s]
+23/03/24 17:41:00| INFO        atc_mc finished [took 33.2235s]
+23/03/24 17:41:01| INFO        doc finished [took 34.8981s]
+23/03/24 17:41:08| INFO        bin_sld_lr_is finished [took 41.0836s]
+23/03/24 17:41:08| INFO        mul_sld_lr_is finished [took 41.8461s]
+23/03/24 17:41:09| INFO     Dataset sample [0.2 0.8] of dataset rcv1_GCAT finished [took 43.8091s]
+----------------------------------------------------------------------------------------------------
+23/03/24 17:41:24| INFO     dataset rcv1_GCAT [pool size: 10]
+23/03/24 17:41:24| INFO     Dataset sample [0.1 0.9] of dataset rcv1_GCAT started
+23/03/24 17:41:25| WARNING     Method bin_sld_lr_is failed. Exception: This solver needs samples of at least 2 classes in the data, but the data contains only one class: 0
+23/03/24 17:41:55| INFO        ref finished [took 29.4966s]
+23/03/24 17:41:58| INFO        atc_mc finished [took 33.0054s]
+23/03/24 17:42:00| INFO        doc finished [took 34.5157s]
+23/03/24 17:42:05| INFO        mul_sld_lr_is finished [took 39.2460s]
+23/03/24 17:42:05| INFO     Dataset sample [0.1 0.9] of dataset rcv1_GCAT finished [took 41.1783s]
+23/03/24 17:42:05| INFO     Dataset sample [0.2 0.8] of dataset rcv1_GCAT started
+23/03/24 17:42:36| INFO        ref finished [took 29.9055s]
+23/03/24 17:42:40| INFO        atc_mc finished [took 33.0051s]
+23/03/24 17:42:42| INFO        doc finished [took 35.3254s]
+23/03/24 17:42:48| INFO        mul_sld_lr_is finished [took 41.1086s]
+23/03/24 17:42:49| INFO        bin_sld_lr_is finished [took 42.0787s]
+23/03/24 17:42:49| INFO     Dataset sample [0.2 0.8] of dataset rcv1_GCAT finished [took 43.9374s]
+23/03/24 17:42:49| INFO     Dataset sample [0.3 0.7] of dataset rcv1_GCAT started
+23/03/24 17:43:20| INFO        ref finished [took 29.3024s]
+23/03/24 17:43:22| INFO        atc_mc finished [took 33.0082s]
+23/03/24 17:43:25| INFO        doc finished [took 35.1432s]
+23/03/24 17:43:30| INFO        bin_sld_lr_is finished [took 40.7482s]
+23/03/24 17:43:32| INFO        mul_sld_lr_is finished [took 42.1601s]
+23/03/24 17:43:32| INFO     Dataset sample [0.3 0.7] of dataset rcv1_GCAT finished [took 42.8091s]
+23/03/24 17:43:32| INFO     Dataset sample [0.4 0.6] of dataset rcv1_GCAT started
+23/03/24 17:44:01| INFO        ref finished [took 29.3167s]
+23/03/24 17:44:05| INFO        atc_mc finished [took 32.9997s]
+23/03/24 17:44:08| INFO        doc finished [took 35.4461s]
+23/03/24 17:44:14| INFO        bin_sld_lr_is finished [took 42.2606s]
+23/03/24 17:44:15| INFO        mul_sld_lr_is finished [took 43.0873s]
+23/03/24 17:44:15| INFO     Dataset sample [0.4 0.6] of dataset rcv1_GCAT finished [took 43.7627s]
+23/03/24 17:44:15| INFO     Dataset sample [0.5 0.5] of dataset rcv1_GCAT started
+23/03/24 17:44:47| INFO        ref finished [took 30.8422s]
+23/03/24 17:44:50| INFO        atc_mc finished [took 34.0480s]
+23/03/24 17:44:51| INFO        doc finished [took 35.5252s]
+23/03/24 17:44:57| INFO        bin_sld_lr_is finished [took 41.5550s]
+23/03/24 17:44:59| INFO        mul_sld_lr_is finished [took 42.7716s]
+23/03/24 17:44:59| INFO     Dataset sample [0.5 0.5] of dataset rcv1_GCAT finished [took 43.3850s]
+23/03/24 17:44:59| INFO     Dataset sample [0.6 0.4] of dataset rcv1_GCAT started
+23/03/24 17:45:30| INFO        ref finished [took 30.4643s]
+23/03/24 17:45:34| INFO        atc_mc finished [took 34.5937s]
+23/03/24 17:45:36| INFO        doc finished [took 36.4176s]
+23/03/24 17:45:42| INFO        bin_sld_lr_is finished [took 43.0109s]
+23/03/24 17:45:44| INFO        mul_sld_lr_is finished [took 44.2652s]
+23/03/24 17:45:44| INFO     Dataset sample [0.6 0.4] of dataset rcv1_GCAT finished [took 44.9128s]
+23/03/24 17:45:44| INFO     Dataset sample [0.7 0.3] of dataset rcv1_GCAT started
+23/03/24 17:46:14| INFO        ref finished [took 30.1696s]
+23/03/24 17:46:19| INFO        atc_mc finished [took 34.2701s]
+23/03/24 17:46:20| INFO        doc finished [took 35.4569s]
+23/03/24 17:46:31| INFO        mul_sld_lr_is finished [took 46.9930s]
+23/03/24 17:46:34| INFO        bin_sld_lr_is finished [took 49.7302s]
+23/03/24 17:46:34| INFO     Dataset sample [0.7 0.3] of dataset rcv1_GCAT finished [took 50.4071s]
+23/03/24 17:46:34| INFO     Dataset sample [0.8 0.2] of dataset rcv1_GCAT started
+23/03/24 17:47:07| INFO        ref finished [took 31.9256s]
+23/03/24 17:47:09| INFO        atc_mc finished [took 34.3939s]
+23/03/24 17:47:11| INFO        doc finished [took 36.7679s]
+23/03/24 17:47:22| INFO        bin_sld_lr_is finished [took 47.0653s]
+23/03/24 17:47:31| INFO        mul_sld_lr_is finished [took 56.3521s]
+23/03/24 17:47:31| INFO     Dataset sample [0.8 0.2] of dataset rcv1_GCAT finished [took 57.0191s]
+23/03/24 17:47:31| INFO     Dataset sample [0.9 0.1] of dataset rcv1_GCAT started
+23/03/24 17:48:03| INFO        ref finished [took 31.4172s]
+23/03/24 17:48:07| INFO        atc_mc finished [took 35.2173s]
+23/03/24 17:48:09| INFO        doc finished [took 37.7077s]
+23/03/24 17:48:13| INFO        bin_sld_lr_is finished [took 41.2463s]
+23/03/24 17:48:19| INFO        mul_sld_lr_is finished [took 47.2718s]
+23/03/24 17:48:19| INFO     Dataset sample [0.9 0.1] of dataset rcv1_GCAT finished [took 47.9285s]
+----------------------------------------------------------------------------------------------------
+23/03/24 17:56:57| INFO     dataset rcv1_GCAT [pool size: 10]
+23/03/24 17:56:58| INFO     Dataset sample [0.1 0.9] of dataset rcv1_GCAT started
+23/03/24 17:56:59| WARNING     Method bin_sld_lr_is failed. Exception: TrivialQuantifier.fit() takes 1 positional argument but 2 were given
+----------------------------------------------------------------------------------------------------
+23/03/24 17:58:28| INFO     dataset rcv1_GCAT [pool size: 10]
+23/03/24 17:58:28| INFO     Dataset sample [0.1 0.9] of dataset rcv1_GCAT started
+23/03/24 17:58:59| INFO        ref finished [took 29.4907s]
+23/03/24 17:59:03| INFO        atc_mc finished [took 33.1559s]
+23/03/24 17:59:05| INFO        doc finished [took 35.8358s]
+----------------------------------------------------------------------------------------------------
+23/03/24 17:59:12| INFO     dataset rcv1_GCAT [pool size: 10]
+23/03/24 17:59:12| INFO     Dataset sample [0.1 0.9] of dataset rcv1_GCAT started
+23/03/24 17:59:43| INFO        ref finished [took 29.6093s]
+23/03/24 17:59:47| INFO        atc_mc finished [took 33.4002s]
+23/03/24 17:59:49| INFO        doc finished [took 35.3542s]
+23/03/24 17:59:52| INFO        bin_sld_lr_is finished [took 38.2598s]
+23/03/24 17:59:54| INFO        mul_sld_lr_is finished [took 39.7618s]
+23/03/24 17:59:54| INFO     Dataset sample [0.1 0.9] of dataset rcv1_GCAT finished [took 41.7033s]
+----------------------------------------------------------------------------------------------------
+23/03/24 18:01:44| INFO     dataset rcv1_GCAT [pool size: 10]
+23/03/24 18:01:44| INFO     Dataset sample [0.1 0.9] of dataset rcv1_GCAT started
+23/03/24 18:02:15| INFO        ref finished [took 29.1981s]
+23/03/24 18:02:19| INFO        atc_mc finished [took 32.7179s]
+23/03/24 18:02:21| INFO        doc finished [took 35.2027s]
+23/03/24 18:02:24| INFO        bin_sld_lr_is finished [took 38.2967s]
+23/03/24 18:02:32| INFO        mul_sld_lr_is finished [took 45.5436s]
+23/03/24 18:02:32| INFO     Dataset sample [0.1 0.9] of dataset rcv1_GCAT finished [took 47.4588s]
+23/03/24 18:02:32| INFO     Dataset sample [0.2 0.8] of dataset rcv1_GCAT started
+23/03/24 18:03:03| INFO        ref finished [took 29.3004s]
+23/03/24 18:03:07| INFO        atc_mc finished [took 33.1850s]
+23/03/24 18:03:08| INFO        doc finished [took 34.9167s]
+23/03/24 18:03:12| INFO        bin_sld_lr_is finished [took 39.0394s]
+23/03/24 18:03:15| INFO        mul_sld_lr_is finished [took 41.1164s]
+23/03/24 18:03:15| INFO     Dataset sample [0.2 0.8] of dataset rcv1_GCAT finished [took 42.9526s]
+23/03/24 18:03:15| INFO     Dataset sample [0.3 0.7] of dataset rcv1_GCAT started
+23/03/24 18:03:46| INFO        ref finished [took 29.5112s]
+23/03/24 18:03:49| INFO        atc_mc finished [took 33.5662s]
+23/03/24 18:03:51| INFO        doc finished [took 35.6094s]
+23/03/24 18:03:56| INFO        bin_sld_lr_is finished [took 40.6729s]
+23/03/24 18:03:58| INFO        mul_sld_lr_is finished [took 42.7415s]
+23/03/24 18:03:58| INFO     Dataset sample [0.3 0.7] of dataset rcv1_GCAT finished [took 43.4075s]
+23/03/24 18:03:58| INFO     Dataset sample [0.4 0.6] of dataset rcv1_GCAT started
+23/03/24 18:04:29| INFO        ref finished [took 29.9760s]
+23/03/24 18:04:33| INFO        atc_mc finished [took 33.9652s]
+23/03/24 18:04:34| INFO        doc finished [took 35.7287s]
+----------------------------------------------------------------------------------------------------
+23/03/24 18:04:43| INFO     dataset rcv1_GCAT [pool size: 10]
+23/03/24 18:04:43| INFO     Dataset sample [0.1 0.9] of dataset rcv1_GCAT started
+----------------------------------------------------------------------------------------------------
+23/03/24 18:05:31| INFO     dataset rcv1_GCAT [pool size: 10]
+23/03/24 18:05:31| INFO     Dataset sample [0.1 0.9] of dataset rcv1_GCAT started
+23/03/24 18:06:01| INFO        ref finished [took 28.6311s]
+23/03/24 18:06:05| INFO        atc_mc finished [took 32.6133s]
+23/03/24 18:06:06| INFO        doc finished [took 33.7780s]
+23/03/24 18:06:10| INFO        bin_sld_lr_is finished [took 37.3632s]
+23/03/24 18:06:29| DEBUG       [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__recalib': 'bcts', 'confidence': ['max_conf', 'entropy', 'isoft']} (score=0.00501) [took 18.4370s]
+23/03/24 18:07:05| INFO        bin_sld_lr_gs finished [took 54.8471s]
+23/03/24 18:07:54| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__recalib': None, 'confidence': None} (score=0.00802) [took 48.9164s]
+23/03/24 18:08:31| INFO        mul_sld_lr_gs finished [took 86.2093s]
+23/03/24 18:09:24| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': None, 'quantifier__recalib': 'bcts', 'confidence': ['max_conf', 'entropy', 'isoft']} (score=0.00627) [took 52.3243s]
+23/03/24 18:09:58| INFO        m3w_sld_lr_gs finished [took 86.1278s]
+23/03/24 18:09:58| INFO     Dataset sample [0.1 0.9] of dataset rcv1_GCAT finished [took 266.7565s]
+23/03/24 18:09:58| INFO     Dataset sample [0.9 0.1] of dataset rcv1_GCAT started
+23/03/24 18:10:27| INFO        ref finished [took 28.7630s]
+23/03/24 18:10:30| INFO        atc_mc finished [took 32.1853s]
+23/03/24 18:10:34| INFO        doc finished [took 35.4845s]
+23/03/24 18:10:40| INFO        bin_sld_lr_is finished [took 41.9813s]
+23/03/24 18:10:56| DEBUG       [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__recalib': None, 'confidence': ['max_conf', 'entropy', 'isoft']} (score=0.15038) [took 15.1406s]
+23/03/24 18:11:32| INFO        bin_sld_lr_gs finished [took 51.8936s]
+23/03/24 18:12:50| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__recalib': None, 'confidence': ['isoft']} (score=0.00994) [took 77.2499s]
+23/03/24 18:13:27| INFO        mul_sld_lr_gs finished [took 114.7003s]
+23/03/24 18:14:21| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': None, 'quantifier__recalib': 'bcts', 'confidence': ['max_conf', 'entropy']} (score=0.00598) [took 53.4974s]
+23/03/24 18:14:55| INFO        m3w_sld_lr_gs finished [took 87.8074s]
+23/03/24 18:14:55| INFO     Dataset sample [0.9 0.1] of dataset rcv1_GCAT finished [took 297.3225s]
+----------------------------------------------------------------------------------------------------
+23/03/24 18:15:00| INFO     dataset rcv1_MCAT [pool size: 10]
+23/03/24 18:15:00| INFO     Dataset sample [0.1 0.9] of dataset rcv1_MCAT started
+23/03/24 18:15:29| INFO        ref finished [took 29.5145s]
+23/03/24 18:15:33| INFO        atc_mc finished [took 33.1925s]
+23/03/24 18:15:35| INFO        doc finished [took 35.2185s]
+23/03/24 18:15:39| INFO        bin_sld_lr_is finished [took 38.9318s]
+23/03/24 18:15:48| DEBUG       [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__recalib': None, 'confidence': None} (score=0.00499) [took 8.4072s]
+23/03/24 18:16:25| INFO        bin_sld_lr_gs finished [took 45.3163s]
+23/03/24 18:17:37| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 1000.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__recalib': None, 'confidence': None} (score=0.00677) [took 72.8117s]
+23/03/24 18:18:15| INFO        mul_sld_lr_gs finished [took 110.2357s]
+23/03/24 18:19:02| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__recalib': 'bcts', 'confidence': ['max_conf', 'entropy']} (score=0.00635) [took 46.9797s]
+23/03/24 18:19:36| INFO        m3w_sld_lr_gs finished [took 81.3292s]
+23/03/24 18:19:36| INFO     Dataset sample [0.1 0.9] of dataset rcv1_MCAT finished [took 276.7762s]
+23/03/24 18:19:36| INFO     Dataset sample [0.9 0.1] of dataset rcv1_MCAT started
+23/03/24 18:20:06| INFO        ref finished [took 29.4763s]
+23/03/24 18:20:10| INFO        atc_mc finished [took 32.8139s]
+23/03/24 18:20:12| INFO        doc finished [took 34.8111s]
+23/03/24 18:20:22| INFO        bin_sld_lr_is finished [took 45.3644s]
+23/03/24 18:20:42| DEBUG       [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__recalib': None, 'confidence': None} (score=0.13941) [took 19.8729s]
+----------------------------------------------------------------------------------------------------
+23/03/24 18:21:29| INFO     dataset rcv1_GCAT [pool size: 10]
+23/03/24 18:21:29| INFO     Dataset sample [0.1 0.9] of dataset rcv1_GCAT started
+----------------------------------------------------------------------------------------------------
+23/03/24 18:22:04| INFO     dataset rcv1_GCAT [pool size: 10]
+23/03/24 18:22:04| INFO     Dataset sample [0.1 0.9] of dataset rcv1_GCAT started
+23/03/24 18:22:35| INFO        ref finished [took 28.7281s]
+23/03/24 18:22:38| INFO        atc_mc finished [took 32.2898s]
+23/03/24 18:22:40| INFO        doc finished [took 34.0234s]
+23/03/24 18:22:43| INFO        bin_sld_lr_is finished [took 37.4724s]
+23/03/24 18:23:02| DEBUG       [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__recalib': 'bcts', 'confidence': ['max_conf', 'entropy', 'isoft']} (score=0.00501) [took 18.4731s]
+23/03/24 18:23:39| INFO        bin_sld_lr_gs finished [took 54.7945s]
+23/03/24 18:23:39| INFO     Dataset sample [0.1 0.9] of dataset rcv1_GCAT finished [took 94.3622s]
+23/03/24 18:23:39| INFO     Dataset sample [0.9 0.1] of dataset rcv1_GCAT started
+23/03/24 18:24:09| INFO        ref finished [took 29.6324s]
+23/03/24 18:24:11| INFO        atc_mc finished [took 32.3203s]
+23/03/24 18:24:13| INFO        doc finished [took 34.3130s]
+23/03/24 18:24:18| INFO        bin_sld_lr_is finished [took 39.1886s]
+23/03/24 18:24:35| DEBUG       [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': None, 'quantifier__recalib': None, 'confidence': ['max_conf', 'entropy', 'isoft']} (score=0.00589) [took 16.3871s]
+23/03/24 18:25:12| INFO        bin_sld_lr_gs finished [took 53.6400s]
+23/03/24 18:25:12| INFO     Dataset sample [0.9 0.1] of dataset rcv1_GCAT finished [took 93.6040s]
+----------------------------------------------------------------------------------------------------
+23/03/24 18:28:02| INFO     dataset twitter_gasp [pool size: 10]
+23/03/24 18:28:02| INFO     Dataset sample [0.1 0.1 0.8] of dataset twitter_gasp started
+23/03/24 18:31:14| INFO        ref finished [took 189.5881s]
+23/03/24 18:31:50| INFO        atc_mc finished [took 225.5500s]
+23/03/24 18:33:11| INFO        doc finished [took 306.3239s]
+23/03/24 18:34:15| INFO        bin_sld_lr_is finished [took 370.2931s]
+23/03/24 18:34:15| INFO     Dataset sample [0.1 0.1 0.8] of dataset twitter_gasp finished [took 373.0566s]
+----------------------------------------------------------------------------------------------------
+23/03/24 18:35:12| INFO     dataset twitter_gasp [pool size: 10]
+23/03/24 18:35:12| INFO     Dataset sample [0.1 0.1 0.8] of dataset twitter_gasp started
+23/03/24 18:38:26| INFO        ref finished [took 190.6336s]
+23/03/24 18:39:00| INFO        atc_mc finished [took 224.8782s]
+23/03/24 18:40:22| INFO        doc finished [took 307.1053s]
+23/03/24 18:41:24| INFO        bin_sld_lr_is finished [took 368.5114s]
+23/03/24 18:42:39| DEBUG       [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 0.001, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__recalib': None, 'confidence': ['isoft']} (score=0.31780) [took 74.0675s]
+23/03/24 18:48:52| INFO        bin_sld_lr_gs finished [took 447.3591s]
+23/03/24 18:48:52| INFO     Dataset sample [0.1 0.1 0.8] of dataset twitter_gasp finished [took 819.8403s]
+----------------------------------------------------------------------------------------------------
+23/03/24 19:42:57| INFO     dataset twitter_gasp [pool size: 10]
+23/03/24 19:42:57| INFO     Dataset sample [0.1 0.1 0.8] of dataset twitter_gasp started
+23/03/24 19:45:47| INFO        ref finished [took 167.4161s]
+23/03/24 19:46:20| INFO        atc_mc finished [took 200.6698s]
+23/03/24 19:47:42| INFO        doc finished [took 282.4151s]
+23/03/24 19:48:55| DEBUG       [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 0.001, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__recalib': None, 'confidence': ['isoft']} (score=0.31780) [took 71.2383s]
+23/03/24 19:55:05| INFO        bin_sld_lr_gs finished [took 441.6223s]
+23/03/24 20:11:01| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 0.01, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__recalib': None, 'confidence': ['max_conf', 'entropy', 'isoft']} (score=0.27695) [took 954.5342s]
+23/03/24 20:16:29| INFO        mul_sld_lr_gs finished [took 1282.8734s]
+23/03/24 20:16:29| INFO     Dataset sample [0.1 0.1 0.8] of dataset twitter_gasp finished [took 2012.0387s]
+23/03/24 20:16:29| INFO     Dataset sample [0.1 0.2 0.7] of dataset twitter_gasp started
+23/03/24 20:19:25| INFO        ref finished [took 171.3929s]
+23/03/24 20:19:50| INFO        atc_mc finished [took 196.6612s]
+23/03/24 20:21:16| INFO        doc finished [took 283.0184s]
+23/03/24 20:23:37| DEBUG       [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 0.01, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__recalib': None, 'confidence': ['isoft']} (score=0.20335) [took 137.0711s]
+23/03/24 20:29:37| INFO        bin_sld_lr_gs finished [took 496.6746s]
+23/03/24 20:56:39| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 0.001, 'quantifier__classifier__class_weight': None, 'quantifier__recalib': None, 'confidence': ['isoft']} (score=0.18306) [took 1619.0936s]
+23/03/24 21:02:55| INFO        mul_sld_lr_gs finished [took 1994.9100s]
+23/03/24 21:02:55| INFO     Dataset sample [0.1 0.2 0.7] of dataset twitter_gasp finished [took 2785.7228s]
+23/03/24 21:02:55| INFO     Dataset sample [0.1 0.3 0.6] of dataset twitter_gasp started
+23/03/24 21:05:45| INFO        ref finished [took 165.7900s]
+23/03/24 21:06:25| INFO        atc_mc finished [took 205.3993s]
+23/03/24 21:07:32| INFO        doc finished [took 273.2106s]
+23/03/24 21:10:11| DEBUG       [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 1000.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__recalib': None, 'confidence': None} (score=0.45373) [took 154.4720s]
+23/03/24 21:15:55| INFO        bin_sld_lr_gs finished [took 498.7315s]
+23/03/24 21:41:15| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 1.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__recalib': None, 'confidence': ['max_conf', 'entropy']} (score=0.34115) [took 1517.1957s]
+23/03/24 21:47:01| INFO        mul_sld_lr_gs finished [took 1863.1379s]
+23/03/24 21:47:01| INFO     Dataset sample [0.1 0.3 0.6] of dataset twitter_gasp finished [took 2646.2735s]
+23/03/24 21:47:01| INFO     Dataset sample [0.1 0.4 0.5] of dataset twitter_gasp started
+23/03/24 21:49:53| INFO        ref finished [took 169.4108s]
+23/03/24 21:50:27| INFO        atc_mc finished [took 203.1705s]
+23/03/24 21:51:40| INFO        doc finished [took 276.5127s]
+23/03/24 21:57:52| DEBUG       [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 0.01, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__recalib': None, 'confidence': None} (score=0.39790) [took 369.1918s]
+23/03/24 22:03:49| INFO        bin_sld_lr_gs finished [took 726.3554s]
+23/03/24 22:33:27| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 0.01, 'quantifier__classifier__class_weight': None, 'quantifier__recalib': None, 'confidence': ['max_conf', 'entropy', 'isoft']} (score=0.29012) [took 1776.7620s]
+23/03/24 22:39:12| INFO        mul_sld_lr_gs finished [took 2121.1486s]
+23/03/24 22:39:12| INFO     Dataset sample [0.1 0.4 0.5] of dataset twitter_gasp finished [took 3130.6817s]
+23/03/24 22:39:12| INFO     Dataset sample [0.1 0.5 0.4] of dataset twitter_gasp started
+23/03/24 22:42:05| INFO        ref finished [took 168.4307s]
+23/03/24 22:42:41| INFO        atc_mc finished [took 204.3716s]
+23/03/24 22:43:53| INFO        doc finished [took 276.3731s]
+23/03/24 22:49:15| DEBUG       [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 0.01, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__recalib': None, 'confidence': None} (score=0.38753) [took 317.5081s]
+23/03/24 22:55:16| INFO        bin_sld_lr_gs finished [took 678.0761s]
+23/03/24 23:21:31| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 0.01, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__recalib': None, 'confidence': ['max_conf', 'entropy']} (score=0.30605) [took 1569.6995s]
+23/03/24 23:28:43| INFO        mul_sld_lr_gs finished [took 2001.7825s]
+23/03/24 23:28:43| INFO     Dataset sample [0.1 0.5 0.4] of dataset twitter_gasp finished [took 2970.8333s]
+23/03/24 23:28:43| INFO     Dataset sample [0.1 0.6 0.3] of dataset twitter_gasp started
+23/03/24 23:31:39| INFO        ref finished [took 172.9644s]
+23/03/24 23:31:59| INFO        atc_mc finished [took 193.9490s]
+23/03/24 23:33:28| INFO        doc finished [took 282.4988s]
+23/03/24 23:38:37| DEBUG       [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 0.01, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__recalib': None, 'confidence': ['max_conf', 'entropy', 'isoft']} (score=0.46894) [took 306.3956s]
+23/03/24 23:45:15| INFO        bin_sld_lr_gs finished [took 704.9389s]
+24/03/24 00:13:34| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 0.01, 'quantifier__classifier__class_weight': None, 'quantifier__recalib': None, 'confidence': None} (score=0.28360) [took 1697.4398s]
+24/03/24 00:19:45| INFO        mul_sld_lr_gs finished [took 2068.7239s]
+24/03/24 00:19:45| INFO     Dataset sample [0.1 0.6 0.3] of dataset twitter_gasp finished [took 3062.8557s]
+24/03/24 00:19:46| INFO     Dataset sample [0.1 0.7 0.2] of dataset twitter_gasp started
+24/03/24 00:22:39| INFO        ref finished [took 171.2353s]
+24/03/24 00:23:05| INFO        atc_mc finished [took 197.1845s]
+24/03/24 00:24:30| INFO        doc finished [took 281.6584s]
+24/03/24 00:26:04| DEBUG       [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 0.001, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__recalib': None, 'confidence': ['max_conf', 'entropy', 'isoft']} (score=0.45066) [took 92.5093s]
+24/03/24 00:33:15| INFO        bin_sld_lr_gs finished [took 523.9133s]
+24/03/24 00:52:25| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 0.001, 'quantifier__classifier__class_weight': None, 'quantifier__recalib': None, 'confidence': ['max_conf', 'entropy', 'isoft']} (score=0.15728) [took 1148.3511s]
+24/03/24 00:59:13| INFO        mul_sld_lr_gs finished [took 1555.8012s]
+24/03/24 00:59:13| INFO     Dataset sample [0.1 0.7 0.2] of dataset twitter_gasp finished [took 2367.1019s]
+24/03/24 00:59:13| INFO     Dataset sample [0.1 0.8 0.1] of dataset twitter_gasp started
+24/03/24 01:02:01| INFO        ref finished [took 165.6138s]
+24/03/24 01:02:38| INFO        atc_mc finished [took 202.0159s]
+24/03/24 01:03:48| INFO        doc finished [took 272.3917s]
+24/03/24 01:05:20| DEBUG       [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 0.001, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__recalib': None, 'confidence': ['max_conf', 'entropy', 'isoft']} (score=0.32780) [took 89.5332s]
+24/03/24 01:14:01| INFO        bin_sld_lr_gs finished [took 610.9926s]
+24/03/24 01:34:15| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 0.01, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__recalib': None, 'confidence': ['max_conf', 'entropy']} (score=0.39650) [took 1212.0476s]
+24/03/24 01:40:12| INFO        mul_sld_lr_gs finished [took 1569.3225s]
+24/03/24 01:40:12| INFO     Dataset sample [0.1 0.8 0.1] of dataset twitter_gasp finished [took 2459.8550s]
+24/03/24 01:40:13| INFO     Dataset sample [0.2 0.1 0.7] of dataset twitter_gasp started
+24/03/24 01:43:08| INFO        ref finished [took 171.8125s]
+24/03/24 01:43:41| INFO        atc_mc finished [took 205.4032s]
+24/03/24 01:44:50| INFO        doc finished [took 274.7637s]
+24/03/24 01:51:48| DEBUG       [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 0.01, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__recalib': None, 'confidence': ['max_conf', 'entropy', 'isoft']} (score=0.29861) [took 415.5057s]
+24/03/24 01:57:37| INFO        bin_sld_lr_gs finished [took 764.2145s]
+24/03/24 02:24:40| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 0.01, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__recalib': None, 'confidence': ['isoft']} (score=0.08442) [took 1620.1289s]
+24/03/24 02:32:04| INFO        mul_sld_lr_gs finished [took 2064.8842s]
+24/03/24 02:32:04| INFO     Dataset sample [0.2 0.1 0.7] of dataset twitter_gasp finished [took 3111.7593s]
+24/03/24 02:32:04| INFO     Dataset sample [0.2 0.2 0.6] of dataset twitter_gasp started
+24/03/24 02:34:59| INFO        ref finished [took 171.7735s]
+24/03/24 02:35:26| INFO        atc_mc finished [took 198.4913s]
+24/03/24 02:36:52| INFO        doc finished [took 284.4719s]
+24/03/24 02:55:15| DEBUG       [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 0.001, 'quantifier__classifier__class_weight': None, 'quantifier__recalib': 'bcts', 'confidence': ['max_conf', 'entropy', 'isoft']} (score=0.10977) [took 1101.3241s]
+24/03/24 03:06:36| INFO        bin_sld_lr_gs finished [took 1782.1657s]
+24/03/24 03:38:15| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 0.01, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__recalib': 'bcts', 'confidence': None} (score=0.10545) [took 1896.6195s]
+24/03/24 03:44:22| INFO        mul_sld_lr_gs finished [took 2263.4609s]
+24/03/24 03:44:22| INFO     Dataset sample [0.2 0.2 0.6] of dataset twitter_gasp finished [took 4337.6081s]
+24/03/24 03:44:22| INFO     Dataset sample [0.2 0.3 0.5] of dataset twitter_gasp started
+24/03/24 03:47:16| INFO        ref finished [took 169.1338s]
+24/03/24 03:47:52| INFO        atc_mc finished [took 205.8354s]
+24/03/24 03:49:04| INFO        doc finished [took 277.1275s]
+24/03/24 04:06:25| DEBUG       [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 0.001, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__recalib': 'bcts', 'confidence': ['max_conf', 'entropy', 'isoft']} (score=0.05928) [took 1036.7130s]
+24/03/24 04:28:27| INFO        bin_sld_lr_gs finished [took 2358.3194s]
+24/03/24 04:56:30| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 0.01, 'quantifier__classifier__class_weight': None, 'quantifier__recalib': 'bcts', 'confidence': ['isoft']} (score=0.04820) [took 1678.8528s]
+24/03/24 05:02:49| INFO        mul_sld_lr_gs finished [took 2057.6758s]
+24/03/24 05:02:49| INFO     Dataset sample [0.2 0.3 0.5] of dataset twitter_gasp finished [took 4706.7902s]
+24/03/24 05:02:49| INFO     Dataset sample [0.2 0.4 0.4] of dataset twitter_gasp started
+24/03/24 05:05:36| INFO        ref finished [took 163.6101s]
+24/03/24 05:06:16| INFO        atc_mc finished [took 204.0339s]
+24/03/24 05:07:38| INFO        doc finished [took 285.2930s]
+24/03/24 05:22:06| DEBUG       [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 100.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__recalib': 'bcts', 'confidence': ['max_conf', 'entropy', 'isoft']} (score=0.06817) [took 865.6232s]
+24/03/24 05:32:03| INFO        bin_sld_lr_gs finished [took 1462.6470s]
+24/03/24 05:55:34| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 1000.0, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__recalib': 'bcts', 'confidence': ['isoft']} (score=0.06590) [took 1408.2803s]
+24/03/24 06:01:24| INFO        mul_sld_lr_gs finished [took 1758.8460s]
+24/03/24 06:01:24| INFO     Dataset sample [0.2 0.4 0.4] of dataset twitter_gasp finished [took 3515.6718s]
+24/03/24 06:01:24| INFO     Dataset sample [0.2 0.5 0.3] of dataset twitter_gasp started
+24/03/24 06:04:19| INFO        ref finished [took 172.1190s]
+24/03/24 06:04:45| INFO        atc_mc finished [took 198.0125s]
+24/03/24 06:06:11| INFO        doc finished [took 283.3396s]
+24/03/24 06:23:24| DEBUG       [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 10.0, 'quantifier__classifier__class_weight': None, 'quantifier__recalib': 'bcts', 'confidence': ['max_conf', 'entropy', 'isoft']} (score=0.05915) [took 1031.1653s]
+24/03/24 06:36:25| INFO        bin_sld_lr_gs finished [took 1812.6412s]
+24/03/24 07:09:17| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 0.01, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__recalib': None, 'confidence': ['max_conf', 'entropy']} (score=0.07436) [took 1969.4414s]
+24/03/24 07:15:39| INFO        mul_sld_lr_gs finished [took 2351.6924s]
+24/03/24 07:15:39| INFO     Dataset sample [0.2 0.5 0.3] of dataset twitter_gasp finished [took 4454.6974s]
+24/03/24 07:15:39| INFO     Dataset sample [0.2 0.6 0.2] of dataset twitter_gasp started
+24/03/24 07:18:38| INFO        ref finished [took 173.8867s]
+24/03/24 07:18:59| INFO        atc_mc finished [took 196.0171s]
+24/03/24 07:20:28| INFO        doc finished [took 283.8673s]
+24/03/24 07:36:15| DEBUG       [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 0.01, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__recalib': None, 'confidence': ['max_conf', 'entropy', 'isoft']} (score=0.35023) [took 942.7367s]
+24/03/24 07:42:39| INFO        bin_sld_lr_gs finished [took 1326.8983s]
+24/03/24 08:10:32| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 0.01, 'quantifier__classifier__class_weight': None, 'quantifier__recalib': None, 'confidence': ['isoft']} (score=0.14448) [took 1668.4160s]
+24/03/24 08:16:54| INFO        mul_sld_lr_gs finished [took 2050.4526s]
+24/03/24 08:16:54| INFO     Dataset sample [0.2 0.6 0.2] of dataset twitter_gasp finished [took 3675.1176s]
+24/03/24 08:16:54| INFO     Dataset sample [0.3 0.1 0.6] of dataset twitter_gasp started
+24/03/24 08:19:45| INFO        ref finished [took 167.6289s]
+24/03/24 08:20:21| INFO        atc_mc finished [took 203.5763s]
+24/03/24 08:21:36| INFO        doc finished [took 278.8141s]
+24/03/24 08:29:33| DEBUG       [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 0.01, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__recalib': None, 'confidence': ['max_conf', 'entropy', 'isoft']} (score=0.43840) [took 474.1795s]
+24/03/24 08:35:43| INFO        bin_sld_lr_gs finished [took 844.4202s]
+24/03/24 09:03:22| DEBUG       [MultiClassAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 0.01, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__recalib': None, 'confidence': ['max_conf', 'entropy', 'isoft']} (score=0.33993) [took 1657.3825s]
+24/03/24 09:09:38| INFO        mul_sld_lr_gs finished [took 2033.2904s]
+24/03/24 09:09:38| INFO     Dataset sample [0.3 0.1 0.6] of dataset twitter_gasp finished [took 3163.8876s]
+24/03/24 09:09:38| INFO     Dataset sample [0.3 0.2 0.5] of dataset twitter_gasp started
+24/03/24 09:12:28| INFO        ref finished [took 166.0508s]
+24/03/24 09:13:10| INFO        atc_mc finished [took 207.8181s]
+24/03/24 09:14:21| INFO        doc finished [took 279.1057s]
+24/03/24 09:33:22| DEBUG       [BinaryQuantifierAccuracyEstimator] optimization finished: best params {'quantifier__classifier__C': 0.1, 'quantifier__classifier__class_weight': 'balanced', 'quantifier__recalib': 'bcts', 'confidence': ['max_conf', 'entropy', 'isoft']} (score=0.12476) [took 1138.0470s]
+24/03/24 09:42:06| INFO        bin_sld_lr_gs finished [took 1662.0260s]
+----------------------------------------------------------------------------------------------------
+24/03/24 10:09:42| INFO     dataset twitter_gasp_4prevs [pool size: 10]
+24/03/24 10:09:42| INFO     Dataset sample [0.2 0.2 0.6] of dataset twitter_gasp_4prevs started
+24/03/24 10:12:41| INFO        ref finished [took 173.8145s]
+24/03/24 10:13:10| INFO        atc_mc finished [took 203.0342s]
+24/03/24 10:14:33| INFO        doc finished [took 285.7280s]

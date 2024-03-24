@@ -166,11 +166,19 @@ class MultiClassAccuracyEstimator(ConfidenceBasedAccuracyEstimator):
     # def _get_pred_ext(self, pred_proba: np.ndarray):
     #     return np.argmax(pred_proba, axis=1, keepdims=True)
 
+    def _get_multi_quant(self, quant, train: LabelledCollection):
+        _nz = np.nonzero(train.counts())[0]
+        if _nz.shape[0] == 1:
+            return TrivialQuantifier(train.n_classes, _nz[0])
+        else:
+            return quant
+
     def fit(self, train: LabelledCollection):
         pred_proba = self.classifier.predict_proba(train.X)
         self._fit_confidence(train.X, train.y, pred_proba)
         self.e_train = self.extend(train, pred_proba=pred_proba)
 
+        self.quantifier = self._get_multi_quant(self.quantifier, self.e_train)
         self.quantifier.fit(self.e_train)
 
         return self
@@ -199,6 +207,64 @@ class MultiClassAccuracyEstimator(ConfidenceBasedAccuracyEstimator):
         return self.extpol.group_false
 
 
+class TrivialQuantifier:
+    def __init__(self, n_classes, trivial_class):
+        self.trivial_class = trivial_class
+
+    def fit(self, train: LabelledCollection):
+        pass
+
+    def quantify(self, inst: LabelledCollection) -> np.ndarray:
+        return np.array([1.0])
+
+    @property
+    def classes_(self):
+        return np.array([self.trivial_class])
+
+
+class QuantifierProxy:
+    def __init__(self, train: LabelledCollection):
+        self.o_nclasses = train.n_classes
+        self.o_classes = train.classes_
+        self.o_index = {c: i for i, c in enumerate(train.classes_)}
+
+        self.mapping = {}
+        self.r_mapping = {}
+        _cnt = 0
+        for cl, c in zip(train.classes_, train.counts()):
+            if c > 0:
+                self.mapping[cl] = _cnt
+                self.r_mapping[_cnt] = cl
+                _cnt += 1
+
+        self.n_nclasses = len(self.mapping)
+
+    def apply_mapping(self, coll: LabelledCollection) -> LabelledCollection:
+        if not self.proxied:
+            return coll
+
+        n_labels = np.copy(coll.labels)
+        for k in self.mapping:
+            n_labels[coll.labels == k] = self.mapping[k]
+
+        return LabelledCollection(coll.X, n_labels, classes=np.arange(self.n_nclasses))
+
+    def apply_rmapping(self, prevs: np.ndarray, q_classes: np.ndarray) -> np.ndarray:
+        if not self.proxied:
+            return prevs, q_classes
+
+        n_qclasses = np.array([self.r_mapping[qc] for qc in q_classes])
+
+        return prevs, n_qclasses
+
+    def get_trivial(self):
+        return TrivialQuantifier(self.o_nclasses, self.n_nclasses)
+
+    @property
+    def proxied(self):
+        return self.o_nclasses != self.n_nclasses
+
+
 class BinaryQuantifierAccuracyEstimator(ConfidenceBasedAccuracyEstimator):
     def __init__(
         self,
@@ -219,6 +285,13 @@ class BinaryQuantifierAccuracyEstimator(ConfidenceBasedAccuracyEstimator):
             dense=dense,
         )
 
+    def _get_binary_quant(self, quant, train: LabelledCollection):
+        _nz = np.nonzero(train.counts())[0]
+        if _nz.shape[0] == 1:
+            return TrivialQuantifier(train.n_classes, _nz[0])
+        else:
+            return deepcopy(quant)
+
     def fit(self, train: LabelledCollection | ExtendedCollection):
         pred_proba = self.classifier.predict_proba(train.X)
         self._fit_confidence(train.X, train.y, pred_proba)
@@ -229,7 +302,7 @@ class BinaryQuantifierAccuracyEstimator(ConfidenceBasedAccuracyEstimator):
 
         self.quantifiers = []
         for train in e_trains:
-            quant = deepcopy(self.quantifier)
+            quant = self._get_binary_quant(self.quantifier, train)
             quant.fit(train)
             self.quantifiers.append(quant)
 
@@ -248,6 +321,7 @@ class BinaryQuantifierAccuracyEstimator(ConfidenceBasedAccuracyEstimator):
 
         # estim_prev = np.concatenate(estim_prevs.T)
         # return ExtendedPrev(estim_prev, e_inst.nbcl, extpol=self.extpol)
+
         return ExtBinPrev(
             estim_prevs,
             e_inst.nbcl,
@@ -263,7 +337,8 @@ class BinaryQuantifierAccuracyEstimator(ConfidenceBasedAccuracyEstimator):
         estim_prevs = []
         for quant, inst, norm in zip(self.quantifiers, s_inst, norms):
             if inst.shape[0] > 0:
-                estim_prevs.append(quant.quantify(inst) * norm)
+                estim_prev = quant.quantify(inst) * norm
+                estim_prevs.append(estim_prev)
             else:
                 estim_prevs.append(np.zeros((len(quant.classes_),)))
 

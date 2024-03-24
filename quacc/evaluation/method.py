@@ -17,6 +17,7 @@ from quacc.method.model_selection import (
     SpiderSearchAE,
 )
 from quacc.quantification import KDEy
+import traceback
 
 
 def _param_grid(method, X_fit: np.ndarray):
@@ -106,6 +107,7 @@ def evaluation_report(
             report.append_row(sample.prevalence(), **row)
         except Exception as e:
             print(f"sample prediction failed for method {method_name}: {e}")
+            traceback.print_exception(e)
             report.append_row(
                 sample.prevalence(),
                 acc_score=np.nan,
