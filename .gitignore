@@ -2,6 +2,7 @@
 quavenv/*
 *.pdf
 .venv/*
+.vscode/*
 
 __pycache__/*
 baselines/__pycache__/*
@@ -23,4 +24,7 @@ scp_sync.py
 
 out/*
 output/*
-!output/main/
+# !output/main/
+
+.python-version
+poetry.lock
