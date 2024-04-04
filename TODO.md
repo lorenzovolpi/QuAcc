@@ -63,4 +63,5 @@ multiclass:
 - [ ] modificare BQAE in modo che i quantifier si adattino alla casistica(binary/multi in base a group_false)
 
 fix:
-- [ ] make quantifiers predict 0 prevalence for classes for which we have 0 samples
+- [x] make quantifiers predict 0 prevalence for classes for which we have 0 samples
+s
