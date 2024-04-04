@@ -1,0 +1,1 @@
+- usare un tutte le posteriors predette dai vari metodi (1x4, 1x3, 2x2), insieme ad altre covariates addizionali possibili, come covariates per allenare un regressore
