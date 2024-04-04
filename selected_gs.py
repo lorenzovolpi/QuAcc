@@ -1,6 +1,6 @@
 import numpy as np
 
-from quacc.evaluation.report import DatasetReport
+from quacc.legacy.evaluation.report import DatasetReport
 
 datasets = [
     "imdb/imdb.pickle",

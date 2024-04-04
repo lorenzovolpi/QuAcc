@@ -1,5 +1,6 @@
-from quacc.evaluation.report import DatasetReport
 import pandas as pd
+
+from quacc.legacy.evaluation.report import DatasetReport
 
 dr = DatasetReport.unpickle("output/main/imdb/imdb.pickle")
 

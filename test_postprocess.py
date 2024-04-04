@@ -1,4 +1,4 @@
-from quacc.evaluation.report import DatasetReport
+from quacc.legacy.evaluation.report import DatasetReport
 
 dr = DatasetReport.unpickle("output/main/imdb/imdb.pickle")
 _estimators = ["sld_lr_gs", "bin_sld_lr_gs", "mul_sld_lr_gs", "m3w_sld_lr_gs"]

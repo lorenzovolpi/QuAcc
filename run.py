@@ -1,6 +1,6 @@
 import argparse
 
-from quacc.main import main as run_local
+from quacc.legacy.main import main as run_local
 from remote import remote as run_remote
 
 
