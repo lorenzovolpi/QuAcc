@@ -6,8 +6,8 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from quacc.evaluation.estimators import CE
-from quacc.evaluation.report import DatasetReport, DatasetReportInfo
+from quacc.legacy.evaluation.estimators import CE
+from quacc.legacy.evaluation.report import DatasetReport, DatasetReportInfo
 
 
 def load_report_info(path: Path) -> DatasetReportInfo:
