@@ -5,9 +5,9 @@ from pathlib import Path
 import numpy as np
 import panel as pn
 
-from quacc.evaluation.estimators import CE
-from quacc.evaluation.report import CompReport, DatasetReport
-from quacc.evaluation.stats import wilcoxon
+from quacc.legacy.evaluation.estimators import CE
+from quacc.legacy.evaluation.report import CompReport, DatasetReport
+from quacc.legacy.evaluation.stats import wilcoxon
 
 _plot_sizing_mode = "stretch_both"
 valid_plot_modes = defaultdict(lambda: CompReport._default_modes)

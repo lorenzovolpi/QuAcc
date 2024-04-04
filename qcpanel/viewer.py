@@ -12,8 +12,8 @@ from qcpanel.util import (
     explore_datasets,
     valid_plot_modes,
 )
-from quacc.evaluation.estimators import CE
-from quacc.evaluation.report import DatasetReport
+from quacc.legacy.evaluation.estimators import CE
+from quacc.legacy.evaluation.report import DatasetReport
 
 
 class QuaccTestViewer(param.Parameterized):
