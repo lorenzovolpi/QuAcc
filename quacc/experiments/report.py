@@ -1,7 +1,5 @@
 import os
 
-from genericpath import isfile
-
 from quacc.utils.commons import get_results_path, load_json_file, save_json_file
 
 
