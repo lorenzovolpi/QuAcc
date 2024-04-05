@@ -67,9 +67,9 @@ def gen_bin_datasets(
         "imdb",
     ]
     _RCV1 = [
-        # "CCAT",
-        # "GCAT",
-        # "MCAT",
+        "CCAT",
+        "GCAT",
+        "MCAT",
     ]
     for dn in _IMDB:
         dval = None if only_names else DP.imdb()
