@@ -121,3 +121,15 @@ def load_json_file(path, object_hook=None):
         raise ValueError("Ivalid path for json file")
     with open(path, "r") as f:
         return json.load(f, object_hook=object_hook)
+
+
+def get_results_path(basedir, cls_name, acc_name, dataset_name, method_name):
+    return os.path.join(
+        "results", basedir, cls_name, acc_name, dataset_name, method_name + ".json"
+    )
+
+
+def get_plots_path(basedir, cls_name, acc_name, dataset_name, plot_type):
+    return os.path.join(
+        "plots", basedir, cls_name, acc_name, dataset_name, plot_type + ".svg"
+    )
