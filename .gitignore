@@ -15,7 +15,9 @@ tests/__pycache__/*
 tests/*/__pycache__/*
 tests/*/*/__pycache__/*
 htmlcov/*
+
 test*.py
+selected_gs.py 
 
 *.coverage
 .coverage
@@ -24,7 +26,9 @@ scp_sync.py
 
 out/*
 output/*
-# !output/main/
+results/*
+plots/*
+dataset_stats/*
 
 .python-version
 poetry.lock
