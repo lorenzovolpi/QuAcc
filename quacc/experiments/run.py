@@ -2,7 +2,6 @@ import itertools
 import os
 
 import quapy as qp
-from ClassifierAccuracy.util.plotting import plot_diagonal
 from quapy.protocol import UPP
 
 from quacc.dataset import save_dataset_stats
@@ -16,7 +15,7 @@ from quacc.experiments.generators import (
     gen_multi_datasets,
     gen_tweet_datasets,
 )
-from quacc.experiments.report import TestReport
+from quacc.experiments.report import Report, TestReport
 from quacc.experiments.util import (
     fit_method,
     predictionsCAP,
@@ -63,13 +62,14 @@ for (cls_name, h), (dataset_name, (L, V, U)) in itertools.product(
     for acc_name, acc_fn in gen_acc_measure():
         true_accs[acc_name] = [true_acc(h, acc_fn, Ui) for Ui in test_prot()]
 
+    print("CAP methods")
     # instances of ClassifierAccuracyPrediction are bound to the evaluation measure, so they
     # must be nested in the acc-for
     for acc_name, acc_fn in gen_acc_measure():
         print(f"\tfor measure {acc_name}")
         for method_name, method in gen_CAP(h, acc_fn, with_oracle=ORACLE):
-            report = TestReport(cls_name, acc_name, dataset_name, method_name)
-            if os.path.exists(report.path(basedir)):
+            report = TestReport(basedir, cls_name, acc_name, dataset_name, method_name)
+            if os.path.exists(report.path):
                 print(f"\t\t{method_name}-{acc_name} exists, skipping")
                 continue
 
@@ -85,6 +85,7 @@ for (cls_name, h), (dataset_name, (L, V, U)) in itertools.product(
                 t_test_ave=t_test_ave,
             ).save_json(basedir)
 
+    print("\nCAP_cont_table methods")
     # instances of CAPContingencyTable instead are generic, and the evaluation measure can
     # be nested to the predictions to speed up things
     for method_name, method in gen_CAP_cont_table(h):
@@ -100,9 +101,11 @@ for (cls_name, h), (dataset_name, (L, V, U)) in itertools.product(
         estim_accs_dict, t_test_ave = predictionsCAPcont_table(
             method, test_prot, gen_acc_measure, ORACLE
         )
-        for acc_name in estim_accs_dict.keys():
-            report = TestReport(cls_name, acc_name, dataset_name, method_name)
+        for acc_name, estim_accs in estim_accs_dict.items():
+            report = TestReport(basedir, cls_name, acc_name, dataset_name, method_name)
+            test_prevs = prevs_from_prot(test_prot)
             report.add_result(
+                test_prevs=test_prevs,
                 true_accs=true_accs[acc_name],
                 estim_accs=estim_accs,
                 t_train=t_train,
@@ -111,14 +114,18 @@ for (cls_name, h), (dataset_name, (L, V, U)) in itertools.product(
 
     print()
 
-# generate diagonal plots
+# generate plots
 print("generating plots")
-for (cls_name, _), (acc_name, _) in itertools.product(
-    gen_classifiers(), gen_acc_measure()
-):
-    plot_diagonal(basedir, cls_name, acc_name)
-    for dataset_name, _ in gen_datasets(only_names=True):
-        plot_diagonal(basedir, cls_name, acc_name, dataset_name=dataset_name)
+rep = Report.load_results(basedir)
+for rs in rep.results:
+    print(rs.path)
 
-print("generating tables")
+# for (cls_name, _), (acc_name, _) in itertools.product(
+#     gen_classifiers(), gen_acc_measure()
+# ):
+#     plot_diagonal(basedir, cls_name, acc_name)
+#     for dataset_name, _ in gen_datasets(only_names=True):
+#         plot_diagonal(basedir, cls_name, acc_name, dataset_name=dataset_name)
+
+# print("generating tables")
 # gen_tables(basedir, datasets=[d for d, _ in gen_datasets(only_names=True)])
