@@ -15,11 +15,11 @@ from quapy.protocol import (
 
 import quacc as qc
 import quacc.error
-from quacc.deprecated.method.base import (
-    BaseAccuracyEstimator,
-)
 from quacc.legacy.data import ExtendedCollection
 from quacc.legacy.evaluation.evaluate import evaluate
+from quacc.legacy.method.base import (
+    BaseAccuracyEstimator,
+)
 from quacc.logger import logger
 
 

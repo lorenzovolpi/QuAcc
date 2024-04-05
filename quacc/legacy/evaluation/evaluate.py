@@ -3,7 +3,7 @@ from typing import Callable, Union
 from quapy.protocol import AbstractProtocol, OnLabelledCollectionProtocol
 
 import quacc as qc
-from quacc.deprecated.method.base import BaseAccuracyEstimator
+from quacc.legacy.method.base import BaseAccuracyEstimator
 
 
 def evaluate(

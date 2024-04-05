@@ -8,7 +8,7 @@ from quapy.data import LabelledCollection
 from quapy.method.aggregative import BaseQuantifier
 from sklearn.base import BaseEstimator
 
-import quacc.deprecated.method.confidence as conf
+import quacc.legacy.method.confidence as conf
 from quacc.legacy.data import (
     ExtBinPrev,
     ExtendedCollection,

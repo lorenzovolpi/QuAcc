@@ -5,19 +5,19 @@ from typing import Callable, List, Union
 import numpy as np
 from matplotlib.pylab import rand
 from quapy.method.aggregative import CC, PACC, SLD, BaseQuantifier
+from quapy.method.aggregative import KDEyML as KDEy
 from quapy.protocol import UPP, AbstractProtocol, OnLabelledCollectionProtocol
 from sklearn.linear_model import LogisticRegression
 from sklearn.svm import SVC, LinearSVC
 
 import quacc as qc
-from quacc.deprecated.method.base import BQAE, MCAE, BaseAccuracyEstimator
-from quacc.deprecated.method.model_selection import (
+from quacc.legacy.environment import env
+from quacc.legacy.evaluation.report import EvaluationReport
+from quacc.legacy.method.base import BQAE, MCAE, BaseAccuracyEstimator
+from quacc.legacy.method.model_selection import (
     GridSearchAE,
     SpiderSearchAE,
 )
-from quacc.legacy.environment import env
-from quacc.legacy.evaluation.report import EvaluationReport
-from quacc.quantification import KDEy
 
 
 def _param_grid(method, X_fit: np.ndarray):
