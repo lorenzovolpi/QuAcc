@@ -14,7 +14,13 @@ from quacc.dataset import DatasetProvider as DP
 from quacc.error import macrof1_fn, vanilla_acc_fn
 from quacc.models.base import ClassifierAccuracyPrediction
 from quacc.models.baselines import ATC, DoC
-from quacc.models.cont_table import CAPContingencyTable, ContTableTransferCAP, NaiveCAP
+from quacc.models.cont_table import (
+    CAPContingencyTable,
+    ContTableTransferCAP,
+    NaiveCAP,
+    QuAcc1xN2,
+    QuAccNxN,
+)
 from quacc.utils.commons import get_results_path
 
 
@@ -94,6 +100,7 @@ def gen_CAP(h, acc_fn, with_oracle=False) -> [str, ClassifierAccuracyPrediction]
     yield "DoC", DoC(h, acc_fn, sample_size=qp.environ["SAMPLE_SIZE"])
 
 
+# fmt: off
 def gen_CAP_cont_table(h) -> [str, CAPContingencyTable]:
     acc_fn = None
     yield "Naive", NaiveCAP(h, acc_fn)
@@ -102,15 +109,20 @@ def gen_CAP_cont_table(h) -> [str, CAPContingencyTable]:
     # yield 'CT-PPS-KDE05', ContTableTransferCAP(h, acc_fn, KDEyML(LogisticRegression(class_weight='balanced'), bandwidth=0.05))
     # yield 'QuAcc(EMQ)nxn-noX', QuAccNxN(h, acc_fn, EMQ(LogisticRegression()), add_posteriors=True, add_X=False)
     # yield 'QuAcc(EMQ)nxn', QuAccNxN(h, acc_fn, EMQ(LogisticRegression()))
-    # yield 'QuAcc(EMQ)nxn-MC', QuAccNxN(h, acc_fn, EMQ(LogisticRegression()), add_maxconf=True)
+    yield "QuAcc(EMQ)nxn-MC", QuAccNxN(h, acc_fn, EMQ(LogisticRegression()), add_maxconf=True)
     # yield 'QuAcc(EMQ)nxn-NE', QuAccNxN(h, acc_fn, EMQ(LogisticRegression()), add_negentropy=True)
-    # yield 'QuAcc(EMQ)nxn-MIS', QuAccNxN(h, acc_fn, EMQ(LogisticRegression()), add_maxinfsoft=True)
+    yield 'QuAcc(EMQ)nxn-MIS', QuAccNxN(h, acc_fn, EMQ(LogisticRegression()), add_maxinfsoft=True)
+    yield 'QuAcc(EMQ)nxn-MC-MIS', QuAccNxN(h, acc_fn, EMQ(LogisticRegression()), add_maxconf=True, add_maxinfsoft=True)
     # yield 'QuAcc(EMQ)1xn2', QuAcc1xN2(h, acc_fn, EMQ(LogisticRegression()))
-    # yield 'QuAcc(EMQ)1xn2', QuAcc1xN2(h, acc_fn, EMQ(LogisticRegression()))
+    yield 'QuAcc(EMQ)1xn2-MC', QuAcc1xN2(h, acc_fn, EMQ(LogisticRegression()), add_maxconf=True)
+    # yield 'QuAcc(EMQ)1xn2-NE', QuAcc1xN2(h, acc_fn, EMQ(LogisticRegression()), add_negentropy=True)
+    yield 'QuAcc(EMQ)1xn2-MIS', QuAcc1xN2(h, acc_fn, EMQ(LogisticRegression()), add_maxinfsoft=True)
+    yield 'QuAcc(EMQ)1xn2-MC-MIS', QuAcc1xN2(h, acc_fn, EMQ(LogisticRegression()), add_maxconf=True, add_maxinfsoft=True)
     # yield 'CT-PPSh-EMQ', ContTableTransferCAP(h, acc_fn, EMQ(LogisticRegression()), reuse_h=True)
     # yield 'Equations-ACCh', NsquaredEquationsCAP(h, acc_fn, ACC, reuse_h=True)
     # yield 'Equations-ACC', NsquaredEquationsCAP(h, acc_fn, ACC)
     # yield 'Equations-SLD', NsquaredEquationsCAP(h, acc_fn, EMQ)
+# fmt: on
 
 
 def get_method_names():
