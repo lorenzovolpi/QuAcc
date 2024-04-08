@@ -16,6 +16,7 @@ selected_gs.py
 
 scp_sync.py
 
+*out
 out/*
 output/*
 results/*
