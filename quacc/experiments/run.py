@@ -15,6 +15,7 @@ from quacc.experiments.generators import (
     gen_multi_datasets,
     gen_tweet_datasets,
 )
+from quacc.experiments.plotting import save_plot_delta, save_plot_diagonal
 from quacc.experiments.report import Report, TestReport
 from quacc.experiments.util import (
     fit_method,
@@ -27,6 +28,8 @@ from quacc.experiments.util import (
 PROBLEM = "binary"
 ORACLE = False
 basedir = PROBLEM + ("-oracle" if ORACLE else "")
+EXPERIMENT = True
+PLOTTING = True
 
 
 if PROBLEM == "binary":
@@ -43,89 +46,100 @@ elif PROBLEM == "tweet":
     gen_datasets = gen_tweet_datasets
 
 
-for (cls_name, h), (dataset_name, (L, V, U)) in itertools.product(
-    gen_classifiers(), gen_datasets()
-):
-    print(f"training {cls_name} in {dataset_name}")
-    h.fit(*L.Xy)
+if EXPERIMENT:
+    for (cls_name, h), (dataset_name, (L, V, U)) in itertools.product(
+        gen_classifiers(), gen_datasets()
+    ):
+        print(f"training {cls_name} in {dataset_name}")
+        h.fit(*L.Xy)
 
-    # test generation protocol
-    test_prot = UPP(
-        U, repeats=NUM_TEST, return_type="labelled_collection", random_state=0
-    )
+        # test generation protocol
+        test_prot = UPP(
+            U, repeats=NUM_TEST, return_type="labelled_collection", random_state=0
+        )
 
-    # compute some stats of the dataset
-    save_dataset_stats(f"dataset_stats/{dataset_name}.json", test_prot, L, V)
+        # compute some stats of the dataset
+        save_dataset_stats(f"dataset_stats/{dataset_name}.json", test_prot, L, V)
 
-    # precompute the actual accuracy values
-    true_accs = {}
-    for acc_name, acc_fn in gen_acc_measure():
-        true_accs[acc_name] = [true_acc(h, acc_fn, Ui) for Ui in test_prot()]
+        # precompute the actual accuracy values
+        true_accs = {}
+        for acc_name, acc_fn in gen_acc_measure():
+            true_accs[acc_name] = [true_acc(h, acc_fn, Ui) for Ui in test_prot()]
 
-    print("CAP methods")
-    # instances of ClassifierAccuracyPrediction are bound to the evaluation measure, so they
-    # must be nested in the acc-for
-    for acc_name, acc_fn in gen_acc_measure():
-        print(f"\tfor measure {acc_name}")
-        for method_name, method in gen_CAP(h, acc_fn, with_oracle=ORACLE):
-            report = TestReport(basedir, cls_name, acc_name, dataset_name, method_name)
-            if os.path.exists(report.path):
-                print(f"\t\t{method_name}-{acc_name} exists, skipping")
+        print("CAP methods")
+        # instances of ClassifierAccuracyPrediction are bound to the evaluation measure, so they
+        # must be nested in the acc-for
+        for acc_name, acc_fn in gen_acc_measure():
+            print(f"\tfor measure {acc_name}")
+            for method_name, method in gen_CAP(h, acc_fn, with_oracle=ORACLE):
+                report = TestReport(
+                    basedir=basedir,
+                    cls_name=cls_name,
+                    acc_name=acc_name,
+                    dataset_name=dataset_name,
+                    method_name=method_name,
+                    train_prev=L.prevalence().tolist(),
+                    val_prev=V.prevalence().tolist(),
+                )
+                if os.path.exists(report.path):
+                    print(f"\t\t{method_name}-{acc_name} exists, skipping")
+                    continue
+
+                print(f"\t\t{method_name} computing...")
+                method, t_train = fit_method(method, V)
+                estim_accs, t_test_ave = predictionsCAP(method, test_prot, ORACLE)
+                test_prevs = prevs_from_prot(test_prot)
+                report.add_result(
+                    test_prevs=test_prevs,
+                    true_accs=true_accs[acc_name],
+                    estim_accs=estim_accs,
+                    t_train=t_train,
+                    t_test_ave=t_test_ave,
+                ).save_json(basedir)
+
+        print("\nCAP_cont_table methods")
+        # instances of CAPContingencyTable instead are generic, and the evaluation measure can
+        # be nested to the predictions to speed up things
+        for method_name, method in gen_CAP_cont_table(h):
+            if not any_missing(basedir, cls_name, dataset_name, method_name):
+                print(
+                    f"\t\tmethod {method_name} has all results already computed. Skipping."
+                )
                 continue
 
-            print(f"\t\t{method_name} computing...")
+            print(f"\t\tmethod {method_name} computing...")
+
             method, t_train = fit_method(method, V)
-            estim_accs, t_test_ave = predictionsCAP(method, test_prot, ORACLE)
-            test_prevs = prevs_from_prot(test_prot)
-            report.add_result(
-                test_prevs=test_prevs,
-                true_accs=true_accs[acc_name],
-                estim_accs=estim_accs,
-                t_train=t_train,
-                t_test_ave=t_test_ave,
-            ).save_json(basedir)
-
-    print("\nCAP_cont_table methods")
-    # instances of CAPContingencyTable instead are generic, and the evaluation measure can
-    # be nested to the predictions to speed up things
-    for method_name, method in gen_CAP_cont_table(h):
-        if not any_missing(basedir, cls_name, dataset_name, method_name):
-            print(
-                f"\t\tmethod {method_name} has all results already computed. Skipping."
+            estim_accs_dict, t_test_ave = predictionsCAPcont_table(
+                method, test_prot, gen_acc_measure, ORACLE
             )
-            continue
+            for acc_name, estim_accs in estim_accs_dict.items():
+                report = TestReport(
+                    basedir, cls_name, acc_name, dataset_name, method_name
+                )
+                test_prevs = prevs_from_prot(test_prot)
+                report.add_result(
+                    test_prevs=test_prevs,
+                    true_accs=true_accs[acc_name],
+                    estim_accs=estim_accs,
+                    t_train=t_train,
+                    t_test_ave=t_test_ave,
+                ).save_json(basedir)
 
-        print(f"\t\tmethod {method_name} computing...")
-
-        method, t_train = fit_method(method, V)
-        estim_accs_dict, t_test_ave = predictionsCAPcont_table(
-            method, test_prot, gen_acc_measure, ORACLE
-        )
-        for acc_name, estim_accs in estim_accs_dict.items():
-            report = TestReport(basedir, cls_name, acc_name, dataset_name, method_name)
-            test_prevs = prevs_from_prot(test_prot)
-            report.add_result(
-                test_prevs=test_prevs,
-                true_accs=true_accs[acc_name],
-                estim_accs=estim_accs,
-                t_train=t_train,
-                t_test_ave=t_test_ave,
-            ).save_json(basedir)
-
-    print()
+        print()
 
 # generate plots
-print("generating plots")
-rep = Report.load_results(basedir)
-for rs in rep.results:
-    print(rs.path)
-
-# for (cls_name, _), (acc_name, _) in itertools.product(
-#     gen_classifiers(), gen_acc_measure()
-# ):
-#     plot_diagonal(basedir, cls_name, acc_name)
-#     for dataset_name, _ in gen_datasets(only_names=True):
-#         plot_diagonal(basedir, cls_name, acc_name, dataset_name=dataset_name)
+if PLOTTING:
+    for (cls_name, _), (acc_name, _) in itertools.product(
+        gen_classifiers(), gen_acc_measure()
+    ):
+        save_plot_diagonal(basedir, cls_name, acc_name)
+        for dataset_name, _ in gen_datasets(only_names=True):
+            save_plot_diagonal(basedir, cls_name, acc_name, dataset_name=dataset_name)
+            save_plot_delta(basedir, cls_name, acc_name, dataset_name=dataset_name)
+            save_plot_delta(
+                basedir, cls_name, acc_name, dataset_name=dataset_name, stdev=True
+            )
 
 # print("generating tables")
 # gen_tables(basedir, datasets=[d for d, _ in gen_datasets(only_names=True)])
