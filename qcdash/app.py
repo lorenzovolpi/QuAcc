@@ -103,7 +103,7 @@ def get_fig(rep: Report, cls_name, acc_name, dataset_name, estimators, view, mod
                 prevs=prevs,
                 acc_errs=acc_errs,
                 cls_name=cls_name,
-                acc_mame=acc_name,
+                acc_name=acc_name,
                 dataset_name=dataset_name,
                 prev_name="Test",
             )
@@ -119,14 +119,16 @@ def get_fig(rep: Report, cls_name, acc_name, dataset_name, estimators, view, mod
                 prevs=prevs,
                 acc_errs=acc_errs,
                 cls_name=cls_name,
-                acc_mame=acc_name,
+                acc_name=acc_name,
                 dataset_name=dataset_name,
                 prev_name="Test",
                 stdevs=stdevs,
             )
         case ("avg", "shift"):
             prevs, acc_errs, counts = rep.shift_plot_data(
-                dataset_name=dataset_name, method_names=estimators, acc_name=acc_name
+                dataset_name=dataset_name,
+                method_names=estimators,
+                acc_name=acc_name,
             )
             return plot_shift(
                 method_names=estimators,
