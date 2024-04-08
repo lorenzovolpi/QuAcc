@@ -1,10 +1,8 @@
-from pathlib import Path
-
 import numpy as np
 import plotly
 import plotly.graph_objects as go
 
-from quacc.utils.commons import get_plots_path
+from quacc.plot.utils import _get_ref_limits
 
 MODE = "lines"
 L_WIDTH = 5
@@ -18,17 +16,7 @@ FONT = {"size": 24}
 TEMPLATE = "ggplot2"
 
 
-def _save_or_return(
-    fig: go.Figure, basedir, cls_name, acc_name, dataset_name, plot_type
-) -> go.Figure | None:
-    if basedir is None:
-        return fig
-
-    path = get_plots_path(basedir, cls_name, acc_name, dataset_name, plot_type)
-    fig.write_image(path)
-
-
-def _update_layout(fig, title, x_label, y_label, **kwargs):
+def _update_layout(fig, x_label, y_label, **kwargs):
     fig.update_layout(
         xaxis_title=x_label,
         yaxis_title=y_label,
@@ -39,7 +27,7 @@ def _update_layout(fig, title, x_label, y_label, **kwargs):
     )
 
 
-def _hex_to_rgb(self, hex: str, t: float | None = None):
+def _hex_to_rgb(hex: str, t: float | None = None):
     hex = hex.lstrip("#")
     rgb = [int(hex[i : i + 2], 16) for i in [0, 2, 4]]
     if t is not None:
@@ -47,7 +35,7 @@ def _hex_to_rgb(self, hex: str, t: float | None = None):
     return f"{'rgb' if t is None else 'rgba'}{str(tuple(rgb))}"
 
 
-def _get_colors(self, num):
+def _get_colors(num):
     match num:
         case v if v > 10:
             __colors = plotly.colors.qualitative.Light24
@@ -62,16 +50,6 @@ def _get_colors(self, num):
     return __generator(__colors)
 
 
-def _get_ref_limits(true_accs: np.ndarray, estim_accs: dict[str, np.ndarray]):
-    """get lmits of reference line"""
-
-    _edges = (
-        np.min([np.min(true_accs), np.min(estim_accs)]),
-        np.max([np.max(true_accs), np.max(estim_accs)]),
-    )
-    _lims = np.array([[_edges[0], _edges[1]], [_edges[0], _edges[1]]])
-
-
 def plot_diagonal(
     method_names,
     true_accs,
@@ -83,11 +61,10 @@ def plot_diagonal(
     basedir=None,
 ) -> go.Figure:
     fig = go.Figure()
-    x = true_accs
     line_colors = _get_colors(len(method_names))
     _lims = _get_ref_limits(true_accs, estim_accs)
 
-    for name, estim in zip(method_names, estim_accs):
+    for name, x, estim in zip(method_names, true_accs, estim_accs):
         color = next(line_colors)
         slope, interc = np.polyfit(x, estim, 1)
         fig.add_traces(
@@ -125,7 +102,8 @@ def plot_diagonal(
         yaxis_scaleratio=1.0,
         yaxis_range=[-0.1, 1.1],
     )
-    return _save_or_return(fig, basedir, cls_name, acc_name, dataset_name, "diagonal")
+    # return _save_or_return(fig, basedir, cls_name, acc_name, dataset_name, "diagonal")
+    return fig
 
 
 def plot_delta(
@@ -133,7 +111,7 @@ def plot_delta(
     prevs: np.ndarray,
     acc_errs: np.ndarray,
     cls_name,
-    acc_mame,
+    acc_name,
     dataset_name,
     prev_name,
     *,
@@ -176,16 +154,17 @@ def plot_delta(
     _update_layout(
         fig,
         x_label=f"{prev_name} Prevalence",
-        y_label=f"Prediction Error for {acc_mame}",
+        y_label=f"Prediction Error for {acc_name}",
     )
-    return _save_or_return(
-        fig,
-        basedir,
-        cls_name,
-        acc_mame,
-        dataset_name,
-        "delta" if stdevs is None else "stdev",
-    )
+    # return _save_or_return(
+    #     fig,
+    #     basedir,
+    #     cls_name,
+    #     acc_mame,
+    #     dataset_name,
+    #     "delta" if stdevs is None else "stdev",
+    # )
+    return fig
 
 
 def plot_shift(
@@ -226,4 +205,5 @@ def plot_shift(
         x_label="Amount of Prior Probability Shift",
         y_label=f"Prediction Error for {acc_name}",
     )
-    return _save_or_return(fig, basedir, cls_name, acc_name, dataset_name, "shift")
+    # return _save_or_return(fig, basedir, cls_name, acc_name, dataset_name, "shift")
+    return fig
