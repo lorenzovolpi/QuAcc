@@ -1,11 +1,9 @@
 from pathlib import Path
-from re import X
 
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 from cycler import cycler
-from sklearn import base
 
 from quacc.legacy.plot.base import BasePlot
 from quacc.utils import commons
