@@ -1,21 +1,25 @@
 *.code-workspace
-quavenv/*
 *.pdf
+*.md
+*.html
+
+# virtualenvs
+quavenv/*
 .venv/*
+
+# vscode config
 .vscode/*
 
+# cache
 *__pycache__*
-htmlcov/*
+.pytest_cache/
 
-accuracy_prediction*.py
-test*.py
-selected_gs.py 
-
+# coverage
+htmlcov/
 *.coverage
 .coverage
 
-scp_sync.py
-
+# results
 *out
 out/*
 output/*
@@ -23,5 +27,14 @@ results/*
 plots/*
 dataset_stats/*
 
+# pyenv
 .python-version
+
+# poetry
 poetry.lock
+
+# log files
+*.log
+log
+
+test*.py
