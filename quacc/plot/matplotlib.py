@@ -43,7 +43,7 @@ def plot_diagonal(
     dataset_name,
     *,
     basedir=None,
-):
+) -> Figure | None:
     fig, ax = plt.subplots()
     ax.grid()
     ax.set_aspect("equal")
@@ -95,7 +95,8 @@ def plot_diagonal(
 
     ax.legend(loc="center left", bbox_to_anchor=(1, 0.5))
 
-    return _save_or_return(fig, basedir, cls_name, acc_name, dataset_name, "diagonal")
+    file_name = "diagonal"
+    return _save_or_return(fig, basedir, cls_name, acc_name, dataset_name, file_name)
 
 
 def plot_delta(
@@ -105,21 +106,20 @@ def plot_delta(
     cls_name,
     acc_name,
     dataset_name,
-    prev_name,
     *,
     stdevs: np.ndarray | None = None,
     basedir=None,
-):
+) -> Figure | None:
     fig, ax = plt.subplots()
     ax.set_aspect("auto")
     ax.grid()
 
     cy = _get_cycler(len(method_names))
 
-    x = [str(bp) for bp in prevs]
     if stdevs is None:
         stdevs = [None] * len(method_names)
-    for name, delta, stdev, _cy in zip(method_names, acc_errs, stdevs, cy):
+    for name, x, delta, stdev, _cy in zip(method_names, prevs, acc_errs, stdevs, cy):
+        x = [str(p) for p in x]
         ax.plot(
             x,
             delta,
@@ -140,10 +140,51 @@ def plot_delta(
             )
 
     ax.set(
-        xlabel=f"{prev_name} Prevalence",
+        xlabel="Test Prevalence",
         ylabel=f"Prediction Error for {acc_name}",
     )
 
     ax.legend(loc="center left", bbox_to_anchor=(1, 0.5))
 
-    return fig
+    file_name = "delta" if stdevs is None else "stdev"
+    return _save_or_return(fig, basedir, cls_name, acc_name, dataset_name, file_name)
+
+
+def plot_shift(
+    method_names: list[str],
+    prevs: np.ndarray,
+    acc_errs: np.ndarray,
+    cls_name,
+    acc_name,
+    dataset_name,
+    *,
+    basedir=None,
+) -> Figure | None:
+    fig, ax = plt.subplots()
+    ax.set_aspect("auto")
+    ax.grid()
+
+    cy = _get_cycler(len(method_names))
+
+    for name, x, delta, _cy in zip(method_names, prevs, acc_errs, cy):
+        x = [str(p) for p in x]
+        ax.plot(
+            x,
+            delta,
+            label=name,
+            color=_cy["color"],
+            linestyle="-",
+            marker="",
+            markersize=3,
+            zorder=2,
+        )
+
+    ax.set(
+        xlabel="Amount of Prior Probability Shift",
+        ylabel=f"Prediction Error for {acc_name}",
+    )
+
+    ax.legend(loc="center left", bbox_to_anchor=(1, 0.5))
+
+    file_name = "shift"
+    return _save_or_return(fig, basedir, cls_name, acc_name, dataset_name, file_name)
