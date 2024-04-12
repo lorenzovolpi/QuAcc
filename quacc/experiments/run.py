@@ -15,10 +15,15 @@ from quacc.experiments.generators import (
     gen_multi_datasets,
     gen_tweet_datasets,
 )
-from quacc.experiments.plotting import save_plot_delta, save_plot_diagonal
+from quacc.experiments.plotting import (
+    save_plot_delta,
+    save_plot_diagonal,
+    save_plot_shift,
+)
 from quacc.experiments.report import Report, TestReport
 from quacc.experiments.util import (
     fit_method,
+    get_plain_prev,
     predictionsCAP,
     predictionsCAPcont_table,
     prevs_from_prot,
@@ -28,7 +33,7 @@ from quacc.experiments.util import (
 PROBLEM = "binary"
 ORACLE = False
 basedir = PROBLEM + ("-oracle" if ORACLE else "")
-EXPERIMENT = True
+EXPERIMENT = False
 PLOTTING = True
 
 
@@ -115,7 +120,13 @@ if EXPERIMENT:
             )
             for acc_name, estim_accs in estim_accs_dict.items():
                 report = TestReport(
-                    basedir, cls_name, acc_name, dataset_name, method_name
+                    basedir=basedir,
+                    cls_name=cls_name,
+                    acc_name=acc_name,
+                    dataset_name=dataset_name,
+                    method_name=method_name,
+                    train_prev=get_plain_prev(L.prevalence()),
+                    val_prev=get_plain_prev(V.prevalence()),
                 )
                 test_prevs = prevs_from_prot(test_prot)
                 report.add_result(
@@ -135,10 +146,25 @@ if PLOTTING:
     ):
         save_plot_diagonal(basedir, cls_name, acc_name)
         for dataset_name, _ in gen_datasets(only_names=True):
-            save_plot_diagonal(basedir, cls_name, acc_name, dataset_name=dataset_name)
-            save_plot_delta(basedir, cls_name, acc_name, dataset_name=dataset_name)
+            report = Report.load_results(
+                basedir, cls_name, acc_name, dataset_name=dataset_name
+            )
+            save_plot_diagonal(
+                basedir, cls_name, acc_name, dataset_name=dataset_name, report=report
+            )
             save_plot_delta(
-                basedir, cls_name, acc_name, dataset_name=dataset_name, stdev=True
+                basedir, cls_name, acc_name, dataset_name=dataset_name, report=report
+            )
+            save_plot_delta(
+                basedir,
+                cls_name,
+                acc_name,
+                dataset_name=dataset_name,
+                stdev=True,
+                report=report,
+            )
+            save_plot_shift(
+                basedir, cls_name, acc_name, dataset_name=dataset_name, report=report
             )
 
 # print("generating tables")
