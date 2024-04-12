@@ -40,14 +40,15 @@ def predictionsCAPcont_table(method, test_prot, gen_acc_measure, oracle=False):
     return estim_accs_dict, t_test_ave
 
 
-def prevs_from_prot(prot):
-    def _get_plain_prev(prev: np.ndarray):
-        if prev.shape[0] > 2:
-            return tuple(prev[1:])
-        else:
-            return prev[-1]
+def get_plain_prev(prev: np.ndarray):
+    if prev.shape[0] > 2:
+        return tuple(prev[1:])
+    else:
+        return prev[-1]
 
-    return [_get_plain_prev(Ui.prevalence()) for Ui in prot()]
+
+def prevs_from_prot(prot):
+    return [get_plain_prev(Ui.prevalence()) for Ui in prot()]
 
 
 def true_acc(h: BaseEstimator, acc_fn: callable, U: LabelledCollection):
