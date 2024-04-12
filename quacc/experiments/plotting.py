@@ -2,7 +2,7 @@ import numpy as np
 
 from quacc.experiments.generators import get_method_names
 from quacc.experiments.report import Report
-from quacc.plot.matplotlib import plot_delta, plot_diagonal
+from quacc.plot.matplotlib import plot_delta, plot_diagonal, plot_shift
 
 
 def save_plot_diagonal(
@@ -57,4 +57,31 @@ def save_plot_delta(
         dataset_name=dataset_name,
         basedir=basedir,
         stdevs=_stdevs,
+    )
+
+
+def save_plot_shift(
+    basedir, cls_name, acc_name, dataset_name="*", report: Report = None
+):
+    methods = get_method_names()
+    report = (
+        Report.load_results(
+            basedir,
+            cls_name,
+            acc_name,
+            dataset_name=dataset_name,
+            method_name=methods,
+        )
+        if report is None
+        else report
+    )
+    _methods, _shifts, _acc_errs = report.shift_plot_data()
+    plot_shift(
+        method_names=_methods,
+        prevs=_shifts,
+        acc_errs=_acc_errs,
+        cls_name=cls_name,
+        acc_name=acc_name,
+        dataset_name=dataset_name,
+        basedir=basedir,
     )
