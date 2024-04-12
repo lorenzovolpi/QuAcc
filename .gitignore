@@ -37,4 +37,5 @@ poetry.lock
 *.log
 log
 
+var/
 test*.py
