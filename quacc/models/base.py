@@ -4,11 +4,10 @@ from copy import deepcopy
 import numpy as np
 import quapy as qp
 import quapy.functional as F
+from quapy.data.base import LabelledCollection
 from quapy.protocol import UPP
 from sklearn.base import BaseEstimator
 from sklearn.metrics import confusion_matrix
-
-from quacc.legacy.data import LabelledCollection
 
 
 class ClassifierAccuracyPrediction(ABC):

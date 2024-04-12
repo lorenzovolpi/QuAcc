@@ -1,18 +1,13 @@
 import functools
 import json
 import os
-import shutil
-from contextlib import ExitStack
 from pathlib import Path
-from time import time
 from urllib.request import urlretrieve
 
 import pandas as pd
-from joblib import Parallel, delayed
 from tqdm import tqdm
 
-from quacc import logger
-from quacc.legacy.environment import env, environ
+import quacc as qc
 
 
 def combine_dataframes(dfs, df_index=[]) -> pd.DataFrame:
@@ -46,16 +41,6 @@ def fmt_line_md(s):
     return f"> {s}  \n"
 
 
-def create_dataser_dir(dir_name, update=False):
-    dataset_dir = Path(env.OUT_DIR_NAME) / dir_name
-    env.OUT_DIR = dataset_dir
-    if update:
-        os.makedirs(dataset_dir, exist_ok=True)
-    else:
-        shutil.rmtree(dataset_dir, ignore_errors=True)
-        os.makedirs(dataset_dir)
-
-
 def get_quacc_home():
     home = Path("~/quacc_home").expanduser()
     os.makedirs(home, exist_ok=True)
@@ -80,36 +65,6 @@ def download_file(url: str, downloaded_path: Path):
         urlretrieve(url, filename=downloaded_path, reporthook=t.update_to)
 
 
-def parallel(
-    func,
-    f_args=None,
-    parallel: Parallel = None,
-    n_jobs=1,
-    verbose=0,
-    _env: environ | dict = None,
-    seed=None,
-):
-    f_args = f_args or []
-
-    if _env is None:
-        _env = {}
-    elif isinstance(_env, environ):
-        _env = _env.to_dict()
-
-    def wrapper(*args):
-        if seed is not None:
-            nonlocal _env
-            _env = _env | dict(_R_SEED=seed)
-
-        with env.load(_env):
-            return func(*args)
-
-    parallel = (
-        Parallel(n_jobs=n_jobs, verbose=verbose) if parallel is None else parallel
-    )
-    return parallel(delayed(wrapper)(*_args) for _args in f_args)
-
-
 def save_json_file(path, data):
     os.makedirs(Path(path).parent, exist_ok=True)
     with open(path, "w") as f:
@@ -125,11 +80,23 @@ def load_json_file(path, object_hook=None):
 
 def get_results_path(basedir, cls_name, acc_name, dataset_name, method_name):
     return os.path.join(
-        "results", basedir, cls_name, acc_name, dataset_name, method_name + ".json"
+        qc.env["OUT_DIR"],
+        "results",
+        basedir,
+        cls_name,
+        acc_name,
+        dataset_name,
+        method_name + ".json",
     )
 
 
 def get_plots_path(basedir, cls_name, acc_name, dataset_name, plot_type):
     return os.path.join(
-        "plots", basedir, cls_name, acc_name, dataset_name, plot_type + ".svg"
+        qc.env["OUT_DIR"],
+        "plots",
+        basedir,
+        cls_name,
+        acc_name,
+        dataset_name,
+        plot_type + ".svg",
     )
