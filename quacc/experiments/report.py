@@ -10,11 +10,21 @@ from quacc.error import nae
 from quacc.utils.commons import get_results_path, load_json_file, save_json_file
 
 
-def _get_shift(index: np.ndarray, train_prev: np.ndarray):
-    index = np.array([np.array(tp) for tp in index])
-    train_prevs = np.tile(train_prev, (index.shape[0], 1))
-    _shift = nae(index, train_prevs)
-    return np.around(_shift, decimals=2)
+def _get_shift(test_prevs: np.ndarray, train_prev: np.ndarray | float, decimals=2):
+    """
+    Computes the shift of an array of prevalence values for a set of test sample in
+    relation to the prevalence value of the training set.
+
+    :param test_prevs: prevalence values for the test samples
+    :param train_prev: prevalence value for the training set
+    :param decimals: rounding decimals for the result (default=2)
+    :return: an ndarray with the shifts for each test sample, shaped as (n,1) (ndim=2)
+    """
+    if test_prevs.ndim == 1:
+        test_prevs = test_prevs[:, np.newaxis]
+    train_prevs = np.tile(train_prev, (test_prevs.shape[0], 1))
+    _shift = nae(test_prevs, train_prevs)
+    return np.around(_shift, decimals=decimals)[:, np.newaxis]
 
 
 class TestReport:
@@ -114,7 +124,6 @@ class Report:
             path = get_results_path(basedir, cls_name, acc_name, dataset_, method_)
             for file in glob(path):
                 if file.endswith(".json"):
-                    # print(file)
                     method = Path(file).stem
                     _res = TestReport.load_json(file)
                     _results[method].append(_res)
@@ -149,23 +158,71 @@ class Report:
         stdevs = None if stdev is None else []
         for _method, _results in self.results.items():
             methods.append(_method)
-            _prevs = np.array(
-                [_r.test_prevs for _r in _results]
-            ).flatten()  # should not be flattened, check this
-            _true_accs = np.array([_r.true_accs for _r in _results]).flatten()
-            _estim_accs = np.array([_r.estim_accs for _r in _results]).flatten()
-            _acc_errs = np.abs(_true_accs - _estim_accs)
-            df = pd.DataFrame(
-                np.array([_prevs, _acc_errs]).T, columns=["prevs", "errs"]
-            )
-            df_acc_errs = df.groupby(["prevs"]).mean().reset_index()
-            prevs.append(df_acc_errs["prevs"].to_numpy())
-            acc_errs.append(df_acc_errs["errs"].to_numpy())
+            _prev = [np.array(_r.test_prevs) for _r in _results]
+            # if prevalence values are floats, transform them in (1,) arrays
+            prev_ndim = _prev[0].ndim
+            if prev_ndim == 1:
+                _prev = [rp[:, np.newaxis] for rp in _prev]
+            # join all prevalence values in a single array
+            _prev = np.vstack(_prev)
+            # join all true_accs values in a single array
+            _true_accs = np.hstack([_r.true_accs for _r in _results])
+            # join all estim_accs values in a single array
+            _estim_accs = np.hstack([_r.estim_accs for _r in _results])
+            # compute the absolute earror for each prevalence value
+            _acc_err = np.abs(_true_accs - _estim_accs)[:, np.newaxis]
+            # build a df with prevs and errors
+            df = pd.DataFrame(np.hstack([_prev, _acc_err]))
+            # build a df by grouping by the first n-1 columns and compute the mean
+            df_mean = df.groupby(df.columns[:-1].to_list()).mean().reset_index()
+            # insert unique prevs in the "prevs" list
+            if prev_ndim == 1:
+                prevs.append(df_mean.iloc[:, :-1].to_numpy())
+            else:
+                prevs.append(
+                    np.fromiter(
+                        (tuple(p) for p in df_mean.iloc[:, :-1].to_numpy()),
+                        dtype="object",
+                    )
+                )
+            # insert the errors in the right array
+            acc_errs.append(df_mean.iloc[:, -1].to_numpy())
+            # if stdev is required repeat last steps for std()
             if stdev:
-                df_stdevs = df.groupby(["prevs"]).std().reset_index()
-                stdevs.append(df_stdevs["errs"].to_numpy())
+                df_std = df.groupby(df.columns[:-1].to_list()).std().reset_index()
+                stdevs.append(df_std.iloc[:, -1].to_numpy())
 
         return methods, prevs, acc_errs, stdevs
 
     def shift_plot_data(self):
-        pass
+        methods = []
+        shifts = []
+        acc_errs = []
+        for _method, _results in self.results.items():
+            methods.append(_method)
+            _test_prev = [np.array(_r.test_prevs) for _r in _results]
+            _train_prev = [_r.train_prev for _r in _results]
+            # if prevalence values are floats, transform them in (1,) arrays
+            if _test_prev[0].ndim == 1:
+                _test_prev = [rp[:, np.newaxis] for rp in _test_prev]
+            # join values in a single array per type
+            _true_accs = np.hstack([_r.true_accs for _r in _results])
+            _estim_accs = np.hstack([_r.estim_accs for _r in _results])
+            # compute the shift for each test sample
+            _shift = (
+                np.vstack(
+                    [_get_shift(p, tp) for (p, tp) in zip(_test_prev, _train_prev)]
+                ),
+            )
+            # compute the absolute earror for each prevalence value
+            _acc_err = np.abs(_true_accs - _estim_accs)[:, np.newaxis]
+            # build a df with prevs and errors
+            df = pd.DataFrame(np.hstack([_shift, _acc_err]))
+            # build a df by grouping by the first n-1 columns and compute the mean
+            df_mean = df.groupby(df.columns[:-1].to_list()).mean().reset_index()
+            # insert unique prevs in the "prevs" list
+            shifts.append(df_mean.iloc[:, :-1].to_numpy())
+            # insert the errors in the right array
+            acc_errs.append(df_mean.iloc[:, -1].to_numpy())
+
+        return methods, shifts, acc_errs
