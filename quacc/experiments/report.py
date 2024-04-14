@@ -152,47 +152,46 @@ class Report:
         return methods, true_accs, estim_accs
 
     def delta_plot_data(self, stdev=False):
-        methods = []
-        prevs = []
-        acc_errs = []
-        stdevs = None if stdev is None else []
+        acc_df, std_df = None, None
         for _method, _results in self.results.items():
-            methods.append(_method)
-            _prev = [np.array(_r.test_prevs) for _r in _results]
-            # if prevalence values are floats, transform them in (1,) arrays
-            prev_ndim = _prev[0].ndim
-            if prev_ndim == 1:
-                _prev = [rp[:, np.newaxis] for rp in _prev]
-            # join all prevalence values in a single array
-            _prev = np.vstack(_prev)
-            # join all true_accs values in a single array
-            _true_accs = np.hstack([_r.true_accs for _r in _results])
-            # join all estim_accs values in a single array
-            _estim_accs = np.hstack([_r.estim_accs for _r in _results])
-            # compute the absolute earror for each prevalence value
-            _acc_err = np.abs(_true_accs - _estim_accs)[:, np.newaxis]
-            # build a df with prevs and errors
-            df = pd.DataFrame(np.hstack([_prev, _acc_err]))
-            # build a df by grouping by the first n-1 columns and compute the mean
-            df_mean = df.groupby(df.columns[:-1].to_list()).mean().reset_index()
-            # insert unique prevs in the "prevs" list
-            if prev_ndim == 1:
-                prevs.append(df_mean.iloc[:, :-1].to_numpy())
+            if isinstance(_results[0][0], float):
+                _prev = np.hstack([_r.test_prevs for _r in _results])
             else:
-                prevs.append(
-                    np.fromiter(
-                        (tuple(p) for p in df_mean.iloc[:, :-1].to_numpy()),
-                        dtype="object",
-                    )
+                _prev = np.hstack(
+                    [
+                        np.fromiter((tuple(tp) for tp in _r.test_prevs), dtype="object")
+                        for _r in _results
+                    ]
                 )
-            # insert the errors in the right array
-            acc_errs.append(df_mean.iloc[:, -1].to_numpy())
-            # if stdev is required repeat last steps for std()
-            if stdev:
-                df_std = df.groupby(df.columns[:-1].to_list()).std().reset_index()
-                stdevs.append(df_std.iloc[:, -1].to_numpy())
+            _true_accs = np.hstack([_r.true_accs for _r in _results])
+            _estim_accs = np.hstack([_r.estim_accs for _r in _results])
+            _acc_err = np.abs(_true_accs - _estim_accs)[:, np.newaxis]
+            method_acc_df = (
+                pd.DataFrame(np.vstack([_prev, _acc_err]).T, columns=["prevs", _method])
+                .groupby(["prevs"])
+                .mean()
+                .reset_index()
+            )
+            if acc_df is None:
+                acc_df = method_acc_df
+            else:
+                acc_df = pd.merge(acc_df, method_acc_df, how="outer", on="prevs")
 
-        return methods, prevs, acc_errs, stdevs
+            if stdev:
+                method_std_df = (
+                    pd.DataFrame(
+                        np.vstack([_prev, _acc_err]).T, columns=["prevs", _method]
+                    )
+                    .groupby(["prevs"])
+                    .std()
+                    .reset_index()
+                )
+                if std_df is None:
+                    std_df = method_std_df
+                else:
+                    std_df = pd.merge(std_df, method_std_df, how="outer", on="prevs")
+
+        return acc_df, std_df
 
     def shift_plot_data(self):
         methods = []
