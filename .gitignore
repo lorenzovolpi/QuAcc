@@ -32,6 +32,7 @@ dataset_stats/*
 
 # poetry
 poetry.lock
+poetry.toml
 
 # log files
 *.log
