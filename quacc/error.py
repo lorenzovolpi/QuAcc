@@ -6,13 +6,6 @@ import quapy as qp
 from sklearn.metrics import accuracy_score, f1_score
 
 
-def nae(prevs: np.ndarray, prevs_hat: np.ndarray) -> np.ndarray:
-    _ae = qp.error.ae(prevs, prevs_hat)
-    _zae = (2.0 * (1.0 - prevs.min())) / prevs.shape[1]
-    # _zae = 2.0 / prevs.shape[1]
-    return _ae / _zae
-
-
 def from_contingency_table(param1, param2):
     if (
         param2 is None

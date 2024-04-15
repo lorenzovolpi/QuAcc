@@ -14,9 +14,9 @@ from quacc.experiments.generators import (
     gen_classifiers,
     gen_multi_datasets,
     gen_tweet_datasets,
+    get_method_names,
 )
 from quacc.experiments.plotting import (
-    save_plot_delta,
     save_plot_diagonal,
     save_plot_shift,
 )
@@ -83,8 +83,8 @@ if EXPERIMENT:
                     acc_name=acc_name,
                     dataset_name=dataset_name,
                     method_name=method_name,
-                    train_prev=L.prevalence().tolist(),
-                    val_prev=V.prevalence().tolist(),
+                    train_prev=get_plain_prev(L.prevalence()),
+                    val_prev=get_plain_prev(V.prevalence()),
                 )
                 if os.path.exists(report.path):
                     print(f"\t\t{method_name}-{acc_name} exists, skipping")
@@ -144,25 +144,21 @@ if PLOTTING:
     for (cls_name, _), (acc_name, _) in itertools.product(
         gen_classifiers(), gen_acc_measure()
     ):
-        save_plot_diagonal(basedir, cls_name, acc_name)
+        # save_plot_diagonal(basedir, cls_name, acc_name)
         for dataset_name, _ in gen_datasets(only_names=True):
+            methods = get_method_names()
             report = Report.load_results(
-                basedir, cls_name, acc_name, dataset_name=dataset_name
-            )
-            save_plot_diagonal(
-                basedir, cls_name, acc_name, dataset_name=dataset_name, report=report
-            )
-            save_plot_delta(
-                basedir, cls_name, acc_name, dataset_name=dataset_name, report=report
-            )
-            save_plot_delta(
                 basedir,
                 cls_name,
                 acc_name,
                 dataset_name=dataset_name,
-                stdev=True,
-                report=report,
+                method_name=methods,
             )
+            save_plot_diagonal(
+                basedir, cls_name, acc_name, dataset_name=dataset_name, report=report
+            )
+            # save_plot_delta(basedir, cls_name, acc_name, dataset_name=dataset_name, report=report)
+            # save_plot_delta(basedir,cls_name,acc_name,dataset_name=dataset_name,stdev=True,report=report)
             save_plot_shift(
                 basedir, cls_name, acc_name, dataset_name=dataset_name, report=report
             )

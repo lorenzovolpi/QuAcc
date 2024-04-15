@@ -5,8 +5,8 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+import quapy as qp
 
-from quacc.error import nae
 from quacc.utils.commons import get_results_path, load_json_file, save_json_file
 
 
@@ -23,8 +23,9 @@ def _get_shift(test_prevs: np.ndarray, train_prev: np.ndarray | float, decimals=
     if test_prevs.ndim == 1:
         test_prevs = test_prevs[:, np.newaxis]
     train_prevs = np.tile(train_prev, (test_prevs.shape[0], 1))
-    _shift = nae(test_prevs, train_prevs)
-    return np.around(_shift, decimals=decimals)[:, np.newaxis]
+    # _shift = nae(test_prevs, train_prevs)
+    _shift = qp.error.ae(test_prevs, train_prevs)
+    return np.around(_shift, decimals=decimals)
 
 
 class TestReport:
@@ -139,89 +140,53 @@ class Report:
         pass
 
     def diagonal_plot_data(self):
-        methods = []
-        true_accs = []
-        estim_accs = []
+        dfs = []
         for _method, _results in self.results.items():
-            methods.append(_method)
-            _true_acc = np.array([_r.true_accs for _r in _results]).flatten()
-            _estim_acc = np.array([_r.estim_accs for _r in _results]).flatten()
-            true_accs.append(_true_acc)
-            estim_accs.append(_estim_acc)
-
-        return methods, true_accs, estim_accs
-
-    def delta_plot_data(self, stdev=False):
-        acc_df, std_df = None, None
-        for _method, _results in self.results.items():
-            if isinstance(_results[0][0], float):
-                _prev = np.hstack([_r.test_prevs for _r in _results])
-            else:
-                _prev = np.hstack(
-                    [
-                        np.fromiter((tuple(tp) for tp in _r.test_prevs), dtype="object")
-                        for _r in _results
-                    ]
-                )
-            _true_accs = np.hstack([_r.true_accs for _r in _results])
-            _estim_accs = np.hstack([_r.estim_accs for _r in _results])
-            _acc_err = np.abs(_true_accs - _estim_accs)[:, np.newaxis]
-            method_acc_df = (
-                pd.DataFrame(np.vstack([_prev, _acc_err]).T, columns=["prevs", _method])
-                .groupby(["prevs"])
-                .mean()
-                .reset_index()
+            _true_acc = np.hstack([_r.true_accs for _r in _results])
+            _estim_acc = np.hstack([_r.estim_accs for _r in _results])
+            method_df = pd.DataFrame(
+                np.vstack([_true_acc, _estim_acc]).T,
+                columns=["true_accs", "estim_accs"],
             )
-            if acc_df is None:
-                acc_df = method_acc_df
-            else:
-                acc_df = pd.merge(acc_df, method_acc_df, how="outer", on="prevs")
+            method_df.loc[:, "method"] = np.tile(_method, (len(method_df),))
+            dfs.append(method_df)
 
-            if stdev:
-                method_std_df = (
-                    pd.DataFrame(
-                        np.vstack([_prev, _acc_err]).T, columns=["prevs", _method]
-                    )
-                    .groupby(["prevs"])
-                    .std()
-                    .reset_index()
-                )
-                if std_df is None:
-                    std_df = method_std_df
-                else:
-                    std_df = pd.merge(std_df, method_std_df, how="outer", on="prevs")
+        return pd.concat(dfs, axis=0, ignore_index=True)
 
-        return acc_df, std_df
+    # def delta_plot_data(self):
+    #     dfs = []
+    #     for _method, _results in self.results.items():
+    #         if isinstance(_results[0].test_prevs[0], float):
+    #             _prev = np.hstack([_r.test_prevs for _r in _results])
+    #         else:
+    #             _prev = np.vstack([_r.test_prevs for _r in _results])
+    #             _prev = np.fromiter((tuple(tp) for tp in _prev), dtype="object")
+
+    #         _true_accs = np.hstack([_r.true_accs for _r in _results])
+    #         _estim_accs = np.hstack([_r.estim_accs for _r in _results])
+    #         _acc_err = np.abs(_true_accs - _estim_accs)
+    #         method_df = pd.DataFrame(
+    #             np.vstack([_prev, _acc_err]).T, columns=["prevs", "acc_err"]
+    #         )
+    #         method_df.loc[:, "method"] = np.tile(_method, (len(method_df),))
+    #         dfs.append(method_df.sort_values(by="prevs"))
+
+    #     return pd.concat(dfs, axis=0, ignore_index=True)
 
     def shift_plot_data(self):
-        methods = []
-        shifts = []
-        acc_errs = []
+        dfs = []
         for _method, _results in self.results.items():
-            methods.append(_method)
-            _test_prev = [np.array(_r.test_prevs) for _r in _results]
-            _train_prev = [_r.train_prev for _r in _results]
-            # if prevalence values are floats, transform them in (1,) arrays
-            if _test_prev[0].ndim == 1:
-                _test_prev = [rp[:, np.newaxis] for rp in _test_prev]
-            # join values in a single array per type
+            _shift = np.hstack(
+                [_get_shift(np.array(_r.test_prevs), _r.train_prev) for _r in _results]
+            )
+
             _true_accs = np.hstack([_r.true_accs for _r in _results])
             _estim_accs = np.hstack([_r.estim_accs for _r in _results])
-            # compute the shift for each test sample
-            _shift = (
-                np.vstack(
-                    [_get_shift(p, tp) for (p, tp) in zip(_test_prev, _train_prev)]
-                ),
+            _acc_err = np.abs(_true_accs - _estim_accs)
+            method_df = pd.DataFrame(
+                np.vstack([_shift, _acc_err]).T, columns=["shifts", "acc_err"]
             )
-            # compute the absolute earror for each prevalence value
-            _acc_err = np.abs(_true_accs - _estim_accs)[:, np.newaxis]
-            # build a df with prevs and errors
-            df = pd.DataFrame(np.hstack([_shift, _acc_err]))
-            # build a df by grouping by the first n-1 columns and compute the mean
-            df_mean = df.groupby(df.columns[:-1].to_list()).mean().reset_index()
-            # insert unique prevs in the "prevs" list
-            shifts.append(df_mean.iloc[:, :-1].to_numpy())
-            # insert the errors in the right array
-            acc_errs.append(df_mean.iloc[:, -1].to_numpy())
+            method_df.loc[:, "method"] = np.tile(_method, (len(method_df),))
+            dfs.append(method_df.sort_values(by="shifts"))
 
-        return methods, shifts, acc_errs
+        return pd.concat(dfs, axis=0, ignore_index=True)
