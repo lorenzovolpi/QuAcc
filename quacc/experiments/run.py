@@ -4,6 +4,7 @@ import os
 import quapy as qp
 from quapy.protocol import UPP
 
+import quacc as qc
 from quacc.dataset import save_dataset_stats
 from quacc.experiments.generators import (
     any_missing,
@@ -15,10 +16,6 @@ from quacc.experiments.generators import (
     gen_multi_datasets,
     gen_tweet_datasets,
     get_method_names,
-)
-from quacc.experiments.plotting import (
-    save_plot_diagonal,
-    save_plot_shift,
 )
 from quacc.experiments.report import Report, TestReport
 from quacc.experiments.util import (
@@ -33,8 +30,6 @@ from quacc.experiments.util import (
 PROBLEM = "binary"
 ORACLE = False
 basedir = PROBLEM + ("-oracle" if ORACLE else "")
-EXPERIMENT = False
-PLOTTING = True
 
 
 if PROBLEM == "binary":
@@ -51,17 +46,13 @@ elif PROBLEM == "tweet":
     gen_datasets = gen_tweet_datasets
 
 
-if EXPERIMENT:
-    for (cls_name, h), (dataset_name, (L, V, U)) in itertools.product(
-        gen_classifiers(), gen_datasets()
-    ):
+def experiments():
+    for (cls_name, h), (dataset_name, (L, V, U)) in itertools.product(gen_classifiers(), gen_datasets()):
         print(f"training {cls_name} in {dataset_name}")
         h.fit(*L.Xy)
 
         # test generation protocol
-        test_prot = UPP(
-            U, repeats=NUM_TEST, return_type="labelled_collection", random_state=0
-        )
+        test_prot = UPP(U, repeats=NUM_TEST, return_type="labelled_collection", random_state=0)
 
         # compute some stats of the dataset
         save_dataset_stats(f"dataset_stats/{dataset_name}.json", test_prot, L, V)
@@ -107,17 +98,13 @@ if EXPERIMENT:
         # be nested to the predictions to speed up things
         for method_name, method in gen_CAP_cont_table(h):
             if not any_missing(basedir, cls_name, dataset_name, method_name):
-                print(
-                    f"\t\tmethod {method_name} has all results already computed. Skipping."
-                )
+                print(f"\t\tmethod {method_name} has all results already computed. Skipping.")
                 continue
 
             print(f"\t\tmethod {method_name} computing...")
 
             method, t_train = fit_method(method, V)
-            estim_accs_dict, t_test_ave = predictionsCAPcont_table(
-                method, test_prot, gen_acc_measure, ORACLE
-            )
+            estim_accs_dict, t_test_ave = predictionsCAPcont_table(method, test_prot, gen_acc_measure, ORACLE)
             for acc_name, estim_accs in estim_accs_dict.items():
                 report = TestReport(
                     basedir=basedir,
@@ -139,29 +126,31 @@ if EXPERIMENT:
 
         print()
 
+
 # generate plots
-if PLOTTING:
-    for (cls_name, _), (acc_name, _) in itertools.product(
-        gen_classifiers(), gen_acc_measure()
-    ):
+def plotting():
+    for (cls_name, _), (acc_name, _) in itertools.product(gen_classifiers(), gen_acc_measure()):
         # save_plot_diagonal(basedir, cls_name, acc_name)
         for dataset_name, _ in gen_datasets(only_names=True):
             methods = get_method_names()
-            report = Report.load_results(
-                basedir,
-                cls_name,
-                acc_name,
-                dataset_name=dataset_name,
-                method_name=methods,
-            )
-            save_plot_diagonal(
-                basedir, cls_name, acc_name, dataset_name=dataset_name, report=report
-            )
-            # save_plot_delta(basedir, cls_name, acc_name, dataset_name=dataset_name, report=report)
-            # save_plot_delta(basedir,cls_name,acc_name,dataset_name=dataset_name,stdev=True,report=report)
-            save_plot_shift(
-                basedir, cls_name, acc_name, dataset_name=dataset_name, report=report
-            )
+            rep = Report.load_results(basedir, cls_name, acc_name, dataset_name=dataset_name, method_name=methods)
+            qc.plot.seaborn.plot_diagonal(rep.diagonal_plot_data(), cls_name, acc_name, dataset_name, basedir=basedir)
+            qc.plot.seaborn.plot_shift(rep.shift_plot_data(), cls_name, acc_name, dataset_name, basedir=basedir)
+            for _method in methods:
+                m_rep = rep.filter_by_method(_method)
+                qc.plot.seaborn.plot_diagonal(
+                    m_rep.diagonal_plot_data(),
+                    cls_name,
+                    acc_name,
+                    dataset_name,
+                    basedir=basedir,
+                    file_name=f"diagonal_{_method}",
+                )
+
 
 # print("generating tables")
 # gen_tables(basedir, datasets=[d for d, _ in gen_datasets(only_names=True)])
+
+if __name__ == "__main__":
+    # experiments()
+    plotting()
