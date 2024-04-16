@@ -59,24 +59,8 @@ class LabelledCollection(LC):
 
 
 class CAPContingencyTable(ClassifierAccuracyPrediction):
-    def __init__(self, h: BaseEstimator, acc: callable):
-        self.h = h
-        self.acc = acc
-
-    def predict(self, X, oracle_prev=None):
-        """
-        Evaluates the accuracy function on the predicted contingency table
-
-        :param X: test data
-        :param oracle_prev: np.ndarray with the class prevalence of the test set as estimated by
-            an oracle. This is meant to test the effect of the errors in CAP that are explained by
-            the errors in quantification performance
-        :return: float
-        """
-        cont_table = self.predict_ct(X, oracle_prev)
-        raw_acc = self.acc(cont_table)
-        norm_acc = np.clip(raw_acc, 0, 1)
-        return norm_acc
+    def __init__(self, h: BaseEstimator):
+        super().__init__(h)
 
     @abstractmethod
     def predict_ct(self, X, oracle_prev=None):
@@ -98,8 +82,8 @@ class NaiveCAP(CAPContingencyTable):
     as an estimate for the test data.
     """
 
-    def __init__(self, h: BaseEstimator, acc: callable):
-        super().__init__(h, acc)
+    def __init__(self, h: BaseEstimator):
+        super().__init__(h)
 
     def fit(self, val: LabelledCollection):
         y_hat = self.h.predict(val.X)
@@ -120,20 +104,17 @@ class NaiveCAP(CAPContingencyTable):
         return self.cont_table
 
 
-class CAPContingencyTableQ(CAPContingencyTable):
+class CAPContingencyTableQ(CAPContingencyTable, BaseEstimator):
     def __init__(
         self,
         h: BaseEstimator,
-        acc: callable,
         q_class: AggregativeQuantifier,
         reuse_h=False,
     ):
-        super().__init__(h, acc)
+        CAPContingencyTable.__init__(self, h)
         self.reuse_h = reuse_h
         if reuse_h:
-            assert isinstance(
-                q_class, AggregativeQuantifier
-            ), f"quantifier {q_class} is not of type aggregative"
+            assert isinstance(q_class, AggregativeQuantifier), f"quantifier {q_class} is not of type aggregative"
             self.q = deepcopy(q_class)
             self.q.set_params(classifier=h)
         else:
@@ -149,15 +130,13 @@ class CAPContingencyTableQ(CAPContingencyTable):
 class ContTableTransferCAP(CAPContingencyTableQ):
     """ """
 
-    def __init__(self, h: BaseEstimator, acc: callable, q_class, reuse_h=False):
-        super().__init__(h, acc, q_class, reuse_h)
+    def __init__(self, h: BaseEstimator, q_class, reuse_h=False):
+        super().__init__(h, q_class, reuse_h)
 
     def fit(self, val: LabelledCollection):
         y_hat = self.h.predict(val.X)
         y_true = val.y
-        self.cont_table = confusion_matrix(
-            y_true=y_true, y_pred=y_hat, labels=val.classes_, normalize="all"
-        )
+        self.cont_table = confusion_matrix(y_true=y_true, y_pred=y_hat, labels=val.classes_, normalize="all")
         self.train_prev = val.prevalence()
         self.quantifier_fit(val)
         return self
@@ -181,8 +160,8 @@ class ContTableTransferCAP(CAPContingencyTableQ):
 class NsquaredEquationsCAP(CAPContingencyTableQ):
     """ """
 
-    def __init__(self, h: BaseEstimator, acc: callable, q_class, reuse_h=False):
-        super().__init__(h, acc, q_class, reuse_h)
+    def __init__(self, h: BaseEstimator, q_class, reuse_h=False):
+        super().__init__(h, q_class, reuse_h)
 
     def fit(self, val: LabelledCollection):
         y_hat = self.h.predict(val.X)
@@ -218,9 +197,7 @@ class NsquaredEquationsCAP(CAPContingencyTableQ):
         # a = a ar + b ar + c ar
         # a - a ar - b ar - c ar = 0
         # a (1-ar) + b (-ar)  + c (-ar) = 0
-        class_cond_ratios_tr = self.cont_table / self.cont_table.sum(
-            axis=1, keepdims=True
-        )
+        class_cond_ratios_tr = self.cont_table / self.cont_table.sum(axis=1, keepdims=True)
         for i in range(1, n):
             for j in range(1, n):
                 ratio_ij = class_cond_ratios_tr[i, j]
@@ -326,7 +303,6 @@ class QuAcc1xN2(CAPContingencyTableQ, QuAcc):
     def __init__(
         self,
         h: BaseEstimator,
-        acc: callable,
         q_class: AggregativeQuantifier,
         add_X=True,
         add_posteriors=True,
@@ -335,7 +311,6 @@ class QuAcc1xN2(CAPContingencyTableQ, QuAcc):
         add_maxinfsoft=False,
     ):
         self.h = h
-        self.acc = acc
         self.q = EmptySafeQuantifier(q_class)
         self.add_X = add_X
         self.add_posteriors = add_posteriors
@@ -415,7 +390,6 @@ class QuAccNxN(CAPContingencyTableQ, QuAcc):
     def __init__(
         self,
         h: BaseEstimator,
-        acc: callable,
         q_class: AggregativeQuantifier,
         add_X=True,
         add_posteriors=True,
@@ -424,7 +398,6 @@ class QuAccNxN(CAPContingencyTableQ, QuAcc):
         add_maxinfsoft=False,
     ):
         self.h = h
-        self.acc = acc
         self.q_class = q_class
         self.add_X = add_X
         self.add_posteriors = add_posteriors
@@ -486,9 +459,7 @@ class EmptySafeQuantifier(BaseQuantifier):
         num_instances = instances.shape[0]
         if self.num_non_empty_classes() == 0 or num_instances == 0:
             # returns the uniform prevalence vector
-            uniform = np.full(
-                fill_value=1.0 / self.n_classes, shape=self.n_classes, dtype=float
-            )
+            uniform = np.full(fill_value=1.0 / self.n_classes, shape=self.n_classes, dtype=float)
             return uniform
         elif self.num_non_empty_classes() == 1:
             # returns a prevalence vector with 100% of the mass in the only non empty class

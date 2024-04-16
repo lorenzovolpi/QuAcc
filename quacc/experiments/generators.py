@@ -11,9 +11,7 @@ from quapy.method.aggregative import EMQ
 from sklearn.linear_model import LogisticRegression
 
 from quacc.dataset import DatasetProvider as DP
-from quacc.error import macrof1_fn, vanilla_acc_fn
-from quacc.models.base import ClassifierAccuracyPrediction
-from quacc.models.baselines import ATC, DoC
+from quacc.error import macrof1, vanilla_acc
 from quacc.models.cont_table import (
     CAPContingencyTable,
     ContTableTransferCAP,
@@ -21,6 +19,7 @@ from quacc.models.cont_table import (
     QuAcc1xN2,
     QuAccNxN,
 )
+from quacc.models.direct import ATC, CAPDirect, DoC
 from quacc.utils.commons import get_results_path
 
 
@@ -85,7 +84,7 @@ def gen_bin_datasets(
         yield dn, dval
 
 
-def gen_CAP(h, acc_fn, with_oracle=False) -> [str, ClassifierAccuracyPrediction]:
+def gen_CAP(h, acc_fn, with_oracle=False) -> [str, CAPDirect]:
     ### CAP methods ###
     # yield 'SebCAP', SebastianiCAP(h, acc_fn, ACC)
     # yield 'SebCAP-SLD', SebastianiCAP(h, acc_fn, EMQ, predict_train_prev=not with_oracle)
@@ -127,20 +126,16 @@ def gen_CAP_cont_table(h) -> [str, CAPContingencyTable]:
 
 def get_method_names():
     mock_h = LogisticRegression()
-    return [m for m, _ in gen_CAP(mock_h, None)] + [
-        m for m, _ in gen_CAP_cont_table(mock_h)
-    ]
+    return [m for m, _ in gen_CAP(mock_h, None)] + [m for m, _ in gen_CAP_cont_table(mock_h)]
 
 
 def gen_acc_measure():
-    yield "vanilla_accuracy", vanilla_acc_fn
-    yield "macro-F1", macrof1_fn
+    yield "vanilla_accuracy", vanilla_acc
+    yield "macro-F1", macrof1
 
 
 def any_missing(basedir, cls_name, dataset_name, method_name):
     for acc_name, _ in gen_acc_measure():
-        if not os.path.exists(
-            get_results_path(basedir, cls_name, acc_name, dataset_name, method_name)
-        ):
+        if not os.path.exists(get_results_path(basedir, cls_name, acc_name, dataset_name, method_name)):
             return True
     return False

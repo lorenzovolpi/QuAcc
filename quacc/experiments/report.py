@@ -49,13 +49,7 @@ class TestReport:
 
     @property
     def path(self):
-        return get_results_path(
-            self.basedir,
-            self.cls_name,
-            self.acc_name,
-            self.dataset_name,
-            self.method_name,
-        )
+        return get_results_path(self.basedir, self.cls_name, self.acc_name, self.dataset_name, self.method_name)
 
     def add_result(self, test_prevs, true_accs, estim_accs, t_train, t_test_ave):
         self.test_prevs = test_prevs
@@ -113,9 +107,7 @@ class Report:
         self.results = results
 
     @classmethod
-    def load_results(
-        cls, basedir, cls_name, acc_name, dataset_name="*", method_name="*"
-    ) -> "Report":
+    def load_results(cls, basedir, cls_name, acc_name, dataset_name="*", method_name="*") -> "Report":
         _results = defaultdict(lambda: [])
         if isinstance(method_name, str):
             method_name = [method_name]
@@ -129,6 +121,14 @@ class Report:
                     _res = TestReport.load_json(file)
                     _results[method].append(_res)
         return Report(_results)
+
+    def filter_by_method(self, methods=None):
+        if methods is None:
+            return Report(self.results)
+
+        if isinstance(methods, str):
+            methods = [methods]
+        return Report({_m: _rs for _m, _rs in self.results.items() if _m in methods})
 
     def train_table(self):
         pass
@@ -144,10 +144,7 @@ class Report:
         for _method, _results in self.results.items():
             _true_acc = np.hstack([_r.true_accs for _r in _results])
             _estim_acc = np.hstack([_r.estim_accs for _r in _results])
-            method_df = pd.DataFrame(
-                np.vstack([_true_acc, _estim_acc]).T,
-                columns=["true_accs", "estim_accs"],
-            )
+            method_df = pd.DataFrame(np.vstack([_true_acc, _estim_acc]).T, columns=["true_accs", "estim_accs"])
             method_df.loc[:, "method"] = np.tile(_method, (len(method_df),))
             dfs.append(method_df)
 
@@ -176,16 +173,12 @@ class Report:
     def shift_plot_data(self):
         dfs = []
         for _method, _results in self.results.items():
-            _shift = np.hstack(
-                [_get_shift(np.array(_r.test_prevs), _r.train_prev) for _r in _results]
-            )
+            _shift = np.hstack([_get_shift(np.array(_r.test_prevs), _r.train_prev) for _r in _results])
 
             _true_accs = np.hstack([_r.true_accs for _r in _results])
             _estim_accs = np.hstack([_r.estim_accs for _r in _results])
             _acc_err = np.abs(_true_accs - _estim_accs)
-            method_df = pd.DataFrame(
-                np.vstack([_shift, _acc_err]).T, columns=["shifts", "acc_err"]
-            )
+            method_df = pd.DataFrame(np.vstack([_shift, _acc_err]).T, columns=["shifts", "acc_err"])
             method_df.loc[:, "method"] = np.tile(_method, (len(method_df),))
             dfs.append(method_df.sort_values(by="shifts"))
 
