@@ -70,3 +70,6 @@ addopts = "--cov=quacc -rA --cov-report html"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+line-length = 120
