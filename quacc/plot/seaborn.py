@@ -23,18 +23,18 @@ def _config_legend(plot: Axes):
     sns.move_legend(plot, "lower center", bbox_to_anchor=(1, 0.5), ncol=1)
 
 
-def plot_diagonal(
-    df: pd.DataFrame,
-    cls_name,
-    acc_name,
-    dataset_name,
-    *,
-    basedir=None,
-):
-    plot = sns.scatterplot(data=df, x="true_accs", y="estim_accs", hue="method")
+def plot_diagonal(df: pd.DataFrame, cls_name, acc_name, dataset_name, *, basedir=None, file_name=None):
+    plot = sns.scatterplot(data=df, x="true_accs", y="estim_accs", hue="method", alpha=0.5)
 
     _config_legend(plot)
-    return _save_figure(plot, basedir, cls_name, acc_name, dataset_name, "diagonal")
+    return _save_figure(
+        plot,
+        basedir,
+        cls_name,
+        acc_name,
+        dataset_name,
+        "diagonal" if file_name is None else file_name,
+    )
 
 
 def plot_shift(
@@ -45,14 +45,16 @@ def plot_shift(
     *,
     n_bins=20,
     basedir=None,
+    file_name=None,
 ):
     # binning on shift values
     # sh_min, sh_max = np.min(df.loc[:, "shifts"]), np.max(df.loc[:, "shifts"])
     sh_min, sh_max = 0, 1
     bins = np.linspace(sh_min, sh_max, n_bins + 1)
     binwidth = (sh_max - sh_min) / n_bins
-    shifts_bin_idx = np.digitize(df.loc[:, "shifts"], bins[1:], right=True)
-    df.loc[:, "shifts_bin"] = (bins - binwidth / 2)[shifts_bin_idx + 1]
+    shifts_bin_idx = np.digitize(df.loc[:, "shifts"], bins, right=True)
+    bins[1:] = bins[1:] - binwidth / 2
+    df.loc[:, "shifts_bin"] = bins[shifts_bin_idx]
 
     plot = sns.lineplot(
         data=df,
@@ -64,7 +66,14 @@ def plot_shift(
     )
 
     _config_legend(plot)
-    return _save_figure(plot, basedir, cls_name, acc_name, dataset_name, "shift")
+    return _save_figure(
+        plot,
+        basedir,
+        cls_name,
+        acc_name,
+        dataset_name,
+        "shift" if file_name is None else file_name,
+    )
 
 
 # def plot_delta(
