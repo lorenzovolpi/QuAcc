@@ -29,11 +29,7 @@ def avg_group_report(df: pd.DataFrame) -> pd.DataFrame:
     lst = df.to_dict(orient="records")[1:-1]
     summed_series = functools.reduce(_reduce_func, lst)
     idx = df.columns.drop([("base", "T"), ("base", "F")])
-    avg_report = {
-        (n1, n2): (v / len(lst))
-        for ((n1, n2), v) in summed_series.items()
-        if n1 != "base"
-    }
+    avg_report = {(n1, n2): (v / len(lst)) for ((n1, n2), v) in summed_series.items() if n1 != "base"}
     return pd.DataFrame([avg_report], columns=idx)
 
 
@@ -100,3 +96,7 @@ def get_plots_path(basedir, cls_name, acc_name, dataset_name, plot_type):
         dataset_name,
         plot_type + ".svg",
     )
+
+
+def get_njobs(n_jobs):
+    return qc.env["N_JOBS"] if n_jobs is None else n_jobs
