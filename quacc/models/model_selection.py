@@ -13,10 +13,6 @@ import quacc as qc
 from quacc.models.cont_table import CAPContingencyTableQ
 
 
-def evaluate(model, protocol, error_measure):
-    return 0
-
-
 class Status(Enum):
     SUCCESS = 1
     TIMEOUT = 2
@@ -41,6 +37,10 @@ class ConfigStatus:
 
     def failed(self):
         return self.status != Status.SUCCESS
+
+
+def evaluate(model, protocol, error_measure):
+    return 0
 
 
 class GridSearchAE(CAPContingencyTableQ):
@@ -89,21 +89,23 @@ class GridSearchAE(CAPContingencyTableQ):
 
         def job(cls_params):
             model.set_params(**cls_params)
-            predictions = model.classifier_fit_predict(self._training)
-            return predictions
+            data = model.preprocess_data(self._training)
+            model.prepare_quantifier()
+            predictions = model.quant_classifier_fit_predict(data)
+            return predictions, data
 
-        predictions, status, took = self._error_handler(job, cls_params)
+        (predictions, data), status, took = self._error_handler(job, cls_params)
         self._sout(f"[classifier fit] hyperparams={cls_params} [took {took:.3f}s]")
-        return model, predictions, status, took
+        return model, predictions, data, status, took
 
     def _prepare_aggregation(self, args):
-        model, predictions, cls_took, cls_params, q_params = args
+        model, predictions, data, cls_took, cls_params, q_params = args
         model = deepcopy(model)
         params = {**cls_params, **q_params}
 
         def job(q_params):
             model.set_params(**q_params)
-            model.aggregation_fit(predictions, self._training)
+            model.quant_aggregation_fit(predictions, data)
             score = evaluate(model, protocol=self.protocol, error_measure=self.error)
             return score
 
@@ -123,9 +125,9 @@ class GridSearchAE(CAPContingencyTableQ):
 
         # filter out classifier configurations that yielded any error
         success_outs = []
-        for (model, predictions, status, took), cls_config in zip(cls_outs, cls_configs):
+        for (model, predictions, data, status, took), cls_config in zip(cls_outs, cls_configs):
             if status.success():
-                success_outs.append((model, predictions, took, cls_config))
+                success_outs.append((model, predictions, data, took, cls_config))
             else:
                 self.error_collector.append(status)
 
@@ -283,25 +285,6 @@ class GridSearchAE(CAPContingencyTableQ):
         return output, status, took
 
 
-def expand_grid(param_grid: dict):
-    """
-    Expands a param_grid dictionary as a list of configurations.
-    Example:
-
-    >>> combinations = expand_grid({'A': [1, 10, 100], 'B': [True, False]})
-    >>> print(combinations)
-    >>> [{'A': 1, 'B': True}, {'A': 1, 'B': False}, {'A': 10, 'B': True}, {'A': 10, 'B': False}, {'A': 100, 'B': True}, {'A': 100, 'B': False}]
-
-    :param param_grid: dictionary with keys representing hyper-parameter names, and values representing the range
-        to explore for that hyper-parameter
-    :return: a list of configurations, i.e., combinations of hyper-parameter assignments in the grid.
-    """
-    params_keys = list(param_grid.keys())
-    params_values = list(param_grid.values())
-    configs = [dict(zip(params_keys, combs)) for combs in itertools.product(*params_values)]
-    return configs
-
-
 def group_params(param_grid: dict):
     """
     Partitions a param_grid dictionary as two lists of configurations, one for the classifier-specific
@@ -313,12 +296,12 @@ def group_params(param_grid: dict):
     """
     classifier_params, quantifier_params = {}, {}
     for key, values in param_grid.items():
-        if key.startswith("classifier__") or key == "val_split":
+        if key.startswith("q_class__classifier__") or key == "q_class__val_split":
             classifier_params[key] = values
         else:
             quantifier_params[key] = values
 
-    classifier_configs = expand_grid(classifier_params)
-    quantifier_configs = expand_grid(quantifier_params)
+    classifier_configs = qp.model_selection.expand_grid(classifier_params)
+    quantifier_configs = qp.model_selection.expand_grid(quantifier_params)
 
     return classifier_configs, quantifier_configs
