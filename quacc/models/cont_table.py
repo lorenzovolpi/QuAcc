@@ -1,12 +1,11 @@
 from abc import abstractmethod
-from copy import deepcopy
+from copy import copy, deepcopy
 
 import numpy as np
 import quapy.functional as F
 import scipy
 from quapy.data.base import LabelledCollection as LC
 from quapy.method.aggregative import AggregativeQuantifier
-from quapy.method.base import BaseQuantifier
 from scipy.sparse import csr_matrix, issparse
 from sklearn.base import BaseEstimator
 from sklearn.metrics import confusion_matrix
@@ -113,18 +112,36 @@ class CAPContingencyTableQ(CAPContingencyTable, BaseEstimator):
     ):
         CAPContingencyTable.__init__(self, h)
         self.reuse_h = reuse_h
-        if reuse_h:
-            assert isinstance(q_class, AggregativeQuantifier), f"quantifier {q_class} is not of type aggregative"
-            self.q = deepcopy(q_class)
-            self.q.set_params(classifier=h)
-        else:
-            self.q = q_class
+        self.q_class = q_class
 
-    def quantifier_fit(self, val: LabelledCollection):
+    def preprocess_data(self, data: LabelledCollection):
+        return data
+
+    def prepare_quantifier(self):
         if self.reuse_h:
-            self.q.fit(val, fit_classifier=False, val_split=val)
+            assert isinstance(
+                self.q_class, AggregativeQuantifier
+            ), f"quantifier {self.q_class} is not of type aggregative"
+            self.q = deepcopy(self.q_class)
+            self.q.set_params(classifier=self.h)
         else:
-            self.q.fit(val)
+            self.q = self.q_class
+
+    def quant_classifier_fit_predict(self, data: LabelledCollection):
+        if self.reuse_h:
+            return self.q.classifier_fit_predict(data, fit_classifier=False, predict_on=data)
+        else:
+            return self.q.classifier_fit_predict(data)
+
+    def quant_aggregation_fit(self, classif_predictions: LabelledCollection, data: LabelledCollection):
+        self.q.aggregation_fit(classif_predictions, data)
+
+    def fit(self, data: LabelledCollection):
+        data = self.preprocess_data(data)
+        self.prepare_quantifier()
+        classif_predictions = self.quant_classifier_fit_predict(data)
+        self.quant_aggregation_fit(classif_predictions, data)
+        return self
 
 
 class ContTableTransferCAP(CAPContingencyTableQ):
@@ -133,13 +150,12 @@ class ContTableTransferCAP(CAPContingencyTableQ):
     def __init__(self, h: BaseEstimator, q_class, reuse_h=False):
         super().__init__(h, q_class, reuse_h)
 
-    def fit(self, val: LabelledCollection):
-        y_hat = self.h.predict(val.X)
-        y_true = val.y
-        self.cont_table = confusion_matrix(y_true=y_true, y_pred=y_hat, labels=val.classes_, normalize="all")
-        self.train_prev = val.prevalence()
-        self.quantifier_fit(val)
-        return self
+    def preprocess_data(self, data: LabelledCollection):
+        y_hat = self.h.predict(data.X)
+        y_true = data.y
+        self.cont_table = confusion_matrix(y_true=y_true, y_pred=y_hat, labels=data.classes_, normalize="all")
+        self.train_prev = data.prevalence()
+        return data
 
     def predict_ct(self, test, oracle_prev=None):
         """
@@ -163,13 +179,12 @@ class NsquaredEquationsCAP(CAPContingencyTableQ):
     def __init__(self, h: BaseEstimator, q_class, reuse_h=False):
         super().__init__(h, q_class, reuse_h)
 
-    def fit(self, val: LabelledCollection):
-        y_hat = self.h.predict(val.X)
-        y_true = val.y
-        self.cont_table = confusion_matrix(y_true, y_pred=y_hat, labels=val.classes_)
-        self.quantifier_fit(val)
+    def preprocess_data(self, data: LabelledCollection):
+        y_hat = self.h.predict(data.X)
+        y_true = data.y
+        self.cont_table = confusion_matrix(y_true, y_pred=y_hat, labels=data.classes_)
         self.A, self.partial_b = self._construct_equations()
-        return self
+        return data
 
     def _construct_equations(self):
         # we need a n x n matrix of unknowns
@@ -311,25 +326,30 @@ class QuAcc1xN2(CAPContingencyTableQ, QuAcc):
         add_maxinfsoft=False,
     ):
         self.h = h
-        self.q = EmptySafeQuantifier(q_class)
+        self.q_class = q_class
         self.add_X = add_X
         self.add_posteriors = add_posteriors
         self.add_maxconf = add_maxconf
         self.add_negentropy = add_negentropy
         self.add_maxinfsoft = add_maxinfsoft
 
-    def fit(self, val: LabelledCollection):
-        pred_labels = self.h.predict(val.X)
-        true_labels = val.y
+    def preprocess_data(self, data: LabelledCollection):
+        pred_labels = self.h.predict(data.X)
+        true_labels = data.y
 
-        self.ncl = val.n_classes
+        self.ncl = data.n_classes
         classes_dot = np.arange(self.ncl**2)
         ct_class_idx = classes_dot.reshape(self.ncl, self.ncl)
 
-        X_dot = self._get_X_dot(val.X)
+        X_dot = self._get_X_dot(data.X)
         y_dot = ct_class_idx[true_labels, pred_labels]
-        val_dot = LabelledCollection(X_dot, y_dot, classes=classes_dot)
-        self.q.fit(val_dot)
+        return LabelledCollection(X_dot, y_dot, classes=classes_dot)
+
+    def prepare_quantifier(self):
+        self.q = make_empty_safe(deepcopy(self.q_class))
+
+    def quant_classifier_fit_predict(self, data: LabelledCollection):
+        return self.q.classifier_fit_predict(data)
 
     def predict_ct(self, X, oracle_prev=None):
         X_dot = self._get_X_dot(X)
@@ -337,11 +357,11 @@ class QuAcc1xN2(CAPContingencyTableQ, QuAcc):
         return flat_ct.reshape(self.ncl, self.ncl)
 
 
+# TODO: fix class
 class QuAcc1xNp1(CAPContingencyTableQ, QuAcc):
     def __init__(
         self,
         h: BaseEstimator,
-        acc: callable,
         q_class: AggregativeQuantifier,
         add_X=True,
         add_posteriors=True,
@@ -350,28 +370,32 @@ class QuAcc1xNp1(CAPContingencyTableQ, QuAcc):
         add_maxinfsoft=False,
     ):
         self.h = h
-        self.acc = acc
-        self.q = EmptySafeQuantifier(q_class)
+        self.q_class = q_class
         self.add_X = add_X
         self.add_posteriors = add_posteriors
         self.add_maxconf = add_maxconf
         self.add_negentropy = add_negentropy
         self.add_maxinfsoft = add_maxinfsoft
 
-    def fit(self, val: LabelledCollection):
-        pred_labels = self.h.predict(val.X)
-        true_labels = val.y
+    def preprocess_data(self, data: LabelledCollection):
+        pred_labels = self.h.predict(data.X)
+        true_labels = data.y
 
-        self.ncl = val.n_classes
+        self.ncl = data.n_classes
         classes_dot = np.arange(self.ncl + 1)
         # ct_class_idx = classes_dot.reshape(n, n)
         ct_class_idx = np.full((self.ncl, self.ncl), self.ncl)
         ct_class_idx[np.diag_indices(self.ncl)] = np.arange(self.ncl)
 
-        X_dot = self._get_X_dot(val.X)
+        X_dot = self._get_X_dot(data.X)
         y_dot = ct_class_idx[true_labels, pred_labels]
-        val_dot = LabelledCollection(X_dot, y_dot, classes=classes_dot)
-        self.q.fit(val_dot)
+        return LabelledCollection(X_dot, y_dot, classes=classes_dot)
+
+    def prepare_quantifier(self):
+        self.q = make_empty_safe(deepcopy(self.q_class))
+
+    def quant_classifier_fit_predict(self, data: LabelledCollection):
+        return self.q.classifier_fit_predict(data)
 
     def _get_ct_hat(self, n, ct_compressed):
         _diag_idx = np.diag_indices(n)
@@ -405,20 +429,40 @@ class QuAccNxN(CAPContingencyTableQ, QuAcc):
         self.add_negentropy = add_negentropy
         self.add_maxinfsoft = add_maxinfsoft
 
-    def fit(self, val: LabelledCollection):
-        pred_labels = self.h.predict(val.X)
-        true_labels = val.y
-        X_dot = self._get_X_dot(val.X)
+    def preprocess_data(self, data: LabelledCollection):
+        pred_labels = self.h.predict(data.X)
+        true_labels = data.y
+        X_dot = self._get_X_dot(data.X)
 
-        self.q = []
+        datas = []
         for class_i in self.h.classes_:
             X_dot_i = X_dot[pred_labels == class_i]
             y_i = true_labels[pred_labels == class_i]
-            data_i = LabelledCollection(X_dot_i, y_i, classes=val.classes_)
+            data_i = LabelledCollection(X_dot_i, y_i, classes=data.classes_)
+            datas.append(data_i)
 
-            q_i = EmptySafeQuantifier(deepcopy(self.q_class))
-            q_i.fit(data_i)
+        return datas
+
+    def prepare_quantifier(self):
+        self.q = []
+        for class_i in self.h.classes_:
+            q_i: AggregativeQuantifier = make_empty_safe(deepcopy(self.q_class))
             self.q.append(q_i)
+
+    def quant_classifier_fit_predict(self, data: LabelledCollection):
+        classif_predictions = []
+        for q_i, class_i, data_i in zip(self.q, self.h.classes_, data):
+            classif_predictions.append(q_i.classifier_fit_predict(data_i))
+
+        return classif_predictions
+
+    def quant_aggregation_fit(self, classif_predictions: LabelledCollection, data: LabelledCollection):
+        for q_i, cp_i, data_i in zip(self.q, classif_predictions, data):
+            q_i.aggregation_fit(cp_i, data_i)
+
+    def fit(self, data: LabelledCollection):
+        classif_predictions, data_dot = self.quant_classifier_fit_predict(data)
+        self.quant_aggregation_fit(classif_predictions, data_dot)
 
     def predict_ct(self, X, oracle_prev=None):
         classes = self.h.classes_
@@ -444,18 +488,30 @@ def safehstack(X, P):
     return XP
 
 
-class EmptySafeQuantifier(BaseQuantifier):
-    def __init__(self, surrogate_quantifier: BaseQuantifier):
-        self.surrogate = surrogate_quantifier
+def make_empty_safe(q: AggregativeQuantifier):
+    _q_classifier_fit_predict = copy(q.classifier_fit_predict)
+    _q_aggregation_fit = copy(q.aggregation_fit)
+    _q_quantify = copy(q.quantify)
 
-    def fit(self, data: LabelledCollection):
+    def _num_non_empty_classes(self):
+        return len(self.old_class_idx)
+
+    def _classifier_fit_predict(self, data: LabelledCollection, fit_classifier=True, predict_on=None):
+        print("pippo")
         self.n_classes = data.n_classes
         class_compact_data, self.old_class_idx = data.compact_classes()
         if self.num_non_empty_classes() > 1:
-            self.surrogate.fit(class_compact_data)
-        return self
+            return _q_classifier_fit_predict(class_compact_data, fit_classifier, predict_on)
+        return None
 
-    def quantify(self, instances):
+    def _aggregation_fit(self, classif_predictions: LabelledCollection, data: LabelledCollection):
+        print("pluto")
+        self.n_classes = data.n_classes
+        class_compact_data, _ = data.compact_classes()
+        if self.num_non_empty_classes() > 1:
+            _q_aggregation_fit(classif_predictions, data)
+
+    def _quantify(self, instances):
         num_instances = instances.shape[0]
         if self.num_non_empty_classes() == 0 or num_instances == 0:
             # returns the uniform prevalence vector
@@ -467,10 +523,46 @@ class EmptySafeQuantifier(BaseQuantifier):
             prev_vector[self.old_class_idx[0]] = 1
             return prev_vector
         else:
-            class_compact_prev = self.surrogate.quantify(instances)
+            class_compact_prev = _q_quantify(instances)
             prev_vector = np.full(fill_value=0.0, shape=self.n_classes, dtype=float)
             prev_vector[self.old_class_idx] = class_compact_prev
             return prev_vector
 
-    def num_non_empty_classes(self):
-        return len(self.old_class_idx)
+    q.num_non_empty_classes = _num_non_empty_classes
+    q.classifier_fit_predict = _classifier_fit_predict
+    q.aggregation_fit = _aggregation_fit
+    q.quantify = _quantify
+
+    return q
+
+
+# class EmptySafeQuantifier(BaseQuantifier):
+#     def __init__(self, surrogate_quantifier: BaseQuantifier):
+#         self.surrogate = surrogate_quantifier
+
+#     def fit(self, data: LabelledCollection):
+#         self.n_classes = data.n_classes
+#         class_compact_data, self.old_class_idx = data.compact_classes()
+#         if self.num_non_empty_classes() > 1:
+#             self.surrogate.fit(class_compact_data)
+#         return self
+
+#     def quantify(self, instances):
+#         num_instances = instances.shape[0]
+#         if self.num_non_empty_classes() == 0 or num_instances == 0:
+#             # returns the uniform prevalence vector
+#             uniform = np.full(fill_value=1.0 / self.n_classes, shape=self.n_classes, dtype=float)
+#             return uniform
+#         elif self.num_non_empty_classes() == 1:
+#             # returns a prevalence vector with 100% of the mass in the only non empty class
+#             prev_vector = np.full(fill_value=0.0, shape=self.n_classes, dtype=float)
+#             prev_vector[self.old_class_idx[0]] = 1
+#             return prev_vector
+#         else:
+#             class_compact_prev = self.surrogate.quantify(instances)
+#             prev_vector = np.full(fill_value=0.0, shape=self.n_classes, dtype=float)
+#             prev_vector[self.old_class_idx] = class_compact_prev
+#             return prev_vector
+
+#     def num_non_empty_classes(self):
+#         return len(self.old_class_idx)
