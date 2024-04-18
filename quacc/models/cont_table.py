@@ -1,5 +1,6 @@
 from abc import abstractmethod
 from copy import copy, deepcopy
+from types import MethodType
 
 import numpy as np
 import quapy.functional as F
@@ -62,7 +63,7 @@ class CAPContingencyTable(ClassifierAccuracyPrediction):
         super().__init__(h)
 
     @abstractmethod
-    def predict_ct(self, X, oracle_prev=None):
+    def predict_ct(self, X, oracle_prev=None) -> np.ndarray:
         """
         Predicts the contingency table for the test data
 
@@ -452,17 +453,14 @@ class QuAccNxN(CAPContingencyTableQ, QuAcc):
     def quant_classifier_fit_predict(self, data: LabelledCollection):
         classif_predictions = []
         for q_i, class_i, data_i in zip(self.q, self.h.classes_, data):
-            classif_predictions.append(q_i.classifier_fit_predict(data_i))
+            preds = q_i.classifier_fit_predict(data_i)
+            classif_predictions.append(preds)
 
         return classif_predictions
 
     def quant_aggregation_fit(self, classif_predictions: LabelledCollection, data: LabelledCollection):
         for q_i, cp_i, data_i in zip(self.q, classif_predictions, data):
             q_i.aggregation_fit(cp_i, data_i)
-
-    def fit(self, data: LabelledCollection):
-        classif_predictions, data_dot = self.quant_classifier_fit_predict(data)
-        self.quant_aggregation_fit(classif_predictions, data_dot)
 
     def predict_ct(self, X, oracle_prev=None):
         classes = self.h.classes_
@@ -489,27 +487,25 @@ def safehstack(X, P):
 
 
 def make_empty_safe(q: AggregativeQuantifier):
-    _q_classifier_fit_predict = copy(q.classifier_fit_predict)
-    _q_aggregation_fit = copy(q.aggregation_fit)
-    _q_quantify = copy(q.quantify)
+    _q_classifier_fit_predict = type(q).classifier_fit_predict
+    _q_aggregation_fit = type(q).aggregation_fit
+    _q_quantify = type(q).quantify
 
     def _num_non_empty_classes(self):
         return len(self.old_class_idx)
 
     def _classifier_fit_predict(self, data: LabelledCollection, fit_classifier=True, predict_on=None):
-        print("pippo")
         self.n_classes = data.n_classes
         class_compact_data, self.old_class_idx = data.compact_classes()
         if self.num_non_empty_classes() > 1:
-            return _q_classifier_fit_predict(class_compact_data, fit_classifier, predict_on)
+            return _q_classifier_fit_predict(self, class_compact_data, fit_classifier, predict_on)
         return None
 
     def _aggregation_fit(self, classif_predictions: LabelledCollection, data: LabelledCollection):
-        print("pluto")
         self.n_classes = data.n_classes
         class_compact_data, _ = data.compact_classes()
         if self.num_non_empty_classes() > 1:
-            _q_aggregation_fit(classif_predictions, data)
+            _q_aggregation_fit(self, classif_predictions, data)
 
     def _quantify(self, instances):
         num_instances = instances.shape[0]
@@ -523,15 +519,15 @@ def make_empty_safe(q: AggregativeQuantifier):
             prev_vector[self.old_class_idx[0]] = 1
             return prev_vector
         else:
-            class_compact_prev = _q_quantify(instances)
+            class_compact_prev = _q_quantify(self, instances)
             prev_vector = np.full(fill_value=0.0, shape=self.n_classes, dtype=float)
             prev_vector[self.old_class_idx] = class_compact_prev
             return prev_vector
 
-    q.num_non_empty_classes = _num_non_empty_classes
-    q.classifier_fit_predict = _classifier_fit_predict
-    q.aggregation_fit = _aggregation_fit
-    q.quantify = _quantify
+    q.num_non_empty_classes = MethodType(_num_non_empty_classes, q)
+    q.classifier_fit_predict = MethodType(_classifier_fit_predict, q)
+    q.aggregation_fit = MethodType(_aggregation_fit, q)
+    q.quantify = MethodType(_quantify, q)
 
     return q
 
