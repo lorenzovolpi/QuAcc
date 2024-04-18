@@ -5,6 +5,9 @@ from pathlib import Path
 from urllib.request import urlretrieve
 
 import pandas as pd
+from quapy.data.base import LabelledCollection
+from sklearn.base import BaseEstimator
+from sklearn.metrics import confusion_matrix
 from tqdm import tqdm
 
 import quacc as qc
@@ -100,3 +103,10 @@ def get_plots_path(basedir, cls_name, acc_name, dataset_name, plot_type):
 
 def get_njobs(n_jobs):
     return qc.env["N_JOBS"] if n_jobs is None else n_jobs
+
+
+def true_acc(h: BaseEstimator, acc_fn: callable, U: LabelledCollection):
+    y_pred = h.predict(U.X)
+    y_true = U.y
+    conf_table = confusion_matrix(y_true, y_pred=y_pred, labels=U.classes_)
+    return acc_fn(conf_table)
