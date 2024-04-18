@@ -1,7 +1,5 @@
-from functools import wraps
-from typing import List
-
 import numpy as np
+import quapy as qp
 from sklearn.metrics import accuracy_score, f1_score
 
 
@@ -11,7 +9,7 @@ def from_name(err_name):
     return callable_error
 
 
-def from_contingency_table(param1, param2):
+def is_from_cont_table(param1, param2):
     if param2 is None and isinstance(param1, np.ndarray) and param1.ndim == 2 and (param1.shape[0] == param1.shape[1]):
         return True
     elif isinstance(param1, np.ndarray) and isinstance(param2, np.ndarray) and param1.shape == param2.shape:
@@ -21,21 +19,58 @@ def from_contingency_table(param1, param2):
 
 
 def vanilla_acc(param1, param2=None):
-    if from_contingency_table(param1, param2):
+    if is_from_cont_table(param1, param2):
         return _vanilla_acc_from_ct(param1)
     else:
         return accuracy_score(param1, param2)
 
 
-def macrof1(param1, param2=None):
-    if from_contingency_table(param1, param2):
-        return _macro_f1_from_ct(param1)
+def f1(param1, param2=None, average="binary"):
+    _warning = False
+    if is_from_cont_table(param1, param2):
+        if param1.shape[0] > 2 and average == "binary":
+            _warning = True
+            average = "macro"
+        _f1_score = _f1_from_ct(param1, average=average)
     else:
-        return f1_score(param1, param2, average="macro")
+        if len(np.unique(np.hstack([param1, param2]))) > 2 and average == "binary":
+            _warning = True
+            average = "macro"
+        _f1_score = f1_score(param1, param2, average=average)
+
+    if _warning:
+        print("Warning: 'binary' average is not available for multiclass F1. Defaulting to 'macro' F1.")
+    return _f1_score
 
 
 def _vanilla_acc_from_ct(cont_table):
     return np.diag(cont_table).sum() / cont_table.sum()
+
+
+def _f1_from_ct(cont_table, average):
+    n = cont_table.shape[0]
+    if average == "binary":
+        tp = cont_table[1, 1]
+        fp = cont_table[0, 1]
+        fn = cont_table[1, 0]
+        return _f1_bin(tp, fp, fn)
+    elif average == "macro":
+        f1_per_class = []
+        for i in range(n):
+            tp = cont_table[i, i]
+            fp = cont_table[:, i].sum() - tp
+            fn = cont_table[i, :].sum() - tp
+            f1_per_class.append(_f1_bin(tp, fp, fn))
+        return np.mean(f1_per_class)
+    elif average == "micro":
+        tp, fp, fn = 0, 0, 0
+        for i in range(n):
+            tp += cont_table[i, i]
+            fp += cont_table[:, i].sum() - tp
+            fn += cont_table[i, :].sum() - tp
+        return _f1_bin(tp, fp, fn)
+    else:
+        raise ValueError(f"Unknown F1 average {average}")
 
 
 def _f1_bin(tp, fp, fn):
@@ -45,42 +80,34 @@ def _f1_bin(tp, fp, fn):
         return (2 * tp) / (2 * tp + fp + fn)
 
 
-def _macro_f1_from_ct(cont_table):
-    n = cont_table.shape[0]
+def mae(true_accs, estim_accs):
+    """Computes the mean absolute error between true and estimated accuracy value pairs.
 
-    if n == 2:
-        tp = cont_table[1, 1]
-        fp = cont_table[0, 1]
-        fn = cont_table[1, 0]
-        return _f1_bin(tp, fp, fn)
-
-    f1_per_class = []
-    for i in range(n):
-        tp = cont_table[i, i]
-        fp = cont_table[:, i].sum() - tp
-        fn = cont_table[i, :].sum() - tp
-        f1_per_class.append(_f1_bin(tp, fp, fn))
-
-    return np.mean(f1_per_class)
+    :param true_accs: array-like of shape `(n_samples,)` with the true accuracy values
+    :param estim_accs: array-like of shape `(n_samples,)` with the estimated accuracy values
+    :return: mean absolute error
+    """
+    return qp.error.mae(*_reshape_for_error(true_accs, estim_accs))
 
 
-def microf1(cont_table):
-    n = cont_table.shape[0]
+def mse(true_accs, estim_accs):
+    """Computes the mean squared error between true and estimated accuracy value pairs.
 
-    if n == 2:
-        tp = cont_table[1, 1]
-        fp = cont_table[0, 1]
-        fn = cont_table[1, 0]
-        return _f1_bin(tp, fp, fn)
-
-    tp, fp, fn = 0, 0, 0
-    for i in range(n):
-        tp += cont_table[i, i]
-        fp += cont_table[:, i] - tp
-        fn += cont_table[i, :] - tp
-    return _f1_bin(tp, fp, fn)
+    :param true_accs: array-like of shape `(n_samples,)` with the true accuracy values
+    :param estim_accs: array-like of shape `(n_samples,)` with the estimated accuracy values
+    :return: mean squared error
+    """
+    return qp.error.mse(*_reshape_for_error(true_accs, estim_accs))
 
 
-ACCURACY_MEASURE = {vanilla_acc, macrof1}
+def _reshape_for_error(true_accs, estim_accs):
+    _true_accs = np.array(true_accs).reshape(-1, 1)
+    _estim_accs = np.array(estim_accs).reshape(-1, 1)
+    return _true_accs, _estim_accs
+
+
+ACCURACY_MEASURE = {vanilla_acc, f1}
+ACCURACY_ERROR = {mae, mse}
 ACCURACY_MEASURE_NAMES = {acc_fn.__name__ for acc_fn in ACCURACY_MEASURE}
-ERROR_NAMES = ACCURACY_MEASURE_NAMES
+ACCURACY_ERROR_NAMES = {acc_fn.__name__ for acc_fn in ACCURACY_ERROR}
+ERROR_NAMES = ACCURACY_MEASURE_NAMES | ACCURACY_ERROR_NAMES
