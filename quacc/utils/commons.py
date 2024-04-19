@@ -2,6 +2,7 @@ import functools
 import json
 import os
 from pathlib import Path
+from typing import Callable
 from urllib.request import urlretrieve
 
 import pandas as pd
@@ -105,7 +106,7 @@ def get_njobs(n_jobs):
     return qc.env["N_JOBS"] if n_jobs is None else n_jobs
 
 
-def true_acc(h: BaseEstimator, acc_fn: callable, U: LabelledCollection):
+def true_acc(h: BaseEstimator, acc_fn: Callable, U: LabelledCollection):
     y_pred = h.predict(U.X)
     y_true = U.y
     conf_table = confusion_matrix(y_true, y_pred=y_pred, labels=U.classes_)

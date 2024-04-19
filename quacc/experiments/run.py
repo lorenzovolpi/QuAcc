@@ -1,6 +1,6 @@
 import itertools
 import os
-from re import A
+from time import time
 
 import quapy as qp
 from quapy.protocol import UPP
@@ -8,9 +8,11 @@ from quapy.protocol import UPP
 import quacc as qc
 from quacc.dataset import save_dataset_stats
 from quacc.experiments.generators import (
+    CAP_METHOD_NAMES,
     gen_acc_measure,
     gen_bin_datasets,
     gen_classifiers,
+    gen_method,
     gen_methods,
     gen_multi_datasets,
     gen_product,
@@ -20,11 +22,12 @@ from quacc.experiments.generators import (
 from quacc.experiments.report import Report, TestReport
 from quacc.experiments.util import (
     cache_method,
-    fit_method,
+    fit_or_switch,
     get_intermediate_res,
     get_plain_prev,
     get_predictions,
     prevs_from_prot,
+    split_validation,
 )
 from quacc.utils.commons import true_acc
 
@@ -63,31 +66,26 @@ def experiments():
         for acc_name, acc_fn in gen_acc_measure():
             true_accs[acc_name] = [true_acc(h, acc_fn, Ui) for Ui in test_prot()]
 
-        _cache = {}
-        for acc_name, acc_fn in gen_acc_measure():
-            print(f"\tfor measure {acc_name}")
-            L_prev, V_prev = get_plain_prev(L.prevalence()), get_plain_prev(V.prevalence())
-            for method_name, method in gen_methods(h, acc_fn, ORACLE):
-                report = _cache.get(method_name, None)
-                if report is None:
-                    report = TestReport(basedir, cls_name, dataset_name, L_prev, V_prev, method_name)
+        L_prev = get_plain_prev(L.prevalence())
+        for method_name, method, V in gen_methods(h, V, ORACLE):
+            V_prev = get_plain_prev(V.prevalence())
 
+            print(f"\t\t{method_name} computing...")
+            t_train = None
+            for acc_name, acc_fn in gen_acc_measure():
+                report = TestReport(basedir, cls_name, dataset_name, L_prev, V_prev, method_name)
                 if os.path.exists(report.get_path(acc_name)):
                     print(f"\t\t{method_name}-{acc_name} exists, skipping")
                     continue
 
-                print(f"\t\t{method_name} computing...")
+                print(f"\tfor measure {acc_name}")
 
-                if not report.has_intermediate_res():
-                    method, t_train = fit_method(method, V)
-                    test_prevs = prevs_from_prot(test_prot)
-                    estim_inter, t_inter = get_intermediate_res(method, test_prot, ORACLE)
-                    report.add_intermediate_res(method, test_prevs, estim_inter, t_train, t_inter)
+                method, _t_train = fit_or_switch(method, V, acc_fn)
+                t_train = t_train if _t_train is None else _t_train
 
-                cache_method(report, _cache)
-
-                estim_accs, t_test_ave = get_predictions(report.method, report.estim_inter, test_prot, acc_fn, ORACLE)
-                report.add_final_res(acc_name, true_accs[acc_name], estim_accs, report.t_inter + t_test_ave)
+                test_prevs = prevs_from_prot(test_prot)
+                estim_accs, t_test_ave = get_predictions(method, test_prot, acc_fn, ORACLE)
+                report.add_result(test_prevs, true_accs[acc_name], estim_accs, t_train, t_test_ave)
 
                 report.save_json(basedir, acc_name)
 

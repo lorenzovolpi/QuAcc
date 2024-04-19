@@ -1,49 +1,46 @@
 from time import time
 
 import numpy as np
+import quapy as qp
 from pytest import TestReport
+from quapy.protocol import UPP
 
-from quacc.models.cont_table import CAPContingencyTable
-from quacc.models.direct import CAPDirect
-from quacc.models.model_selection import GridSearchAE
+import quacc as qc
+from quacc.experiments.generators import CAP_CONT_TABLE_OPT_METHOD_NAMES
+from quacc.models.base import ClassifierAccuracyPrediction
+from quacc.models.cont_table import CAPContingencyTable, LabelledCollection
+from quacc.models.model_selection import GridSearchCAP
 
 
-def fit_method(method, V):
+def method_can_switch(method):
+    return method is not None and hasattr(method, "switch") and not isinstance(method, GridSearchCAP)
+
+
+def fit_or_switch(method: ClassifierAccuracyPrediction, V, acc_fn, is_fit):
+    if hasattr(method, "switch"):
+        method.switch(acc_fn), None
+        if not is_fit:
+            tinit = time()
+            method.fit(V)
+            t_train = time() - tinit
+        return method, t_train
+    elif hasattr(method, "switch_and_fit"):
+        tinit = time()
+        method.switc_and_fit(acc_fn, V)
+        t_train = time() - tinit
+        return method, t_train
+    else:
+        ValueError("invalid method")
+
+
+def get_predictions(method: ClassifierAccuracyPrediction, test_prot, oracle=False):
     tinit = time()
-    method.fit(V)
-    t_train = time() - tinit
-    return method, t_train
-
-
-def get_intermediate_res(method, test_prot, oracle=False):
-    if isinstance(method, CAPContingencyTable):
-        tinit = time()
-        if not oracle:
-            estim_tables = [method.predict_ct(Ui.X) for Ui in test_prot()]
-        else:
-            estim_tables = [method.predict_ct(Ui.X, oracle_prev=Ui.prevalence()) for Ui in test_prot()]
-        t_interm = (time() - tinit) / test_prot.total()
-
-        return estim_tables, t_interm
-
-    return None, 0
-
-
-def get_predictions(method, estim_inter, test_prot, acc_fn, oracle=False):
-    if isinstance(method, CAPDirect):
-        tinit = time()
-        if not oracle:
-            estim_accs = [method.predict(Ui.X) for Ui in test_prot()]
-        else:
-            estim_accs = [method.predict(Ui.X, oracle_prev=Ui.prevalence()) for Ui in test_prot()]
-        t_test_ave = (time() - tinit) / test_prot.total()
-        return estim_accs, t_test_ave
-    elif isinstance(method, CAPContingencyTable):
-        estim_tables = estim_inter
-        tinit = time()
-        estim_accs = [acc_fn(cont_table) for cont_table in estim_tables]
-        t_test_ave = (time() - tinit) / test_prot.total()
-        return estim_accs, t_test_ave
+    if not oracle:
+        estim_accs = [method.predict(Ui.X) for Ui in test_prot()]
+    else:
+        estim_accs = [method.predict(Ui.X, oracle_prev=Ui.prevalence()) for Ui in test_prot()]
+    t_test_ave = (time() - tinit) / test_prot.total()
+    return estim_accs, t_test_ave
 
 
 def get_plain_prev(prev: np.ndarray):
@@ -64,6 +61,7 @@ def get_acc_name(acc_name):
     }
 
 
-def cache_method(report: TestReport, cache):
-    if isinstance(report.method, CAPContingencyTable) and not isinstance(report.method, GridSearchAE):
-        cache[report.method_name] = report
+def split_validation(V: LabelledCollection, ratio=0.6):
+    v_train, v_val = V.split_stratified(ratio, random_state=qp.environ["_R_SEED"])
+    val_prot = UPP(v_val, repeats=100)
+    return v_train, val_prot

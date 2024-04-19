@@ -5,6 +5,7 @@ from types import MethodType
 import numpy as np
 import quapy.functional as F
 import scipy
+from param import Callable
 from quapy.data.base import LabelledCollection as LC
 from quapy.method.aggregative import AggregativeQuantifier
 from scipy.sparse import csr_matrix, issparse
@@ -59,8 +60,9 @@ class LabelledCollection(LC):
 
 
 class CAPContingencyTable(ClassifierAccuracyPrediction):
-    def __init__(self, h: BaseEstimator):
+    def __init__(self, h: BaseEstimator, acc_fn: Callable):
         super().__init__(h)
+        self.acc = acc_fn
 
     @abstractmethod
     def predict_ct(self, X, oracle_prev=None) -> np.ndarray:
@@ -75,6 +77,13 @@ class CAPContingencyTable(ClassifierAccuracyPrediction):
         """
         ...
 
+    def switch(self, acc_fn):
+        self.acc = acc_fn
+
+    def predict(self, data: LabelledCollection, oracle_prev=None):
+        cont_table = self.predict_ct(data, oracle_prev)
+        return self.acc(cont_table)
+
 
 class NaiveCAP(CAPContingencyTable):
     """
@@ -82,8 +91,8 @@ class NaiveCAP(CAPContingencyTable):
     as an estimate for the test data.
     """
 
-    def __init__(self, h: BaseEstimator):
-        super().__init__(h)
+    def __init__(self, h: BaseEstimator, acc_fn: Callable):
+        super().__init__(h, acc_fn)
 
     def fit(self, val: LabelledCollection):
         y_hat = self.h.predict(val.X)
@@ -108,10 +117,11 @@ class CAPContingencyTableQ(CAPContingencyTable, BaseEstimator):
     def __init__(
         self,
         h: BaseEstimator,
+        acc_fn: Callable,
         q_class: AggregativeQuantifier,
         reuse_h=False,
     ):
-        CAPContingencyTable.__init__(self, h)
+        CAPContingencyTable.__init__(self, h, acc_fn)
         self.reuse_h = reuse_h
         self.q_class = q_class
 
@@ -148,8 +158,8 @@ class CAPContingencyTableQ(CAPContingencyTable, BaseEstimator):
 class ContTableTransferCAP(CAPContingencyTableQ):
     """ """
 
-    def __init__(self, h: BaseEstimator, q_class, reuse_h=False):
-        super().__init__(h, q_class, reuse_h)
+    def __init__(self, h: BaseEstimator, acc_fn: Callable, q_class, reuse_h=False):
+        super().__init__(h, acc_fn, q_class, reuse_h)
 
     def preprocess_data(self, data: LabelledCollection):
         y_hat = self.h.predict(data.X)
@@ -177,8 +187,8 @@ class ContTableTransferCAP(CAPContingencyTableQ):
 class NsquaredEquationsCAP(CAPContingencyTableQ):
     """ """
 
-    def __init__(self, h: BaseEstimator, q_class, reuse_h=False):
-        super().__init__(h, q_class, reuse_h)
+    def __init__(self, h: BaseEstimator, acc_fn: Callable, q_class, reuse_h=False):
+        super().__init__(h, acc_fn, q_class, reuse_h)
 
     def preprocess_data(self, data: LabelledCollection):
         y_hat = self.h.predict(data.X)
@@ -319,6 +329,7 @@ class QuAcc1xN2(CAPContingencyTableQ, QuAcc):
     def __init__(
         self,
         h: BaseEstimator,
+        acc_fn: Callable,
         q_class: AggregativeQuantifier,
         add_X=True,
         add_posteriors=True,
@@ -327,6 +338,7 @@ class QuAcc1xN2(CAPContingencyTableQ, QuAcc):
         add_maxinfsoft=False,
     ):
         self.h = h
+        self.acc = acc_fn
         self.q_class = q_class
         self.add_X = add_X
         self.add_posteriors = add_posteriors
@@ -363,6 +375,7 @@ class QuAcc1xNp1(CAPContingencyTableQ, QuAcc):
     def __init__(
         self,
         h: BaseEstimator,
+        acc_fn: Callable,
         q_class: AggregativeQuantifier,
         add_X=True,
         add_posteriors=True,
@@ -371,6 +384,7 @@ class QuAcc1xNp1(CAPContingencyTableQ, QuAcc):
         add_maxinfsoft=False,
     ):
         self.h = h
+        self.acc = acc_fn
         self.q_class = q_class
         self.add_X = add_X
         self.add_posteriors = add_posteriors
@@ -415,6 +429,7 @@ class QuAccNxN(CAPContingencyTableQ, QuAcc):
     def __init__(
         self,
         h: BaseEstimator,
+        acc_fn: Callable,
         q_class: AggregativeQuantifier,
         add_X=True,
         add_posteriors=True,
@@ -423,6 +438,7 @@ class QuAccNxN(CAPContingencyTableQ, QuAcc):
         add_maxinfsoft=False,
     ):
         self.h = h
+        self.acc = acc_fn
         self.q_class = q_class
         self.add_X = add_X
         self.add_posteriors = add_posteriors

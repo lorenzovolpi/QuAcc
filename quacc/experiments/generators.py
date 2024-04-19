@@ -1,4 +1,5 @@
 import os
+from typing import Callable
 
 import numpy as np
 import quapy as qp
@@ -7,20 +8,26 @@ from quapy.data.datasets import (
     TWITTER_SENTIMENT_DATASETS_TEST,
     UCI_MULTICLASS_DATASETS,
 )
-from quapy.method.aggregative import EMQ
+from quapy.method._kdey import KDEyML
+from quapy.method.aggregative import ACC, EMQ
+from quapy.protocol import AbstractProtocol
+from sklearn.base import BaseEstimator
 from sklearn.linear_model import LogisticRegression
 
 from quacc.dataset import DatasetProvider as DP
 from quacc.error import f1, vanilla_acc
+from quacc.experiments.util import method_can_switch, split_validation
 from quacc.models.base import ClassifierAccuracyPrediction
 from quacc.models.cont_table import (
     CAPContingencyTable,
     ContTableTransferCAP,
     NaiveCAP,
+    NsquaredEquationsCAP,
     QuAcc1xN2,
     QuAccNxN,
 )
-from quacc.models.direct import ATC, CAPDirect, DoC
+from quacc.models.direct import ATC, CAPDirect, DoC, PabloCAP, SebastianiCAP
+from quacc.models.model_selection import GridSearchCAP as GSCAP
 from quacc.utils.commons import get_results_path
 
 
@@ -107,46 +114,72 @@ def gen_CAP(h, acc_fn, with_oracle=False) -> [str, CAPDirect]:
 
 
 # fmt: off
-def gen_CAP_cont_table(h) -> [str, CAPContingencyTable]:
-    yield "Naive", NaiveCAP(h)
-    # yield "CT-PPS-EMQ", ContTableTransferCAP(h, EMQ(LogisticRegression()))
-    # yield 'CT-PPS-KDE', ContTableTransferCAP(h, KDEyML(LogisticRegression(class_weight='balanced'), bandwidth=0.01))
-    # yield 'CT-PPS-KDE05', ContTableTransferCAP(h, KDEyML(LogisticRegression(class_weight='balanced'), bandwidth=0.05))
-    # yield 'QuAcc(EMQ)nxn-noX', QuAccNxN(h, EMQ(LogisticRegression()), add_posteriors=True, add_X=False)
-    # yield 'QuAcc(EMQ)nxn', QuAccNxN(h, EMQ(LogisticRegression()))
-    yield "QuAcc(EMQ)nxn-MC", QuAccNxN(h, EMQ(LogisticRegression()), add_maxconf=True)
-    # yield 'QuAcc(EMQ)nxn-NE', QuAccNxN(h, EMQ(LogisticRegression()), add_negentropy=True)
-    yield 'QuAcc(EMQ)nxn-MIS', QuAccNxN(h, EMQ(LogisticRegression()), add_maxinfsoft=True)
-    yield 'QuAcc(EMQ)nxn-MC-MIS', QuAccNxN(h, EMQ(LogisticRegression()), add_maxconf=True, add_maxinfsoft=True)
-    # yield 'QuAcc(EMQ)1xn2', QuAcc1xN2(h, EMQ(LogisticRegression()))
-    yield 'QuAcc(EMQ)1xn2-MC', QuAcc1xN2(h, EMQ(LogisticRegression()), add_maxconf=True)
-    # yield 'QuAcc(EMQ)1xn2-NE', QuAcc1xN2(h, EMQ(LogisticRegression()), add_negentropy=True)
-    yield 'QuAcc(EMQ)1xn2-MIS', QuAcc1xN2(h, EMQ(LogisticRegression()), add_maxinfsoft=True)
-    yield 'QuAcc(EMQ)1xn2-MC-MIS', QuAcc1xN2(h, EMQ(LogisticRegression()), add_maxconf=True, add_maxinfsoft=True)
-    # yield 'CT-PPSh-EMQ', ContTableTransferCAP(h, EMQ(LogisticRegression()), reuse_h=True)
-    # yield 'Equations-ACCh', NsquaredEquationsCAP(h, ACC, reuse_h=True)
-    # yield 'Equations-ACC', NsquaredEquationsCAP(h, ACC)
-    # yield 'Equations-SLD', NsquaredEquationsCAP(h, EMQ)
+def gen_CAP_cont_table(h, acc_fn) -> [str, CAPContingencyTable]:
+    yield "Naive", NaiveCAP(h, acc_fn)
+    # yield "CT-PPS-EMQ", ContTableTransferCAP(h, acc_fn, EMQ(LogisticRegression()))
+    # yield 'CT-PPS-KDE', ContTableTransferCAP(h, acc_fn, KDEyML(LogisticRegression(class_weight='balanced'), bandwidth=0.01))
+    # yield 'CT-PPS-KDE05', ContTableTransferCAP(h, acc_fn, KDEyML(LogisticRegression(class_weight='balanced'), bandwidth=0.05))
+    # yield 'QuAcc(EMQ)nxn-noX', QuAccNxN(h, acc_fn, EMQ(LogisticRegression()), add_posteriors=True, add_X=False)
+    # yield 'QuAcc(EMQ)nxn', QuAccNxN(h, acc_fn, EMQ(LogisticRegression()))
+    yield "QuAcc(EMQ)nxn-MC", QuAccNxN(h, acc_fn, EMQ(LogisticRegression()), add_maxconf=True)
+    # yield 'QuAcc(EMQ)nxn-NE', QuAccNxN(h, acc_fn, EMQ(LogisticRegression()), add_negentropy=True)
+    yield 'QuAcc(EMQ)nxn-MIS', QuAccNxN(h, acc_fn, EMQ(LogisticRegression()), add_maxinfsoft=True)
+    yield 'QuAcc(EMQ)nxn-MC-MIS', QuAccNxN(h, acc_fn, EMQ(LogisticRegression()), add_maxconf=True, add_maxinfsoft=True)
+    # yield 'QuAcc(EMQ)1xn2', QuAcc1xN2(h, acc_fn, EMQ(LogisticRegression()))
+    yield 'QuAcc(EMQ)1xn2-MC', QuAcc1xN2(h, acc_fn, EMQ(LogisticRegression()), add_maxconf=True)
+    # yield 'QuAcc(EMQ)1xn2-NE', QuAcc1xN2(h, acc_fn, EMQ(LogisticRegression()), add_negentropy=True)
+    yield 'QuAcc(EMQ)1xn2-MIS', QuAcc1xN2(h, acc_fn, EMQ(LogisticRegression()), add_maxinfsoft=True)
+    yield 'QuAcc(EMQ)1xn2-MC-MIS', QuAcc1xN2(h, acc_fn, EMQ(LogisticRegression()), add_maxconf=True, add_maxinfsoft=True)
+    # yield 'CT-PPSh-EMQ', ContTableTransferCAP(h, acc_fn, EMQ(LogisticRegression()), reuse_h=True)
+    # yield 'Equations-ACCh', NsquaredEquationsCAP(h, acc_fn, ACC, reuse_h=True)
+    # yield 'Equations-ACC', NsquaredEquationsCAP(h, acc_fn, ACC)
+    # yield 'Equations-SLD', NsquaredEquationsCAP(h, acc_fn, EMQ)
 # fmt: on
 
 
-def gen_CAP_cont_table_opt(h, acc_fn) -> [str, CAPContingencyTable]:
-    return
-    yield
+def gen_CAP_cont_table_opt(h, acc_fn, val_prot) -> [str, CAPContingencyTable]:
+    emq_lr_params = {
+        "q_class__classifier__C": np.logspace(-3, 3, 7),
+        "q_class__classifier__class_weight": [None, "balanced"],
+        "q_class__recalib": [None, "bcts"],
+        "add_X": [True, False],
+        "add_posteriors": [True, False],
+        "add_maxconf": [True, False],
+        "add_negentropy": [True, False],
+        "add_maxinfsoft": [True, False],
+    }
+    yield "QuAcc(EMQ)nxn-OPT", GSCAP(QuAccNxN(h, EMQ(LogisticRegression)), emq_lr_params, val_prot, acc_fn)
 
 
-def gen_methods(h, acc_fn, with_oracle=False):
+def gen_methods(h, V, with_oracle=False):
+    _, acc_fn = next(gen_acc_measure())
+
     for name, method in gen_CAP(h, acc_fn, with_oracle):
-        yield name, method
-    for name, method in gen_CAP_cont_table(h):
-        yield name, method
-    for name, method in gen_CAP_cont_table_opt(h, acc_fn):
-        yield name, method
+        yield name, method, V
+    for name, method in gen_CAP_cont_table(h, acc_fn):
+        yield name, method, V
+
+    V, val_prot = split_validation(V)
+    for name, method in gen_CAP_cont_table_opt(h, acc_fn, val_prot):
+        yield name, method, V
+
+
+def gen_method(method_name, method, h, acc_fn, val_prot, with_oracle=False):
+    if method_can_switch(method):
+        return method
+
+    if method_name in CAP_DIRECT_METHOD_NAMES:
+        return gen_CAP(method_name, h, acc_fn, with_oracle=with_oracle)
+    elif method_name in CAP_CONT_TABLE_METHOD_NAMES:
+        return gen_CAP_cont_table(method_name, h)
+    elif method_name in CAP_CONT_TABLE_OPT_METHOD_NAMES:
+        return gen_CAP_cont_table_opt(method_name, h, acc_fn, val_prot)
+    else:
+        raise ValueError(f"Unknown method {method_name}")
 
 
 def get_method_names():
-    mock_h = LogisticRegression()
-    return [m for m, _ in gen_CAP(mock_h, None)] + [m for m, _ in gen_CAP_cont_table(mock_h)]
+    return gen_CAP(only_names=True) + gen_CAP_cont_table(only_names=True) + gen_CAP_cont_table_opt(only_names=True)
 
 
 def gen_acc_measure():
@@ -159,3 +192,9 @@ def any_missing(basedir, cls_name, dataset_name, method_name):
         if not os.path.exists(get_results_path(basedir, cls_name, acc_name, dataset_name, method_name)):
             return True
     return False
+
+
+CAP_DIRECT_METHOD_NAMES = set(gen_CAP(only_names=True))
+CAP_CONT_TABLE_METHOD_NAMES = set(gen_CAP_cont_table(only_names=True))
+CAP_CONT_TABLE_OPT_METHOD_NAMES = set(gen_CAP_cont_table_opt(only_names=True))
+CAP_METHOD_NAMES = CAP_DIRECT_METHOD_NAMES | CAP_CONT_TABLE_METHOD_NAMES | CAP_CONT_TABLE_OPT_METHOD_NAMES

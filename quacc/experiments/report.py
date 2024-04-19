@@ -33,6 +33,7 @@ class TestReport:
         self,
         basedir,
         cls_name,
+        acc_name,
         dataset_name,
         train_prev,
         val_prev,
@@ -40,33 +41,21 @@ class TestReport:
     ):
         self.basedir = basedir
         self.cls_name = cls_name
+        self.acc_name = acc_name
         self.dataset_name = dataset_name
         self.train_prev = train_prev
         self.val_prev = val_prev
         self.method_name = method_name
-        self.estim_accs = {}
-        self.true_accs = {}
-        self.t_test_ave = {}
 
-    def get_path(self, acc_name):
-        return get_results_path(self.basedir, self.cls_name, acc_name, self.dataset_name, self.method_name)
+    def get_path(self):
+        return get_results_path(self.basedir, self.cls_name, self.acc_name, self.dataset_name, self.method_name)
 
-    def add_intermediate_res(self, method, test_prevs, estim_inter, t_train, t_inter):
-        self.method = method
+    def add_result(self, test_prevs, true_accs, estim_accs, t_train, t_test_ave):
         self.test_prevs = test_prevs
-        self.estim_inter = estim_inter
+        self.estim_accs = estim_accs
+        self.true_accs = true_accs
         self.t_train = t_train
-        self.t_inter = t_inter
-
-        return self
-
-    def has_intermediate_res(self):
-        return all([hasattr(self, _attr) for _attr in ["method", "test_prevs", "estim_inter", "t_train"]])
-
-    def add_final_res(self, acc_name, true_accs, estim_accs, t_test_ave):
-        self.estim_accs[acc_name] = estim_accs
-        self.true_accs[acc_name] = true_accs
-        self.t_test_ave[acc_name] = t_test_ave
+        self.t_test_ave = t_test_ave
 
         return self
 
@@ -74,57 +63,45 @@ class TestReport:
         result = {
             "basedir": self.basedir,
             "cls_name": self.cls_name,
-            "acc_name": acc_name,
+            "acc_name": self.acc_name,
             "dataset_name": self.dataset_name,
-            "method_name": self.method_name,
             "train_prev": self.train_prev,
             "val_prev": self.val_prev,
+            "method_name": self.method_name,
             "test_prevs": self.test_prevs,
-            "true_accs": self.true_accs[acc_name],
-            "estim_accs": self.estim_accs[acc_name],
+            "true_accs": self.true_accs,
+            "estim_accs": self.estim_accs,
             "t_train": self.t_train,
-            "t_test_ave": self.t_test_ave[acc_name],
+            "t_test_ave": self.t_test_ave,
         }
 
-        save_json_file(self.get_path(acc_name), result)
+        save_json_file(self.get_path(), result)
 
     @classmethod
     def load_json(cls, path) -> "TestReport":
         def _test_report_hook(_dict):
-            return (
-                TestReport(
-                    basedir=_dict["basedir"],
-                    cls_name=_dict["cls_name"],
-                    dataset_name=_dict["dataset_name"],
-                    train_prev=_dict["train_prev"],
-                    val_prev=_dict["val_prev"],
-                    method_name=_dict["method_name"],
-                    method=None,
-                )
-                .add_intermediate_res(
-                    test_prevs=_dict["test_prevs"],
-                    estim_inter=None,
-                    t_train=_dict["t_train"],
-                )
-                .add_final_res(
-                    acc_name=_dict["acc_name"],
-                    true_accs=_dict["true_accs"],
-                    estim_accs=_dict["estim_accs"],
-                    t_test_ave=_dict["t_test_ave"],
-                )
+            return TestReport(
+                basedir=_dict["basedir"],
+                cls_name=_dict["cls_name"],
+                dataset_name=_dict["dataset_name"],
+                train_prev=_dict["train_prev"],
+                val_prev=_dict["val_prev"],
+                method_name=_dict["method_name"],
+            ).add_result(
+                test_prevs=_dict["test_prevs"],
+                acc_name=_dict["acc_name"],
+                true_accs=_dict["true_accs"],
+                estim_accs=_dict["estim_accs"],
+                t_train=_dict["t_train"],
+                t_test_ave=_dict["t_test_ave"],
             )
 
         return load_json_file(path, object_hook=_test_report_hook)
 
 
 class Report:
-    def __init__(self, results: dict[str, list[TestReport]], basedir, cls_name, acc_name, dataset_name, method_name):
+    def __init__(self, results: dict[str, list[TestReport]]):
         self.results = results
-        self.basedir = basedir
-        self.cls_name = cls_name
-        self.acc_name = acc_name
-        self.dataset_name = dataset_name
-        self.method_name = method_name
 
     @classmethod
     def load_results(cls, basedir, cls_name, acc_name, dataset_name="*", method_name="*") -> "Report":
@@ -140,7 +117,7 @@ class Report:
                     method = Path(file).stem
                     _res = TestReport.load_json(file)
                     _results[method].append(_res)
-        return Report(_results, basedir, cls_name, acc_name, dataset_name, method_name)
+        return Report(_results)
 
     def filter_by_method(self, methods=None):
         if methods is None:
@@ -154,7 +131,7 @@ class Report:
         dfs = []
         for _method, _results in self.results.items():
             _true_acc = np.hstack([_r.true_accs for _r in _results])
-            _estim_acc = np.hstack([_r.estim_accs[self.acc_name] for _r in _results])
+            _estim_acc = np.hstack([_r.estim_accs for _r in _results])
             method_df = pd.DataFrame(np.vstack([_true_acc, _estim_acc]).T, columns=["true_accs", "estim_accs"])
             method_df.loc[:, "method"] = np.tile(_method, (len(method_df),))
             dfs.append(method_df)
@@ -187,7 +164,7 @@ class Report:
             _shift = np.hstack([_get_shift(np.array(_r.test_prevs), _r.train_prev) for _r in _results])
 
             _true_accs = np.hstack([_r.true_accs for _r in _results])
-            _estim_accs = np.hstack([_r.estim_accs[self.acc_name] for _r in _results])
+            _estim_accs = np.hstack([_r.estim_accs for _r in _results])
             _acc_err = np.abs(_true_accs - _estim_accs)
             method_df = pd.DataFrame(np.vstack([_shift, _acc_err]).T, columns=["shifts", "acc_err"])
             method_df.loc[:, "method"] = np.tile(_method, (len(method_df),))

@@ -1,5 +1,6 @@
 from abc import abstractmethod
 from copy import deepcopy
+from typing import Callable
 
 import numpy as np
 import quapy as qp
@@ -15,28 +16,19 @@ from quacc.models.utils import get_posteriors_from_h, max_conf, neg_entropy
 
 
 class CAPDirect(ClassifierAccuracyPrediction):
-    def __init__(self, h: BaseEstimator, acc: callable):
+    def __init__(self, h: BaseEstimator, acc: Callable):
         super().__init__(h)
         self.acc = acc
-
-    @abstractmethod
-    def predict(self, X, oracle_prev=None):
-        """
-        Predicts directly the accuracy using the accuracy function
-
-        :param X: test data
-        :param oracle_prev: np.ndarray with the class prevalence of the test set as estimated by
-            an oracle. This is meant to test the effect of the errors in CAP that are explained by
-            the errors in quantification performance
-        :return: float
-        """
-        return ...
 
     def true_acc(self, sample: LabelledCollection):
         y_pred = self.h.predict(sample.X)
         y_true = sample.y
         conf_table = confusion_matrix(y_true, y_pred=y_pred, labels=sample.classes_)
         return self.acc(conf_table)
+
+    def switch_and_fit(self, acc_fn, data):
+        self.acc = acc_fn
+        self.fit(data)
 
 
 class SebastianiCAP(CAPDirect):
