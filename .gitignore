@@ -40,3 +40,4 @@ log
 
 var/
 test*.py
+*.sh
