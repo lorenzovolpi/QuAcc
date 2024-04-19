@@ -11,7 +11,7 @@ from quapy.protocol import AbstractProtocol, OnLabelledCollectionProtocol
 from quapy.util import timeout
 
 import quacc as qc
-from quacc.models.cont_table import CAPContingencyTableQ
+from quacc.models.cont_table import CAPContingencyTable, CAPContingencyTableQ, LabelledCollection
 from quacc.utils.commons import true_acc
 
 
@@ -41,7 +41,7 @@ class ConfigStatus:
         return self.status != Status.SUCCESS
 
 
-class GridSearchAE(CAPContingencyTableQ):
+class GridSearchCAP(CAPContingencyTable):
     def __init__(
         self,
         model: CAPContingencyTableQ,
@@ -143,9 +143,10 @@ class GridSearchAE(CAPContingencyTableQ):
 
         # train all classifiers and get the predictions
         self._training = training
-        cls_outs = qp.util.parallel(
-            self._prepare_classifier, cls_configs, seed=qc.env.get("_R_SEED", None), n_jobs=self.n_jobs
-        )
+        # cls_outs = qp.util.parallel(
+        #     self._prepare_classifier, cls_configs, seed=qc.env.get("_R_SEED", None), n_jobs=self.n_jobs
+        # )
+        cls_outs = [self._prepare_classifier(cfg) for cfg in cls_configs]
 
         # filter out classifier configurations that yielded any error
         success_outs = []
@@ -239,15 +240,15 @@ class GridSearchAE(CAPContingencyTableQ):
 
         return self
 
-    def quantify(self, instances):
+    def predict_ct(self, test, oracle_prev=None):
         """Estimate class prevalence values using the best model found after calling the :meth:`fit` method.
 
         :param instances: sample contanining the instances
         :return: a ndarray of shape `(n_classes)` with class prevalence estimates as according to the best model found
             by the model selection process.
         """
-        assert hasattr(self, "best_model_"), "quantify called before fit"
-        return self.best_model().quantify(instances)
+        assert hasattr(self, "best_model_"), "predict_ct called before fit"
+        return self.best_model().predict_ct(test, oracle_prev)
 
     def set_params(self, **parameters):
         """Sets the hyper-parameters to explore.
