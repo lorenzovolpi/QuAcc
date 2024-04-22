@@ -148,10 +148,8 @@ def gen_CAP_cont_table_opt(h, acc_fn, val_prot) -> [str, CAPContingencyTable]:
         "add_negentropy": [True, False],
         "add_maxinfsoft": [True, False],
     }
-    yield (
-        "QuAcc(EMQ)nxn-OPT",
-        GSCAP(QuAccNxN(h, acc_fn, EMQ(LogisticRegression())), emq_lr_params, val_prot, acc_fn, raise_errors=True),
-    )
+    yield "QuAcc(EMQ)1xn2-OPT", GSCAP(QuAcc1xN2(h, acc_fn, EMQ(LogisticRegression())), emq_lr_params, val_prot, acc_fn)
+    yield "QuAcc(EMQ)nxn-OPT", GSCAP(QuAccNxN(h, acc_fn, EMQ(LogisticRegression())), emq_lr_params, val_prot, acc_fn)
 
 
 def gen_methods(h, V, with_oracle=False):
@@ -167,22 +165,14 @@ def gen_methods(h, V, with_oracle=False):
         yield name, method, V
 
 
-# def gen_method(method_name, method, h, acc_fn, val_prot, with_oracle=False):
-#     if method_can_switch(method):
-#         return method
-
-#     if method_name in CAP_DIRECT_METHOD_NAMES:
-#         return gen_CAP(method_name, h, acc_fn, with_oracle=with_oracle)
-#     elif method_name in CAP_CONT_TABLE_METHOD_NAMES:
-#         return gen_CAP_cont_table(method_name, h)
-#     elif method_name in CAP_CONT_TABLE_OPT_METHOD_NAMES:
-#         return gen_CAP_cont_table_opt(method_name, h, acc_fn, val_prot)
-#     else:
-#         raise ValueError(f"Unknown method {method_name}")
-
-
 def get_method_names():
-    return gen_CAP(only_names=True) + gen_CAP_cont_table(only_names=True) + gen_CAP_cont_table_opt(only_names=True)
+    mock_h = LogisticRegression()
+    _, mock_acc_fn = next(gen_acc_measure())
+    return (
+        [m for _, m in gen_CAP(mock_h, mock_acc_fn)]
+        + [m for _, m in gen_CAP_cont_table(mock_h, mock_acc_fn)]
+        + [m for _, m in gen_CAP_cont_table_opt(mock_h, mock_acc_fn, None)]
+    )
 
 
 def gen_acc_measure():
@@ -195,9 +185,3 @@ def any_missing(basedir, cls_name, dataset_name, method_name):
         if not os.path.exists(get_results_path(basedir, cls_name, acc_name, dataset_name, method_name)):
             return True
     return False
-
-
-# CAP_DIRECT_METHOD_NAMES = set(gen_CAP(only_names=True))
-# CAP_CONT_TABLE_METHOD_NAMES = set(gen_CAP_cont_table(only_names=True))
-# CAP_CONT_TABLE_OPT_METHOD_NAMES = set(gen_CAP_cont_table_opt(only_names=True))
-# CAP_METHOD_NAMES = CAP_DIRECT_METHOD_NAMES | CAP_CONT_TABLE_METHOD_NAMES | CAP_CONT_TABLE_OPT_METHOD_NAMES
