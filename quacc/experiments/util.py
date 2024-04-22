@@ -1,3 +1,4 @@
+import logging
 from time import time
 
 import numpy as np
@@ -63,3 +64,18 @@ def split_validation(V: LabelledCollection, ratio=0.6):
     v_train, v_val = V.split_stratified(ratio, random_state=qp.environ["_R_SEED"])
     val_prot = UPP(v_val, repeats=100, return_type="labelled_collection")
     return v_train, val_prot
+
+
+def get_logger(id="quacc"):
+    _name = f"{id}_log"
+    _path = f"{id}.log"
+    logger = logging.getLogger(_name)
+    logger.setLevel(logging.DEBUG)
+    if len(logger.handlers) == 0:
+        fh = logging.FileHandler(_path)
+        fh.setLevel(logging.DEBUG)
+        formatter = logging.Formatter(fmt="%(asctime)s| %(levelname)-8s %(message)s", datefmt="%d/%m/%y %H:%M:%S")
+        fh.setFormatter(formatter)
+        logger.addHandler(fh)
+
+    return logger

@@ -20,6 +20,7 @@ from quacc.experiments.generators import (
 from quacc.experiments.report import Report, TestReport
 from quacc.experiments.util import (
     fit_or_switch,
+    get_logger,
     get_plain_prev,
     get_predictions,
     prevs_from_prot,
@@ -44,10 +45,12 @@ elif PROBLEM == "tweet":
     NUM_TEST = 1000
     gen_datasets = gen_tweet_datasets
 
+log = get_logger()
+
 
 def experiments():
     for (dataset_name, (L, V, U)), (cls_name, h) in gen_product(gen_datasets, gen_classifiers):
-        print(f"training {cls_name} in {dataset_name}")
+        log.info(f"training {cls_name} in {dataset_name}")
         h.fit(*L.Xy)
 
         # test generation protocol
@@ -65,15 +68,15 @@ def experiments():
         for method_name, method, V in gen_methods(h, V, ORACLE):
             V_prev = get_plain_prev(V.prevalence())
 
-            print(f"\t{method_name} computing...")
+            log.info(f"  {method_name} computing...")
             t_train = None
             for acc_name, acc_fn in gen_acc_measure():
                 report = TestReport(basedir, cls_name, acc_name, dataset_name, L_prev, V_prev, method_name)
                 if os.path.exists(report.get_path()):
-                    print(f"\t\t{method_name} @ {acc_name} exists, skipping")
+                    log.info(f"    {acc_name} exists, skipping")
                     continue
 
-                print(f"\t\t{method_name} @ {acc_name}...")
+                log.info(f"    {acc_name}...")
 
                 method, _t_train = fit_or_switch(method, V, acc_fn, t_train is not None)
                 t_train = t_train if _t_train is None else _t_train
@@ -84,7 +87,8 @@ def experiments():
 
                 report.save_json(basedir, acc_name)
 
-        print()
+        log.info("-" * 70)
+    log.info("-" * 70)
 
 
 # generate plots
