@@ -28,7 +28,7 @@ class CAPDirect(ClassifierAccuracyPrediction):
 
     def switch_and_fit(self, acc_fn, data):
         self.acc = acc_fn
-        self.fit(data)
+        return self.fit(data)
 
 
 class SebastianiCAP(CAPDirect):

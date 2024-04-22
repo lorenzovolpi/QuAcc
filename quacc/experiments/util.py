@@ -2,11 +2,9 @@ from time import time
 
 import numpy as np
 import quapy as qp
-from pytest import TestReport
 from quapy.protocol import UPP
 
 import quacc as qc
-from quacc.experiments.generators import CAP_CONT_TABLE_OPT_METHOD_NAMES
 from quacc.models.base import ClassifierAccuracyPrediction
 from quacc.models.cont_table import CAPContingencyTable, LabelledCollection
 from quacc.models.model_selection import GridSearchCAP
@@ -18,15 +16,15 @@ def method_can_switch(method):
 
 def fit_or_switch(method: ClassifierAccuracyPrediction, V, acc_fn, is_fit):
     if hasattr(method, "switch"):
-        method.switch(acc_fn), None
-        if not is_fit:
+        method, t_train = method.switch(acc_fn), None
+        if not is_fit or isinstance(method, GridSearchCAP):
             tinit = time()
             method.fit(V)
             t_train = time() - tinit
         return method, t_train
     elif hasattr(method, "switch_and_fit"):
         tinit = time()
-        method.switc_and_fit(acc_fn, V)
+        method = method.switch_and_fit(acc_fn, V)
         t_train = time() - tinit
         return method, t_train
     else:
@@ -63,5 +61,5 @@ def get_acc_name(acc_name):
 
 def split_validation(V: LabelledCollection, ratio=0.6):
     v_train, v_val = V.split_stratified(ratio, random_state=qp.environ["_R_SEED"])
-    val_prot = UPP(v_val, repeats=100)
+    val_prot = UPP(v_val, repeats=100, return_type="labelled_collection")
     return v_train, val_prot

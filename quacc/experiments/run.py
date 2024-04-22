@@ -8,11 +8,9 @@ from quapy.protocol import UPP
 import quacc as qc
 from quacc.dataset import save_dataset_stats
 from quacc.experiments.generators import (
-    CAP_METHOD_NAMES,
     gen_acc_measure,
     gen_bin_datasets,
     gen_classifiers,
-    gen_method,
     gen_methods,
     gen_multi_datasets,
     gen_product,
@@ -21,13 +19,10 @@ from quacc.experiments.generators import (
 )
 from quacc.experiments.report import Report, TestReport
 from quacc.experiments.util import (
-    cache_method,
     fit_or_switch,
-    get_intermediate_res,
     get_plain_prev,
     get_predictions,
     prevs_from_prot,
-    split_validation,
 )
 from quacc.utils.commons import true_acc
 
@@ -70,21 +65,21 @@ def experiments():
         for method_name, method, V in gen_methods(h, V, ORACLE):
             V_prev = get_plain_prev(V.prevalence())
 
-            print(f"\t\t{method_name} computing...")
+            print(f"\t{method_name} computing...")
             t_train = None
             for acc_name, acc_fn in gen_acc_measure():
-                report = TestReport(basedir, cls_name, dataset_name, L_prev, V_prev, method_name)
-                if os.path.exists(report.get_path(acc_name)):
-                    print(f"\t\t{method_name}-{acc_name} exists, skipping")
+                report = TestReport(basedir, cls_name, acc_name, dataset_name, L_prev, V_prev, method_name)
+                if os.path.exists(report.get_path()):
+                    print(f"\t\t{method_name} @ {acc_name} exists, skipping")
                     continue
 
-                print(f"\tfor measure {acc_name}")
+                print(f"\t\t{method_name} @ {acc_name}...")
 
-                method, _t_train = fit_or_switch(method, V, acc_fn)
+                method, _t_train = fit_or_switch(method, V, acc_fn, t_train is not None)
                 t_train = t_train if _t_train is None else _t_train
 
                 test_prevs = prevs_from_prot(test_prot)
-                estim_accs, t_test_ave = get_predictions(method, test_prot, acc_fn, ORACLE)
+                estim_accs, t_test_ave = get_predictions(method, test_prot, ORACLE)
                 report.add_result(test_prevs, true_accs[acc_name], estim_accs, t_train, t_test_ave)
 
                 report.save_json(basedir, acc_name)

@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from typing import Self
 
 from quapy.data.base import LabelledCollection
 from sklearn.base import BaseEstimator
@@ -10,7 +9,7 @@ class ClassifierAccuracyPrediction(ABC):
         self.h = h
 
     @abstractmethod
-    def fit(self, val: LabelledCollection) -> Self:
+    def fit(self, val: LabelledCollection):
         """
         Trains a CAP method.
 
