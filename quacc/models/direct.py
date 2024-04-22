@@ -60,6 +60,8 @@ class SebastianiCAP(CAPDirect):
         else:
             self.sigma_pred_prevs = [sigma_i.prevalence() for sigma_i in gen_samples()]
 
+        return self
+
     def predict(self, X, oracle_prev=None):
         if oracle_prev is None:
             test_pred_prev = self.q.quantify(X)
@@ -104,6 +106,7 @@ class PabloCAP(CAPDirect):
         self.q.fit(val)
         label_predictions = self.h.predict(val.X)
         self.pre_classified = LabelledCollection(instances=label_predictions, labels=val.labels)
+        return self
 
     def predict(self, X, oracle_prev=None):
         if oracle_prev is None:
@@ -152,6 +155,7 @@ class ATC(CAPDirect):
         true_labels = val.y
         scores = self.get_scores(P)
         _, self.threshold = self.__find_ATC_threshold(scores=scores, labels=(pred_labels == true_labels))
+        return self
 
     def predict(self, X, oracle_prev=None):
         P = get_posteriors_from_h(self.h, X)
@@ -235,6 +239,8 @@ class DoC(CAPDirect):
         v2_mcs, v2_accs = list(zip(*v2_stats))
 
         self.reg_model = self.train_regression(v2_mcs, v2_accs)
+
+        return self
 
     def predict(self, X, oracle_prev=None):
         P = get_posteriors_from_h(self.h, X)
