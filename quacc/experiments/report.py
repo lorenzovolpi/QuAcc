@@ -83,13 +83,13 @@ class TestReport:
             return TestReport(
                 basedir=_dict["basedir"],
                 cls_name=_dict["cls_name"],
+                acc_name=_dict["acc_name"],
                 dataset_name=_dict["dataset_name"],
                 train_prev=_dict["train_prev"],
                 val_prev=_dict["val_prev"],
                 method_name=_dict["method_name"],
             ).add_result(
                 test_prevs=_dict["test_prevs"],
-                acc_name=_dict["acc_name"],
                 true_accs=_dict["true_accs"],
                 estim_accs=_dict["estim_accs"],
                 t_train=_dict["t_train"],
