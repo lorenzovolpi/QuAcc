@@ -304,6 +304,10 @@ class QuAcc:
         if self.add_posteriors:
             add_covs.append(P[:, 1:])
 
+        if self.add_y_hat:
+            y_hat = np.argmax(P, axis=-1, keepdims=True)
+            add_covs.append(y_hat)
+
         if self.add_maxconf:
             mc = max_conf(P, keepdims=True)
             add_covs.append(mc)
@@ -335,6 +339,7 @@ class QuAcc1xN2(CAPContingencyTableQ, QuAcc):
         q_class: AggregativeQuantifier,
         add_X=True,
         add_posteriors=True,
+        add_y_hat=False,
         add_maxconf=False,
         add_negentropy=False,
         add_maxinfsoft=False,
@@ -344,6 +349,7 @@ class QuAcc1xN2(CAPContingencyTableQ, QuAcc):
         self.q_class = q_class
         self.add_X = add_X
         self.add_posteriors = add_posteriors
+        self.add_y_hat = add_y_hat
         self.add_maxconf = add_maxconf
         self.add_negentropy = add_negentropy
         self.add_maxinfsoft = add_maxinfsoft
@@ -381,6 +387,7 @@ class QuAcc1xNp1(CAPContingencyTableQ, QuAcc):
         q_class: AggregativeQuantifier,
         add_X=True,
         add_posteriors=True,
+        add_y_hat=False,
         add_maxconf=False,
         add_negentropy=False,
         add_maxinfsoft=False,
@@ -390,6 +397,7 @@ class QuAcc1xNp1(CAPContingencyTableQ, QuAcc):
         self.q_class = q_class
         self.add_X = add_X
         self.add_posteriors = add_posteriors
+        self.add_y_hat = add_y_hat
         self.add_maxconf = add_maxconf
         self.add_negentropy = add_negentropy
         self.add_maxinfsoft = add_maxinfsoft
@@ -435,6 +443,7 @@ class QuAccNxN(CAPContingencyTableQ, QuAcc):
         q_class: AggregativeQuantifier,
         add_X=True,
         add_posteriors=True,
+        add_y_hat=False,
         add_maxconf=False,
         add_negentropy=False,
         add_maxinfsoft=False,
@@ -444,6 +453,7 @@ class QuAccNxN(CAPContingencyTableQ, QuAcc):
         self.q_class = q_class
         self.add_X = add_X
         self.add_posteriors = add_posteriors
+        self.add_y_hat = add_y_hat
         self.add_maxconf = add_maxconf
         self.add_negentropy = add_negentropy
         self.add_maxinfsoft = add_maxinfsoft
