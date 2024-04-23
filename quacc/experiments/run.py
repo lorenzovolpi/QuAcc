@@ -31,18 +31,19 @@ PROBLEM = "binary"
 ORACLE = False
 basedir = PROBLEM + ("-oracle" if ORACLE else "")
 
+PLOTS = "mc_mis_1xn2"
+plots_basedir = basedir if PLOTS is None else basedir + "_" + PLOTS
+
+NUM_TEST = 1000
 
 if PROBLEM == "binary":
     qp.environ["SAMPLE_SIZE"] = 1000
-    NUM_TEST = 1000
     gen_datasets = gen_bin_datasets
 elif PROBLEM == "multiclass":
     qp.environ["SAMPLE_SIZE"] = 250
-    NUM_TEST = 1000
     gen_datasets = gen_multi_datasets
 elif PROBLEM == "tweet":
     qp.environ["SAMPLE_SIZE"] = 100
-    NUM_TEST = 1000
     gen_datasets = gen_tweet_datasets
 
 log = get_logger()
@@ -98,8 +99,10 @@ def plotting():
         for dataset_name, _ in gen_datasets(only_names=True):
             methods = get_method_names()
             rep = Report.load_results(basedir, cls_name, acc_name, dataset_name=dataset_name, method_name=methods)
-            qc.plot.seaborn.plot_diagonal(rep.diagonal_plot_data(), cls_name, acc_name, dataset_name, basedir=basedir)
-            qc.plot.seaborn.plot_shift(rep.shift_plot_data(), cls_name, acc_name, dataset_name, basedir=basedir)
+            qc.plot.seaborn.plot_diagonal(
+                rep.diagonal_plot_data(), cls_name, acc_name, dataset_name, basedir=plots_basedir
+            )
+            qc.plot.seaborn.plot_shift(rep.shift_plot_data(), cls_name, acc_name, dataset_name, basedir=plots_basedir)
             for _method in methods:
                 m_rep = rep.filter_by_method(_method)
                 qc.plot.seaborn.plot_diagonal(
@@ -107,9 +110,10 @@ def plotting():
                     cls_name,
                     acc_name,
                     dataset_name,
-                    basedir=basedir,
+                    basedir=plots_basedir,
                     file_name=f"diagonal_{_method}",
                 )
+        print(f"{cls_name}-{acc_name} plots generated")
 
 
 # print("generating tables")
