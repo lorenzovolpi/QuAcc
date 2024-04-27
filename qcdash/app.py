@@ -19,8 +19,7 @@ from quacc.legacy.evaluation.report import CompReport, DatasetReport
 from quacc.legacy.evaluation.stats import wilcoxon
 from quacc.plot.plotly import plot_delta, plot_diagonal, plot_shift
 
-valid_plot_modes = defaultdict(lambda: CompReport._default_modes)
-valid_plot_modes["avg"] = DatasetReport._default_dr_modes
+valid_plot_modes = ["delta", "shift"]
 root_folder = "output"
 
 
@@ -203,10 +202,7 @@ def get_DataTable(df, mode):
                 if isinstance(idx, tuple | list | np.ndarray)
                 else str(idx)
             )
-            | {
-                k: f"{df.loc[i,('avg',k)]:.4f}~{df.loc[i,('std',k)]:.3f}"
-                for k in df.columns.unique(1)[1:]
-            }
+            | {k: f"{df.loc[i,('avg',k)]:.4f}~{df.loc[i,('std',k)]:.3f}" for k in df.columns.unique(1)[1:]}
             for i, idx in zip(df.index, df.loc[:, ("index", "")])
         ]
     else:
@@ -341,23 +337,20 @@ def get_sidebar():
     return [
         html.H4("Parameters:", style={"margin-bottom": "1vw"}),
         dbc.Select(
-            # options=list(datasets.keys()),
-            # value=list(datasets.keys())[0],
-            id="dataset",
+            id="config",
         ),
         dbc.Select(
-            id="metric",
-            style={"margin-top": "1vh"},
+            id="classifier",
+        ),
+        dbc.Select(
+            id="acc",
+            # style={"margin-top": "1vh"},
+        ),
+        dbc.Select(
+            id="dataset",
         ),
         html.Div(
             [
-                dbc.RadioItems(
-                    id="view",
-                    class_name="btn-group mt-3",
-                    input_class_name="btn-check",
-                    label_class_name="btn btn-outline-primary",
-                    label_checked_class_name="active",
-                ),
                 dbc.RadioItems(
                     id="mode",
                     class_name="btn-group mt-3",
@@ -371,7 +364,7 @@ def get_sidebar():
         html.Div(
             [
                 dbc.Checklist(
-                    id="estimators",
+                    id="methods",
                     className="btn-group mt-3",
                     inputClassName="btn-check",
                     labelClassName="btn btn-outline-primary",
@@ -385,9 +378,10 @@ def get_sidebar():
 
 app.layout = html.Div(
     [
-        dcc.Interval(id="reload", interval=10 * 60 * 1000),
+        # dcc.Interval(id="reload", interval=10 * 60 * 1000),
         dcc.Location(id="url", refresh=False),
         dcc.Store(id="root", storage_type="session", data=root_folder),
+        dcc.Store(id="tree", storage_type="session", data={}),
         html.Div(
             [
                 html.Div(get_sidebar(), id="app_sidebar", style=sidebar_style),
@@ -402,6 +396,15 @@ app.layout = html.Div(
 server = app.server
 
 
+def build_tree():
+    tree = {}
+    for path, dirs, files in os.walk(root_folder):
+        if len(files) == 0:
+            tree[path] = dirs
+        else:
+            tree[path] = files
+
+
 def apply_param(href, triggered_id, id, curr):
     match triggered_id:
         case "url":
@@ -411,115 +414,122 @@ def apply_param(href, triggered_id, id, curr):
             return curr
 
 
+def get_valid_fields(tree, config=None, classifier=None, acc=None, dataset=None):
+    sel_params = [root_folder] + [p for p in [config, classifier, acc, dataset] if p is not None]
+    idx = os.path.join(*sel_params)
+    return tree.get(idx, [])
+
+
+@callback(
+    Output("config", "value"),
+    Output("config", "options"),
+    Output("tree", "data"),
+    Input("url", "href"),
+)
+def update_config(href):
+    tree = build_tree()
+    req_config = parse_href(href).get("config", None)
+    valid_configs = get_valid_fields(tree)
+    assert len(valid_configs > 0), "no valid configs"
+    new_config = req_config if req_config in valid_configs else valid_configs[0]
+    return new_config, valid_configs, tree
+
+
+@callback(
+    Output("classifier", "value"),
+    Output("classifier", "options"),
+    Input("url", "href"),
+    Input("config", "value"),
+    State("tree", "data"),
+    State("classifier", "value"),
+)
+def update_classifier(href, config, tree, classifier):
+    req_classifier = apply_param(href, ctx.triggered_id, "classifier", classifier)
+    valid_classifiers = get_valid_fields(tree, config=config)
+    assert len(valid_classifiers > 0), "no valid classifiers"
+    new_classifier = req_classifier if req_classifier in valid_classifiers else valid_classifiers[0]
+    return new_classifier, valid_classifiers
+
+
 @callback(
     Output("dataset", "value"),
     Output("dataset", "options"),
-    Output("root", "data"),
     Input("url", "href"),
-    Input("reload", "n_intervals"),
+    Input("config", "value"),
+    Input("classifier", "value"),
+    State("tree", "data"),
     State("dataset", "value"),
 )
-def update_dataset(href, n_intervals, dataset):
-    if ctx.triggered_id == "reload":
-        new_datasets = get_datasets("output")
-        global datasets
-        datasets = new_datasets
-
-    params = parse_href(href)
-    req_dataset = params.get("dataset", None)
-    root = params.get("root", "")
-
-    def filter_datasets(root, available_datasets):
-        return [
-            str(Path(d).relative_to(root))
-            for d in available_datasets
-            if d.startswith(root)
-        ]
-
-    available_datasets = filter_datasets(root, datasets.keys())
-    new_dataset = (
-        req_dataset if req_dataset in available_datasets else available_datasets[0]
-    )
-    return new_dataset, available_datasets, root
+def update_dataset(href, config, classifier, tree, dataset):
+    req_dataset = apply_param(href, ctx.triggered_id, "dataset", dataset)
+    valid_datasets = get_valid_fields(tree, config=config, classifier=classifier)
+    assert len(valid_datasets > 0), "no valid datasets"
+    new_dataset = req_dataset if req_dataset in valid_datasets else valid_datasets[0]
+    return new_dataset, valid_datasets
 
 
 @callback(
-    Output("metric", "options"),
-    Output("metric", "value"),
+    Output("acc", "value"),
+    Output("acc", "options"),
     Input("url", "href"),
+    Input("config", "value"),
+    Input("classifier", "value"),
     Input("dataset", "value"),
-    State("metric", "value"),
-    State("root", "data"),
+    State("tree", "data"),
+    State("acc", "value"),
 )
-def update_metrics(href, dataset, curr_metric, root):
-    dr = get_dr(root, dataset)
-    old_metric = apply_param(href, ctx.triggered_id, "metric", curr_metric)
-    valid_metrics = [m for m in dr.data().columns.unique(0) if not m.endswith("_score")]
-    new_metric = old_metric if old_metric in valid_metrics else valid_metrics[0]
-    return valid_metrics, new_metric
+def update_acc(href, config, classifier, dataset, tree, acc):
+    req_acc = apply_param(href, ctx.triggered_id, "acc", acc)
+    valid_accs = get_valid_fields(tree, config=config, classifier=classifier, dataset=dataset)
+    assert len(valid_accs > 0), "no valid accs"
+    new_acc = req_acc if req_acc in valid_accs else valid_accs[0]
+    return new_acc, valid_accs
 
 
 @callback(
-    Output("estimators", "options"),
-    Output("estimators", "value"),
+    Output("methods", "value"),
+    Output("methods", "options"),
     Input("url", "href"),
+    Input("config", "value"),
+    Input("classifier", "value"),
     Input("dataset", "value"),
-    Input("metric", "value"),
-    State("estimators", "value"),
-    State("root", "data"),
+    Input("acc", "value"),
+    State("tree", "data"),
+    State("methods", "value"),
 )
-def update_estimators(href, dataset, metric, curr_estimators, root):
-    dr = get_dr(root, dataset)
-    old_estimators = apply_param(href, ctx.triggered_id, "estimators", curr_estimators)
-    if isinstance(old_estimators, str):
+def update_methods(href, config, classifier, dataset, acc, tree, methods):
+    req_methods = apply_param(href, ctx.triggered_id, "methods", methods)
+    if isinstance(req_methods, str):
         try:
-            old_estimators = json.loads(old_estimators)
+            req_methods = json.loads(req_methods)
         except JSONDecodeError:
-            old_estimators = []
-    old_estimators = rename_estimators(old_estimators, rev=True)
-    valid_estimators: np.ndarray = dr.data(metric=metric).columns.unique(0).to_numpy()
-    new_estimators = valid_estimators[
-        np.isin(valid_estimators, old_estimators)
-    ].tolist()
-    valid_estimators = CE.name.sort(valid_estimators.tolist())
-    return rename_estimators(valid_estimators), rename_estimators(new_estimators)
+            req_methods = []
+    valid_methods = get_valid_fields(tree, config=config, classifier=classifier, dataset=dataset, acc=acc)
+    assert len(valid_methods > 0), "no valid methods"
+    new_methods = req_methods if req_methods in valid_methods else valid_methods[0]
+    return new_methods, valid_methods
 
 
 @callback(
-    Output("view", "options"),
-    Output("view", "value"),
-    Input("url", "href"),
-    Input("dataset", "value"),
-    State("view", "value"),
-    State("root", "data"),
-)
-def update_view(href, dataset, curr_view, root):
-    dr = get_dr(root, dataset)
-    old_view = apply_param(href, ctx.triggered_id, "view", curr_view)
-    valid_views = ["avg"] + [_get_prev_str(cr.train_prev) for cr in dr.crs]
-    new_view = old_view if old_view in valid_views else valid_views[0]
-    return valid_views, new_view
-
-
-@callback(
-    Output("mode", "options"),
     Output("mode", "value"),
+    Output("mode", "options"),
     Input("url", "href"),
-    Input("view", "value"),
     State("mode", "value"),
 )
-def update_mode(href, view, curr_mode):
-    old_mode = apply_param(href, ctx.triggered_id, "mode", curr_mode)
-    valid_modes = valid_plot_modes[view]
-    new_mode = old_mode if old_mode in valid_modes else valid_modes[0]
-    return valid_modes, new_mode
+def update_mode(href, view, mode):
+    req_mode = apply_param(href, ctx.triggered_id, "mode", mode)
+    valid_modes = valid_plot_modes
+    new_mode = req_mode if req_mode in valid_modes else valid_modes[0]
+    return new_mode, valid_modes
 
 
 @callback(
     Output("app_content", "children"),
     Output("url", "search"),
+    Input("config", "value")
+    Input("classifier", "value")
+    Input("acc", "value"),
     Input("dataset", "value"),
-    Input("metric", "value"),
     Input("estimators", "value"),
     Input("view", "value"),
     Input("mode", "value"),
@@ -527,14 +537,7 @@ def update_mode(href, view, curr_mode):
 )
 def update_content(dataset, metric, estimators, view, mode, root):
     search = urlencode(
-        dict(
-            dataset=dataset,
-            metric=metric,
-            estimators=json.dumps(estimators),
-            view=view,
-            mode=mode,
-            root=root,
-        ),
+        dict(dataset=dataset, metric=metric, estimators=json.dumps(estimators), view=view, mode=mode, root=root),
         quote_via=quote,
     )
     dr = get_dr(root, dataset)
