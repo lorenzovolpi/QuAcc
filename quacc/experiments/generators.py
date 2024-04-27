@@ -26,7 +26,7 @@ from quacc.models.cont_table import (
     QuAcc1xN2,
     QuAccNxN,
 )
-from quacc.models.direct import ATC, CAPDirect, DoC, PabloCAP, SebastianiCAP
+from quacc.models.direct import ATC, CAPDirect, DoC, PabloCAP, PrediQuant
 from quacc.models.model_selection import GridSearchCAP as GSCAP
 from quacc.utils.commons import get_results_path
 
@@ -98,12 +98,18 @@ def gen_product(gen1, gen2):
             yield v1, v2
 
 
-def gen_CAP(h, acc_fn, with_oracle=False) -> [str, CAPDirect]:
+def gen_CAP_direct(h, acc_fn, with_oracle=False) -> [str, CAPDirect]:
     ### CAP methods ###
     # yield 'SebCAP', SebastianiCAP(h, acc_fn, ACC)
     # yield 'SebCAP-SLD', SebastianiCAP(h, acc_fn, EMQ, predict_train_prev=not with_oracle)
     # yield 'SebCAP-KDE', SebastianiCAP(h, acc_fn, KDEyML)
     # yield 'SebCAPweight', SebastianiCAP(h, acc_fn, ACC, alpha=0)
+    yield "PrediQuant-ACC", PrediQuant(h, acc_fn, ACC)
+    yield "PrediQuant-SLD", PrediQuant(h, acc_fn, EMQ)
+    yield "PrediQuant-KDE", PrediQuant(h, acc_fn, KDEyML)
+    yield "PrediQuantWeight-ACC", PrediQuant(h, acc_fn, ACC, alpha=0)
+    yield "PrediQuantWeight-SLD", PrediQuant(h, acc_fn, EMQ, alpha=0)
+    yield "PrediQuantWeight-KDE", PrediQuant(h, acc_fn, KDEyML, alpha=0)
     # yield 'PabCAP', PabloCAP(h, acc_fn, ACC)
     # yield 'PabCAP-SLD-median', PabloCAP(h, acc_fn, EMQ, aggr='median')
 
@@ -160,7 +166,7 @@ def gen_CAP_cont_table_opt(h, acc_fn, val_prot) -> [str, CAPContingencyTable]:
 def gen_methods(h, V, with_oracle=False):
     _, acc_fn = next(gen_acc_measure())
 
-    for name, method in gen_CAP(h, acc_fn, with_oracle):
+    for name, method in gen_CAP_direct(h, acc_fn, with_oracle):
         yield name, method, V
     for name, method in gen_CAP_cont_table(h, acc_fn):
         yield name, method, V
@@ -175,7 +181,7 @@ def get_method_names():
     _, mock_acc_fn = next(gen_acc_measure())
     mock_val_prot = UPP(None)
     return (
-        [m for m, _ in gen_CAP(mock_h, mock_acc_fn)]
+        [m for m, _ in gen_CAP_direct(mock_h, mock_acc_fn)]
         + [m for m, _ in gen_CAP_cont_table(mock_h, mock_acc_fn)]
         + [m for m, _ in gen_CAP_cont_table_opt(mock_h, mock_acc_fn, mock_val_prot)]
     )
