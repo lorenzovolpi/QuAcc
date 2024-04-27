@@ -31,7 +31,7 @@ PROBLEM = "binary"
 ORACLE = False
 basedir = PROBLEM + ("-oracle" if ORACLE else "")
 
-PLOTS = "mc_mis_1xn2"
+PLOTS = "predi_quant"
 plots_basedir = basedir if PLOTS is None else basedir + "_" + PLOTS
 
 NUM_TEST = 1000
@@ -77,8 +77,6 @@ def experiments():
                     log.info(f"    {acc_name} exists, skipping")
                     continue
 
-                log.info(f"    {acc_name}...")
-
                 method, _t_train = fit_or_switch(method, V, acc_fn, t_train is not None)
                 t_train = t_train if _t_train is None else _t_train
 
@@ -87,6 +85,8 @@ def experiments():
                 report.add_result(test_prevs, true_accs[acc_name], estim_accs, t_train, t_test_ave)
 
                 report.save_json(basedir, acc_name)
+
+                log.info(f"    {acc_name} [t_train:{t_train:.3f}s; t_test_ave:{t_test_ave:.3f}s]")
 
         log.info("-" * 70)
     log.info("-" * 70)
