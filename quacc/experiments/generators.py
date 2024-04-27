@@ -106,10 +106,10 @@ def gen_CAP_direct(h, acc_fn, with_oracle=False) -> [str, CAPDirect]:
     # yield 'SebCAPweight', SebastianiCAP(h, acc_fn, ACC, alpha=0)
     yield "PrediQuant-ACC", PrediQuant(h, acc_fn, ACC)
     yield "PrediQuant-SLD", PrediQuant(h, acc_fn, EMQ)
-    yield "PrediQuant-KDE", PrediQuant(h, acc_fn, KDEyML)
+    # yield "PrediQuant-KDE", PrediQuant(h, acc_fn, KDEyML)
     yield "PrediQuantWeight-ACC", PrediQuant(h, acc_fn, ACC, alpha=0)
     yield "PrediQuantWeight-SLD", PrediQuant(h, acc_fn, EMQ, alpha=0)
-    yield "PrediQuantWeight-KDE", PrediQuant(h, acc_fn, KDEyML, alpha=0)
+    # yield "PrediQuantWeight-KDE", PrediQuant(h, acc_fn, KDEyML, alpha=0)
     # yield 'PabCAP', PabloCAP(h, acc_fn, ACC)
     # yield 'PabCAP-SLD-median', PabloCAP(h, acc_fn, EMQ, aggr='median')
 

@@ -50,6 +50,8 @@ log = get_logger()
 
 
 def experiments():
+    log.info("-" * 31 + "  start  " + "-" * 31)
+
     for (dataset_name, (L, V, U)), (cls_name, h) in gen_product(gen_datasets, gen_classifiers):
         log.info(f"training {cls_name} in {dataset_name}")
         h.fit(*L.Xy)
@@ -89,7 +91,7 @@ def experiments():
                 log.info(f"    {acc_name} [t_train:{t_train:.3f}s; t_test_ave:{t_test_ave:.3f}s]")
 
         log.info("-" * 70)
-    log.info("-" * 70)
+    log.info("-" * 32 + "  end  " + "-" * 32)
 
 
 # generate plots
