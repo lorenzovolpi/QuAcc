@@ -31,7 +31,7 @@ class CAPDirect(ClassifierAccuracyPrediction):
         return self.fit(data)
 
 
-class SebastianiCAP(CAPDirect):
+class PrediQuant(CAPDirect):
     def __init__(self, h, acc_fn, q_class, n_val_samples=500, alpha=0.3, predict_train_prev=True):
         super().__init__(h, acc_fn)
         self.q = q_class(h)
