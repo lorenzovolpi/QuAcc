@@ -20,7 +20,7 @@ from quacc.legacy.evaluation.stats import wilcoxon
 from quacc.plot.plotly import plot_delta, plot_diagonal, plot_shift
 
 valid_plot_modes = ["delta", "shift"]
-root_folder = "output"
+root_folder = "results"
 
 
 def _get_prev_str(prev: np.ndarray):
@@ -302,9 +302,8 @@ def get_Graph(fig):
 datasets = get_datasets(root_folder)
 
 
-def get_dr(root, dataset):
-    ds = str(Path(root) / dataset)
-    return datasets[ds]
+def get_report(tree, config, classifier, acc, dataset, methods):
+    return Report.load_results(config, classifier, acc, dataset, methods)
 
 
 app = Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
@@ -526,45 +525,37 @@ def update_mode(href, view, mode):
 @callback(
     Output("app_content", "children"),
     Output("url", "search"),
-    Input("config", "value")
-    Input("classifier", "value")
+    Input("config", "value"),
+    Input("classifier", "value"),
     Input("acc", "value"),
     Input("dataset", "value"),
-    Input("estimators", "value"),
-    Input("view", "value"),
+    Input("methods", "value"),
     Input("mode", "value"),
-    State("root", "data"),
+    State("tree", "data"),
 )
-def update_content(dataset, metric, estimators, view, mode, root):
+def update_content(config, classifier, acc, dataset, methods, mode, tree):
     search = urlencode(
-        dict(dataset=dataset, metric=metric, estimators=json.dumps(estimators), view=view, mode=mode, root=root),
+        dict(
+            config=config,
+            classifier=classifier,
+            acc=acc,
+            dataset=dataset,
+            methods=json.dumps(methods),
+            mode=mode,
+        ),
         quote_via=quote,
     )
-    dr = get_dr(root, dataset)
-    estimators = rename_estimators(estimators, rev=True)
-    match mode:
-        case m if m.endswith("table"):
-            df = get_table(
-                dr=dr,
-                metric=metric,
-                estimators=estimators,
-                view=view,
-                mode=mode,
-            )
-            dt = get_DataTable(df, mode)
-            app_content = [] if dt is None else [dt]
-        case _:
-            fig = get_fig(
-                dr=dr,
-                acc_name=metric,
-                estimators=estimators,
-                view=view,
-                mode=mode,
-            )
-            g = get_Graph(fig)
-            app_content = [] if g is None else [g]
+    search_str = f"?{search}"
 
-    return app_content, f"?{search}"
+    if len(methods) == 0:
+        return [], search_str
+
+    report = get_report(tree, config, classifier, acc, dataset, methods)
+    fig = get_fig(report, mode)
+    g = get_Graph(fig)
+    app_content = [] if g is None else [g]
+
+    return app_content, search_str
 
 
 def run():
