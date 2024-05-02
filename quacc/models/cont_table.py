@@ -1,11 +1,11 @@
 from abc import abstractmethod
 from copy import copy, deepcopy
 from types import MethodType
+from typing import Callable
 
 import numpy as np
 import quapy.functional as F
 import scipy
-from param import Callable
 from quapy.data.base import LabelledCollection as LC
 from quapy.method.aggregative import AggregativeQuantifier
 from scipy.sparse import csr_matrix, issparse

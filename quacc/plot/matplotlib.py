@@ -6,7 +6,7 @@ import numpy as np
 from cycler import cycler
 from matplotlib.figure import Figure
 
-from quacc.plot.utils import _get_ref_limits
+from quacc.plot.utils import get_ref_limits
 from quacc.utils.commons import get_plots_path
 
 
@@ -22,9 +22,7 @@ def _get_cycler(num):
     return cycler(color=[cm(i) for i in range(num)])
 
 
-def _save_or_return(
-    fig: Figure, basedir, cls_name, acc_name, dataset_name, plot_type
-) -> Figure | None:
+def _save_or_return(fig: Figure, basedir, cls_name, acc_name, dataset_name, plot_type) -> Figure | None:
     if basedir is None:
         return fig
 
@@ -64,7 +62,7 @@ def plot_diagonal(
         )
 
     # ensure limits are equal for both axes
-    _lims = _get_ref_limits(true_accs, estim_accs)
+    _lims = get_ref_limits(true_accs, estim_accs)
     ax.set(xlim=_lims[0], ylim=_lims[1])
 
     # draw polyfit line per method
