@@ -1,4 +1,3 @@
-import math
 import os
 import pickle
 import tarfile
@@ -12,6 +11,7 @@ from sklearn.datasets import fetch_20newsgroups, fetch_rcv1
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.utils import Bunch
 
+import quacc as qc
 from quacc.utils import commons
 from quacc.utils.commons import save_json_file
 
@@ -97,23 +97,6 @@ def fetch_cifar100():
     )
 
 
-def save_dataset_stats(path, test_prot, L, V):
-    test_prevs = [Ui.prevalence() for Ui in test_prot()]
-    shifts = [qp.error.ae(L.prevalence(), Ui_prev) for Ui_prev in test_prevs]
-    info = {
-        "n_classes": L.n_classes,
-        "n_train": len(L),
-        "n_val": len(V),
-        "train_prev": L.prevalence().tolist(),
-        "val_prev": V.prevalence().tolist(),
-        "test_prevs": [x.tolist() for x in test_prevs],
-        "shifts": [x.tolist() for x in shifts],
-        "sample_size": test_prot.sample_size,
-        "num_samples": test_prot.total(),
-    }
-    save_json_file(path, info)
-
-
 class DatasetSample:
     def __init__(
         self,
@@ -157,9 +140,7 @@ class DatasetProvider:
 
     @classmethod
     def imdb(cls):
-        train, U = qp.datasets.fetch_reviews(
-            "imdb", tfidf=True, min_df=10, pickle=True
-        ).train_test
+        train, U = qp.datasets.fetch_reviews("imdb", tfidf=True, min_df=10, pickle=True).train_test
         T, V = cls._split_train(train)
         return T, V, U
 
@@ -233,12 +214,8 @@ class DatasetProvider:
 
     @classmethod
     def news20(cls):
-        train = fetch_20newsgroups(
-            subset="train", remove=("headers", "footers", "quotes")
-        )
-        test = fetch_20newsgroups(
-            subset="test", remove=("headers", "footers", "quotes")
-        )
+        train = fetch_20newsgroups(subset="train", remove=("headers", "footers", "quotes"))
+        test = fetch_20newsgroups(subset="test", remove=("headers", "footers", "quotes"))
         tfidf = TfidfVectorizer(min_df=5, sublinear_tf=True)
         Xtr = tfidf.fit_transform(train.data)
         Xte = tfidf.transform((test.data))

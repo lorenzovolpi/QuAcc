@@ -6,6 +6,7 @@ from typing import Callable
 from urllib.request import urlretrieve
 
 import pandas as pd
+import quapy as qp
 from quapy.data.base import LabelledCollection
 from sklearn.base import BaseEstimator
 from sklearn.metrics import confusion_matrix
@@ -111,3 +112,21 @@ def true_acc(h: BaseEstimator, acc_fn: Callable, U: LabelledCollection):
     y_true = U.y
     conf_table = confusion_matrix(y_true, y_pred=y_pred, labels=U.classes_)
     return acc_fn(conf_table)
+
+
+def save_dataset_stats(dataset_name, test_prot, L, V):
+    path = os.path.join(qc.env["OUT_DIR"], "dataset_stats", f"{dataset_name}.json")
+    test_prevs = [Ui.prevalence() for Ui in test_prot()]
+    shifts = [qp.error.ae(L.prevalence(), Ui_prev) for Ui_prev in test_prevs]
+    info = {
+        "n_classes": L.n_classes,
+        "n_train": len(L),
+        "n_val": len(V),
+        "train_prev": L.prevalence().tolist(),
+        "val_prev": V.prevalence().tolist(),
+        "test_prevs": [x.tolist() for x in test_prevs],
+        "shifts": [x.tolist() for x in shifts],
+        "sample_size": test_prot.sample_size,
+        "num_samples": test_prot.total(),
+    }
+    save_json_file(path, info)
