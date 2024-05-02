@@ -38,6 +38,9 @@ poetry.toml
 *.log
 log
 
+# requirements
+requirements*.txt
+
 var/
 test*.py
 *.sh
