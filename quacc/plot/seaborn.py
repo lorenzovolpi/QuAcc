@@ -6,6 +6,7 @@ import pandas as pd
 import seaborn as sns
 from matplotlib.axes import Axes
 
+from quacc.plot.utils import get_binned_values
 from quacc.utils.commons import get_plots_path
 
 sns.set_theme(style="whitegrid")
@@ -48,13 +49,7 @@ def plot_shift(
     file_name=None,
 ):
     # binning on shift values
-    # sh_min, sh_max = np.min(df.loc[:, "shifts"]), np.max(df.loc[:, "shifts"])
-    sh_min, sh_max = 0, 1
-    bins = np.linspace(sh_min, sh_max, n_bins + 1)
-    binwidth = (sh_max - sh_min) / n_bins
-    shifts_bin_idx = np.digitize(df.loc[:, "shifts"], bins, right=True)
-    bins[1:] = bins[1:] - binwidth / 2
-    df.loc[:, "shifts_bin"] = bins[shifts_bin_idx]
+    df.loc[:, "shifts_bin"] = get_binned_values(df, "shifts", n_bins)
 
     plot = sns.lineplot(
         data=df,
