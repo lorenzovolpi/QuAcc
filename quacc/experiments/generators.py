@@ -157,26 +157,26 @@ def gen_CAP_cont_table_opt(h, acc_fn, val_prot) -> [str, CAPContingencyTable]:
         "add_negentropy": [True, False],
         "add_maxinfsoft": [True, False],
     }
-    yield "QuAcc(EMQ)1xn2-OPT", GSCAP(QuAcc1xN2(h, acc_fn, EMQ(LogisticRegression())), emq_lr_params, val_prot, acc_fn)
-    yield "QuAcc(EMQ)nxn-OPT", GSCAP(QuAccNxN(h, acc_fn, EMQ(LogisticRegression())), emq_lr_params, val_prot, acc_fn)
-    yield (
-        "QuAcc(EMQ)1xn2-OPT-norefit",
-        GSCAP(QuAcc1xN2(h, acc_fn, EMQ(LogisticRegression())), emq_lr_params, val_prot, acc_fn, refit=False),
-    )
-    yield (
-        "QuAcc(EMQ)nxn-OPT-norefit",
-        GSCAP(QuAccNxN(h, acc_fn, EMQ(LogisticRegression())), emq_lr_params, val_prot, acc_fn, refit=False),
-    )
-    yield (
-        "QuAcc(PACC)1xn2-OPT-norefit",
-        GSCAP(QuAcc1xN2(h, acc_fn, PACC(LogisticRegression())), emq_lr_params, val_prot, acc_fn, refit=False),
-    )
-    yield (
-        "QuAcc(PACC)nxn-OPT-norefit",
-        GSCAP(QuAccNxN(h, acc_fn, PACC(LogisticRegression())), emq_lr_params, val_prot, acc_fn, refit=False),
-    )
-    # return
-    # yield
+    # yield "QuAcc(EMQ)1xn2-OPT", GSCAP(QuAcc1xN2(h, acc_fn, EMQ(LogisticRegression())), emq_lr_params, val_prot, acc_fn)
+    # yield "QuAcc(EMQ)nxn-OPT", GSCAP(QuAccNxN(h, acc_fn, EMQ(LogisticRegression())), emq_lr_params, val_prot, acc_fn)
+    # yield (
+    #     "QuAcc(EMQ)1xn2-OPT-norefit",
+    #     GSCAP(QuAcc1xN2(h, acc_fn, EMQ(LogisticRegression())), emq_lr_params, val_prot, acc_fn, refit=False),
+    # )
+    # yield (
+    #     "QuAcc(EMQ)nxn-OPT-norefit",
+    #     GSCAP(QuAccNxN(h, acc_fn, EMQ(LogisticRegression())), emq_lr_params, val_prot, acc_fn, refit=False),
+    # )
+    # yield (
+    #     "QuAcc(PACC)1xn2-OPT-norefit",
+    #     GSCAP(QuAcc1xN2(h, acc_fn, PACC(LogisticRegression())), emq_lr_params, val_prot, acc_fn, refit=False),
+    # )
+    # yield (
+    #     "QuAcc(PACC)nxn-OPT-norefit",
+    #     GSCAP(QuAccNxN(h, acc_fn, PACC(LogisticRegression())), emq_lr_params, val_prot, acc_fn, refit=False),
+    # )
+    return
+    yield
 
 
 def gen_methods(h, V, with_oracle=False):
