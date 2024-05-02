@@ -6,7 +6,6 @@ import quapy as qp
 from quapy.protocol import UPP
 
 import quacc as qc
-from quacc.dataset import save_dataset_stats
 from quacc.experiments.generators import (
     gen_acc_measure,
     gen_bin_datasets,
@@ -25,7 +24,7 @@ from quacc.experiments.util import (
     get_predictions,
     prevs_from_prot,
 )
-from quacc.utils.commons import true_acc
+from quacc.utils.commons import save_dataset_stats, true_acc
 
 PROBLEM = "binary"
 ORACLE = False
@@ -53,16 +52,17 @@ def experiments():
     log.info("-" * 31 + "  start  " + "-" * 31)
 
     for (dataset_name, (L, V, U)), (cls_name, h) in gen_product(gen_datasets, gen_classifiers):
-        log.info(f"training {cls_name} in {dataset_name}")
+        log.info(f"{cls_name} training on dataset={dataset_name}")
         h.fit(*L.Xy)
 
         # test generation protocol
         test_prot = UPP(U, repeats=NUM_TEST, return_type="labelled_collection", random_state=0)
 
         # compute some stats of the dataset
-        save_dataset_stats(f"dataset_stats/{dataset_name}.json", test_prot, L, V)
+        save_dataset_stats(dataset_name, test_prot, L, V)
 
         # precompute the actual accuracy values
+
         true_accs = {}
         for acc_name, acc_fn in gen_acc_measure():
             true_accs[acc_name] = [true_acc(h, acc_fn, Ui) for Ui in test_prot()]
@@ -71,12 +71,11 @@ def experiments():
         for method_name, method, V in gen_methods(h, V, ORACLE):
             V_prev = get_plain_prev(V.prevalence())
 
-            log.info(f"  {method_name} computing...")
             t_train = None
             for acc_name, acc_fn in gen_acc_measure():
                 report = TestReport(basedir, cls_name, acc_name, dataset_name, L_prev, V_prev, method_name)
                 if os.path.exists(report.get_path()):
-                    log.info(f"    {acc_name} exists, skipping")
+                    log.info(f"{method_name}: {acc_name} exists, skipping")
                     continue
 
                 method, _t_train = fit_or_switch(method, V, acc_fn, t_train is not None)
@@ -88,9 +87,8 @@ def experiments():
 
                 report.save_json(basedir, acc_name)
 
-                log.info(f"    {acc_name} [t_train:{t_train:.3f}s; t_test_ave:{t_test_ave:.3f}s]")
+                log.info(f"{method_name}: {acc_name} done [t_train:{t_train:.3f}s; t_test_ave:{t_test_ave:.3f}s]")
 
-        log.info("-" * 70)
     log.info("-" * 32 + "  end  " + "-" * 32)
 
 
@@ -122,5 +120,11 @@ def plotting():
 # gen_tables(basedir, datasets=[d for d, _ in gen_datasets(only_names=True)])
 
 if __name__ == "__main__":
-    experiments()
-    plotting()
+    from traceback import print_exc
+
+    try:
+        experiments()
+        plotting()
+    except Exception as e:
+        log.error(e)
+        print_exc(e)

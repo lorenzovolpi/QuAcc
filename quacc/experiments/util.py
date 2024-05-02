@@ -1,4 +1,5 @@
 import logging
+import os.path
 from time import time
 
 import numpy as np
@@ -68,13 +69,13 @@ def split_validation(V: LabelledCollection, ratio=0.6):
 
 def get_logger(id="quacc"):
     _name = f"{id}_log"
-    _path = f"{id}.log"
+    _path = os.path.join(qc.env["OUT_DIR"], f"{id}.log")
     logger = logging.getLogger(_name)
     logger.setLevel(logging.DEBUG)
     if len(logger.handlers) == 0:
         fh = logging.FileHandler(_path)
         fh.setLevel(logging.DEBUG)
-        formatter = logging.Formatter(fmt="%(asctime)s| %(levelname)-8s %(message)s", datefmt="%d/%m/%y %H:%M:%S")
+        formatter = logging.Formatter(fmt="%(asctime)s %(levelname)s %(message)s", datefmt="%b %d %H:%M:%S")
         fh.setFormatter(formatter)
         logger.addHandler(fh)
 
