@@ -1,6 +1,7 @@
 FROM python:3.10-bookworm
-RUN python -m pip install poetry
+COPY requirements.txt /source/
+RUN pip install --upgrade pip
+RUN pip install -r /source/requirements.txt
+
 WORKDIR /source
 COPY . .
-RUN rm -rf .venv/
-RUN poetry install
