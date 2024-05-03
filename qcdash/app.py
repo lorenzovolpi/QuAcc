@@ -1,22 +1,19 @@
 import json
 import os
-from collections import defaultdict
 from json import JSONDecodeError
-from operator import index
 from pathlib import Path
-from typing import List
 from urllib.parse import parse_qsl, quote, urlencode, urlparse
 
 import dash_bootstrap_components as dbc
 import numpy as np
 from dash import Dash, Input, Output, State, callback, ctx, dash_table, dcc, html
 
+import quacc as qc
 from quacc.experiments.report import Report
-from quacc.experiments.util import get_acc_name
 from quacc.plot.plotly import plot_diagonal, plot_shift
 
-valid_plot_modes = ["diagonal", "shift"]
-root_folder = "results"
+valid_plot_modes = ["shift", "diagonal"]
+root_folder = os.path.join(qc.env["OUT_DIR"], "results")
 
 
 def get_fig(rep: Report, cls_name, acc_name, dataset_name, methods, mode):
@@ -48,7 +45,7 @@ def get_report(config, classifier, acc, dataset, methods):
     return Report.load_results(config, classifier, acc, dataset, methods)
 
 
-app = Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
+app = Dash(__name__, external_stylesheets=[dbc.themes.JOURNAL])
 # app.config.suppress_callback_exceptions = True
 sidebar_style = {
     "top": 0,
@@ -77,43 +74,42 @@ def parse_href(href: str):
 def get_sidebar():
     return [
         html.H4("Parameters:", style={"margin-bottom": "1vw"}),
-        dbc.Select(
-            id="config",
-        ),
-        dbc.Select(
-            id="classifier",
-        ),
-        dbc.Select(
-            id="acc",
-            # style={"margin-top": "1vh"},
-        ),
-        dbc.Select(
-            id="dataset",
-        ),
-        html.Div(
+        dbc.Row(
             [
-                dbc.RadioItems(
-                    id="mode",
-                    class_name="btn-group mt-3",
-                    input_class_name="btn-check",
-                    label_class_name="btn btn-outline-primary",
-                    label_checked_class_name="active",
-                ),
+                dbc.Label("config", width=3),
+                dbc.Col(dbc.Select(id="config"), width=9),
             ],
-            className="radio-group-v d-flex justify-content-around",
+            className="mb-3",
         ),
-        html.Div(
+        dbc.Row(
             [
-                dbc.Checklist(
-                    id="methods",
-                    className="btn-group mt-3",
-                    inputClassName="btn-check",
-                    labelClassName="btn btn-outline-primary",
-                    labelCheckedClassName="active",
-                ),
+                dbc.Label("classifier", width=3),
+                dbc.Col(dbc.Select(id="classifier"), width=9),
             ],
-            className="radio-group-wide",
+            className="mb-3",
         ),
+        dbc.Row(
+            [
+                dbc.Label("accuracy", width=3),
+                dbc.Col(dbc.Select(id="acc"), width=9),
+            ],
+            className="mb-3",
+        ),
+        dbc.Row(
+            [
+                dbc.Label("dataset", width=3),
+                dbc.Col(dbc.Select(id="dataset"), width=9),
+            ],
+            className="mb-3",
+        ),
+        dbc.Row(
+            [
+                dbc.Label("plot", width=3),
+                dbc.Col(dbc.Select(id="mode"), width=9),
+            ],
+            className="mb-5",
+        ),
+        dbc.Col([dbc.Label("Methods"), dcc.Dropdown(id="methods", multi=True)]),
     ]
 
 
@@ -157,12 +153,21 @@ def apply_param(href, triggered_id, id, curr):
             return curr
 
 
-def get_valid_fields(tree, config=None, classifier=None, acc=None, dataset=None):
-    print([config, classifier, acc, dataset])
-    sel_params = [root_folder] + [p for p in [config, classifier, acc, dataset] if p is not None]
-    idx = os.path.join(*sel_params)
-    print(idx)
-    return tree.get(idx, [])
+def get_valid_fields(tree, req, *args):
+    if req == "config":
+        assert len(args) == 0
+    elif req == "classifier":
+        assert len(args) == 1 and None not in args
+    elif req == "acc":
+        assert len(args) == 2 and None not in args
+    elif req == "dataset":
+        assert len(args) == 3 and None not in args
+    elif req == "methods":
+        assert len(args) == 4 and None not in args
+
+    idx = os.path.join(root_folder, *args)
+    res = tree.get(idx, [])
+    return res
 
 
 @callback(
@@ -174,7 +179,7 @@ def get_valid_fields(tree, config=None, classifier=None, acc=None, dataset=None)
 def update_config(href):
     tree = build_tree()
     req_config = parse_href(href).get("config", None)
-    valid_configs = get_valid_fields(tree)
+    valid_configs = get_valid_fields(tree, "config")
     assert len(valid_configs) > 0, "no valid configs"
     new_config = req_config if req_config in valid_configs else valid_configs[0]
     return new_config, valid_configs, tree
@@ -190,7 +195,7 @@ def update_config(href):
 )
 def update_classifier(href, config, tree, classifier):
     req_classifier = apply_param(href, ctx.triggered_id, "classifier", classifier)
-    valid_classifiers = get_valid_fields(tree, config)
+    valid_classifiers = get_valid_fields(tree, "classifier", config)
     assert len(valid_classifiers) > 0, "no valid classifiers"
     new_classifier = req_classifier if req_classifier in valid_classifiers else valid_classifiers[0]
     return new_classifier, valid_classifiers
@@ -207,7 +212,7 @@ def update_classifier(href, config, tree, classifier):
 )
 def update_acc(href, config, classifier, tree, acc):
     req_acc = apply_param(href, ctx.triggered_id, "acc", acc)
-    valid_accs = get_valid_fields(tree, config, classifier)
+    valid_accs = get_valid_fields(tree, "acc", config, classifier)
     assert len(valid_accs) > 0, "no valid accs"
     new_acc = req_acc if req_acc in valid_accs else valid_accs[0]
     return new_acc, valid_accs
@@ -225,7 +230,7 @@ def update_acc(href, config, classifier, tree, acc):
 )
 def update_dataset(href, config, classifier, acc, tree, dataset):
     req_dataset = apply_param(href, ctx.triggered_id, "dataset", dataset)
-    valid_datasets = get_valid_fields(tree, config, classifier, acc)
+    valid_datasets = get_valid_fields(tree, "dataset", config, classifier, acc)
     assert len(valid_datasets) > 0, "no valid datasets"
     new_dataset = req_dataset if req_dataset in valid_datasets else valid_datasets[0]
     return new_dataset, valid_datasets
@@ -249,9 +254,11 @@ def update_methods(href, config, classifier, acc, dataset, tree, methods):
             req_methods = json.loads(req_methods)
         except JSONDecodeError:
             req_methods = []
-    valid_methods = get_valid_fields(tree, config, classifier, acc, dataset)
-    # print(json.dumps(tree, indent=2))
-    # print(valid_methods)
+    valid_methods = get_valid_fields(tree, "methods", config, classifier, acc, dataset)
+
+    if req_methods is None or len(req_methods) == 0:
+        return [], valid_methods
+
     new_methods = np.unique(np.array(req_methods)[np.in1d(req_methods, valid_methods)]).tolist()
     return new_methods, valid_methods
 
