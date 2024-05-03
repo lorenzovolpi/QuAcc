@@ -7,15 +7,21 @@ import plotly.graph_objects as go
 from quacc.plot.utils import get_binned_values, get_ref_limits
 
 MODE = "lines"
-L_WIDTH = 5
+L_WIDTH = 3
 LEGEND = {
+    "title": "",
+    "orientation": "h",
+    "yanchor": "bottom",
+    "xanchor": "right",
+    "x": 1,
+    "y": 1.02,
     "font": {
-        "family": "DejaVu Sans",
-        "size": 24,
-    }
+        # "family": "DejaVu Sans",
+        "size": 14,
+    },
 }
-FONT = {"size": 24}
-TEMPLATE = "ggplot2"
+FONT = {"size": 14}
+TEMPLATE = "seaborn"
 
 
 def _update_layout(fig, x_label, y_label, **kwargs):
@@ -54,6 +60,18 @@ def _get_colors(num):
 
 def plot_diagonal(df: pd.DataFrame, cls_name, acc_name, dataset_name):
     fig = px.scatter(df, x="true_accs", y="estim_accs", color="method", opacity=0.5)
+
+    lims = get_ref_limits(df["true_accs"].to_numpy(), df["estim_accs"].to_numpy())
+    fig.add_scatter(x=lims[0], y=lims[1], line=dict(color="black", dash="dash"), mode="lines", showlegend=False)
+
+    _update_layout(
+        fig,
+        x_label="True Accuracy",
+        y_label="Estimated Accuracy",
+        yaxis_scaleanchor="x",
+        yaxis_scaleratio=1.0,
+    )
+
     return fig
 
 
@@ -76,4 +94,7 @@ def plot_shift(
         y="acc_err",
         color="method",
     )
+    fig.update_traces(line=dict(width=L_WIDTH))
+
+    _update_layout(fig, "Amount of PPS", "Accuracy Prediction Error")
     return fig
