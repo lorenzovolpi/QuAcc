@@ -11,11 +11,13 @@ from sklearn.datasets import fetch_20newsgroups, fetch_rcv1
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.utils import Bunch
 
-import quacc as qc
+from quacc.environment import env
 from quacc.utils import commons
 from quacc.utils.commons import save_json_file
 
 TRAIN_VAL_PROP = 0.5
+
+RCV1_BINARY_DATASETS = ["CCAT", "GCAT", "MCAT", "ECAT", "C151", "GCRIM", "M131", "E41"]
 
 
 def fetch_cifar10() -> Bunch:
@@ -134,23 +136,24 @@ class DatasetProvider:
 
     @classmethod
     def spambase(cls):
-        train, U = qp.datasets.fetch_UCIDataset("spambase", verbose=False).train_test
+        train, U = qp.datasets.fetch_UCIDataset("spambase", verbose=False, data_home=env["QUAPY_DATA"]).train_test
         T, V = cls._split_train(train)
         return T, V, U
 
     @classmethod
     def imdb(cls):
-        train, U = qp.datasets.fetch_reviews("imdb", tfidf=True, min_df=10, pickle=True).train_test
+        train, U = qp.datasets.fetch_reviews(
+            "imdb", tfidf=True, min_df=10, pickle=True, data_home=env["QUAPY_DATA"]
+        ).train_test
         T, V = cls._split_train(train)
         return T, V, U
 
     @classmethod
     def rcv1(cls, target):
-        training = fetch_rcv1(subset="train")
-        test = fetch_rcv1(subset="test")
+        training = fetch_rcv1(subset="train", data_home=env["SKLEARN_DATA"])
+        test = fetch_rcv1(subset="test", data_home=env["SKLEARN_DATA"])
 
-        available_targets = ["CCAT", "GCAT", "MCAT"]
-        if target is None or target not in available_targets:
+        if target is None or target not in RCV1_BINARY_DATASETS:
             raise ValueError(f"Invalid target {target}")
 
         class_names = training.target_names.tolist()
@@ -202,20 +205,22 @@ class DatasetProvider:
 
     @classmethod
     def twitter(cls, dataset_name):
-        data = qp.datasets.fetch_twitter(dataset_name, min_df=3, pickle=True)
+        data = qp.datasets.fetch_twitter(dataset_name, min_df=3, pickle=True, data_home=env["QUAPY_DATA"])
         T, V = cls._split_train(data.training)
         U = data.test
         return T, V, U
 
     @classmethod
-    def uci_multiclass(cls, dataset_name):
-        dataset = fetch_UCIMulticlassLabelledCollection(dataset_name)
+    def uci_multiclass(cls, dataset_name, data_home=env["QUAPY_DATA"]):
+        dataset = fetch_UCIMulticlassLabelledCollection(dataset_name, data_home=env["QUAPY_DATA"])
         return cls._split_whole(dataset)
 
     @classmethod
     def news20(cls):
-        train = fetch_20newsgroups(subset="train", remove=("headers", "footers", "quotes"))
-        test = fetch_20newsgroups(subset="test", remove=("headers", "footers", "quotes"))
+        train = fetch_20newsgroups(
+            subset="train", remove=("headers", "footers", "quotes"), data_home=env["SKLEARN_DATA"]
+        )
+        test = fetch_20newsgroups(subset="test", remove=("headers", "footers", "quotes"), data_home=env["SKLEARN_DATA"])
         tfidf = TfidfVectorizer(min_df=5, sublinear_tf=True)
         Xtr = tfidf.fit_transform(train.data)
         Xte = tfidf.transform((test.data))
@@ -226,5 +231,5 @@ class DatasetProvider:
 
     @classmethod
     def t1b_lequa2022(cls):
-        dataset, _, _ = fetch_lequa2022(task="T1B")
+        dataset, _, _ = fetch_lequa2022(task="T1B", data_home=env["QUAPY_DATA"])
         return cls._split_whole(dataset)
