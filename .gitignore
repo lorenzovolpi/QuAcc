@@ -45,6 +45,10 @@ requirements*.txt
 # dataset
 rcv1_class_info.json
 
+# links
+deploy
+dlog
+
 var/
 test*.py
 *.sh
