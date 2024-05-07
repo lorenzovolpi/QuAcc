@@ -26,7 +26,7 @@ from quacc.experiments.util import (
 )
 from quacc.utils.commons import save_dataset_stats, true_acc
 
-PROBLEM = "binary"
+PROBLEM = "multiclass"
 ORACLE = False
 basedir = PROBLEM + ("-oracle" if ORACLE else "")
 
@@ -64,7 +64,7 @@ def experiments():
         # precompute the actual accuracy values
 
         true_accs = {}
-        for acc_name, acc_fn in gen_acc_measure():
+        for acc_name, acc_fn in gen_acc_measure(multiclass=True):
             true_accs[acc_name] = [true_acc(h, acc_fn, Ui) for Ui in test_prot()]
 
         L_prev = get_plain_prev(L.prevalence())
@@ -72,7 +72,7 @@ def experiments():
             V_prev = get_plain_prev(V.prevalence())
 
             t_train = None
-            for acc_name, acc_fn in gen_acc_measure():
+            for acc_name, acc_fn in gen_acc_measure(multiclass=True):
                 report = TestReport(basedir, cls_name, acc_name, dataset_name, L_prev, V_prev, method_name)
                 if os.path.exists(report.get_path()):
                     log.info(f"{method_name}: {acc_name} exists, skipping")
