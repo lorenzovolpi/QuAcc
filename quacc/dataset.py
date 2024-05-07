@@ -14,10 +14,18 @@ from sklearn.utils import Bunch
 from quacc.environment import env
 from quacc.utils import commons
 from quacc.utils.commons import save_json_file
+from quacc.utils.dataset import get_rcv1_class_info
 
 TRAIN_VAL_PROP = 0.5
 
+# fmt: off
 RCV1_BINARY_DATASETS = ["CCAT", "GCAT", "MCAT", "ECAT", "C151", "GCRIM", "M131", "E41"]
+RCV1_MULTICLASS_DATASETS = [
+    "C18", "C31", "E51", "M14",  # 3 classes
+    "C17", "C2", "C3", "E1", "M1", "Root",  # 4 classes
+    "C1",  # 8 classes
+]
+# fmt: on
 
 
 def fetch_cifar10() -> Bunch:
@@ -99,30 +107,6 @@ def fetch_cifar100():
     )
 
 
-class DatasetSample:
-    def __init__(
-        self,
-        train: LabelledCollection,
-        validation: LabelledCollection,
-        test: LabelledCollection,
-    ):
-        self.train = train
-        self.validation = validation
-        self.test = test
-
-    @property
-    def train_prev(self):
-        return self.train.prevalence()
-
-    @property
-    def validation_prev(self):
-        return self.validation.prevalence()
-
-    @property
-    def prevs(self):
-        return {"train": self.train_prev, "validation": self.validation_prev}
-
-
 class DatasetProvider:
     @classmethod
     def _split_train(cls, train: LabelledCollection):
@@ -149,12 +133,11 @@ class DatasetProvider:
         return T, V, U
 
     @classmethod
-    def rcv1(cls, target):
+    def rcv1_binary(cls, target):
         training = fetch_rcv1(subset="train", data_home=env["SKLEARN_DATA"])
         test = fetch_rcv1(subset="test", data_home=env["SKLEARN_DATA"])
 
-        if target is None or target not in RCV1_BINARY_DATASETS:
-            raise ValueError(f"Invalid target {target}")
+        assert target in RCV1_BINARY_DATASETS, f"invalid class {target}"
 
         class_names = training.target_names.tolist()
         class_idx = class_names.index(target)
@@ -162,6 +145,32 @@ class DatasetProvider:
         te_labels = test.target[:, class_idx].toarray().flatten()
         tr = LabelledCollection(training.data, tr_labels)
         U = LabelledCollection(test.data, te_labels)
+        T, V = cls._split_train(tr)
+        return T, V, U
+
+    @classmethod
+    def rcv1_multiclass(cls, target):
+        def parse_labels(labels):
+            valid_idx = np.nonzero(np.sum(labels, axis=-1) <= 1)[0]
+            labels = labels[valid_idx, :]
+            ones_idx, nonzero_vals = np.where(labels == np.ones((len(valid_idx), 1)))
+            labels = np.sum(labels, axis=-1)
+            labels[ones_idx] = nonzero_vals
+            return valid_idx, labels
+
+        _, _, index = get_rcv1_class_info()
+
+        assert target in RCV1_MULTICLASS_DATASETS, f"invalid class {target}"
+
+        class_idx = index[target]
+        training = fetch_rcv1(subset="train", data_home=env["SKLEARN_DATA"])
+        test = fetch_rcv1(subset="test", data_home=env["SKLEARN_DATA"])
+        tr_labels = training.target[:, class_idx].toarray()
+        te_labels = test.target[:, class_idx].toarray()
+        tr_valid_idx, tr_labels = parse_labels(tr_labels)
+        te_valid_idx, te_labels = parse_labels(te_labels)
+        tr = LabelledCollection(training.data[tr_valid_idx, :], tr_labels)
+        U = LabelledCollection(test.data[te_valid_idx, :], te_labels)
         T, V = cls._split_train(tr)
         return T, V, U
 
