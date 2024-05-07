@@ -120,11 +120,11 @@ def plotting():
 # gen_tables(basedir, datasets=[d for d, _ in gen_datasets(only_names=True)])
 
 if __name__ == "__main__":
-    from traceback import print_exc
+    from traceback import print_exception
 
     try:
         experiments()
         plotting()
     except Exception as e:
         log.error(e)
-        print_exc(e)
+        print_exception(e)
