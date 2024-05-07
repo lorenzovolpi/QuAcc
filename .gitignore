@@ -27,8 +27,6 @@ results/*
 plots/*
 dataset_stats/*
 
-# docker
-docker/
 
 # pyenv
 .python-version
@@ -44,7 +42,10 @@ log
 # requirements
 requirements*.txt
 
+# dataset
+rcv1_class_info.json
+
 var/
-playground/
 test*.py
 *.sh
+!docker/*.sh
