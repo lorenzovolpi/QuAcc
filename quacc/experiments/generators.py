@@ -10,14 +10,14 @@ from quapy.data.datasets import (
 )
 from quapy.method._kdey import KDEyML
 from quapy.method.aggregative import ACC, EMQ, PACC
-from quapy.protocol import UPP, AbstractProtocol
-from sklearn.base import BaseEstimator
+from quapy.protocol import UPP
 from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import GridSearchCV
 
+from quacc.dataset import RCV1_BINARY_DATASETS
 from quacc.dataset import DatasetProvider as DP
 from quacc.error import f1, vanilla_acc
-from quacc.experiments.util import method_can_switch, split_validation
-from quacc.models.base import ClassifierAccuracyPrediction
+from quacc.experiments.util import split_validation
 from quacc.models.cont_table import (
     CAPContingencyTable,
     ContTableTransferCAP,
@@ -35,7 +35,7 @@ def gen_classifiers():
     param_grid = {"C": np.logspace(-4, -4, 9), "class_weight": ["balanced", None]}
 
     yield "LR", LogisticRegression()
-    # yield 'LR-opt', GridSearchCV(LogisticRegression(), param_grid, cv=5, n_jobs=-1)
+    yield "LR-opt", GridSearchCV(LogisticRegression(), param_grid, cv=5, n_jobs=-1)
     # yield 'NB', GaussianNB()
     # yield 'SVM(rbf)', SVC()
     # yield 'SVM(linear)', LinearSVC()
@@ -76,18 +76,10 @@ def gen_tweet_datasets(
 def gen_bin_datasets(
     only_names=False,
 ) -> [str, [LabelledCollection, LabelledCollection, LabelledCollection]]:
-    _IMDB = [
-        "imdb",
-    ]
-    _RCV1 = [
-        "CCAT",
-        "GCAT",
-        "MCAT",
-    ]
-    for dn in _IMDB:
-        dval = None if only_names else DP.imdb()
-        yield dn, dval
-    for dn in _RCV1:
+    # imdb
+    yield "imdb", None if only_names else DP.imdb()
+    # rcv1
+    for dn in RCV1_BINARY_DATASETS:
         dval = None if only_names else DP.rcv1(dn)
         yield dn, dval
 
@@ -157,6 +149,7 @@ def gen_CAP_cont_table_opt(h, acc_fn, val_prot) -> [str, CAPContingencyTable]:
         "add_negentropy": [True, False],
         "add_maxinfsoft": [True, False],
     }
+    pacc_lr_params = {k: v for k, v in emq_lr_params.items() if k not in ["q_class__recalib"]}
     yield "QuAcc(EMQ)1xn2-OPT", GSCAP(QuAcc1xN2(h, acc_fn, EMQ(LogisticRegression())), emq_lr_params, val_prot, acc_fn)
     yield "QuAcc(EMQ)nxn-OPT", GSCAP(QuAccNxN(h, acc_fn, EMQ(LogisticRegression())), emq_lr_params, val_prot, acc_fn)
     yield (
@@ -169,11 +162,11 @@ def gen_CAP_cont_table_opt(h, acc_fn, val_prot) -> [str, CAPContingencyTable]:
     )
     yield (
         "QuAcc(PACC)1xn2-OPT-norefit",
-        GSCAP(QuAcc1xN2(h, acc_fn, PACC(LogisticRegression())), emq_lr_params, val_prot, acc_fn, refit=False),
+        GSCAP(QuAcc1xN2(h, acc_fn, PACC(LogisticRegression())), pacc_lr_params, val_prot, acc_fn, refit=False),
     )
     yield (
         "QuAcc(PACC)nxn-OPT-norefit",
-        GSCAP(QuAccNxN(h, acc_fn, PACC(LogisticRegression())), emq_lr_params, val_prot, acc_fn, refit=False),
+        GSCAP(QuAccNxN(h, acc_fn, PACC(LogisticRegression())), pacc_lr_params, val_prot, acc_fn, refit=False),
     )
     # return
     # yield
