@@ -498,7 +498,7 @@ class QuAccNxN(CAPContingencyTableQ, QuAcc):
         cont_table = []
         for class_i, q_i, p_i in zip(classes, self.q, pred_prev):
             X_dot_i = X_dot[pred_labels == class_i]
-            classcond_cond_table_prevs = q_i.quantify(X_dot_i)
+            classcond_cond_table_prevs = np.zeros(len(classes)) if p_i == 0 else q_i.quantify(X_dot_i)
             cond_table_prevs = p_i * classcond_cond_table_prevs
             cont_table.append(cond_table_prevs)
         cont_table = np.vstack(cont_table)
