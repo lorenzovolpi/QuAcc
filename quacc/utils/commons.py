@@ -43,7 +43,7 @@ def fmt_line_md(s):
 
 
 def get_quacc_home():
-    home = Path("~/quacc_home").expanduser()
+    home = qc.env["QUACC_DATA"]
     os.makedirs(home, exist_ok=True)
     return home
 
