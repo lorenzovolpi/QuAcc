@@ -1,6 +1,7 @@
 import itertools
 import os
 from time import time
+from traceback import print_exception
 
 import quapy as qp
 from quapy.protocol import UPP
@@ -78,12 +79,17 @@ def experiments():
                     log.info(f"{method_name}: {acc_name} exists, skipping")
                     continue
 
-                method, _t_train = fit_or_switch(method, V, acc_fn, t_train is not None)
-                t_train = t_train if _t_train is None else _t_train
+                try:
+                    method, _t_train = fit_or_switch(method, V, acc_fn, t_train is not None)
+                    t_train = t_train if _t_train is None else _t_train
 
-                test_prevs = prevs_from_prot(test_prot)
-                estim_accs, t_test_ave = get_predictions(method, test_prot, ORACLE)
-                report.add_result(test_prevs, true_accs[acc_name], estim_accs, t_train, t_test_ave)
+                    test_prevs = prevs_from_prot(test_prot)
+                    estim_accs, t_test_ave = get_predictions(method, test_prot, ORACLE)
+                    report.add_result(test_prevs, true_accs[acc_name], estim_accs, t_train, t_test_ave)
+                except Exception as e:
+                    print_exception(e)
+                    log.warning(f"{method_name}: {acc_name} gave error '{e}' - skipping")
+                    continue
 
                 report.save_json(basedir, acc_name)
 
@@ -120,8 +126,6 @@ def plotting():
 # gen_tables(basedir, datasets=[d for d, _ in gen_datasets(only_names=True)])
 
 if __name__ == "__main__":
-    from traceback import print_exception
-
     try:
         experiments()
         plotting()
