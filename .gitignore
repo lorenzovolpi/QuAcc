@@ -27,6 +27,9 @@ results/*
 plots/*
 dataset_stats/*
 
+# docker
+docker/
+
 # pyenv
 .python-version
 
@@ -42,5 +45,6 @@ log
 requirements*.txt
 
 var/
+playground/
 test*.py
 *.sh
