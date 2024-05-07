@@ -36,11 +36,15 @@ def f1(param1, param2=None, average="binary"):
         if len(np.unique(np.hstack([param1, param2]))) > 2 and average == "binary":
             _warning = True
             average = "macro"
-        _f1_score = f1_score(param1, param2, average=average)
+        _f1_score = f1_score(param1, param2, average=average, zero_division=1.0)
 
     if _warning:
         print("Warning: 'binary' average is not available for multiclass F1. Defaulting to 'macro' F1.")
     return _f1_score
+
+
+def f1_macro(param1, param2=None):
+    return f1(param1, param2, average="macro")
 
 
 def _vanilla_acc_from_ct(cont_table):
