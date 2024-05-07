@@ -14,9 +14,9 @@ from quapy.protocol import UPP
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import GridSearchCV
 
-from quacc.dataset import RCV1_BINARY_DATASETS
+from quacc.dataset import RCV1_BINARY_DATASETS, RCV1_MULTICLASS_DATASETS
 from quacc.dataset import DatasetProvider as DP
-from quacc.error import f1, vanilla_acc
+from quacc.error import f1, f1_macro, vanilla_acc
 from quacc.experiments.util import split_validation
 from quacc.models.cont_table import (
     CAPContingencyTable,
@@ -44,23 +44,19 @@ def gen_classifiers():
 def gen_multi_datasets(
     only_names=False,
 ) -> [str, [LabelledCollection, LabelledCollection, LabelledCollection]]:
-    for dataset_name in np.setdiff1d(UCI_MULTICLASS_DATASETS, ["wine-quality"]):
-        if only_names:
-            yield dataset_name, None
-        else:
-            yield dataset_name, DP.uci_multiclass(dataset_name)
+    # yields the UCI multiclass datasets
+    # for dataset_name in [d for d in UCI_MULTICLASS_DATASETS if d not in ["wine-quality"]]:
+    #     yield dataset_name, None if only_names else DP.uci_multiclass(dataset_name)
 
     # yields the 20 newsgroups dataset
-    if only_names:
-        yield "20news", None
-    else:
-        yield "20news", DP.news20()
+    # yield "20news", None if only_names else DP.news20()
 
     # yields the T1B@LeQua2022 (training) dataset
-    if only_names:
-        yield "T1B-LeQua2022", None
-    else:
-        yield "T1B-LeQua2022", DP.t1b_lequa2022()
+    # yield "T1B-LeQua2022", None if only_names else DP.t1b_lequa2022()
+
+    # yields the RCV1 multiclass datasets
+    for dataset_name in RCV1_MULTICLASS_DATASETS:
+        yield dataset_name, None if only_names else DP.rcv1_multiclass(dataset_name)
 
 
 def gen_tweet_datasets(
@@ -80,7 +76,7 @@ def gen_bin_datasets(
     yield "imdb", None if only_names else DP.imdb()
     # rcv1
     for dn in RCV1_BINARY_DATASETS:
-        dval = None if only_names else DP.rcv1(dn)
+        dval = None if only_names else DP.rcv1_binary(dn)
         yield dn, dval
 
 
@@ -196,9 +192,9 @@ def get_method_names():
     )
 
 
-def gen_acc_measure():
+def gen_acc_measure(multiclass=False):
     yield "vanilla_accuracy", vanilla_acc
-    yield "macro-F1", f1
+    yield "macro-F1", f1_macro if multiclass else f1
 
 
 def any_missing(basedir, cls_name, dataset_name, method_name):
