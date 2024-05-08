@@ -1,3 +1,4 @@
+import pdb
 from abc import abstractmethod
 from copy import copy, deepcopy
 from types import MethodType
@@ -374,6 +375,7 @@ class QuAcc1xN2(CAPContingencyTableQ, QuAcc):
 
     def predict_ct(self, X, oracle_prev=None):
         X_dot = self._get_X_dot(X)
+        pdb.set_trace()
         flat_ct = self.q.quantify(X_dot)
         return flat_ct.reshape(self.ncl, self.ncl)
 
@@ -533,7 +535,7 @@ def make_empty_safe(q: AggregativeQuantifier):
         self.n_classes = data.n_classes
         class_compact_data, _ = data.compact_classes()
         if num_non_empty_classes(self.old_class_idx) > 1:
-            _q_aggregation_fit(self, classif_predictions, data)
+            _q_aggregation_fit(self, classif_predictions, class_compact_data)
 
     def quantify(self, instances):
         num_instances = instances.shape[0]
