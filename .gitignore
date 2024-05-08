@@ -48,6 +48,7 @@ rcv1_class_info.json
 # links
 deploy
 dlog
+syncres
 
 var/
 test*.py
