@@ -26,6 +26,6 @@ DEST="$HOST:$WORKDIR"
 
 rsync -ai quacc playground $DEST
 poetry export --without-hashes --with=dev,dash --format=requirements.txt 2>/dev/null 1>requirements.txt
-rsync -i docker/Dockerfile requirements.txt docker/drun.sh docker/dbuild.sh docker/docker.env $DEST
+rsync -i docker/Dockerfile requirements.txt docker/drun.sh docker/ddebug.sh docker/dbuild.sh docker/docker.env docker/.dockerignore $DEST
 ssh $HOST "cd $WORKDIR; ./dbuild.sh $IMAGE_NAME"
 

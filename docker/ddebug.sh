@@ -43,10 +43,9 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-# RUN_CMD="python -m $MODULE"
-RUN_CMD="python -um $MODULE &> $QUACC_OUT_DIR/$OUTPUT_FILE"
+RUN_CMD="python -um $MODULE"
 
-docker run -d \
+docker run \
 -it \
 --rm \
 --user $(id -u):$(id -g) \

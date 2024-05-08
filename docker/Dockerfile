@@ -5,5 +5,4 @@ RUN pip install -r /source/requirements.txt
 
 ENV MPLCONFIGDIR="/data/quacc_data/.config/matplotlib"
 WORKDIR /source
-COPY quacc ./quacc/
-COPY playground ./playground/
+COPY . .
