@@ -4,10 +4,9 @@
 export $(cat docker.env | xargs)
 
 IMAGE_NAME="lorenzovolpi/quacc_main"
-CONTAINER_NAME="quacc_run"
+CONTAINER_NAME="pg_rcv1"
 CPUS=32
-MODULE="quacc.experiments.run"
-OUTPUT_FILE="quacc.out"
+MODULE="playground.rcv1_multiclass_test"
 
 while [[ $# -gt 0 ]]; do
     case $1 in
