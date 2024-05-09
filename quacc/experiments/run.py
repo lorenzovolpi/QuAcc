@@ -128,7 +128,7 @@ def plotting():
 if __name__ == "__main__":
     try:
         experiments()
-        plotting()
+        # plotting()
     except Exception as e:
         log.error(e)
         print_exception(e)
