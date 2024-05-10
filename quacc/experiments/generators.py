@@ -146,17 +146,11 @@ def gen_CAP_cont_table_opt(h, acc_fn, val_prot) -> [str, CAPContingencyTable]:
         "add_maxinfsoft": [True, False],
     }
     emq_lr_params = pacc_lr_params | {"q_class__recalib": [None, "bcts"]}
-    kde_lr_params = pacc_lr_params | {"q_class__bandwith": np.linspace(0.01, 0.2, 20)}
-    yield "QuAcc(EMQ)1xn2-OPT", GSCAP(QuAcc1xN2(h, acc_fn, EMQ(LogisticRegression())), emq_lr_params, val_prot, acc_fn)
-    yield "QuAcc(EMQ)nxn-OPT", GSCAP(QuAccNxN(h, acc_fn, EMQ(LogisticRegression())), emq_lr_params, val_prot, acc_fn)
+    kde_lr_params = pacc_lr_params | {"q_class__bandwidth": np.linspace(0.01, 0.2, 5)}
     yield "QuAcc(EMQ)1xn2-OPT-norefit", GSCAP(QuAcc1xN2(h, acc_fn, EMQ(LogisticRegression())), emq_lr_params, val_prot, acc_fn, refit=False)
     yield "QuAcc(EMQ)nxn-OPT-norefit", GSCAP(QuAccNxN(h, acc_fn, EMQ(LogisticRegression())), emq_lr_params, val_prot, acc_fn, refit=False)
-    yield "QuAcc(PACC)1xn2-OPT", GSCAP(QuAcc1xN2(h, acc_fn, PACC(LogisticRegression())), pacc_lr_params, val_prot, acc_fn)
-    yield "QuAcc(PACC)nxn-OPT", GSCAP(QuAccNxN(h, acc_fn, PACC(LogisticRegression())), pacc_lr_params, val_prot, acc_fn)
     yield "QuAcc(PACC)1xn2-OPT-norefit", GSCAP(QuAcc1xN2(h, acc_fn, PACC(LogisticRegression())), pacc_lr_params, val_prot, acc_fn, refit=False)
     yield "QuAcc(PACC)nxn-OPT-norefit", GSCAP(QuAccNxN(h, acc_fn, PACC(LogisticRegression())), pacc_lr_params, val_prot, acc_fn, refit=False)
-    yield "QuAcc(KDEy)1xn2-OPT", GSCAP(QuAcc1xN2(h, acc_fn, KDEyML(LogisticRegression())), kde_lr_params, val_prot, acc_fn)
-    yield "QuAcc(KDEy)nxn-OPT", GSCAP(QuAccNxN(h, acc_fn, KDEyML(LogisticRegression())), kde_lr_params, val_prot, acc_fn)
     yield "QuAcc(KDEy)1xn2-OPT-norefit", GSCAP(QuAcc1xN2(h, acc_fn, KDEyML(LogisticRegression())), kde_lr_params, val_prot, acc_fn, refit=False)
     yield "QuAcc(KDEy)nxn-OPT-norefit", GSCAP(QuAccNxN(h, acc_fn, KDEyML(LogisticRegression())), kde_lr_params, val_prot, acc_fn, refit=False)
     # return
