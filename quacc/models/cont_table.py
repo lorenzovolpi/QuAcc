@@ -56,7 +56,11 @@ class LabelledCollection(LC):
         non_empty = self.non_empty_classes()
         all_classes = self.classes_
         old_pos = np.searchsorted(all_classes, non_empty)
-        non_empty_collection = LabelledCollection(*self.Xy, classes=non_empty)
+        compact_classes = np.arange(len(old_pos))
+        compact_y = np.array(self.y, copy=True)
+        for necls, ccls in zip(non_empty, compact_classes):
+            compact_y[self.y == necls] = ccls
+        non_empty_collection = LabelledCollection(self.X, compact_y, classes=compact_classes)
         return non_empty_collection, old_pos
 
 
@@ -345,6 +349,7 @@ class QuAcc(CAPContingencyTableQ):
         self.q_n_classes = data.n_classes
         class_compact_data, _ = data.compact_classes()
         if self._q_num_non_empty_classes() > 1:
+            # pdb.set_trace()
             self.q.aggregation_fit(classif_predictions, class_compact_data)
 
     def _safe_q_quantify(self, instances):
