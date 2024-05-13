@@ -32,7 +32,7 @@ emq_lr_params = pacc_lr_params | {"q_class__recalib": [None, "bcts"]}
 kde_lr_params = pacc_lr_params | {"q_class__bandwidth": np.linspace(0.01, 0.2, 20)}
 
 if __name__ == "__main__":
-    dataset_name = "C18"
+    dataset_name = "C1"
     L, V, U = DP.rcv1_multiclass(dataset_name)
     V, val_prot = split_validation(V)
     h = LogisticRegression()
@@ -43,26 +43,22 @@ if __name__ == "__main__":
     results = []
     for acc_name, acc_fn in accs:
         quants = [
-            ("EMQ", EMQ(LogisticRegression()), emq_lr_params),
+            ("EMQ", EMQ(LogisticRegression(), val_split=5), emq_lr_params),
             ("PACC", PACC(LogisticRegression()), pacc_lr_params),
             ("KDEy", KDEyML(LogisticRegression()), kde_lr_params),
         ]
-        for q_name, q, params in quants[2:]:
+        for q_name, q, params in quants[1:2]:
             methods = [
                 (
                     f"QuAcc({q_name})1xn2-OPT-norefit",
-                    GSCAP(QuAcc1xN2(h, acc_fn, q), params, val_prot, acc_fn, raise_errors=True, refit=False),
+                    GSCAP(QuAcc1xN2(h, acc_fn, q), params, val_prot, acc_fn, refit=False, raise_errors=True),
                 ),
                 (
                     f"QuAcc({q_name})nxn-OPT-norefit",
-                    GSCAP(QuAccNxN(h, acc_fn, q), params, val_prot, acc_fn, raise_errors=True, refit=False),
-                ),
-                (
-                    "QuAcc(KDEy)1xn2-OPT",
-                    GSCAP(QuAcc1xN2(h, acc_fn, q), params, val_prot, acc_fn, raise_errors=True),
+                    GSCAP(QuAccNxN(h, acc_fn, q), params, val_prot, acc_fn, refit=False, raise_errors=True),
                 ),
             ]
-            for method_name, method in methods[2:]:
+            for method_name, method in methods[1:]:
                 t_init = time()
                 method.fit(V)
                 true_accs = [true_acc(h, acc_fn, Ui) for Ui in test_prot()]
