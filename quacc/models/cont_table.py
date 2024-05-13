@@ -12,6 +12,7 @@ from quapy.method.aggregative import AggregativeQuantifier
 from scipy.sparse import csr_matrix, issparse
 from sklearn.base import BaseEstimator
 from sklearn.metrics import confusion_matrix
+from sklearn.model_selection import StratifiedKFold, cross_val_predict
 
 from quacc.models.base import ClassifierAccuracyPrediction
 from quacc.models.utils import get_posteriors_from_h, max_conf, neg_entropy
@@ -335,30 +336,30 @@ class QuAcc(CAPContingencyTableQ):
 
         return X_dot
 
-    def _q_num_non_empty_classes(self):
+    def _num_non_empty_classes(self):
         return len(self.q_old_class_idx)
 
     def quant_classifier_fit_predict(self, data: LabelledCollection):
         self.q_n_classes = data.n_classes
         class_compact_data, self.q_old_class_idx = data.compact_classes()
-        if self._q_num_non_empty_classes() > 1:
+        if self._num_non_empty_classes() > 1:
             return self.q.classifier_fit_predict(class_compact_data)
         return None
 
     def quant_aggregation_fit(self, classif_predictions: LabelledCollection, data: LabelledCollection):
         self.q_n_classes = data.n_classes
         class_compact_data, _ = data.compact_classes()
-        if self._q_num_non_empty_classes() > 1:
+        if self._num_non_empty_classes() > 1:
             # pdb.set_trace()
             self.q.aggregation_fit(classif_predictions, class_compact_data)
 
-    def _safe_q_quantify(self, instances):
+    def _safe_quantify(self, instances):
         num_instances = instances.shape[0]
-        if self._q_num_non_empty_classes() == 0 or num_instances == 0:
+        if self._num_non_empty_classes() == 0 or num_instances == 0:
             # returns the uniform prevalence vector
             uniform = np.full(fill_value=1.0 / self.q_n_classes, shape=self.q_n_classes, dtype=float)
             return uniform
-        elif self._q_num_non_empty_classes() == 1:
+        elif self._num_non_empty_classes() == 1:
             # returns a prevalence vector with 100% of the mass in the only non empty class
             prev_vector = np.full(fill_value=0.0, shape=self.q_n_classes, dtype=float)
             prev_vector[self.q_old_class_idx[0]] = 1
@@ -410,7 +411,7 @@ class QuAcc1xN2(QuAcc):
 
     def predict_ct(self, X, oracle_prev=None):
         X_dot = self._get_X_dot(X)
-        flat_ct = self._safe_q_quantify(X_dot)
+        flat_ct = self._safe_quantify(X_dot)
         return flat_ct.reshape(self.ncl, self.ncl)
 
 
@@ -506,38 +507,67 @@ class QuAccNxN(QuAcc):
         return datas
 
     def prepare_quantifier(self):
-        self.q = []
+        self.q: list[AggregativeQuantifier] = []
         for class_i in self.h.classes_:
             q_i = deepcopy(self.q_class)
             self.q.append(q_i)
 
-    def _q_num_non_empty_classes(self):
+    def _num_non_empty_classes(self):
         return [len(old_class_idx_i) for old_class_idx_i in self.q_old_class_idx]
 
-    def quant_classifier_fit_predict(self, data: LabelledCollection):
+    def _safe_q_classifier_fit_predict(self, compact_data: LabelledCollection):
         classif_predictions = []
+        for q_i, data_i, num_nec_i in zip(self.q, compact_data, self._num_non_empty_classes()):
+            if num_nec_i <= 1:
+                classif_predictions.append(None)
+                continue
+
+            predict_on = q_i.val_split
+            if isinstance(predict_on, int):
+                if predict_on <= 1:
+                    raise ValueError(
+                        f"invalid value {predict_on} in fit. " f"Specify a integer >1 for kFCV estimation."
+                    )
+
+                skf = StratifiedKFold(n_splits=predict_on)
+                _too_few_classes = False
+                for train_idx, _ in skf.split(*data_i.Xy):
+                    _too_few_classes = _too_few_classes or len(np.unique(data_i.y[train_idx])) <= 1
+
+                if _too_few_classes:
+                    q_i.classifier.fit(*data_i.Xy)
+                    preds = q_i.classify(data_i.X)
+                    preds = LabelledCollection(preds, data_i.y, classes=data_i.classes_)
+                else:
+                    preds = cross_val_predict(q_i.classifier, *data_i.Xy, cv=skf, method=q_i._classifier_method())
+                    preds = LabelledCollection(preds, data_i.y, classes=data_i.classes_)
+                    q_i.classifier.fit(*data_i.Xy)
+            else:
+                preds = q_i.classifier_fit_predict(data_i)
+
+            classif_predictions.append(preds)
+
+        return classif_predictions
+
+    def quant_classifier_fit_predict(self, data: list[LabelledCollection]):
         self.q_n_classes = [data_i.n_classes for data_i in data]
         compact_data, self.q_old_class_idx = tuple(map(list, zip(*[data_i.compact_classes() for data_i in data])))
-        for q_i, num_nec_i, compact_data_i in zip(self.q, self._q_num_non_empty_classes(), compact_data):
-            preds = None
-            if num_nec_i > 1:
-                preds = q_i.classifier_fit_predict(compact_data_i)
-            classif_predictions.append(preds)
+        classif_predictions = self._safe_q_classifier_fit_predict(compact_data)
 
         return classif_predictions
 
     def quant_aggregation_fit(self, classif_predictions: LabelledCollection, data: LabelledCollection):
         compact_data, _ = tuple(map(list, zip(*[data_i.compact_classes() for data_i in data])))
         for q_i, cp_i, compact_data_i, num_nec_i in zip(
-            self.q, classif_predictions, compact_data, self._q_num_non_empty_classes()
+            self.q, classif_predictions, compact_data, self._num_non_empty_classes()
         ):
             if num_nec_i > 1:
                 q_i.aggregation_fit(cp_i, compact_data_i)
 
-    def _safe_q_quantify(self, instances_list):
+    def _safe_quantify(self, instances_list):
         prev_vectors = []
         for X, q_i, num_nec_i, n_classes_i, qoci_i in zip(
-            instances_list, self.q, self._q_num_non_empty_classes(), self.q_n_classes, self.q_old_class_idx
+            instances_list, self.q, self._num_non_empty_classes(), self.q_n_classes, self.q_old_class_idx
         ):
             num_instances = X.shape[0]
             if num_nec_i == 0 or num_instances == 0:
@@ -561,7 +591,7 @@ class QuAccNxN(QuAcc):
         X_dot = self._get_X_dot(X)
         pred_prev = F.prevalence_from_labels(pred_labels, classes)
         X_dot_list = [X_dot[pred_labels == class_i] for class_i in classes]
-        classcond_cond_table_prevs = self._safe_q_quantify(X_dot_list)
+        classcond_cond_table_prevs = self._safe_quantify(X_dot_list)
         cont_table = [p_i * cctp_i for p_i, cctp_i in zip(pred_prev, classcond_cond_table_prevs)]
         cont_table = np.vstack(cont_table)
         return cont_table
