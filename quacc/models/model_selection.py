@@ -1,4 +1,7 @@
 import itertools
+import os
+import pdb
+from contextlib import redirect_stdout
 from copy import deepcopy
 from enum import Enum
 from time import time
@@ -98,7 +101,8 @@ class GridSearchCAP(CAPContingencyTable):
             )
 
     def _evaluate(self, model: CAPContingencyTableQ):
-        estim_tables = [model.predict_ct(sample.X) for sample in self.protocol()]
+        with redirect_stdout(os.devnull):
+            estim_tables = [model.predict_ct(sample.X) for sample in self.protocol()]
         estim_accs = np.array([self.acc_fn(cont_table) for cont_table in estim_tables]).reshape(-1, 1)
 
         return self.error(self.prot_true_accs, estim_accs)
@@ -113,7 +117,8 @@ class GridSearchCAP(CAPContingencyTable):
             predictions = model.quant_classifier_fit_predict(data)
             return predictions, data
 
-        (predictions, data), status, took = self._error_handler(job, cls_params)
+        output, status, took = self._error_handler(job, cls_params)
+        predictions, data = (None, None) if output is None else output
         self._sout(f"[classifier fit] hyperparams={cls_params} [took {took:.3f}s]")
         return model, predictions, data, status, took
 
