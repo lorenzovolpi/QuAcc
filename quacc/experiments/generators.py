@@ -147,12 +147,20 @@ def gen_CAP_cont_table_opt(h, acc_fn, val_prot) -> [str, CAPContingencyTable]:
     }
     emq_lr_params = pacc_lr_params | {"q_class__recalib": [None, "bcts"]}
     kde_lr_params = pacc_lr_params | {"q_class__bandwidth": np.linspace(0.01, 0.2, 5)}
-    yield "QuAcc(EMQ)1xn2-OPT-norefit", GSCAP(QuAcc1xN2(h, acc_fn, EMQ(LogisticRegression())), emq_lr_params, val_prot, acc_fn, refit=False)
-    yield "QuAcc(EMQ)nxn-OPT-norefit", GSCAP(QuAccNxN(h, acc_fn, EMQ(LogisticRegression())), emq_lr_params, val_prot, acc_fn, refit=False)
-    yield "QuAcc(PACC)1xn2-OPT-norefit", GSCAP(QuAcc1xN2(h, acc_fn, PACC(LogisticRegression())), pacc_lr_params, val_prot, acc_fn, refit=False)
-    yield "QuAcc(PACC)nxn-OPT-norefit", GSCAP(QuAccNxN(h, acc_fn, PACC(LogisticRegression())), pacc_lr_params, val_prot, acc_fn, refit=False)
-    yield "QuAcc(KDEy)1xn2-OPT-norefit", GSCAP(QuAcc1xN2(h, acc_fn, KDEyML(LogisticRegression())), kde_lr_params, val_prot, acc_fn, refit=False)
-    yield "QuAcc(KDEy)nxn-OPT-norefit", GSCAP(QuAccNxN(h, acc_fn, KDEyML(LogisticRegression())), kde_lr_params, val_prot, acc_fn, refit=False)
+
+    def sld():
+        return EMQ(LogisticRegression(), val_split=5)
+    def pacc():
+        return PACC(LogisticRegression())
+    def kde():
+        return KDEyML(LogisticRegression())
+
+    yield "QuAcc(EMQ)1xn2-OPT-norefit", GSCAP(QuAcc1xN2(h, acc_fn, sld()), emq_lr_params, val_prot, acc_fn, refit=False)
+    yield "QuAcc(EMQ)nxn-OPT-norefit", GSCAP(QuAccNxN(h, acc_fn, sld()), emq_lr_params, val_prot, acc_fn, refit=False)
+    yield "QuAcc(PACC)1xn2-OPT-norefit", GSCAP(QuAcc1xN2(h, acc_fn, pacc()), pacc_lr_params, val_prot, acc_fn, refit=False)
+    yield "QuAcc(PACC)nxn-OPT-norefit", GSCAP(QuAccNxN(h, acc_fn, pacc()), pacc_lr_params, val_prot, acc_fn, refit=False)
+    yield "QuAcc(KDEy)1xn2-OPT-norefit", GSCAP(QuAcc1xN2(h, acc_fn, kde()), kde_lr_params, val_prot, acc_fn, refit=False)
+    yield "QuAcc(KDEy)nxn-OPT-norefit", GSCAP(QuAccNxN(h, acc_fn, kde()), kde_lr_params, val_prot, acc_fn, refit=False)
     # return
     # yield
 # fmt: on
