@@ -45,14 +45,14 @@ def gen_multi_datasets(
     only_names=False,
 ) -> [str, [LabelledCollection, LabelledCollection, LabelledCollection]]:
     # yields the UCI multiclass datasets
-    # for dataset_name in [d for d in UCI_MULTICLASS_DATASETS if d not in ["wine-quality"]]:
-    #     yield dataset_name, None if only_names else DP.uci_multiclass(dataset_name)
+    for dataset_name in [d for d in UCI_MULTICLASS_DATASETS if d not in ["wine-quality"]]:
+        yield dataset_name, None if only_names else DP.uci_multiclass(dataset_name)
 
     # yields the 20 newsgroups dataset
-    # yield "20news", None if only_names else DP.news20()
+    yield "20news", None if only_names else DP.news20()
 
     # yields the T1B@LeQua2022 (training) dataset
-    # yield "T1B-LeQua2022", None if only_names else DP.t1b_lequa2022()
+    yield "T1B-LeQua2022", None if only_names else DP.t1b_lequa2022()
 
     # yields the RCV1 multiclass datasets
     for dataset_name in RCV1_MULTICLASS_DATASETS:
@@ -157,8 +157,14 @@ def gen_CAP_cont_table_opt(h, acc_fn, val_prot) -> [str, CAPContingencyTable]:
 
     yield "QuAcc(EMQ)1xn2-OPT-norefit", GSCAP(QuAcc1xN2(h, acc_fn, sld()), emq_lr_params, val_prot, acc_fn, refit=False)
     yield "QuAcc(EMQ)nxn-OPT-norefit", GSCAP(QuAccNxN(h, acc_fn, sld()), emq_lr_params, val_prot, acc_fn, refit=False)
+    yield "QuAcc(EMQ)1xn2-OPT", GSCAP(QuAcc1xN2(h, acc_fn, sld()), emq_lr_params, val_prot, acc_fn, refit=True)
+    yield "QuAcc(EMQ)nxn-OPT", GSCAP(QuAccNxN(h, acc_fn, sld()), emq_lr_params, val_prot, acc_fn, refit=True)
+    yield "QuAcc(PACC)1xn2-OPT", GSCAP(QuAcc1xN2(h, acc_fn, pacc()), pacc_lr_params, val_prot, acc_fn, refit=True)
+    yield "QuAcc(PACC)nxn-OPT", GSCAP(QuAccNxN(h, acc_fn, pacc()), pacc_lr_params, val_prot, acc_fn, refit=True)
     yield "QuAcc(PACC)1xn2-OPT-norefit", GSCAP(QuAcc1xN2(h, acc_fn, pacc()), pacc_lr_params, val_prot, acc_fn, refit=False)
     yield "QuAcc(PACC)nxn-OPT-norefit", GSCAP(QuAccNxN(h, acc_fn, pacc()), pacc_lr_params, val_prot, acc_fn, refit=False)
+    yield "QuAcc(KDEy)1xn2-OPT", GSCAP(QuAcc1xN2(h, acc_fn, kde()), kde_lr_params, val_prot, acc_fn, refit=True)
+    yield "QuAcc(KDEy)nxn-OPT", GSCAP(QuAccNxN(h, acc_fn, kde()), kde_lr_params, val_prot, acc_fn, refit=True)
     yield "QuAcc(KDEy)1xn2-OPT-norefit", GSCAP(QuAcc1xN2(h, acc_fn, kde()), kde_lr_params, val_prot, acc_fn, refit=False)
     yield "QuAcc(KDEy)nxn-OPT-norefit", GSCAP(QuAccNxN(h, acc_fn, kde()), kde_lr_params, val_prot, acc_fn, refit=False)
     # return
