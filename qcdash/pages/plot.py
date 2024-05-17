@@ -121,7 +121,6 @@ def get_sidebar(**kwargs):
 
 
 def layout(**kwargs):
-    print(kwargs)
     layout = html.Div(
         [
             # dcc.Interval(id="reload", interval=10 * 60 * 1000),
