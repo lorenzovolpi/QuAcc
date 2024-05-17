@@ -530,11 +530,13 @@ class QuAccNxN(QuAcc):
                     )
 
                 skf = StratifiedKFold(n_splits=predict_on)
-                _too_few_classes = False
-                for train_idx, _ in skf.split(*data_i.Xy):
-                    _too_few_classes = _too_few_classes or len(np.unique(data_i.y[train_idx])) <= 1
 
-                if _too_few_classes:
+                _invalid_split = np.all(data_i.counts() < predict_on)
+                if not _invalid_split:
+                    _split_n_classes = [len(np.unique(data_i.y[train_idx])) for train_idx, _ in skf.split(*data_i.Xy)]
+                    _invalid_split = np.any(np.array(_split_n_classes) <= 1)
+
+                if _invalid_split:
                     q_i.classifier.fit(*data_i.Xy)
                     preds = q_i.classify(data_i.X)
                     preds = LabelledCollection(preds, data_i.y, classes=data_i.classes_)
