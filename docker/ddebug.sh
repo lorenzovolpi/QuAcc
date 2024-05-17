@@ -44,7 +44,7 @@ done
 
 RUN_CMD="python -um $MODULE"
 
-docker run \
+docker run -d \
 -it \
 --rm \
 --user $(id -u):$(id -g) \
