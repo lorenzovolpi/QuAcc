@@ -1,3 +1,4 @@
+from contextlib import redirect_stderr, redirect_stdout
 from time import time
 
 import numpy as np
@@ -5,7 +6,9 @@ import quapy as qp
 from quapy.method.aggregative import EMQ, PACC, KDEyML
 from quapy.protocol import UPP
 from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import GridSearchCV
 
+import quacc as qc
 import quacc.error
 from quacc.dataset import DatasetProvider as DP
 from quacc.error import f1_macro, vanilla_acc
@@ -31,15 +34,19 @@ pacc_lr_params = {
 emq_lr_params = pacc_lr_params | {"q_class__recalib": [None, "bcts"]}
 kde_lr_params = pacc_lr_params | {"q_class__bandwidth": np.linspace(0.01, 0.2, 20)}
 
-if __name__ == "__main__":
+
+def main():
     dataset_name = "C1"
     L, V, U = DP.rcv1_multiclass(dataset_name)
     V, val_prot = split_validation(V)
-    h = LogisticRegression()
+    # h = LogisticRegression()
+    h_param_grid = {"C": np.logspace(-4, -4, 9), "class_weight": ["balanced", None]}
+    h = GridSearchCV(LogisticRegression(), h_param_grid, cv=5, n_jobs=-1)
     test_prot = UPP(U, repeats=NUM_TEST, return_type="labelled_collection", random_state=0)
     accs = [("vanilla_acc", vanilla_acc), ("f1", f1_macro)]
 
     h.fit(*L.Xy)
+    print("h trained")
     results = []
     for acc_name, acc_fn in accs:
         quants = [
@@ -47,7 +54,7 @@ if __name__ == "__main__":
             ("PACC", PACC(LogisticRegression()), pacc_lr_params),
             ("KDEy", KDEyML(LogisticRegression()), kde_lr_params),
         ]
-        for q_name, q, params in quants[1:2]:
+        for q_name, q, params in quants:
             methods = [
                 (
                     f"QuAcc({q_name})1xn2-OPT-norefit",
@@ -68,3 +75,9 @@ if __name__ == "__main__":
                 results.append((method_name, acc_name, mae, t_method))
     for method_name, acc_name, mae, t_method in results:
         print(f"{method_name} on {acc_name}: {mae=} [took {t_method:.3f}s]")
+
+
+if __name__ == "__main__":
+    with open(f"{qc.env['OUT_DIR']}/pg_rcv1.out", "w") as f:
+        with redirect_stdout(f):
+            main()
