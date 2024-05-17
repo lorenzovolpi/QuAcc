@@ -7,6 +7,8 @@ import numpy as np
 import pandas as pd
 import quapy as qp
 
+import quacc as qc
+from quacc.error import ae
 from quacc.utils.commons import get_results_path, load_json_file, save_json_file
 
 
@@ -127,6 +129,29 @@ class Report:
             methods = [methods]
         return Report({_m: _rs for _m, _rs in self.results.items() if _m in methods})
 
+    def table_data(self):
+        err_fn = qc.error.ae
+        dfs = []
+        for _method, _results in self.results.items():
+            _dataset_map = defaultdict(lambda: [])
+            for r in _results:
+                _dataset_map[r.dataset_name].append(r)
+
+            for _dataset, _res in _dataset_map.items():
+                _true_acc = np.hstack([_r.true_accs for _r in _res])
+                _estim_acc = np.hstack([_r.estim_accs for _r in _res])
+                _acc_err = err_fn(_true_acc, _estim_acc)
+                report_df = pd.DataFrame(
+                    np.vstack([_true_acc, _estim_acc, _acc_err]).T, columns=["true_accs", "estim_accs", "acc_err"]
+                )
+                report_df.loc[:, "method"] = np.tile(_method, (len(report_df),))
+                report_df.loc[:, "dataset"] = np.tile(_dataset, (len(report_df),))
+                dfs.append(report_df)
+
+        all_df = pd.concat(dfs, axis=0, ignore_index=True)
+        all_df = all_df.groupby(["method", "dataset"]).mean().reset_index()
+        return all_df
+
     def diagonal_plot_data(self):
         dfs = []
         for _method, _results in self.results.items():
@@ -159,13 +184,14 @@ class Report:
     #     return pd.concat(dfs, axis=0, ignore_index=True)
 
     def shift_plot_data(self):
+        err_fn = qc.error.ae
         dfs = []
         for _method, _results in self.results.items():
             _shift = np.hstack([_get_shift(np.array(_r.test_prevs), _r.train_prev) for _r in _results])
 
             _true_accs = np.hstack([_r.true_accs for _r in _results])
             _estim_accs = np.hstack([_r.estim_accs for _r in _results])
-            _acc_err = np.abs(_true_accs - _estim_accs)
+            _acc_err = err_fn(_true_accs, _estim_accs)
             method_df = pd.DataFrame(np.vstack([_shift, _acc_err]).T, columns=["shifts", "acc_err"])
             method_df.loc[:, "method"] = np.tile(_method, (len(method_df),))
             dfs.append(method_df.sort_values(by="shifts"))
