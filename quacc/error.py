@@ -1,5 +1,4 @@
 import numpy as np
-import quapy as qp
 from sklearn.metrics import accuracy_score, f1_score
 
 
@@ -84,6 +83,17 @@ def _f1_bin(tp, fp, fn):
         return (2 * tp) / (2 * tp + fp + fn)
 
 
+def ae(true_accs, estim_accs):
+    """Computes the absolute error between true and estimated accuracy value pairs.
+
+    :param true_accs: array-like of shape `(n_samples,)` with the true accuracy values
+    :param estim_accs: array-like of shape `(n_samples,)` with the estimated accuracy values
+    :return: absolute error
+    """
+    assert true_accs.shape == estim_accs.shape, f"wrong shape {true_accs.shape} vs. {estim_accs.shape}"
+    return np.abs(true_accs - estim_accs)
+
+
 def mae(true_accs, estim_accs):
     """Computes the mean absolute error between true and estimated accuracy value pairs.
 
@@ -91,7 +101,17 @@ def mae(true_accs, estim_accs):
     :param estim_accs: array-like of shape `(n_samples,)` with the estimated accuracy values
     :return: mean absolute error
     """
-    return qp.error.mae(*_reshape_for_error(true_accs, estim_accs))
+    return ae(true_accs, estim_accs).mean()
+
+
+def se(true_accs, estim_accs):
+    """Computes the squared error between true and estimated accuracy value pairs.
+
+    :param true_accs: array-like of shape `(n_samples,)` with the true accuracy values
+    :param estim_accs: array-like of shape `(n_samples,)` with the estimated accuracy values
+    :return: absolute error
+    """
+    return (true_accs - estim_accs) ** 2
 
 
 def mse(true_accs, estim_accs):
@@ -101,7 +121,7 @@ def mse(true_accs, estim_accs):
     :param estim_accs: array-like of shape `(n_samples,)` with the estimated accuracy values
     :return: mean squared error
     """
-    return qp.error.mse(*_reshape_for_error(true_accs, estim_accs))
+    return se(true_accs, estim_accs).mean()
 
 
 def _reshape_for_error(true_accs, estim_accs):
