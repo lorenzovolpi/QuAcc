@@ -53,4 +53,4 @@ syncres
 var/
 test*.py
 *.sh
-!docker/*.sh
+!build/*.sh
