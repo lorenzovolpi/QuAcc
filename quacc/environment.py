@@ -5,5 +5,5 @@ env = {
     "QUACC_DATA": os.getenv("QUACC_DATA", os.path.expanduser("~/quacc_data")),
     "QUAPY_DATA": os.getenv("QUACC_QUAPY_DATA", os.path.expanduser("~/quapy_data")),
     "SKLEARN_DATA": os.getenv("QUACC_SKLEARN_DATA", os.path.expanduser("~/scikit_learn_data")),
-    "N_JOBS": -2,
+    "N_JOBS": int(os.getenv("QUACC_N_JOBS", -2)),
 }
