@@ -23,6 +23,9 @@ done
 if [[ $SERVER == "dgx" ]]; then
     HOST="lorenzovolpi@edge-nd1.isti.cnr.it"
     WORKDIR="raid/quacc"
+elif [[ $SERVER == "bcuda" || $SERVER == "barracuda" ]]; then
+    HOST="volpi@barracuda.isti.cnr.it"
+    WORKDIR="quacc"
 fi
 
 FROM_WORKDIR="$WORKDIR/output"
