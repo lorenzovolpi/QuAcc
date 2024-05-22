@@ -143,7 +143,7 @@ class GridSearchCAP(CAPContingencyTable):
 
         # train all classifiers and get the predictions
         self._training = training
-        cls_outs = qp.util.parallel(
+        cls_outs = qc.commons.parallel(
             self._prepare_classifier,
             cls_configs,
             seed=qp.environ.get("_R_SEED", None),
@@ -169,7 +169,7 @@ class GridSearchCAP(CAPContingencyTable):
 
         # explore the quantifier-specific hyperparameters for each valid training configuration
         aggr_configs = [(*out, q_config) for out, q_config in itertools.product(success_outs, q_configs)]
-        aggr_outs = qp.util.parallel(
+        aggr_outs = qc.commons.parallel(
             self._prepare_aggregation, aggr_configs, seed=qp.environ.get("_R_SEED", None), n_jobs=self.n_jobs
         )
         # aggr_outs = [self._prepare_aggregation(args) for args in aggr_configs]

@@ -1,12 +1,15 @@
 import functools
 import json
 import os
+from contextlib import ExitStack, contextmanager
 from pathlib import Path
 from typing import Callable
 from urllib.request import urlretrieve
 
+import numpy as np
 import pandas as pd
 import quapy as qp
+from joblib import Parallel, delayed
 from quapy.data.base import LabelledCollection
 from sklearn.base import BaseEstimator
 from sklearn.metrics import confusion_matrix
@@ -130,3 +133,62 @@ def save_dataset_stats(dataset_name, test_prot, L, V):
         "num_samples": test_prot.total(),
     }
     save_json_file(path, info)
+
+
+@contextmanager
+def temp_force_njobs(force):
+    if force:
+        openblas_nt_was_set = "OPENBLAS_NUM_THREADS" in os.environ
+        if openblas_nt_was_set:
+            openblas_nt_old = os.getenv("OPENBLAS_NUM_THREADS")
+
+        os.environ["OPENBLAS_NUM_THREADS"] = "1"
+    try:
+        yield
+    finally:
+        if force:
+            if openblas_nt_was_set:
+                os.environ["OPENBLAS_NUM_THREADS"] = openblas_nt_old
+            else:
+                os.environ.pop("OPENBLAS_NUM_THREADS")
+
+
+def parallel(func, args, n_jobs, seed=None, asarray=True, backend="loky"):
+    """
+    A wrapper of multiprocessing:
+
+    >>> Parallel(n_jobs=n_jobs)(
+    >>>      delayed(func)(args_i) for args_i in args
+    >>> )
+
+    that takes the `quapy.environ` variable as input silently.
+    Seeds the child processes to ensure reproducibility when n_jobs>1.
+
+    :param func: callable
+    :param args: args of func
+    :param seed: the numeric seed
+    :param asarray: set to True to return a np.ndarray instead of a list
+    :param backend: indicates the backend used for handling parallel works
+    """
+
+    def func_dec(qp_environ, qc_environ, seed, *args):
+        qp.environ = qp_environ.copy()
+        qp.environ["N_JOBS"] = 1
+        qc.env = qc_environ.copy()
+        qc.env["N_JOBS"] = 1
+        # set a context with a temporal seed to ensure results are reproducibles in parallel
+        with ExitStack() as stack:
+            if seed is not None:
+                stack.enter_context(qp.util.temp_seed(seed))
+            return func(*args)
+
+    with ExitStack() as stack:
+        stack.enter_context(qc.commons.temp_force_njobs(qc.env["FORCE_NJOBS"]))
+        out = Parallel(n_jobs=n_jobs, backend=backend)(
+            delayed(func_dec)(qp.environ, qc.env, None if seed is None else seed + i, args_i)
+            for i, args_i in enumerate(args)
+        )
+
+    if asarray:
+        out = np.asarray(out)
+    return out
