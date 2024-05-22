@@ -45,14 +45,14 @@ def gen_multi_datasets(
     only_names=False,
 ) -> [str, [LabelledCollection, LabelledCollection, LabelledCollection]]:
     # yields the UCI multiclass datasets
-    for dataset_name in [d for d in UCI_MULTICLASS_DATASETS if d not in ["wine-quality"]]:
+    for dataset_name in [d for d in UCI_MULTICLASS_DATASETS if d not in ["wine-quality", "letter"]]:
         yield dataset_name, None if only_names else DP.uci_multiclass(dataset_name)
 
     # yields the 20 newsgroups dataset
-    yield "20news", None if only_names else DP.news20()
+    # yield "20news", None if only_names else DP.news20()
 
     # yields the T1B@LeQua2022 (training) dataset
-    yield "T1B-LeQua2022", None if only_names else DP.t1b_lequa2022()
+    # yield "T1B-LeQua2022", None if only_names else DP.t1b_lequa2022()
 
     # yields the RCV1 multiclass datasets
     for dataset_name in RCV1_MULTICLASS_DATASETS[:-1]:
