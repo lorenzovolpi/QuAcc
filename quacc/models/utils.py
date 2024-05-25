@@ -24,3 +24,16 @@ def neg_entropy(P, keepdims=False):
     if keepdims:
         ne = ne.reshape(-1, 1)
     return ne
+
+
+def smooth(prevalences, epsilon=1e-5):
+    """
+    Smooths a prevalence vector.
+
+    :param prevalences: np.ndarray
+    :param epsilon: float, a small quantity (default 1E-5)
+    :return: smoothed prevalence vector
+    """
+    prevalences = prevalences + epsilon
+    prevalences /= prevalences.sum()
+    return prevalences
