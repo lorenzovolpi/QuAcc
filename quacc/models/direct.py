@@ -11,6 +11,7 @@ from sklearn.base import BaseEstimator
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import confusion_matrix
 
+import quacc.models.utils as utils
 from quacc.models.base import ClassifierAccuracyPrediction
 from quacc.models.utils import get_posteriors_from_h, max_conf, neg_entropy
 
@@ -110,7 +111,7 @@ class PabloCAP(CAPDirect):
 
     def predict(self, X, oracle_prev=None):
         if oracle_prev is None:
-            pred_prev = F.smooth(self.q.quantify(X))
+            pred_prev = utils.smooth(self.q.quantify(X))
         else:
             pred_prev = oracle_prev
         X_size = X.shape[0]
