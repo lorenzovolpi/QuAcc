@@ -92,17 +92,17 @@ def gen_CAP_direct(h, acc_fn, with_oracle=False) -> [str, CAPDirect]:
     # yield 'SebCAP-SLD', SebastianiCAP(h, acc_fn, EMQ, predict_train_prev=not with_oracle)
     # yield 'SebCAP-KDE', SebastianiCAP(h, acc_fn, KDEyML)
     # yield 'SebCAPweight', SebastianiCAP(h, acc_fn, ACC, alpha=0)
-    yield "PrediQuant-ACC", PrediQuant(h, acc_fn, ACC)
-    yield "PrediQuant-SLD", PrediQuant(h, acc_fn, EMQ)
-    # yield "PrediQuant-KDE", PrediQuant(h, acc_fn, KDEyML)
-    yield "PrediQuantWeight-ACC", PrediQuant(h, acc_fn, ACC, alpha=0)
-    yield "PrediQuantWeight-SLD", PrediQuant(h, acc_fn, EMQ, alpha=0)
-    # yield "PrediQuantWeight-KDE", PrediQuant(h, acc_fn, KDEyML, alpha=0)
+    # yield "PrediQuant(ACC)", PrediQuant(h, acc_fn, ACC)
+    yield "PrediQuant(SLD)", PrediQuant(h, acc_fn, EMQ)
+    yield "PrediQuant(KDEy)", PrediQuant(h, acc_fn, KDEyML)
+    # yield "PrediQuantWeight(ACC)", PrediQuant(h, acc_fn, ACC, alpha=0)
+    yield "PrediQuantWeight(SLD)", PrediQuant(h, acc_fn, EMQ, alpha=0)
+    yield "PrediQuantWeight(KDEy)", PrediQuant(h, acc_fn, KDEyML, alpha=0)
     # yield 'PabCAP', PabloCAP(h, acc_fn, ACC)
     # yield 'PabCAP-SLD-median', PabloCAP(h, acc_fn, EMQ, aggr='median')
 
     ### baselines ###
-    # yield "ATC-MC", ATC(h, acc_fn, scoring_fn="maxconf")
+    yield "ATC-MC", ATC(h, acc_fn, scoring_fn="maxconf")
     # yield 'ATC-NE', ATC(h, acc_fn, scoring_fn='neg_entropy')
     yield "DoC", DoC(h, acc_fn, sample_size=qp.environ["SAMPLE_SIZE"])
 
@@ -159,14 +159,14 @@ def gen_CAP_cont_table_opt(h, acc_fn, val_prot) -> [str, CAPContingencyTable]:
     yield "QuAcc(EMQ)nxn-OPT-norefit", GSCAP(QuAccNxN(h, acc_fn, sld()), emq_lr_params, val_prot, acc_fn, refit=False)
     yield "QuAcc(EMQ)1xn2-OPT", GSCAP(QuAcc1xN2(h, acc_fn, sld()), emq_lr_params, val_prot, acc_fn, refit=True)
     yield "QuAcc(EMQ)nxn-OPT", GSCAP(QuAccNxN(h, acc_fn, sld()), emq_lr_params, val_prot, acc_fn, refit=True)
-    yield "QuAcc(PACC)1xn2-OPT", GSCAP(QuAcc1xN2(h, acc_fn, pacc()), pacc_lr_params, val_prot, acc_fn, refit=True)
-    yield "QuAcc(PACC)nxn-OPT", GSCAP(QuAccNxN(h, acc_fn, pacc()), pacc_lr_params, val_prot, acc_fn, refit=True)
-    yield "QuAcc(PACC)1xn2-OPT-norefit", GSCAP(QuAcc1xN2(h, acc_fn, pacc()), pacc_lr_params, val_prot, acc_fn, refit=False)
-    yield "QuAcc(PACC)nxn-OPT-norefit", GSCAP(QuAccNxN(h, acc_fn, pacc()), pacc_lr_params, val_prot, acc_fn, refit=False)
     yield "QuAcc(KDEy)1xn2-OPT", GSCAP(QuAcc1xN2(h, acc_fn, kde()), kde_lr_params, val_prot, acc_fn, refit=True)
     yield "QuAcc(KDEy)nxn-OPT", GSCAP(QuAccNxN(h, acc_fn, kde()), kde_lr_params, val_prot, acc_fn, refit=True)
     yield "QuAcc(KDEy)1xn2-OPT-norefit", GSCAP(QuAcc1xN2(h, acc_fn, kde()), kde_lr_params, val_prot, acc_fn, refit=False)
     yield "QuAcc(KDEy)nxn-OPT-norefit", GSCAP(QuAccNxN(h, acc_fn, kde()), kde_lr_params, val_prot, acc_fn, refit=False)
+    # yield "QuAcc(PACC)1xn2-OPT", GSCAP(QuAcc1xN2(h, acc_fn, pacc()), pacc_lr_params, val_prot, acc_fn, refit=True)
+    # yield "QuAcc(PACC)nxn-OPT", GSCAP(QuAccNxN(h, acc_fn, pacc()), pacc_lr_params, val_prot, acc_fn, refit=True)
+    # yield "QuAcc(PACC)1xn2-OPT-norefit", GSCAP(QuAcc1xN2(h, acc_fn, pacc()), pacc_lr_params, val_prot, acc_fn, refit=False)
+    # yield "QuAcc(PACC)nxn-OPT-norefit", GSCAP(QuAccNxN(h, acc_fn, pacc()), pacc_lr_params, val_prot, acc_fn, refit=False)
     # return
     # yield
 # fmt: on
