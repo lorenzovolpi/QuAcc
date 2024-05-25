@@ -21,6 +21,7 @@ def _save_figure(plot: Axes, basedir, cls_name, acc_name, dataset_name, plot_typ
 
 
 def _config_legend(plot: Axes):
+    plot.legend(title="")
     sns.move_legend(plot, "lower center", bbox_to_anchor=(1, 0.5), ncol=1)
 
 
@@ -47,6 +48,8 @@ def plot_shift(
     n_bins=20,
     basedir=None,
     file_name=None,
+    linewidth=1,
+    **kwargs,
 ):
     # binning on shift values
     df.loc[:, "shifts_bin"] = get_binned_values(df, "shifts", n_bins)
@@ -58,9 +61,14 @@ def plot_shift(
         hue="method",
         estimator="mean",
         errorbar=None,
+        linewidth=linewidth,
     )
 
     _config_legend(plot)
+    if "x_label" in kwargs:
+        plot.set_xlabel(kwargs["x_label"])
+    if "y_label" in kwargs:
+        plot.set_ylabel(kwargs["y_label"])
     return _save_figure(
         plot,
         basedir,
