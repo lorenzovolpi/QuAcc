@@ -9,25 +9,7 @@ import quapy as qp
 
 import quacc as qc
 from quacc.error import ae
-from quacc.utils.commons import get_results_path, load_json_file, save_json_file
-
-
-def _get_shift(test_prevs: np.ndarray, train_prev: np.ndarray | float, decimals=2):
-    """
-    Computes the shift of an array of prevalence values for a set of test sample in
-    relation to the prevalence value of the training set.
-
-    :param test_prevs: prevalence values for the test samples
-    :param train_prev: prevalence value for the training set
-    :param decimals: rounding decimals for the result (default=2)
-    :return: an ndarray with the shifts for each test sample, shaped as (n,1) (ndim=2)
-    """
-    if test_prevs.ndim == 1:
-        test_prevs = test_prevs[:, np.newaxis]
-    train_prevs = np.tile(train_prev, (test_prevs.shape[0], 1))
-    # _shift = nae(test_prevs, train_prevs)
-    _shift = qp.error.ae(test_prevs, train_prevs)
-    return np.around(_shift, decimals=decimals)
+from quacc.utils.commons import get_results_path, get_shift, load_json_file, save_json_file
 
 
 class TestReport:
@@ -187,7 +169,7 @@ class Report:
         err_fn = qc.error.ae
         dfs = []
         for _method, _results in self.results.items():
-            _shift = np.hstack([_get_shift(np.array(_r.test_prevs), _r.train_prev) for _r in _results])
+            _shift = np.hstack([get_shift(np.array(_r.test_prevs), _r.train_prev) for _r in _results])
 
             _true_accs = np.hstack([_r.true_accs for _r in _results])
             _estim_accs = np.hstack([_r.estim_accs for _r in _results])
