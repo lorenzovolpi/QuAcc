@@ -465,7 +465,7 @@ class QuAcc1xNp1(QuAcc):
 
     def predict_ct(self, X: LabelledCollection, oracle_prev=None):
         X_dot = self._get_X_dot(X)
-        ct_compressed = self.q.quantify(X_dot)
+        ct_compressed = self._safe_quantify(X_dot)
         return self._get_ct_hat(self.ncl, ct_compressed)
 
 
@@ -651,3 +651,5 @@ def safehstack(X, P):
 #     q.quantify = MethodType(quantify, q)
 
 #     return q
+
+N2E = NsquaredEquationsCAP
