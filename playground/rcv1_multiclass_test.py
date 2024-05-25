@@ -13,7 +13,7 @@ import quacc.error
 from quacc.dataset import DatasetProvider as DP
 from quacc.error import f1_macro, vanilla_acc
 from quacc.experiments.util import split_validation
-from quacc.models.cont_table import QuAcc1xN2, QuAccNxN
+from quacc.models.cont_table import N2E, QuAcc1xN2, QuAccNxN
 from quacc.models.model_selection import GridSearchCAP as GSCAP
 from quacc.utils.commons import true_acc
 
@@ -49,12 +49,13 @@ def main():
     print("h trained")
     results = []
     for acc_name, acc_fn in accs:
+        print(f"{acc_name=}")
         quants = [
             ("EMQ", EMQ(LogisticRegression(), val_split=5), emq_lr_params),
-            ("PACC", PACC(LogisticRegression()), pacc_lr_params),
             ("KDEy", KDEyML(LogisticRegression()), kde_lr_params),
         ]
         for q_name, q, params in quants:
+            print(f"\t{q_name=}")
             methods = [
                 (
                     f"QuAcc({q_name})1xn2-OPT-norefit",
@@ -64,12 +65,14 @@ def main():
                     f"QuAcc({q_name})nxn-OPT-norefit",
                     GSCAP(QuAccNxN(h, acc_fn, q), params, val_prot, acc_fn, refit=False, raise_errors=True),
                 ),
+                (f"N2E({q_name})", N2E(h, acc_fn, q)),
             ]
-            for method_name, method in methods[1:]:
+            for method_name, method in methods[2:]:
+                print(f"\t\t{method_name=}")
                 t_init = time()
                 method.fit(V)
-                true_accs = [true_acc(h, acc_fn, Ui) for Ui in test_prot()]
-                estim_accs = [method.predict(Ui.X) for Ui in test_prot()]
+                true_accs = np.array([true_acc(h, acc_fn, Ui) for Ui in test_prot()])
+                estim_accs = np.array([method.predict(Ui.X) for Ui in test_prot()])
                 mae = quacc.error.mae(true_accs, estim_accs)
                 t_method = time() - t_init
                 results.append((method_name, acc_name, mae, t_method))
