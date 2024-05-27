@@ -119,7 +119,7 @@ def main():
 
     results = pd.concat(dfs)
 
-    print(results.pivot_table(values="mae", index="dataset", columns=["method", "acc_name"]))
+    print(results.pivot_table(values="ae", index="dataset", columns=["method", "acc_name"]))
 
 
 if __name__ == "__main__":
