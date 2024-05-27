@@ -1,7 +1,5 @@
 #!/bin/bash
 
-
-
 if [[ $(hostname) == "barracuda.isti.cnr.it" ]]; then
     export $(cat bcuda.env | xargs)
 
