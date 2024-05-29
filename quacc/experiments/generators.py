@@ -19,10 +19,10 @@ from quacc.dataset import DatasetProvider as DP
 from quacc.error import f1, f1_macro, vanilla_acc
 from quacc.experiments.util import split_validation
 from quacc.models.cont_table import (
+    N2E,
     CAPContingencyTable,
     ContTableTransferCAP,
     NaiveCAP,
-    NsquaredEquationsCAP,
     QuAcc1xN2,
     QuAccNxN,
 )
@@ -55,7 +55,7 @@ def gen_multi_datasets(
     # yield "T1B-LeQua2022", None if only_names else DP.t1b_lequa2022()
 
     # yields the RCV1 multiclass datasets
-    for dataset_name in RCV1_MULTICLASS_DATASETS[:-1]:
+    for dataset_name in RCV1_MULTICLASS_DATASETS:
         yield dataset_name, None if only_names else DP.rcv1_multiclass(dataset_name)
 
 
@@ -128,8 +128,8 @@ def gen_CAP_cont_table(h, acc_fn) -> [str, CAPContingencyTable]:
     # yield 'Equations-ACCh', NsquaredEquationsCAP(h, acc_fn, ACC, reuse_h=True)
     # yield 'Equations-ACC', NsquaredEquationsCAP(h, acc_fn, ACC)
     # yield 'Equations-SLD', NsquaredEquationsCAP(h, acc_fn, EMQ)
-    return 
-    yield
+    yield "N2E(SLD)", N2E(h, acc_fn, EMQ(LogisticRegression()))
+    yield "N2E(KDEy)", N2E(h, acc_fn, KDEyML(LogisticRegression()))
 # fmt: on
 
 
