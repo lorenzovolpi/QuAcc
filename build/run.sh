@@ -24,6 +24,17 @@ if [[ $(hostname) == "barracuda.isti.cnr.it" ]]; then
                 shift
                 shift
                 ;;
+            -env)
+                shift
+                while [[ $1 = *\=* ]]; do
+                    name=${1%%=*}
+                    val_start=$(("${#name}"+1))
+                    tot_len="${#1}"
+                    val=${1:$val_start:$tot_len}
+                    export $(echo "$name=$val" | xargs)
+                    shift
+                done
+                ;;
             -f|--front)
                 FRONT=true
                 shift
