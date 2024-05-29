@@ -16,30 +16,18 @@ import quacc.error
 from quacc.dataset import DatasetProvider as DP
 from quacc.error import f1_macro, vanilla_acc
 from quacc.experiments.util import split_validation
-from quacc.models.cont_table import N2E, QuAcc1xN2, QuAccNxN
+from quacc.models.cont_table import N2E, QuAcc1xN2, QuAcc1xNp1, QuAccNxN
 from quacc.models.model_selection import GridSearchCAP as GSCAP
-from quacc.models.requa import ReQuAcc
+from quacc.models.requa import ReQua
 from quacc.utils.commons import true_acc
 
-qp.environ["SAMPLE_SIZE"] = 250
 NUM_TEST = 1000
 qp.environ["_R_SEED"] = 0
 
-pacc_lr_params = {
-    "q_class__classifier__C": np.logspace(-3, 3, 7),
-    "q_class__classifier__class_weight": [None, "balanced"],
-    # "add_X": [True, False],
-    "add_posteriors": [True, False],
-    "add_y_hat": [True, False],
-    "add_maxconf": [True, False],
-    "add_negentropy": [True, False],
-    "add_maxinfsoft": [True, False],
-}
-emq_lr_params = pacc_lr_params | {"q_class__recalib": [None, "bcts"]}
-kde_lr_params = pacc_lr_params | {"q_class__bandwidth": np.linspace(0.01, 0.2, 20)}
 
 CSV_SEP = ","
 LOCAL_DIR = os.path.join(qc.env["OUT_DIR"], "pg_results", "requa")
+CONFIG = "multiclass"
 
 
 def sld():
@@ -50,17 +38,52 @@ def kdey():
     return KDEyML(LogisticRegression())
 
 
-def get_quacc_models(h, acc_fn):
+def get_bin_quaccs(h, acc_fn):
     return [
         QuAcc1xN2(h, acc_fn, sld()),
+        QuAcc1xNp1(h, acc_fn, sld()),
         QuAccNxN(h, acc_fn, sld()),
-        QuAcc1xN2(h, acc_fn, kdey()),
-        QuAccNxN(h, acc_fn, kdey()),
     ]
 
 
+def get_multi_quaccs(h, acc_fn):
+    return [
+        QuAcc1xN2(h, acc_fn, sld()),
+        QuAccNxN(h, acc_fn, sld()),
+    ]
+
+
+if CONFIG == "multiclass":
+    get_quaccs = get_multi_quaccs
+    qp.environ["SAMPLE_SIZE"] = 250
+    basedir = CONFIG
+elif CONFIG == "binary":
+    get_quaccs == get_bin_quaccs
+    qp.environ["SAMPLE_SIZE"] = 1000
+    basedir = CONFIG
+
+
+# fmt: off
+
+def gen_methods(h, acc_fn):
+    quacc_params = {
+        # "q_class__classifier__C": np.logspace(-3, 3, 7),
+        # "q_class__classifier__class_weight": [None, "balanced"],
+        # "add_X": [True, False],
+        "add_posteriors": [True, False],
+        "add_y_hat": [True, False],
+        "add_maxconf": [True, False],
+        "add_negentropy": [True, False],
+        "add_maxinfsoft": [True, False],
+    }
+    sample_s = qp.environ["SAMPLE_SIZE"]
+    yield "ReQua", ReQua(h, acc_fn, get_quaccs(h, acc_fn), param_grid=quacc_params, sample_size=sample_s, verbose=True)
+
+# fmt: on
+
+
 def get_local_path(dataset, method_name, acc_name):
-    return os.path.join(LOCAL_DIR, f"{dataset}_{method_name}_{acc_name}.csv")
+    return os.path.join(LOCAL_DIR, basedir, f"{dataset}_{method_name}_{acc_name}.csv")
 
 
 def main():
@@ -79,15 +102,7 @@ def main():
         h.fit(*L.Xy)
         print(f"trained {h_name} trained over {dataset_name}")
         for acc_name, acc_fn in accs:
-            methods = [
-                (
-                    "ReQuAcc",
-                    ReQuAcc(
-                        h, acc_fn, get_quacc_models(h, acc_fn), sample_size=qp.environ["SAMPLE_SIZE"], verbose=True
-                    ),
-                )
-            ]
-            for method_name, method in methods:
+            for method_name, method in gen_methods(h, acc_fn):
                 local_path = get_local_path(dataset_name, method_name, acc_name)
 
                 if os.path.exists(local_path):
