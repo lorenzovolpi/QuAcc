@@ -153,7 +153,7 @@ def temp_force_njobs(force):
                 os.environ.pop("OPENBLAS_NUM_THREADS")
 
 
-def parallel(func, args, n_jobs, seed=None, asarray=True, backend="loky", verbose=0):
+def parallel(func, args_list, n_jobs, seed=None, asarray=True, backend="loky", verbose=0, batch_size="auto"):
     """
     A wrapper of multiprocessing:
 
@@ -184,9 +184,9 @@ def parallel(func, args, n_jobs, seed=None, asarray=True, backend="loky", verbos
 
     with ExitStack() as stack:
         stack.enter_context(qc.commons.temp_force_njobs(qc.env["FORCE_NJOBS"]))
-        out = Parallel(n_jobs=n_jobs, backend=backend, verbose=verbose)(
+        out = Parallel(n_jobs=n_jobs, backend=backend, verbose=verbose, batch_size=batch_size)(
             delayed(func_dec)(qp.environ, qc.env, None if seed is None else seed + i, args_i)
-            for i, args_i in enumerate(args)
+            for i, args_i in enumerate(args_list)
         )
 
     if asarray:
