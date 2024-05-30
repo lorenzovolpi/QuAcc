@@ -12,7 +12,7 @@ from sklearn.linear_model import LinearRegression, LogisticRegression
 import quacc as qc
 from quacc.models.cont_table import QuAcc
 from quacc.models.direct import CAPDirect
-from quacc.models.utils import get_posteriors_from_h
+from quacc.models.utils import get_posteriors_from_h, max_conf, max_inverse_softmax, neg_entropy
 from quacc.utils.commons import parallel as qc_parallel
 
 
@@ -27,6 +27,7 @@ class ReQua(CAPDirect):
         n_val_samples=500,
         val_prop=0.5,
         clip_vals=(0, 1),
+        add_linear_features=False,
         n_jobs=None,
         verbose=False,
     ):
@@ -37,9 +38,10 @@ class ReQua(CAPDirect):
         self.n_val_samples = n_val_samples
         self.val_prop = val_prop
         self.clip_vals = clip_vals
+        self.add_linear_features = add_linear_features
         self.n_jobs = qc.commons.get_njobs(n_jobs)
         self.verbose = verbose
-        self.joblib_verbose = 60 if verbose else 0
+        self.joblib_verbose = 10 if verbose else 0
 
     def _sout(self, msg):
         if self.verbose:
@@ -60,30 +62,79 @@ class ReQua(CAPDirect):
             m.set_params(**grid)
             self.models.append(m)
 
-    def _get_post_stats(self, X, y):
-        cts = self._get_models_cts(X)
-        P = get_posteriors_from_h(self.h, X)
-        pred_labels = np.argmax(P, axis=-1)
-        acc = self.acc(y, pred_labels)
-        return cts, acc
+    def fit_regression(self, feats_list, accs):
+        self.reg_model = LinearRegression()
+        reg_feats = np.hstack(feats_list)
+        self.reg_model.fit(reg_feats, accs)
 
-    def _get_models_cts(self, X):
-        return np.hstack([m.predict_ct(X).flatten() for m in self.models])
-
-    def predict_regression(self, test_cts: np.ndarray):
-        test_cts = test_cts.reshape(1, -1)
-        pred_acc = self.reg_model.predict(test_cts)
+    def predict_regression(self, feats_list: list[np.ndarray]):
+        test_feats = np.hstack(feats_list)
+        if test_feats.ndim == 1:
+            test_feats = test_feats.reshape(1, -1)
+        pred_acc = self.reg_model.predict(test_feats)
         return pred_acc
 
-    def _fit_model(self, args):
-        m, train = args
-        t_init = time()
-        m.fit(train)
-        self._sout(f"training {m.__class__.__name__}({m.q_class.__class__.__name__}) took {time() - t_init:.3f}s")
+    def _fit_quacc_models(self, val, parallel=True):
+        def _fit_model(args):
+            m, train = args
+            return m.fit(train)
 
-    def _predict_model_ct(self, args):
-        m, val = args
-        return m.predict_ct(val.X).flatten()
+        # training models
+        models_fit_args = [(m, val) for m in self.models]
+        if parallel:
+            self.models = qc_parallel(
+                _fit_model,
+                models_fit_args,
+                n_jobs=self.n_jobs,
+                seed=qp.environ.get("_R_SEED", None),
+                verbose=self.joblib_verbose,
+            )
+        else:
+            self.models = [_fit_model(arg) for arg in models_fit_args]
+
+    def _get_quacc_feats(self, X):
+        def predict_cts(m, _X):
+            return m.predict_ct(_X).flatten()
+
+        cts = np.hstack([predict_cts(m, X) for m in self.models])
+        return cts
+
+    def _get_batch_quacc_feats(self, prot, parallel=True):
+        def _predict_model_cts(args):
+            m, _prot = args
+            return np.vstack([m.predict_ct(sigma_i.X).flatten() for sigma_i in _prot()])
+
+        # predicting v2 sample cont. tables for each model
+        models_cts_args = [(m, prot) for m in self.models]
+        if parallel:
+            v2_ctss = qc_parallel(
+                _predict_model_cts,
+                models_cts_args,
+                n_jobs=self.n_jobs,
+                seed=qp.environ.get("_R_SEED", None),
+                asarray=False,
+                verbose=self.joblib_verbose,
+                batch_size=round(len(self.models) / (self.n_jobs * 2)),
+            )
+        else:
+            v2_ctss = [_predict_model_cts(arg) for arg in models_cts_args]
+        v2_ctss = np.hstack(v2_ctss)
+
+        return v2_ctss
+
+    def _get_linear_feats(self, X):
+        P = get_posteriors_from_h(self.h, X)
+        conf_fns = [
+            max_conf,
+            neg_entropy,
+            max_inverse_softmax,
+        ]
+        lin_feats = np.hstack([fn(P, keepdims=True) for fn in conf_fns]).mean(axis=0)
+        return lin_feats
+
+    def _get_batch_linear_feats(self, prot):
+        lin_feats = np.vstack([self._get_linear_feats(sigma_i.X) for sigma_i in prot()])
+        return lin_feats
 
     def fit(self, val: LabelledCollection):
         v2, v1 = val.split_stratified(train_prop=self.val_prop)
@@ -95,43 +146,61 @@ class ReQua(CAPDirect):
             return_type="labelled_collection",
         )
 
-        # training models
-        models_fit_args = [(m, v1) for m in self.models]
-        qc_parallel(
-            self._fit_model,
-            models_fit_args,
-            n_jobs=self.n_jobs,
-            seed=qp.environ.get("_R_SEED", None),
-            verbose=self.joblib_verbose,
-        )
+        # train models used to generate features
 
-        # predicting v2 sample cont. tables for each model
-        models_cts_args = IT.product(self.models, list(v2_prot()))
-        v2_ctss = qc_parallel(
-            self._predict_model_cts,
-            models_cts_args,
-            n_jobs=self.n_jobs,
-            seed=qp.environ.get("_R_SEED", None),
-            asarray=False,
-            verbose=self.joblib_verbose,
-        )
-        v2_ctss = np.vstack(v2_ctss)
-        v2_ctss = np.hstack(np.vsplit(v2_ctss, len(self.models)))
+        t_fit_init = time()
+        self._fit_quacc_models(v1)
+        self._sout(f"training quacc models took {time() - t_fit_init:.3f}s")
 
-        # computing v2 samples true accs
+        # compute features to train the regressor
+
+        features = []
+
+        t_ct_init = time()
+        quacc_feats = self._get_batch_quacc_feats(v2_prot)
+        features.append(quacc_feats)
+        self._sout(f"generating quacc features took {time() - t_ct_init:.3f}s")
+
+        if self.add_linear_features:
+            t_lin_init = time()
+            lin_feats = self._get_batch_linear_feats(v2_prot)
+            features.append(lin_feats)
+            self._sout(f"generating linear features took {time() - t_lin_init:.3f}s")
+
+        # compute true accs as targets for the regressor
+
         v2_accs = np.asarray([self.true_acc(v2_i) for v2_i in v2_prot()])
 
-        # fitting linear regression model
+        # train regression model
+
         t_init = time()
-        self.reg_model = LinearRegression()
-        self.reg_model.fit(v2_ctss, v2_accs)
+        self.fit_regression(features, v2_accs)
         self._sout(f"training reg_model took {time() - t_init:.3f}s")
 
         return self
 
     def predict(self, X, oracle_prev=None):
-        test_cts = self._get_models_cts(X)
-        acc_pred = self.predict_regression(test_cts)
+        features = []
+        features.append(self._get_quacc_feats(X))
+        if self.add_linear_features:
+            features.append(self._get_linear_feats(X))
+
+        acc_pred = self.predict_regression(features)
+
         if self.clip_vals is not None:
             acc_pred = np.clip(acc_pred, *self.clip_vals)
         return acc_pred[0]
+
+    def batch_predict(self, prot, oracle_prev=None):
+        t_bpred_init = time()
+        features = []
+        features.append(self._get_batch_quacc_feats(prot))
+        if self.add_linear_features:
+            features.append(self._get_batch_linear_feats(prot))
+
+        acc_pred = self.predict_regression(features)
+        self._sout(f"batch prediction took {time() - t_bpred_init:.3f}s")
+
+        if self.clip_vals is not None:
+            acc_pred = np.clip(acc_pred, *self.clip_vals)
+        return acc_pred
