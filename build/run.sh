@@ -40,7 +40,7 @@ if [[ $(hostname) == "barracuda.isti.cnr.it" ]]; then
                 shift
                 ;;
             --stop)
-                pkill -f "quacc.experiments.run" -u $USER
+                pkill -f $MODULE -u $USER
                 pkill -f joblib -u $USER
                 exit 0
                 ;;
