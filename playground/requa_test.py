@@ -1,5 +1,6 @@
 import os
 from contextlib import redirect_stderr, redirect_stdout
+from glob import glob
 from time import time
 
 import numpy as np
@@ -13,12 +14,14 @@ from tqdm import tqdm
 
 import quacc as qc
 import quacc.error
+from quacc.dataset import RCV1_MULTICLASS_DATASETS
 from quacc.dataset import DatasetProvider as DP
 from quacc.error import f1_macro, vanilla_acc
 from quacc.experiments.util import split_validation
 from quacc.models.cont_table import N2E, QuAcc1xN2, QuAcc1xNp1, QuAccNxN
 from quacc.models.model_selection import GridSearchCAP as GSCAP
 from quacc.models.requa import ReQua
+from quacc.utils.commons import parallel as qc_parallel
 from quacc.utils.commons import true_acc
 
 NUM_TEST = 1000
@@ -28,6 +31,7 @@ qp.environ["_R_SEED"] = 0
 CSV_SEP = ","
 LOCAL_DIR = os.path.join(qc.env["OUT_DIR"], "pg_results", "requa")
 CONFIG = "multiclass"
+VERBOSE = False
 
 
 def sld():
@@ -69,7 +73,7 @@ def gen_methods(h, acc_fn):
     quacc_params = {
         # "q_class__classifier__C": np.logspace(-3, 3, 7),
         # "q_class__classifier__class_weight": [None, "balanced"],
-        # "add_X": [True, False],
+        "add_X": [True, False],
         "add_posteriors": [True, False],
         "add_y_hat": [True, False],
         "add_maxconf": [True, False],
@@ -77,7 +81,8 @@ def gen_methods(h, acc_fn):
         "add_maxinfsoft": [True, False],
     }
     sample_s = qp.environ["SAMPLE_SIZE"]
-    yield "ReQua", ReQua(h, acc_fn, get_quaccs(h, acc_fn), param_grid=quacc_params, sample_size=sample_s, verbose=True)
+    yield "ReQua", ReQua(h, acc_fn, get_quaccs(h, acc_fn), param_grid=quacc_params, sample_size=sample_s, verbose=VERBOSE)
+    yield "ReQua-linfeat", ReQua(h, acc_fn, get_quaccs(h, acc_fn), param_grid=quacc_params, sample_size=sample_s, add_linear_features=True, verbose=VERBOSE)
 
 # fmt: on
 
@@ -88,7 +93,8 @@ def get_local_path(dataset, method_name, acc_name):
 
 def main():
     os.makedirs(LOCAL_DIR, exist_ok=True)
-    dataset_names = ["C18", "E1"]
+    # dataset_names = ["C18", "E1"]
+    dataset_names = RCV1_MULTICLASS_DATASETS
     dfs = []
     for dataset_name in dataset_names:
         L, V, U = DP.rcv1_multiclass(dataset_name)
@@ -114,10 +120,8 @@ def main():
                 t_init = time()
                 method.fit(V)
                 true_accs = np.array([true_acc(h, acc_fn, Ui) for Ui in test_prot()])
-                estim_accs = []
-                for Ui in tqdm(test_prot(), total=NUM_TEST):
-                    estim_accs.append(method.predict(Ui.X))
-                estim_accs = np.asarray(estim_accs)
+                estim_accs = method.batch_predict(test_prot)
+
                 ae = quacc.error.ae(true_accs, estim_accs)
                 t_method = time() - t_init
                 print(f"method {method_name} for {acc_name} took {t_method:.3f}s")
@@ -137,5 +141,12 @@ def main():
     print(results.pivot_table(values="ae", index="dataset", columns=["method", "acc_name"]))
 
 
+def clean_results(path="*.csv"):
+    glob_path = os.path.join(LOCAL_DIR, basedir, path)
+    for f in glob(glob_path):
+        os.remove(f)
+
+
 if __name__ == "__main__":
+    # clean_results()
     main()
