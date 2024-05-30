@@ -15,7 +15,7 @@ from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import StratifiedKFold, cross_val_predict
 
 from quacc.models.base import ClassifierAccuracyPrediction
-from quacc.models.utils import get_posteriors_from_h, max_conf, neg_entropy
+from quacc.models.utils import get_posteriors_from_h, max_conf, max_inverse_softmax, neg_entropy
 
 
 class LabelledCollection(LC):
@@ -323,8 +323,7 @@ class QuAcc(CAPContingencyTableQ):
             add_covs.append(ne)
 
         if self.add_maxinfsoft:
-            lgP = np.log(P)
-            mis = np.max(lgP - lgP.mean(axis=1, keepdims=True), axis=1, keepdims=True)
+            mis = max_inverse_softmax(P, keepdims=True)
             add_covs.append(mis)
 
         if len(add_covs) > 0:

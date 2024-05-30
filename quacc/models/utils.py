@@ -26,6 +26,12 @@ def neg_entropy(P, keepdims=False):
     return ne
 
 
+def max_inverse_softmax(P, keepdims=False):
+    lgP = np.log(P)
+    mis = np.max(lgP - lgP.mean(axis=1, keepdims=True), axis=1, keepdims=keepdims)
+    return mis
+
+
 def smooth(prevalences, epsilon=1e-5):
     """
     Smooths a prevalence vector.
