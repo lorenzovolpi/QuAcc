@@ -8,8 +8,11 @@ import pandas as pd
 import quapy as qp
 from quapy.method.aggregative import EMQ, PACC, KDEyML
 from quapy.protocol import UPP
-from sklearn.linear_model import LogisticRegression
+from sklearn.kernel_ridge import KernelRidge as KRR
+from sklearn.linear_model import LinearRegression as LinReg
+from sklearn.linear_model import LogisticRegression, Ridge
 from sklearn.model_selection import GridSearchCV
+from sklearn.svm import SVR
 from tqdm import tqdm
 
 import quacc as qc
@@ -30,39 +33,59 @@ qp.environ["_R_SEED"] = 0
 
 CSV_SEP = ","
 LOCAL_DIR = os.path.join(qc.env["OUT_DIR"], "pg_results", "requa")
-CONFIG = "multiclass"
-VERBOSE = False
+CONFIG = "binary"
+VERBOSE = True
+
+
+class cleanEMQ(EMQ):
+    @classmethod
+    def EM(cls, tr_prev, posterior_probabilities, epsilon=...):
+        with open(os.devnull, "w") as f:
+            with redirect_stdout(f):
+                return super().EM(tr_prev, posterior_probabilities, epsilon)
 
 
 def sld():
-    return EMQ(LogisticRegression(), val_split=5)
+    return cleanEMQ(LogisticRegression(), val_split=5)
 
 
 def kdey():
     return KDEyML(LogisticRegression())
 
 
-def get_bin_quaccs(h, acc_fn):
+def get_bin_quaccs(h, acc_fn, q_class):
     return [
-        QuAcc1xN2(h, acc_fn, sld()),
-        QuAcc1xNp1(h, acc_fn, sld()),
-        QuAccNxN(h, acc_fn, sld()),
+        QuAcc1xN2(h, acc_fn, q_class),
+        QuAcc1xNp1(h, acc_fn, q_class),
+        QuAccNxN(h, acc_fn, q_class),
     ]
 
 
-def get_multi_quaccs(h, acc_fn):
+def get_multi_quaccs(h, acc_fn, q_class):
     return [
-        QuAcc1xN2(h, acc_fn, sld()),
-        QuAccNxN(h, acc_fn, sld()),
+        QuAcc1xN2(h, acc_fn, q_class),
+        QuAccNxN(h, acc_fn, q_class),
     ]
+
+
+def gen_bin_datasets():
+    for dataset_name in ["CCAT", "GCAT", "MCAT", "ECAT"][:2]:
+        yield dataset_name, DP.rcv1_binary(dataset_name)
+
+
+def gen_multi_datasets():
+    for dataset_name in RCV1_MULTICLASS_DATASETS:
+        yield dataset_name, DP.rcv1_multiclass(dataset_name)
 
 
 if CONFIG == "multiclass":
     get_quaccs = get_multi_quaccs
+    gen_datasets = gen_multi_datasets
     qp.environ["SAMPLE_SIZE"] = 250
     basedir = CONFIG
 elif CONFIG == "binary":
-    get_quaccs == get_bin_quaccs
+    get_quaccs = get_bin_quaccs
+    gen_datasets = gen_bin_datasets
     qp.environ["SAMPLE_SIZE"] = 1000
     basedir = CONFIG
 
@@ -81,8 +104,14 @@ def gen_methods(h, acc_fn):
         "add_maxinfsoft": [True, False],
     }
     sample_s = qp.environ["SAMPLE_SIZE"]
-    yield "ReQua", ReQua(h, acc_fn, get_quaccs(h, acc_fn), param_grid=quacc_params, sample_size=sample_s, verbose=VERBOSE)
-    yield "ReQua-linfeat", ReQua(h, acc_fn, get_quaccs(h, acc_fn), param_grid=quacc_params, sample_size=sample_s, add_linear_features=True, verbose=VERBOSE)
+    yield "ReQua(SLD-LinReg)", ReQua(h, acc_fn, LinReg(), get_quaccs(h, acc_fn, sld()), param_grid=quacc_params, sample_size=sample_s, verbose=VERBOSE)
+    # yield "ReQua(SLD-LinReg)-linfeat", ReQua(h, acc_fn, LinReg(), get_quaccs(h, acc_fn, sld()), param_grid=quacc_params, sample_size=sample_s, add_conf=True, verbose=VERBOSE)
+    yield "ReQua(SLD-Ridge)", ReQua(h, acc_fn, Ridge(), get_quaccs(h, acc_fn, sld()), param_grid=quacc_params, sample_size=sample_s, verbose=VERBOSE)
+    # yield "ReQua(SLD-Ridge)-linfeat", ReQua(h, acc_fn, Ridge(), get_quaccs(h, acc_fn, sld()), param_grid=quacc_params, sample_size=sample_s, add_conf=True, verbose=VERBOSE)
+    yield "ReQua(SLD-KRR)", ReQua(h, acc_fn, KRR(), get_quaccs(h, acc_fn, sld()), param_grid=quacc_params, sample_size=sample_s, verbose=VERBOSE)
+    # yield "ReQua(SLD-KRR)-linfeat", ReQua(h, acc_fn, KRR(), get_quaccs(h, acc_fn, sld()), param_grid=quacc_params, sample_size=sample_s, add_conf=True, verbose=VERBOSE)
+    yield "ReQua(SLD-SVR)", ReQua(h, acc_fn, SVR(), get_quaccs(h, acc_fn, sld()), param_grid=quacc_params, sample_size=sample_s, verbose=VERBOSE)
+    # yield "ReQua(SLD-SVR)-linfeat", ReQua(h, acc_fn, SVR(), get_quaccs(h, acc_fn, sld()), param_grid=quacc_params, sample_size=sample_s, add_conf=True, verbose=VERBOSE)
 
 # fmt: on
 
@@ -93,17 +122,17 @@ def get_local_path(dataset, method_name, acc_name):
 
 def main():
     os.makedirs(LOCAL_DIR, exist_ok=True)
-    # dataset_names = ["C18", "E1"]
-    dataset_names = RCV1_MULTICLASS_DATASETS
     dfs = []
-    for dataset_name in dataset_names:
-        L, V, U = DP.rcv1_multiclass(dataset_name)
+    for dataset_name, (L, V, U) in gen_datasets():
         V, val_prot = split_validation(V)
         # h = LogisticRegression()
         h_param_grid = {"C": np.logspace(-4, -4, 9), "class_weight": ["balanced", None]}
         h_name, h = "LR-OPT", GridSearchCV(LogisticRegression(), h_param_grid, cv=5, n_jobs=-1)
         test_prot = UPP(U, repeats=NUM_TEST, return_type="labelled_collection", random_state=0)
-        accs = [("vanilla_acc", vanilla_acc), ("f1", f1_macro)]
+        accs = [
+            ("vanilla_acc", vanilla_acc),
+            # ("f1", f1_macro),
+        ]
 
         h.fit(*L.Xy)
         print(f"trained {h_name} trained over {dataset_name}")
@@ -121,6 +150,7 @@ def main():
                 method.fit(V)
                 true_accs = np.array([true_acc(h, acc_fn, Ui) for Ui in test_prot()])
                 estim_accs = method.batch_predict(test_prot)
+                estim_accs = np.asarray(estim_accs)
 
                 ae = quacc.error.ae(true_accs, estim_accs)
                 t_method = time() - t_init
