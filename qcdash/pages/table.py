@@ -20,19 +20,28 @@ register_page(__name__, name=f"{APP_NAME} - table", top_nav=True, path="/table")
 root_folder = os.path.join(qc.env["OUT_DIR"], "results")
 
 
-def get_df(rep: Report):
+def get_df(rep: Report, method_by_row=True):
     df = rep.table_data()
-    df = df.pivot_table(values="acc_err", index=["method"], columns=["dataset"], fill_value=np.nan)
+    if method_by_row:
+        df = df.pivot_table(values="acc_err", index=["method"], columns=["dataset"], fill_value=np.nan)
+    else:
+        df = df.pivot_table(values="acc_err", index=["dataset"], columns=["method"], fill_value=np.nan)
     return df
 
 
-def get_Table(df: pd.DataFrame):
+def get_Table(df: pd.DataFrame, method_by_row=True):
     if df is None:
         return None
 
-    df_idxmin = df.idxmin(axis=0, numeric_only=True)
-    df_idxmin_cols = df_idxmin.index.to_list()
-    df_idxmin_rows = df_idxmin.to_list()
+    if method_by_row:
+        df_idxmin = df.idxmin(axis=0, numeric_only=True)
+        df_idxmin_cols = df_idxmin.index.to_numpy()
+        rows_sorter = np.argsort(df.index.to_numpy())
+        df_idxmin_rows = rows_sorter[np.searchsorted(df.index.to_numpy(), df_idxmin.to_numpy(), sorter=rows_sorter)]
+    else:
+        df_idxmin = df.idxmin(axis=1, numeric_only=True)
+        df_idxmin_cols = df_idxmin.to_numpy()
+        df_idxmin_rows = np.arange(df_idxmin_cols.shape[0])
 
     columns = {
         c: dict(
@@ -62,7 +71,6 @@ def get_Table(df: pd.DataFrame):
     _style_idx_cell = {"padding": "0 12px", "text_align": "right", "font_family": "sans"}
     # _style_cell_cond = [{"if": {"column_id": "dataset"}, "text_align": "right"}]
     _style_data_cond = []
-    # for _r, _c in enumerate(df_idxmin_cols):
     for _r, _c in zip(df_idxmin_rows, df_idxmin_cols):
         _style_data_cond.append(
             {
