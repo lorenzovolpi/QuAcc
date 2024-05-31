@@ -30,7 +30,7 @@ def get_Table(df: pd.DataFrame):
     if df is None:
         return None
 
-    df_idxmin = df.idxmin(axis="columns", numeric_only=True)
+    df_idxmin = df.idxmin(axis="index", numeric_only=True)
     df_idxmin_cols = df_idxmin.to_list()
 
     columns = {
