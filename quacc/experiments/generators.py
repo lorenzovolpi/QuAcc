@@ -1,5 +1,4 @@
 import os
-from typing import Callable
 
 import numpy as np
 import quapy as qp
@@ -11,9 +10,13 @@ from quapy.data.datasets import (
 from quapy.method._kdey import KDEyML
 from quapy.method.aggregative import ACC, EMQ, PACC
 from quapy.protocol import UPP
-from sklearn.linear_model import LogisticRegression
+from sklearn.kernel_ridge import KernelRidge as KRR
+from sklearn.linear_model import LinearRegression as LinReg
+from sklearn.linear_model import LogisticRegression as LR
+from sklearn.linear_model import Ridge
 from sklearn.model_selection import GridSearchCV
 
+import quacc as qc
 from quacc.dataset import RCV1_BINARY_DATASETS, RCV1_MULTICLASS_DATASETS
 from quacc.dataset import DatasetProvider as DP
 from quacc.error import f1, f1_macro, vanilla_acc
@@ -21,21 +24,34 @@ from quacc.experiments.util import split_validation
 from quacc.models.cont_table import (
     N2E,
     CAPContingencyTable,
-    ContTableTransferCAP,
     NaiveCAP,
     QuAcc1xN2,
+    QuAcc1xNp1,
     QuAccNxN,
 )
 from quacc.models.direct import ATC, CAPDirect, DoC, PabloCAP, PrediQuant
 from quacc.models.model_selection import GridSearchCAP as GSCAP
+from quacc.models.requa import ReQua
 from quacc.utils.commons import get_results_path
+
+
+def sld():
+    return EMQ(LR(), val_split=5)
+
+
+def pacc():
+    return PACC(LR())
+
+
+def kdey():
+    return KDEyML(LR())
 
 
 def gen_classifiers():
     param_grid = {"C": np.logspace(-4, -4, 9), "class_weight": ["balanced", None]}
 
-    yield "LR", LogisticRegression()
-    yield "LR-opt", GridSearchCV(LogisticRegression(), param_grid, cv=5, n_jobs=-1)
+    yield "LR", LR()
+    yield "LR-opt", GridSearchCV(LR(), param_grid, cv=5, n_jobs=qc.env["N_JOBS"])
     # yield 'NB', GaussianNB()
     # yield 'SVM(rbf)', SVC()
     # yield 'SVM(linear)', LinearSVC()
@@ -72,12 +88,12 @@ def gen_tweet_datasets(
 def gen_bin_datasets(
     only_names=False,
 ) -> [str, [LabelledCollection, LabelledCollection, LabelledCollection]]:
-    # imdb
-    yield "imdb", None if only_names else DP.imdb()
     # rcv1
     for dn in RCV1_BINARY_DATASETS:
         dval = None if only_names else DP.rcv1_binary(dn)
         yield dn, dval
+    # imdb
+    yield "imdb", None if only_names else DP.imdb()
 
 
 def gen_product(gen1, gen2):
@@ -86,7 +102,31 @@ def gen_product(gen1, gen2):
             yield v1, v2
 
 
-def gen_CAP_direct(h, acc_fn, with_oracle=False) -> [str, CAPDirect]:
+def requa_params(h, acc_fn, reg, q_class, config):
+    quaccs = [
+        QuAcc1xN2(h, acc_fn, q_class),
+        QuAccNxN(h, acc_fn, q_class),
+    ]
+    if config == "binary":
+        quaccs.append(QuAcc1xNp1(h, acc_fn, q_class))
+
+    quacc_params = {
+        # "q_class__classifier__C": np.logspace(-3, 3, 7),
+        # "q_class__classifier__class_weight": [None, "balanced"],
+        "add_X": [True, False],
+        "add_posteriors": [True, False],
+        "add_y_hat": [True, False],
+        "add_maxconf": [True, False],
+        "add_negentropy": [True, False],
+        "add_maxinfsoft": [True, False],
+    }
+
+    sample_size = qp.environ["SAMPLE_SIZE"]
+
+    return h, acc_fn, reg, quaccs, quacc_params, sample_size
+
+
+def gen_CAP_direct(h, acc_fn, config, with_oracle=False) -> [str, CAPDirect]:
     ### CAP methods ###
     # yield 'SebCAP', SebastianiCAP(h, acc_fn, ACC)
     # yield 'SebCAP-SLD', SebastianiCAP(h, acc_fn, EMQ, predict_train_prev=not with_oracle)
@@ -94,12 +134,24 @@ def gen_CAP_direct(h, acc_fn, with_oracle=False) -> [str, CAPDirect]:
     # yield 'SebCAPweight', SebastianiCAP(h, acc_fn, ACC, alpha=0)
     # yield "PrediQuant(ACC)", PrediQuant(h, acc_fn, ACC)
     yield "PrediQuant(SLD)", PrediQuant(h, acc_fn, EMQ)
-    yield "PrediQuant(KDEy)", PrediQuant(h, acc_fn, KDEyML)
+    # yield "PrediQuant(KDEy)", PrediQuant(h, acc_fn, KDEyML)
     # yield "PrediQuantWeight(ACC)", PrediQuant(h, acc_fn, ACC, alpha=0)
     yield "PrediQuantWeight(SLD)", PrediQuant(h, acc_fn, EMQ, alpha=0)
-    yield "PrediQuantWeight(KDEy)", PrediQuant(h, acc_fn, KDEyML, alpha=0)
+    # yield "PrediQuantWeight(KDEy)", PrediQuant(h, acc_fn, KDEyML, alpha=0)
     # yield 'PabCAP', PabloCAP(h, acc_fn, ACC)
     # yield 'PabCAP-SLD-median', PabloCAP(h, acc_fn, EMQ, aggr='median')
+    yield "ReQua(SLD-LinReg)", ReQua(*requa_params(h, acc_fn, LinReg(), sld(), config))
+    yield "ReQua(SLD-LinReg)-conf", ReQua(*requa_params(h, acc_fn, LinReg(), sld(), config), add_conf=True)
+    # yield "ReQua(KDEy-LinReg)", ReQua(*requa_params(h, acc_fn, kdey(), config))
+    # yield "ReQua(KDEy-LinReg)-conf", ReQua(*requa_params(h, acc_fn, kdey(), config), add_conf=True)
+    yield "ReQua(SLD-Ridge)", ReQua(*requa_params(h, acc_fn, Ridge(), sld(), config))
+    yield "ReQua(SLD-Ridge)-conf", ReQua(*requa_params(h, acc_fn, Ridge(), sld(), config), add_conf=True)
+    # yield "ReQua(KDEy-Ridge)", ReQua(*requa_params(h, acc_fn, Ridge(), kdey(), config))
+    # yield "ReQua(KDEy-Ridge)-conf", ReQua(*requa_params(h, acc_fn, Ridge(), kdey(), config), add_conf=True)
+    yield "ReQua(SLD-KRR)", ReQua(*requa_params(h, acc_fn, KRR(), sld(), config))
+    yield "ReQua(SLD-KRR)-conf", ReQua(*requa_params(h, acc_fn, KRR(), sld(), config), add_conf=True)
+    # yield "ReQua(KDEy-Ridge)", ReQua(*requa_params(h, acc_fn, Ridge(), kdey(), config))
+    # yield "ReQua(KDEy-Ridge)-conf", ReQua(*requa_params(h, acc_fn, Ridge(), kdey(), config), add_conf=True)
 
     ### baselines ###
     yield "ATC-MC", ATC(h, acc_fn, scoring_fn="maxconf")
@@ -108,33 +160,33 @@ def gen_CAP_direct(h, acc_fn, with_oracle=False) -> [str, CAPDirect]:
 
 
 # fmt: off
-def gen_CAP_cont_table(h, acc_fn) -> [str, CAPContingencyTable]:
-    # yield "Naive", NaiveCAP(h, acc_fn)
-    # yield "CT-PPS-EMQ", ContTableTransferCAP(h, acc_fn, EMQ(LogisticRegression()))
+def gen_CAP_cont_table(h, acc_fn, config) -> [str, CAPContingencyTable]:
+    yield "Naive", NaiveCAP(h, acc_fn)
+    # yield "CT-PPS-SLD", ContTableTransferCAP(h, acc_fn, EMQ(LogisticRegression()))
     # yield 'CT-PPS-KDE', ContTableTransferCAP(h, acc_fn, KDEyML(LogisticRegression(class_weight='balanced'), bandwidth=0.01))
     # yield 'CT-PPS-KDE05', ContTableTransferCAP(h, acc_fn, KDEyML(LogisticRegression(class_weight='balanced'), bandwidth=0.05))
-    # yield 'QuAcc(EMQ)nxn-noX', QuAccNxN(h, acc_fn, EMQ(LogisticRegression()), add_posteriors=True, add_X=False)
-    # yield 'QuAcc(EMQ)nxn', QuAccNxN(h, acc_fn, EMQ(LogisticRegression()))
-    # yield "QuAcc(EMQ)nxn-MC", QuAccNxN(h, acc_fn, EMQ(LogisticRegression()), add_maxconf=True)
-    # yield 'QuAcc(EMQ)nxn-NE', QuAccNxN(h, acc_fn, EMQ(LogisticRegression()), add_negentropy=True)
-    # yield 'QuAcc(EMQ)nxn-MIS', QuAccNxN(h, acc_fn, EMQ(LogisticRegression()), add_maxinfsoft=True)
-    # yield 'QuAcc(EMQ)nxn-MC-MIS', QuAccNxN(h, acc_fn, EMQ(LogisticRegression()), add_maxconf=True, add_maxinfsoft=True)
-    # yield 'QuAcc(EMQ)1xn2', QuAcc1xN2(h, acc_fn, EMQ(LogisticRegression()))
-    # yield 'QuAcc(EMQ)1xn2-MC', QuAcc1xN2(h, acc_fn, EMQ(LogisticRegression()), add_maxconf=True)
-    # yield 'QuAcc(EMQ)1xn2-NE', QuAcc1xN2(h, acc_fn, EMQ(LogisticRegression()), add_negentropy=True)
-    # yield 'QuAcc(EMQ)1xn2-MIS', QuAcc1xN2(h, acc_fn, EMQ(LogisticRegression()), add_maxinfsoft=True)
-    # yield 'QuAcc(EMQ)1xn2-MC-MIS', QuAcc1xN2(h, acc_fn, EMQ(LogisticRegression()), add_maxconf=True, add_maxinfsoft=True)
-    # yield 'CT-PPSh-EMQ', ContTableTransferCAP(h, acc_fn, EMQ(LogisticRegression()), reuse_h=True)
+    # yield 'QuAcc(SLD)nxn-noX', QuAccNxN(h, acc_fn, EMQ(LogisticRegression()), add_posteriors=True, add_X=False)
+    # yield 'QuAcc(SLD)nxn', QuAccNxN(h, acc_fn, EMQ(LogisticRegression()))
+    # yield "QuAcc(SLD)nxn-MC", QuAccNxN(h, acc_fn, EMQ(LogisticRegression()), add_maxconf=True)
+    # yield 'QuAcc(SLD)nxn-NE', QuAccNxN(h, acc_fn, EMQ(LogisticRegression()), add_negentropy=True)
+    # yield 'QuAcc(SLD)nxn-MIS', QuAccNxN(h, acc_fn, EMQ(LogisticRegression()), add_maxinfsoft=True)
+    # yield 'QuAcc(SLD)nxn-MC-MIS', QuAccNxN(h, acc_fn, EMQ(LogisticRegression()), add_maxconf=True, add_maxinfsoft=True)
+    # yield 'QuAcc(SLD)1xn2', QuAcc1xN2(h, acc_fn, EMQ(LogisticRegression()))
+    # yield 'QuAcc(SLD)1xn2-MC', QuAcc1xN2(h, acc_fn, EMQ(LogisticRegression()), add_maxconf=True)
+    # yield 'QuAcc(SLD)1xn2-NE', QuAcc1xN2(h, acc_fn, EMQ(LogisticRegression()), add_negentropy=True)
+    # yield 'QuAcc(SLD)1xn2-MIS', QuAcc1xN2(h, acc_fn, EMQ(LogisticRegression()), add_maxinfsoft=True)
+    # yield 'QuAcc(SLD)1xn2-MC-MIS', QuAcc1xN2(h, acc_fn, EMQ(LogisticRegression()), add_maxconf=True, add_maxinfsoft=True)
+    # yield 'CT-PPSh-SLD', ContTableTransferCAP(h, acc_fn, EMQ(LogisticRegression()), reuse_h=True)
     # yield 'Equations-ACCh', NsquaredEquationsCAP(h, acc_fn, ACC, reuse_h=True)
     # yield 'Equations-ACC', NsquaredEquationsCAP(h, acc_fn, ACC)
     # yield 'Equations-SLD', NsquaredEquationsCAP(h, acc_fn, EMQ)
-    yield "N2E(SLD)", N2E(h, acc_fn, EMQ(LogisticRegression()))
-    yield "N2E(KDEy)", N2E(h, acc_fn, KDEyML(LogisticRegression()))
+    yield "N2E(SLD)", N2E(h, acc_fn, sld())
+    # yield "N2E(KDEy)", N2E(h, acc_fn, kdey())
 # fmt: on
 
 
 # fmt: off
-def gen_CAP_cont_table_opt(h, acc_fn, val_prot) -> [str, CAPContingencyTable]:
+def gen_CAP_cont_table_opt(h, acc_fn, config, val_prot) -> [str, CAPContingencyTable]:
     pacc_lr_params = {
         "q_class__classifier__C": np.logspace(-3, 3, 7),
         "q_class__classifier__class_weight": [None, "balanced"],
@@ -148,21 +200,20 @@ def gen_CAP_cont_table_opt(h, acc_fn, val_prot) -> [str, CAPContingencyTable]:
     emq_lr_params = pacc_lr_params | {"q_class__recalib": [None, "bcts"]}
     kde_lr_params = pacc_lr_params | {"q_class__bandwidth": np.linspace(0.01, 0.2, 5)}
 
-    def sld():
-        return EMQ(LogisticRegression(), val_split=5)
-    def pacc():
-        return PACC(LogisticRegression())
-    def kde():
-        return KDEyML(LogisticRegression())
-
-    yield "QuAcc(EMQ)1xn2-OPT-norefit", GSCAP(QuAcc1xN2(h, acc_fn, sld()), emq_lr_params, val_prot, acc_fn, refit=False)
-    yield "QuAcc(EMQ)nxn-OPT-norefit", GSCAP(QuAccNxN(h, acc_fn, sld()), emq_lr_params, val_prot, acc_fn, refit=False)
-    yield "QuAcc(EMQ)1xn2-OPT", GSCAP(QuAcc1xN2(h, acc_fn, sld()), emq_lr_params, val_prot, acc_fn, refit=True)
-    yield "QuAcc(EMQ)nxn-OPT", GSCAP(QuAccNxN(h, acc_fn, sld()), emq_lr_params, val_prot, acc_fn, refit=True)
-    yield "QuAcc(KDEy)1xn2-OPT", GSCAP(QuAcc1xN2(h, acc_fn, kde()), kde_lr_params, val_prot, acc_fn, refit=True)
-    yield "QuAcc(KDEy)nxn-OPT", GSCAP(QuAccNxN(h, acc_fn, kde()), kde_lr_params, val_prot, acc_fn, refit=True)
-    yield "QuAcc(KDEy)1xn2-OPT-norefit", GSCAP(QuAcc1xN2(h, acc_fn, kde()), kde_lr_params, val_prot, acc_fn, refit=False)
-    yield "QuAcc(KDEy)nxn-OPT-norefit", GSCAP(QuAccNxN(h, acc_fn, kde()), kde_lr_params, val_prot, acc_fn, refit=False)
+    yield "QuAcc(SLD)1xn2-OPT-norefit", GSCAP(QuAcc1xN2(h, acc_fn, sld()), emq_lr_params, val_prot, acc_fn, refit=False)
+    yield "QuAcc(SLD)1xn2-OPT", GSCAP(QuAcc1xN2(h, acc_fn, sld()), emq_lr_params, val_prot, acc_fn, refit=True)
+    yield "QuAcc(SLD)nxn-OPT-norefit", GSCAP(QuAccNxN(h, acc_fn, sld()), emq_lr_params, val_prot, acc_fn, refit=False)
+    yield "QuAcc(SLD)nxn-OPT", GSCAP(QuAccNxN(h, acc_fn, sld()), emq_lr_params, val_prot, acc_fn, refit=True)
+    if config == "binary":
+        yield "QuAcc(SLD)1xnp1-OPT-norefit", GSCAP(QuAcc1xNp1(h, acc_fn, sld()), emq_lr_params, val_prot, acc_fn, refit=False)
+        yield "QuAcc(SLD)1xnp1-OPT", GSCAP(QuAcc1xNp1(h, acc_fn, sld()), emq_lr_params, val_prot, acc_fn, refit=True)
+    # yield "QuAcc(KDEy)1xn2-OPT", GSCAP(QuAcc1xN2(h, acc_fn, kdey()), kde_lr_params, val_prot, acc_fn, refit=True)
+    # yield "QuAcc(KDEy)1xn2-OPT-norefit", GSCAP(QuAcc1xN2(h, acc_fn, kdey()), kde_lr_params, val_prot, acc_fn, refit=False)
+    # yield "QuAcc(KDEy)nxn-OPT", GSCAP(QuAccNxN(h, acc_fn, kdey()), kde_lr_params, val_prot, acc_fn, refit=True)
+    # yield "QuAcc(KDEy)nxn-OPT-norefit", GSCAP(QuAccNxN(h, acc_fn, kdey()), kde_lr_params, val_prot, acc_fn, refit=False)
+    # if config == "binary":
+    #     yield "QuAcc(KDEy)1xnp1-OPT-norefit", GSCAP(QuAcc1xNp1(h, acc_fn, kdey()), emq_lr_params, val_prot, acc_fn, refit=False)
+    #     yield "QuAcc(KDEy)1xnp1-OPT", GSCAP(QuAcc1xNp1(h, acc_fn, kdey()), emq_lr_params, val_prot, acc_fn, refit=True)
     # yield "QuAcc(PACC)1xn2-OPT", GSCAP(QuAcc1xN2(h, acc_fn, pacc()), pacc_lr_params, val_prot, acc_fn, refit=True)
     # yield "QuAcc(PACC)nxn-OPT", GSCAP(QuAccNxN(h, acc_fn, pacc()), pacc_lr_params, val_prot, acc_fn, refit=True)
     # yield "QuAcc(PACC)1xn2-OPT-norefit", GSCAP(QuAcc1xN2(h, acc_fn, pacc()), pacc_lr_params, val_prot, acc_fn, refit=False)
@@ -172,33 +223,35 @@ def gen_CAP_cont_table_opt(h, acc_fn, val_prot) -> [str, CAPContingencyTable]:
 # fmt: on
 
 
-def gen_methods(h, V, with_oracle=False):
+def gen_methods(h, V, config, with_oracle=False):
+    config = "multiclass" if config is None else config
+
     _, acc_fn = next(gen_acc_measure())
 
-    for name, method in gen_CAP_direct(h, acc_fn, with_oracle):
+    for name, method in gen_CAP_direct(h, acc_fn, config, with_oracle):
         yield name, method, V
-    for name, method in gen_CAP_cont_table(h, acc_fn):
+    for name, method in gen_CAP_cont_table(h, acc_fn, config):
         yield name, method, V
 
     V, val_prot = split_validation(V)
-    for name, method in gen_CAP_cont_table_opt(h, acc_fn, val_prot):
+    for name, method in gen_CAP_cont_table_opt(h, acc_fn, config, val_prot):
         yield name, method, V
 
 
-def get_method_names():
-    mock_h = LogisticRegression()
+def get_method_names(config):
+    mock_h = LR()
     _, mock_acc_fn = next(gen_acc_measure())
     mock_val_prot = UPP(None)
     return (
-        [m for m, _ in gen_CAP_direct(mock_h, mock_acc_fn)]
-        + [m for m, _ in gen_CAP_cont_table(mock_h, mock_acc_fn)]
-        + [m for m, _ in gen_CAP_cont_table_opt(mock_h, mock_acc_fn, mock_val_prot)]
+        [m for m, _ in gen_CAP_direct(mock_h, mock_acc_fn, config)]
+        + [m for m, _ in gen_CAP_cont_table(mock_h, mock_acc_fn, config)]
+        + [m for m, _ in gen_CAP_cont_table_opt(mock_h, mock_acc_fn, config, mock_val_prot)]
     )
 
 
 def gen_acc_measure(multiclass=False):
     yield "vanilla_accuracy", vanilla_acc
-    yield "macro-F1", f1_macro if multiclass else f1
+    # yield "macro-F1", f1_macro if multiclass else f1
 
 
 def any_missing(basedir, cls_name, dataset_name, method_name):
