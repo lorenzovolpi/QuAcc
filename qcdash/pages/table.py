@@ -22,7 +22,7 @@ root_folder = os.path.join(qc.env["OUT_DIR"], "results")
 
 def get_df(rep: Report):
     df = rep.table_data()
-    df = df.pivot_table(values="acc_err", index=["dataset"], columns=["method"], fill_value=np.nan)
+    df = df.pivot_table(values="acc_err", index=["method"], columns=["dataset"], fill_value=np.nan)
     return df
 
 
