@@ -135,7 +135,7 @@ def get_sidebar(**kwargs):
     config = kwargs.get("config", None)
     classifier = kwargs.get("classifier", None)
     acc = kwargs.get("acc", None)
-    dataset = kwargs.get("dataset", None)
+    datasets = kwargs.get("datasets", [])
     methods = kwargs.get("methods", [])
     return [
         html.H4("Parameters:", style={"margin-bottom": "1vw"}),
@@ -161,13 +161,10 @@ def get_sidebar(**kwargs):
             className="mb-3",
         ),
         dbc.Row(
-            [
-                dbc.Label("dataset", width=3),
-                dbc.Col(dbc.Select(id="tbl_dataset", value=dataset), width=9),
-            ],
+            [dbc.Label("Datasets"), dcc.Dropdown(id="tbl_datasets", value=datasets, multi=True)],
             className="mb-3",
         ),
-        dbc.Col([dbc.Label("Methods"), dcc.Dropdown(id="tbl_methods", value=methods, multi=True)]),
+        dbc.Row([dbc.Label("Methods"), dcc.Dropdown(id="tbl_methods", value=methods, multi=True)]),
     ]
 
 
@@ -219,18 +216,20 @@ def get_valid_fields(tree, req, *args):
         assert len(args) == 1 and None not in args
     elif req == "acc":
         assert len(args) == 2 and None not in args
-    elif req == "dataset":
+    elif req == "datasets":
         assert len(args) == 3 and None not in args
     elif req == "methods":
         assert len(args) == 4 and None not in args
 
-    idx = os.path.join(root_folder, *args)
     if req == "methods":
+        config, classifier, acc, datasets = args
+        idxs = [os.path.join(root_folder, config, classifier, acc, d) for d in datasets]
         res = []
-        for path in glob(idx):
+        for path in idxs:
             res += tree.get(path, [])
         res = np.unique(res).tolist()
     else:
+        idx = os.path.join(root_folder, *args)
         res = tree.get(idx, [])
     return res
 
@@ -284,20 +283,30 @@ def tbl_update_acc(href, config, classifier, tree, acc):
 
 
 @callback(
-    Output("tbl_dataset", "value"),
-    Output("tbl_dataset", "options"),
+    Output("tbl_datasets", "value"),
+    Output("tbl_datasets", "options"),
     Input("tbl_url", "href"),
     Input("tbl_config", "value"),
     Input("tbl_classifier", "value"),
     Input("tbl_acc", "value"),
     State("tbl_tree", "data"),
-    State("tbl_dataset", "value"),
+    State("tbl_datasets", "value"),
 )
-def tbl_update_dataset(href, config, classifier, acc, tree, dataset):
-    req_dataset = apply_param(href, ctx.triggered_id, "dataset", dataset)
-    valid_datasets = ["*"] + get_valid_fields(tree, "dataset", config, classifier, acc)
+def tbl_update_dataset(href, config, classifier, acc, tree, datasets):
+    valid_datasets = get_valid_fields(tree, "datasets", config, classifier, acc)
     assert len(valid_datasets) > 0, "no valid datasets"
-    new_dataset = req_dataset if req_dataset in valid_datasets else valid_datasets[0]
+
+    req_datasets = apply_param(href, ctx.triggered_id, "datasets", datasets)
+    if isinstance(req_datasets, str):
+        try:
+            req_datasets = json.loads(req_datasets)
+        except JSONDecodeError:
+            req_datasets = valid_datasets
+
+    if req_datasets is None or len(req_datasets) == 0:
+        return valid_datasets, valid_datasets
+
+    new_dataset = np.unique(np.array(req_datasets)[np.in1d(req_datasets, valid_datasets)]).tolist()
     return new_dataset, valid_datasets
 
 
@@ -308,7 +317,7 @@ def tbl_update_dataset(href, config, classifier, acc, tree, dataset):
     Input("tbl_config", "value"),
     Input("tbl_classifier", "value"),
     Input("tbl_acc", "value"),
-    Input("tbl_dataset", "value"),
+    Input("tbl_datasets", "value"),
     State("tbl_tree", "data"),
     State("tbl_methods", "value"),
 )
@@ -334,7 +343,7 @@ def tbl_update_methods(href, config, classifier, acc, dataset, tree, methods):
     Input("tbl_config", "value"),
     Input("tbl_classifier", "value"),
     Input("tbl_acc", "value"),
-    Input("tbl_dataset", "value"),
+    Input("tbl_datasets", "value"),
     Input("tbl_methods", "value"),
     State("tbl_tree", "data"),
 )
