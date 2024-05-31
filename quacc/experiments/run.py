@@ -1,4 +1,4 @@
-import itertools
+import itertools as IT
 import os
 from time import time
 from traceback import print_exception
@@ -27,7 +27,7 @@ from quacc.experiments.util import (
 )
 from quacc.utils.commons import save_dataset_stats, true_acc
 
-PROBLEM = "multiclass"
+PROBLEM = "binary"
 ORACLE = False
 basedir = PROBLEM + ("-oracle" if ORACLE else "")
 
@@ -49,10 +49,28 @@ elif PROBLEM == "tweet":
 log = get_logger()
 
 
+def all_exist_pre_check(basedir, cls_name, dataset_name):
+    method_names = get_method_names(PROBLEM)
+    acc_names = [acc_name for acc_name, _ in gen_acc_measure()]
+
+    all_exist = True
+    for method, acc in IT.product(method_names, acc_names):
+        path = TestReport(basedir, cls_name, acc, dataset_name, None, None, method).get_path()
+        all_exist = os.path.exists(path)
+        if not all_exist:
+            break
+
+    return all_exist
+
+
 def experiments():
     log.info("-" * 31 + "  start  " + "-" * 31)
 
     for (dataset_name, (L, V, U)), (cls_name, h) in gen_product(gen_datasets, gen_classifiers):
+        if all_exist_pre_check(basedir, cls_name, dataset_name):
+            log.info(f"{cls_name} on dataset={dataset_name}: all results already exist, skipping")
+            continue
+
         log.info(f"{cls_name} training on dataset={dataset_name}")
         h.fit(*L.Xy)
 
@@ -69,7 +87,7 @@ def experiments():
             true_accs[acc_name] = [true_acc(h, acc_fn, Ui) for Ui in test_prot()]
 
         L_prev = get_plain_prev(L.prevalence())
-        for method_name, method, V in gen_methods(h, V, ORACLE):
+        for method_name, method, V in gen_methods(h, V, PROBLEM, ORACLE):
             V_prev = get_plain_prev(V.prevalence())
 
             t_train = None
@@ -100,10 +118,10 @@ def experiments():
 
 # generate plots
 def plotting():
-    for (cls_name, _), (acc_name, _) in itertools.product(gen_classifiers(), gen_acc_measure()):
+    for (cls_name, _), (acc_name, _) in IT.product(gen_classifiers(), gen_acc_measure()):
         # save_plot_diagonal(basedir, cls_name, acc_name)
         for dataset_name, _ in gen_datasets(only_names=True):
-            methods = get_method_names()
+            methods = get_method_names(PROBLEM)
             rep = Report.load_results(basedir, cls_name, acc_name, dataset_name=dataset_name, method_name=methods)
             qc.plot.seaborn.plot_diagonal(
                 rep.diagonal_plot_data(), cls_name, acc_name, dataset_name, basedir=plots_basedir
