@@ -30,8 +30,9 @@ def get_Table(df: pd.DataFrame):
     if df is None:
         return None
 
-    df_idxmin = df.idxmin(axis="index", numeric_only=True)
-    df_idxmin_cols = df_idxmin.to_list()
+    df_idxmin = df.idxmin(axis=0, numeric_only=True)
+    df_idxmin_cols = df_idxmin.index.to_list()
+    df_idxmin_rows = df_idxmin.to_list()
 
     columns = {
         c: dict(
@@ -61,7 +62,8 @@ def get_Table(df: pd.DataFrame):
     _style_idx_cell = {"padding": "0 12px", "text_align": "right", "font_family": "sans"}
     # _style_cell_cond = [{"if": {"column_id": "dataset"}, "text_align": "right"}]
     _style_data_cond = []
-    for _r, _c in enumerate(df_idxmin_cols):
+    # for _r, _c in enumerate(df_idxmin_cols):
+    for _r, _c in zip(df_idxmin_rows, df_idxmin_cols):
         _style_data_cond.append(
             {
                 "if": {"column_id": _c, "row_index": _r},
