@@ -36,9 +36,10 @@ def fit_or_switch(method: ClassifierAccuracyPrediction, V, acc_fn, is_fit):
 def get_predictions(method: ClassifierAccuracyPrediction, test_prot, oracle=False):
     tinit = time()
     if not oracle:
-        estim_accs = [method.predict(Ui.X) for Ui in test_prot()]
+        estim_accs = method.batch_predict(test_prot)
     else:
-        estim_accs = [method.predict(Ui.X, oracle_prev=Ui.prevalence()) for Ui in test_prot()]
+        oracles = [Ui.prevalence() for Ui in test_prot()]
+        estim_accs = method.batch_predict(test_prot, oracle_prevs=oracles)
     t_test_ave = (time() - tinit) / test_prot.total()
     return estim_accs, t_test_ave
 

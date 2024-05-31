@@ -1,6 +1,10 @@
+import itertools as IT
 from abc import ABC, abstractmethod
+from time import time
+from typing import List
 
 from quapy.data.base import LabelledCollection
+from quapy.protocol import AbstractProtocol
 from sklearn.base import BaseEstimator
 
 
@@ -30,3 +34,12 @@ class ClassifierAccuracyPrediction(ABC):
         :return: float
         """
         ...
+
+    def batch_predict(self, prot: AbstractProtocol, oracle_prevs=None) -> list[float]:
+        if oracle_prevs is None:
+            estim_accs = [self.predict(Ui.X) for Ui in prot()]
+            return estim_accs
+        else:
+            assert isinstance(oracle_prevs, List), "Invalid oracles"
+            estim_accs = [self.predict(Ui.X, oracle_prev=op) for Ui, op in IT.zip_longest(prot(), oracle_prevs)]
+            return estim_accs

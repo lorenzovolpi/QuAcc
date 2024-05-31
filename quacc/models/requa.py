@@ -6,7 +6,7 @@ import numpy as np
 import quapy as qp
 from quapy.data.base import LabelledCollection
 from quapy.method.aggregative import AggregativeQuantifier
-from quapy.protocol import UPP
+from quapy.protocol import UPP, AbstractProtocol
 from sklearn.linear_model import LinearRegression, LogisticRegression
 
 import quacc as qc
@@ -21,24 +21,26 @@ class ReQua(CAPDirect):
         self,
         h,
         acc_fn,
+        reg_model,
         quacc_classes: QuAcc | list[QuAcc],
         param_grid: dict,
         sample_size,
         n_val_samples=500,
         val_prop=0.5,
         clip_vals=(0, 1),
-        add_linear_features=False,
+        add_conf=False,
         n_jobs=None,
         verbose=False,
     ):
         super().__init__(h, acc_fn)
         self.param_grid = param_grid
+        self.reg_model = reg_model
         self._build_models(quacc_classes)
         self.sample_size = sample_size
         self.n_val_samples = n_val_samples
         self.val_prop = val_prop
         self.clip_vals = clip_vals
-        self.add_linear_features = add_linear_features
+        self.add_conf = add_conf
         self.n_jobs = qc.commons.get_njobs(n_jobs)
         self.verbose = verbose
         self.joblib_verbose = 10 if verbose else 0
@@ -63,7 +65,6 @@ class ReQua(CAPDirect):
             self.models.append(m)
 
     def fit_regression(self, feats_list, accs):
-        self.reg_model = LinearRegression()
         reg_feats = np.hstack(feats_list)
         self.reg_model.fit(reg_feats, accs)
 
@@ -102,7 +103,9 @@ class ReQua(CAPDirect):
     def _get_batch_quacc_feats(self, prot, parallel=True):
         def _predict_model_cts(args):
             m, _prot = args
-            return np.vstack([m.predict_ct(sigma_i.X).flatten() for sigma_i in _prot()])
+            cts = np.vstack([m.predict_ct(sigma_i.X).flatten() for sigma_i in _prot()])
+
+            return cts
 
         # predicting v2 sample cont. tables for each model
         models_cts_args = [(m, prot) for m in self.models]
@@ -118,6 +121,7 @@ class ReQua(CAPDirect):
             )
         else:
             v2_ctss = [_predict_model_cts(arg) for arg in models_cts_args]
+
         v2_ctss = np.hstack(v2_ctss)
 
         return v2_ctss
@@ -161,7 +165,7 @@ class ReQua(CAPDirect):
         features.append(quacc_feats)
         self._sout(f"generating quacc features took {time() - t_ct_init:.3f}s")
 
-        if self.add_linear_features:
+        if self.add_conf:
             t_lin_init = time()
             lin_feats = self._get_batch_linear_feats(v2_prot)
             features.append(lin_feats)
@@ -179,10 +183,10 @@ class ReQua(CAPDirect):
 
         return self
 
-    def predict(self, X, oracle_prev=None):
+    def predict(self, X, oracle_prev=None) -> float:
         features = []
         features.append(self._get_quacc_feats(X))
-        if self.add_linear_features:
+        if self.add_conf:
             features.append(self._get_linear_feats(X))
 
         acc_pred = self.predict_regression(features)
@@ -191,16 +195,21 @@ class ReQua(CAPDirect):
             acc_pred = np.clip(acc_pred, *self.clip_vals)
         return acc_pred[0]
 
-    def batch_predict(self, prot, oracle_prev=None):
+    def batch_predict(self, prot: AbstractProtocol, oracle_prevs=None) -> list[float]:
         t_bpred_init = time()
+
         features = []
-        features.append(self._get_batch_quacc_feats(prot))
-        if self.add_linear_features:
-            features.append(self._get_batch_linear_feats(prot))
+
+        quacc_feats = self._get_batch_quacc_feats(prot)
+        features.append(quacc_feats)
+
+        if self.add_conf:
+            lin_feats = self._get_batch_linear_feats(prot)
+            features.append(lin_feats)
 
         acc_pred = self.predict_regression(features)
         self._sout(f"batch prediction took {time() - t_bpred_init:.3f}s")
 
         if self.clip_vals is not None:
             acc_pred = np.clip(acc_pred, *self.clip_vals)
-        return acc_pred
+        return acc_pred.tolist()
