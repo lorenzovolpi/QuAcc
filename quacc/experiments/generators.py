@@ -137,7 +137,7 @@ def gen_CAP_direct(h, acc_fn, config, with_oracle=False) -> [str, CAPDirect]:
     # yield "PrediQuant(KDEy)", PrediQuant(h, acc_fn, KDEyML)
     # yield "PrediQuantWeight(ACC)", PrediQuant(h, acc_fn, ACC, alpha=0)
     yield "PrediQuantWeight(SLD)", PrediQuant(h, acc_fn, EMQ, alpha=0)
-    yield "PrediQuantWeight(KDEy)", PrediQuant(h, acc_fn, KDEyML, alpha=0)
+    # yield "PrediQuantWeight(KDEy)", PrediQuant(h, acc_fn, KDEyML, alpha=0)
     # yield 'PabCAP', PabloCAP(h, acc_fn, ACC)
     # yield 'PabCAP-SLD-median', PabloCAP(h, acc_fn, EMQ, aggr='median')
     yield "ReQua(SLD-LinReg)", ReQua(*requa_params(h, acc_fn, LinReg(), sld(), config))
@@ -251,7 +251,7 @@ def get_method_names(config):
 
 def gen_acc_measure(multiclass=False):
     yield "vanilla_accuracy", vanilla_acc
-    yield "macro-F1", f1_macro if multiclass else f1
+    # yield "macro-F1", f1_macro if multiclass else f1
 
 
 def any_missing(basedir, cls_name, dataset_name, method_name):
