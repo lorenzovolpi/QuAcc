@@ -251,7 +251,7 @@ def get_method_names(config):
 
 def gen_acc_measure(multiclass=False):
     yield "vanilla_accuracy", vanilla_acc
-    # yield "macro-F1", f1_macro if multiclass else f1
+    yield "macro-F1", f1_macro if multiclass else f1
 
 
 def any_missing(basedir, cls_name, dataset_name, method_name):
