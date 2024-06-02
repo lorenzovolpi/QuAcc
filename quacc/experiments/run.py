@@ -27,7 +27,7 @@ from quacc.experiments.util import (
 )
 from quacc.utils.commons import save_dataset_stats, true_acc
 
-PROBLEM = "multiclass"
+PROBLEM = "binary"
 ORACLE = False
 basedir = PROBLEM + ("-oracle" if ORACLE else "")
 
