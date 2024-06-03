@@ -223,7 +223,7 @@ class NsquaredEquationsCAP(CAPContingencyTableQ):
         b[eq_no] = 1
         eq_no += 1
 
-        # (n-1)*(n-1) equations: the class cond rations should be the same in training and in test due to the
+        # (n-1)*(n-1) equations: the class cond ratios should be the same in training and in test due to the
         # PPS assumptions. Example in three classes, a ratio: a/(a+b+c) [test] = ar [a ratio in training]
         # a / (a + b + c) = ar
         # a = (a + b + c) * ar
