@@ -39,7 +39,7 @@ def get_Graph(fig):
         figure=fig,
         style={
             "margin": 0,
-            "height": "100vh",
+            "height": "94vh",
         },
     )
 
@@ -52,17 +52,17 @@ sidebar_style = {
     "top": 0,
     "left": 0,
     "bottom": 0,
-    "padding": "1vw",
+    # "padding": "1vw",
     "padding-top": "2vw",
     "margin": "0px",
     "flex": 1,
-    "overflow": "scroll",
-    "height": "100vh",
+    "overflow": "auto",
+    "height": "94vh",
+    "maxHeight": "94vh",
 }
 
 content_style = {
     "flex": 5,
-    "maxWidth": "84vw",
 }
 
 
@@ -114,9 +114,14 @@ def get_sidebar(**kwargs):
                 dbc.Label("plot", width=3),
                 dbc.Col(dbc.Select(id="mode", value=mode), width=9),
             ],
-            className="mb-5",
+            className="mb-3",
         ),
-        dbc.Col([dbc.Label("Methods"), dcc.Dropdown(id="methods", value=methods, multi=True)]),
+        dbc.Accordion(
+            [
+                dbc.AccordionItem([dbc.Checklist(id="methods", value=methods, switch=True)], title="Methods"),
+            ]
+        ),
+        # dbc.Col([dbc.Label("Methods"), dcc.Dropdown(id="methods", value=methods, multi=True)]),
     ]
 
 
@@ -127,15 +132,21 @@ def layout(**kwargs):
             dcc.Location(id="url", refresh=False),
             dcc.Store(id="root", storage_type="session", data=root_folder),
             dcc.Store(id="tree", storage_type="session", data={}),
-            html.Div(
+            dbc.Row(
                 [
                     html.Div(get_sidebar(**kwargs), id="app_sidebar", style=sidebar_style),
                     html.Div(id="app_content", style=content_style),
                 ],
                 id="page_layout",
-                style={"display": "flex", "flexDirection": "row"},
             ),
-        ]
+        ],
+        style={
+            "display": "flex",
+            "flex-flow": "column nowrap",
+            "maxHeight": "94vh",
+            "overflow": "auto",
+            "padding": "0px 1vw",
+        },
     )
 
     return layout
@@ -174,7 +185,7 @@ def get_valid_fields(tree, req, *args):
         assert len(args) == 4 and None not in args
 
     idx = os.path.join(root_folder, *args)
-    res = tree.get(idx, [])
+    res = np.unique(tree.get(idx, [])).tolist()
     return res
 
 

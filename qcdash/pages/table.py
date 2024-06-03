@@ -56,15 +56,16 @@ def get_Table(df: pd.DataFrame, method_by_row=True):
     columns = list(columns.values())
 
     _style_table = {
-        "margin": "6vh 0px",
+        "margin": "2vh 0px",
         "padding": "15px 0px",
-        "maxWidth": "75vw",
         "overflowX": "auto",
         "border-radius": "6px",
+        "maxWidth": "65vw",
     }
     _style_idx_table = {
-        "margin": "6vh 0px",
+        "margin": "2vh 0px",
         "padding": "15px 0px",
+        "maxWidth": "15vw",
     }
 
     _style_cell = {"padding": "0 12px", "text_align": "center", "font_family": "sans"}
@@ -97,7 +98,7 @@ def get_Table(df: pd.DataFrame, method_by_row=True):
             "flex-direction": "row",
             "align-items": "top",
             "justify-content": "center",
-            "height": "100vh",
+            # "height": "100vh",
         },
     )
     return table
@@ -111,17 +112,17 @@ sidebar_style = {
     "top": 0,
     "left": 0,
     "bottom": 0,
-    "padding": "1vw",
+    # "padding": "1vw",
     "padding-top": "2vw",
     "margin": "0px",
     "flex": 1,
-    "overflow": "scroll",
-    "height": "100vh",
+    "overflow": "auto",
+    "height": "94vh",
+    "maxHeight": "94vh",
 }
 
 content_style = {
     "flex": 5,
-    "maxWidth": "84vw",
 }
 
 
@@ -138,7 +139,6 @@ def get_sidebar(**kwargs):
     datasets = kwargs.get("datasets", [])
     methods = kwargs.get("methods", [])
     return [
-        html.H4("Parameters:", style={"margin-bottom": "1vw"}),
         dbc.Row(
             [
                 dbc.Label("config", width=3),
@@ -160,11 +160,18 @@ def get_sidebar(**kwargs):
             ],
             className="mb-3",
         ),
-        dbc.Row(
-            [dbc.Label("Datasets"), dcc.Dropdown(id="tbl_datasets", value=datasets, multi=True)],
-            className="mb-3",
+        dbc.Accordion(
+            [
+                dbc.AccordionItem([dbc.Checklist(id="tbl_datasets", value=datasets, switch=True)], title="Datasets"),
+                dbc.AccordionItem([dbc.Checklist(id="tbl_methods", value=methods, switch=True)], title="Methods"),
+            ],
+            class_name="mb-1",
         ),
-        dbc.Row([dbc.Label("Methods"), dcc.Dropdown(id="tbl_methods", value=methods, multi=True)]),
+        # dbc.Row(
+        #     [dbc.Label("Datasets"), dcc.Dropdown(id="tbl_datasets", value=datasets, multi=True, clearable=False)],
+        #     className="mb-3",
+        # ),
+        # dbc.Row([dbc.Label("Methods"), dcc.Dropdown(id="tbl_methods", value=methods, multi=True, clearable=False)]),
     ]
 
 
@@ -175,15 +182,21 @@ def layout(**kwargs):
             dcc.Location(id="tbl_url", refresh=False),
             dcc.Store(id="tbl_root", storage_type="session", data=root_folder),
             dcc.Store(id="tbl_tree", storage_type="session", data={}),
-            html.Div(
-                [
+            dbc.Row(
+                children=[
                     html.Div(get_sidebar(**kwargs), id="tbl_app_sidebar", style=sidebar_style),
                     html.Div(id="tbl_app_content", style=content_style),
                 ],
                 id="tbl_page_layout",
-                style={"display": "flex", "flexDirection": "row"},
             ),
-        ]
+        ],
+        style={
+            "display": "flex",
+            "flex-flow": "column nowrap",
+            "maxHeight": "94vh",
+            "overflow": "auto",
+            "padding": "0px 1vw",
+        },
     )
 
     return layout
@@ -230,7 +243,7 @@ def get_valid_fields(tree, req, *args):
         res = np.unique(res).tolist()
     else:
         idx = os.path.join(root_folder, *args)
-        res = tree.get(idx, [])
+        res = np.unique(tree.get(idx, [])).tolist()
     return res
 
 
@@ -300,13 +313,17 @@ def tbl_update_dataset(href, config, classifier, acc, tree, datasets):
     if isinstance(req_datasets, str):
         try:
             req_datasets = json.loads(req_datasets)
-        except JSONDecodeError:
+        except JSONDecodeError as e:
+            print(e)
             req_datasets = valid_datasets
 
     if req_datasets is None or len(req_datasets) == 0:
         return valid_datasets, valid_datasets
 
     new_dataset = np.unique(np.array(req_datasets)[np.in1d(req_datasets, valid_datasets)]).tolist()
+    if len(new_dataset) == 0:
+        new_dataset = valid_datasets
+
     return new_dataset, valid_datasets
 
 
@@ -347,23 +364,25 @@ def tbl_update_methods(href, config, classifier, acc, dataset, tree, methods):
     Input("tbl_methods", "value"),
     State("tbl_tree", "data"),
 )
-def tbl_update_content(config, classifier, acc, dataset, methods, tree):
-    search = urlencode(
-        dict(
-            config=config,
-            classifier=classifier,
-            acc=acc,
-            dataset=dataset,
-            methods=json.dumps(methods),
-        ),
-        quote_via=quote,
-    )
-    search_str = f"?{search}"
+def tbl_update_content(config, classifier, acc, datasets, methods, tree):
+    def get_search():
+        return urlencode(
+            dict(
+                config=config,
+                classifier=classifier,
+                acc=acc,
+                datasets=json.dumps(datasets),
+                methods=json.dumps(methods),
+            ),
+            quote_via=quote,
+        )
+
+    search_str = f"?{get_search()}"
 
     if methods is None or len(methods) == 0:
         return [], search_str
 
-    report = get_report(config, classifier, acc, dataset, methods)
+    report = get_report(config, classifier, acc, datasets, methods)
 
     if report is None:
         return [], search_str
