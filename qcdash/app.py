@@ -15,7 +15,7 @@ from quacc.plot.plotly import plot_diagonal, plot_shift
 
 NAVBAR = get_navbar()
 
-app = Dash(__name__, external_stylesheets=[dbc.themes.JOURNAL], title=APP_NAME, use_pages=True)
+app = Dash(__name__, external_stylesheets=[dbc.themes.LITERA], title=APP_NAME, use_pages=True)
 
 app.layout = html.Div([NAVBAR, page_container])
 # dcc.Loading(  # <- Wrap App with Loading Component
