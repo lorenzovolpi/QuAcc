@@ -69,7 +69,7 @@ def get_multi_quaccs(h, acc_fn, q_class):
 
 
 def gen_bin_datasets():
-    for dataset_name in ["CCAT", "GCAT", "MCAT", "ECAT"][:2]:
+    for dataset_name in ["CCAT", "GCAT", "MCAT", "ECAT"]:
         yield dataset_name, DP.rcv1_binary(dataset_name)
 
 
@@ -94,8 +94,8 @@ elif CONFIG == "binary":
 
 def gen_methods(h, acc_fn):
     quacc_params = {
-        # "q_class__classifier__C": np.logspace(-3, 3, 7),
-        # "q_class__classifier__class_weight": [None, "balanced"],
+        "q_class__classifier__C": np.logspace(-3, 3, 7),
+        "q_class__classifier__class_weight": [None, "balanced"],
         "add_X": [True, False],
         "add_posteriors": [True, False],
         "add_y_hat": [True, False],
@@ -104,13 +104,13 @@ def gen_methods(h, acc_fn):
         "add_maxinfsoft": [True, False],
     }
     sample_s = qp.environ["SAMPLE_SIZE"]
-    yield "ReQua(SLD-LinReg)", ReQua(h, acc_fn, LinReg(), get_quaccs(h, acc_fn, sld()), param_grid=quacc_params, sample_size=sample_s, verbose=VERBOSE)
+    # yield "ReQua(SLD-LinReg)", ReQua(h, acc_fn, LinReg(), get_quaccs(h, acc_fn, sld()), param_grid=quacc_params, sample_size=sample_s, verbose=VERBOSE)
     # yield "ReQua(SLD-LinReg)-linfeat", ReQua(h, acc_fn, LinReg(), get_quaccs(h, acc_fn, sld()), param_grid=quacc_params, sample_size=sample_s, add_conf=True, verbose=VERBOSE)
     yield "ReQua(SLD-Ridge)", ReQua(h, acc_fn, Ridge(), get_quaccs(h, acc_fn, sld()), param_grid=quacc_params, sample_size=sample_s, verbose=VERBOSE)
     # yield "ReQua(SLD-Ridge)-linfeat", ReQua(h, acc_fn, Ridge(), get_quaccs(h, acc_fn, sld()), param_grid=quacc_params, sample_size=sample_s, add_conf=True, verbose=VERBOSE)
     yield "ReQua(SLD-KRR)", ReQua(h, acc_fn, KRR(), get_quaccs(h, acc_fn, sld()), param_grid=quacc_params, sample_size=sample_s, verbose=VERBOSE)
     # yield "ReQua(SLD-KRR)-linfeat", ReQua(h, acc_fn, KRR(), get_quaccs(h, acc_fn, sld()), param_grid=quacc_params, sample_size=sample_s, add_conf=True, verbose=VERBOSE)
-    yield "ReQua(SLD-SVR)", ReQua(h, acc_fn, SVR(), get_quaccs(h, acc_fn, sld()), param_grid=quacc_params, sample_size=sample_s, verbose=VERBOSE)
+    # yield "ReQua(SLD-SVR)", ReQua(h, acc_fn, SVR(), get_quaccs(h, acc_fn, sld()), param_grid=quacc_params, sample_size=sample_s, verbose=VERBOSE)
     # yield "ReQua(SLD-SVR)-linfeat", ReQua(h, acc_fn, SVR(), get_quaccs(h, acc_fn, sld()), param_grid=quacc_params, sample_size=sample_s, add_conf=True, verbose=VERBOSE)
 
 # fmt: on
