@@ -35,7 +35,13 @@ from quacc.models.requa import ReQua
 from quacc.utils.commons import get_results_path
 
 SLD = True
-KDEy = True
+KDEy = False
+
+MAE = True
+MSE = True
+
+VANILLA = True
+F1 = False
 
 
 def sld():
@@ -139,8 +145,12 @@ def gen_CAP_direct(h, acc_fn, config, with_oracle=False) -> [str, CAPDirect]:
     if SLD:
         # yield 'SebCAP-SLD', SebastianiCAP(h, acc_fn, EMQ, predict_train_prev=not with_oracle)
         # yield 'PabCAP-SLD-median', PabloCAP(h, acc_fn, EMQ, aggr='median')
-        yield "PrediQuant(SLD)", PrediQuant(h, acc_fn, EMQ)
-        yield "PrediQuantWeight(SLD)", PrediQuant(h, acc_fn, EMQ, alpha=0)
+        if MAE:
+            yield "PrediQuant(SLD-ae)", PrediQuant(h, acc_fn, EMQ)
+            yield "PrediQuantWeight(SLD-ae)", PrediQuant(h, acc_fn, EMQ, alpha=0)
+        if MSE:
+            yield "PrediQuant(SLD-se)", PrediQuant(h, acc_fn, EMQ, error=qc.error.se)
+            yield "PrediQuantWeight(SLD-se)", PrediQuant(h, acc_fn, EMQ, alpha=0, error=qc.error.se)
         yield "ReQua(SLD-LinReg)", ReQua(*requa_params(h, acc_fn, LinReg(), sld(), config))
         yield "ReQua(SLD-LinReg)-conf", ReQua(*requa_params(h, acc_fn, LinReg(), sld(), config), add_conf=True)
         yield "ReQua(SLD-Ridge)", ReQua(*requa_params(h, acc_fn, Ridge(), sld(), config))
@@ -149,8 +159,12 @@ def gen_CAP_direct(h, acc_fn, config, with_oracle=False) -> [str, CAPDirect]:
         yield "ReQua(SLD-KRR)-conf", ReQua(*requa_params(h, acc_fn, KRR(), sld(), config), add_conf=True)
     if KDEy:
         # yield 'SebCAP-KDE', SebastianiCAP(h, acc_fn, KDEyML)
-        yield "PrediQuant(KDEy)", PrediQuant(h, acc_fn, KDEyML)
-        yield "PrediQuantWeight(KDEy)", PrediQuant(h, acc_fn, KDEyML, alpha=0)
+        if MAE:
+            yield "PrediQuant(KDEy-ae)", PrediQuant(h, acc_fn, KDEyML)
+            yield "PrediQuantWeight(KDEy-ae)", PrediQuant(h, acc_fn, KDEyML, alpha=0)
+        if MSE:
+            yield "PrediQuant(KDEy-se)", PrediQuant(h, acc_fn, KDEyML, error=qc.error.se)
+            yield "PrediQuantWeight(KDEy-se)", PrediQuant(h, acc_fn, KDEyML, alpha=0, error=qc.error.se)
         yield "ReQua(KDEy-LinReg)", ReQua(*requa_params(h, acc_fn, LinReg(), kdey(), config))
         yield "ReQua(KDEy-LinReg)-conf", ReQua(*requa_params(h, acc_fn, LinReg(), kdey(), config), add_conf=True)
         yield "ReQua(KDEy-Ridge)", ReQua(*requa_params(h, acc_fn, Ridge(), kdey(), config))
@@ -211,22 +225,38 @@ def gen_CAP_cont_table_opt(h, acc_fn, config, val_prot) -> [str, CAPContingencyT
     # yield "QuAcc(PACC)nxn-OPT", GSCAP(QuAccNxN(h, acc_fn, pacc()), pacc_lr_params, val_prot, acc_fn, refit=True)
     # yield "QuAcc(PACC)1xn2-OPT-norefit", GSCAP(QuAcc1xN2(h, acc_fn, pacc()), pacc_lr_params, val_prot, acc_fn, refit=False)
     # yield "QuAcc(PACC)nxn-OPT-norefit", GSCAP(QuAccNxN(h, acc_fn, pacc()), pacc_lr_params, val_prot, acc_fn, refit=False)
-    if SLD:
-        yield "QuAcc(SLD)1xn2-OPT-norefit", GSCAP(QuAcc1xN2(h, acc_fn, sld()), emq_lr_params, val_prot, acc_fn, refit=False)
-        yield "QuAcc(SLD)1xn2-OPT", GSCAP(QuAcc1xN2(h, acc_fn, sld()), emq_lr_params, val_prot, acc_fn, refit=True)
-        yield "QuAcc(SLD)nxn-OPT-norefit", GSCAP(QuAccNxN(h, acc_fn, sld()), emq_lr_params, val_prot, acc_fn, refit=False)
-        yield "QuAcc(SLD)nxn-OPT", GSCAP(QuAccNxN(h, acc_fn, sld()), emq_lr_params, val_prot, acc_fn, refit=True)
+    if SLD and MAE:
+        yield "QuAcc(SLD)1xn2-OPT(mae)-norefit", GSCAP(QuAcc1xN2(h, acc_fn, sld()), emq_lr_params, val_prot, acc_fn, refit=False)
+        yield "QuAcc(SLD)1xn2-OPT(mae)", GSCAP(QuAcc1xN2(h, acc_fn, sld()), emq_lr_params, val_prot, acc_fn, refit=True)
+        yield "QuAcc(SLD)nxn-OPT(mae)-norefit", GSCAP(QuAccNxN(h, acc_fn, sld()), emq_lr_params, val_prot, acc_fn, refit=False)
+        yield "QuAcc(SLD)nxn-OPT(mae)", GSCAP(QuAccNxN(h, acc_fn, sld()), emq_lr_params, val_prot, acc_fn, refit=True)
         if config == "binary":
-            yield "QuAcc(SLD)1xnp1-OPT-norefit", GSCAP(QuAcc1xNp1(h, acc_fn, sld()), emq_lr_params, val_prot, acc_fn, refit=False)
-            yield "QuAcc(SLD)1xnp1-OPT", GSCAP(QuAcc1xNp1(h, acc_fn, sld()), emq_lr_params, val_prot, acc_fn, refit=True)
-    if KDEy:
-        yield "QuAcc(KDEy)1xn2-OPT", GSCAP(QuAcc1xN2(h, acc_fn, kdey()), kde_lr_params, val_prot, acc_fn, refit=True)
-        yield "QuAcc(KDEy)1xn2-OPT-norefit", GSCAP(QuAcc1xN2(h, acc_fn, kdey()), kde_lr_params, val_prot, acc_fn, refit=False)
-        yield "QuAcc(KDEy)nxn-OPT", GSCAP(QuAccNxN(h, acc_fn, kdey()), kde_lr_params, val_prot, acc_fn, refit=True)
-        yield "QuAcc(KDEy)nxn-OPT-norefit", GSCAP(QuAccNxN(h, acc_fn, kdey()), kde_lr_params, val_prot, acc_fn, refit=False)
+            yield "QuAcc(SLD)1xnp1-OPT(mae)-norefit", GSCAP(QuAcc1xNp1(h, acc_fn, sld()), emq_lr_params, val_prot, acc_fn, refit=False)
+            yield "QuAcc(SLD)1xnp1-OPT(mae)", GSCAP(QuAcc1xNp1(h, acc_fn, sld()), emq_lr_params, val_prot, acc_fn, refit=True)
+    if SLD and MSE:
+        yield "QuAcc(SLD)1xn2-OPT(mse)-norefit", GSCAP(QuAcc1xN2(h, acc_fn, sld()), emq_lr_params, val_prot, acc_fn, error=qc.error.mse, refit=False)
+        yield "QuAcc(SLD)1xn2-OPT(mse)", GSCAP(QuAcc1xN2(h, acc_fn, sld()), emq_lr_params, val_prot, acc_fn, error=qc.error.mse, refit=True)
+        yield "QuAcc(SLD)nxn-OPT(mse)-norefit", GSCAP(QuAccNxN(h, acc_fn, sld()), emq_lr_params, val_prot, acc_fn, error=qc.error.mse, refit=False)
+        yield "QuAcc(SLD)nxn-OPT(mse)", GSCAP(QuAccNxN(h, acc_fn, sld()), emq_lr_params, val_prot, acc_fn, error=qc.error.mse, refit=True)
         if config == "binary":
-            yield "QuAcc(KDEy)1xnp1-OPT-norefit", GSCAP(QuAcc1xNp1(h, acc_fn, kdey()), kde_lr_params, val_prot, acc_fn, refit=False)
-            yield "QuAcc(KDEy)1xnp1-OPT", GSCAP(QuAcc1xNp1(h, acc_fn, kdey()), kde_lr_params, val_prot, acc_fn, refit=True)
+            yield "QuAcc(SLD)1xnp1-OPT(mse)-norefit", GSCAP(QuAcc1xNp1(h, acc_fn, sld()), emq_lr_params, val_prot, acc_fn, error=qc.error.mse, refit=False)
+            yield "QuAcc(SLD)1xnp1-OPT(mse)", GSCAP(QuAcc1xNp1(h, acc_fn, sld()), emq_lr_params, val_prot, acc_fn, error=qc.error.mse, refit=True)
+    if KDEy and MAE:
+        yield "QuAcc(KDEy)1xn2-OPT(mae)", GSCAP(QuAcc1xN2(h, acc_fn, kdey()), kde_lr_params, val_prot, acc_fn, refit=True)
+        yield "QuAcc(KDEy)1xn2-OPT(mae)-norefit", GSCAP(QuAcc1xN2(h, acc_fn, kdey()), kde_lr_params, val_prot, acc_fn, refit=False)
+        yield "QuAcc(KDEy)nxn-OPT(mae)", GSCAP(QuAccNxN(h, acc_fn, kdey()), kde_lr_params, val_prot, acc_fn, refit=True)
+        yield "QuAcc(KDEy)nxn-OPT(mae)-norefit", GSCAP(QuAccNxN(h, acc_fn, kdey()), kde_lr_params, val_prot, acc_fn, refit=False)
+        if config == "binary":
+            yield "QuAcc(KDEy)1xnp1-OPT(mae)-norefit", GSCAP(QuAcc1xNp1(h, acc_fn, kdey()), kde_lr_params, val_prot, acc_fn, refit=False)
+            yield "QuAcc(KDEy)1xnp1-OPT(mae)", GSCAP(QuAcc1xNp1(h, acc_fn, kdey()), kde_lr_params, val_prot, acc_fn, refit=True)
+    if KDEy and MSE:
+        yield "QuAcc(KDEy)1xn2-OPT(mse)", GSCAP(QuAcc1xN2(h, acc_fn, kdey()), kde_lr_params, val_prot, acc_fn, error=qc.error.mse, refit=True)
+        yield "QuAcc(KDEy)1xn2-OPT(mse)-norefit", GSCAP(QuAcc1xN2(h, acc_fn, kdey()), kde_lr_params, val_prot, acc_fn, error=qc.error.mse, refit=False)
+        yield "QuAcc(KDEy)nxn-OPT(mse)", GSCAP(QuAccNxN(h, acc_fn, kdey()), kde_lr_params, val_prot, acc_fn, error=qc.error.mse, refit=True)
+        yield "QuAcc(KDEy)nxn-OPT(mse)-norefit", GSCAP(QuAccNxN(h, acc_fn, kdey()), kde_lr_params, val_prot, acc_fn, error=qc.error.mse, refit=False)
+        if config == "binary":
+            yield "QuAcc(KDEy)1xnp1-OPT-norefit", GSCAP(QuAcc1xNp1(h, acc_fn, kdey()), kde_lr_params, val_prot, acc_fn, error=qc.error.mse, refit=False)
+            yield "QuAcc(KDEy)1xnp1-OPT", GSCAP(QuAcc1xNp1(h, acc_fn, kdey()), kde_lr_params, val_prot, acc_fn, error=qc.error.mse, refit=True)
     # return
     # yield
 # fmt: on
@@ -259,8 +289,10 @@ def get_method_names(config):
 
 
 def gen_acc_measure(multiclass=False):
-    yield "vanilla_accuracy", vanilla_acc
-    yield "macro-F1", f1_macro if multiclass else f1
+    if VANILLA:
+        yield "vanilla_accuracy", vanilla_acc
+    if F1:
+        yield "macro-F1", f1_macro if multiclass else f1
 
 
 def any_missing(basedir, cls_name, dataset_name, method_name):
