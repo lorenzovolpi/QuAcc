@@ -51,7 +51,7 @@ class GridSearchCAP(CAPContingencyTable):
         param_grid: dict,
         protocol: AbstractProtocol,
         acc_fn: Callable | str = qc.error.vanilla_acc,
-        error: Callable | str = qp.error.mae,
+        error: Callable | str = qc.error.mae,
         refit=True,
         timeout=-1,
         n_jobs=None,
@@ -88,16 +88,16 @@ class GridSearchCAP(CAPContingencyTable):
             )
 
     def __check_error(self, error):
-        if error in qp.error.QUANTIFICATION_ERROR:
+        if error in qc.error.ACCURACY_ERROR:
             self.error = error
-        elif isinstance(error, str):
-            self.error = qp.error.from_name(error)
+        elif isinstance(error, str) and error in qc.error.ACCURACY_ERROR_NAMES:
+            self.error = qc.error.from_name(error)
         elif hasattr(error, "__call__"):
             self.error = error
         else:
             raise ValueError(
                 f"unexpected error type; must either be a callable function or a str\n"
-                f"representing the name of an error function in {qp.error.QUANTIFICATION_ERROR_NAMES}"
+                f"representing the name of an error function in {qc.error.ACCURACY_ERROR_NAMES}"
             )
 
     def _evaluate(self, model: CAPContingencyTableQ):
