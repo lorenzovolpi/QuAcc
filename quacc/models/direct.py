@@ -11,6 +11,7 @@ from sklearn.base import BaseEstimator
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import confusion_matrix
 
+import quacc as qc
 import quacc.models.utils as utils
 from quacc.models.base import ClassifierAccuracyPrediction
 from quacc.models.utils import get_posteriors_from_h, max_conf, neg_entropy
@@ -33,13 +34,36 @@ class CAPDirect(ClassifierAccuracyPrediction):
 
 
 class PrediQuant(CAPDirect):
-    def __init__(self, h, acc_fn, q_class, n_val_samples=500, alpha=0.3, predict_train_prev=True):
+    def __init__(
+        self,
+        h,
+        acc_fn,
+        q_class,
+        n_val_samples=500,
+        alpha=0.3,
+        error: str | Callable = qc.error.mae,
+        predict_train_prev=True,
+    ):
         super().__init__(h, acc_fn)
         self.q = q_class(h)
         self.n_val_samples = n_val_samples
         self.alpha = alpha
         self.sample_size = qp.environ["SAMPLE_SIZE"]
+        self.__check_error(error)
         self.predict_train_prev = predict_train_prev
+
+    def __check_error(self, error):
+        if error in qc.error.ACCURACY_ERROR_SINGLE:
+            self.error = error
+        elif isinstance(error, str) and error in qc.error.ACCURACY_ERROR_SINGLE_NAMES:
+            self.error = qc.error.from_name(error)
+        elif hasattr(error, "__call__"):
+            self.error = error
+        else:
+            raise ValueError(
+                f"unexpected error type; must either be a callable function or a str\n"
+                f"representing the name of an error function in {qc.error.ACCURACY_ERROR_NAMES}"
+            )
 
     def fit(self, val: LabelledCollection):
         v2, v1 = val.split_stratified(train_prop=0.5)
@@ -73,7 +97,7 @@ class PrediQuant(CAPDirect):
             # select samples from V2 with predicted prevalence close to the predicted prevalence for U
             selected_accuracies = []
             for pred_prev_i, acc_i in zip(self.sigma_pred_prevs, self.sigma_acc):
-                max_discrepancy = np.max(np.abs(pred_prev_i - test_pred_prev))
+                max_discrepancy = np.max(self.error(pred_prev_i, test_pred_prev))
                 if max_discrepancy < self.alpha:
                     selected_accuracies.append(acc_i)
 
@@ -84,7 +108,7 @@ class PrediQuant(CAPDirect):
             moving_mean = 0
             epsilon = 10e-4
             for pred_prev_i, acc_i in zip(self.sigma_pred_prevs, self.sigma_acc):
-                max_discrepancy = np.max(np.abs(pred_prev_i - test_pred_prev))
+                max_discrepancy = np.max(self.error(pred_prev_i, test_pred_prev))
                 weight = -np.log(max_discrepancy + epsilon)
                 accum_weight += weight
                 moving_mean += weight * acc_i
