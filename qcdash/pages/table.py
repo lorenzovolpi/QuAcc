@@ -18,10 +18,15 @@ from quacc.experiments.report import Report
 register_page(__name__, name=f"{APP_NAME} - table", top_nav=True, path="/table")
 
 root_folder = os.path.join(qc.env["OUT_DIR"], "results")
+valid_errors = list(qc.error.ACCURACY_ERROR_SINGLE_NAMES)
 
 
-def get_df(rep: Report, method_by_row=True):
-    df = rep.table_data()
+def get_df(rep: Report, error, method_by_row=True):
+    if error == "ae":
+        df = rep.table_data()
+    elif error == "se":
+        df = rep.table_data(error=qc.error.se)
+
     if method_by_row:
         df = df.pivot_table(values="acc_err", index=["method"], columns=["dataset"], fill_value=np.nan)
     else:
@@ -48,7 +53,7 @@ def get_Table(df: pd.DataFrame, method_by_row=True):
             id=c,
             name=c,
             type="numeric",
-            format=Format(precision=6, scheme=Scheme.exponent, nully="nan"),
+            format=Format(precision=9, scheme=Scheme.fixed, nully="nan"),
         )
         for c in df.columns
     }
@@ -60,12 +65,12 @@ def get_Table(df: pd.DataFrame, method_by_row=True):
         "padding": "15px 0px",
         "overflowX": "auto",
         "border-radius": "6px",
-        "maxWidth": "65vw",
+        "maxWidth": "64vw",
     }
     _style_idx_table = {
         "margin": "2vh 0px",
         "padding": "15px 0px",
-        "maxWidth": "15vw",
+        "maxWidth": "20vw",
     }
 
     _style_cell = {"padding": "0 12px", "text_align": "center", "font_family": "sans"}
@@ -136,6 +141,7 @@ def get_sidebar(**kwargs):
     config = kwargs.get("config", None)
     classifier = kwargs.get("classifier", None)
     acc = kwargs.get("acc", None)
+    error = kwargs.get("error", None)
     datasets = kwargs.get("datasets", [])
     methods = kwargs.get("methods", [])
     return [
@@ -157,6 +163,13 @@ def get_sidebar(**kwargs):
             [
                 dbc.Label("accuracy", width=3),
                 dbc.Col(dbc.Select(id="tbl_acc", value=acc), width=9),
+            ],
+            className="mb-3",
+        ),
+        dbc.Row(
+            [
+                dbc.Label("error", width=3),
+                dbc.Col(dbc.Select(id="tbl_error", options=valid_errors, value=error), width=9),
             ],
             className="mb-3",
         ),
@@ -313,8 +326,7 @@ def tbl_update_dataset(href, config, classifier, acc, tree, datasets):
     if isinstance(req_datasets, str):
         try:
             req_datasets = json.loads(req_datasets)
-        except JSONDecodeError as e:
-            print(e)
+        except JSONDecodeError:
             req_datasets = valid_datasets
 
     if req_datasets is None or len(req_datasets) == 0:
@@ -355,22 +367,36 @@ def tbl_update_methods(href, config, classifier, acc, dataset, tree, methods):
 
 
 @callback(
+    Output("tbl_error", "value"),
+    Output("tbl_error", "options"),
+    Input("url", "href"),
+    State("tbl_error", "value"),
+)
+def tbl_update_error(href, error):
+    req_error = apply_param(href, ctx.triggered_id, "error", error)
+    new_error = req_error if req_error in valid_errors else valid_errors[0]
+    return new_error, valid_errors
+
+
+@callback(
     Output("tbl_app_content", "children"),
     Output("tbl_url", "search"),
     Input("tbl_config", "value"),
     Input("tbl_classifier", "value"),
     Input("tbl_acc", "value"),
+    Input("tbl_error", "value"),
     Input("tbl_datasets", "value"),
     Input("tbl_methods", "value"),
     State("tbl_tree", "data"),
 )
-def tbl_update_content(config, classifier, acc, datasets, methods, tree):
+def tbl_update_content(config, classifier, acc, error, datasets, methods, tree):
     def get_search():
         return urlencode(
             dict(
                 config=config,
                 classifier=classifier,
                 acc=acc,
+                error=error,
                 datasets=json.dumps(datasets),
                 methods=json.dumps(methods),
             ),
@@ -387,7 +413,7 @@ def tbl_update_content(config, classifier, acc, datasets, methods, tree):
     if report is None:
         return [], search_str
 
-    df = get_df(report)
+    df = get_df(report, error)
     table = get_Table(df)
     app_content = [] if table is None else [table]
 
