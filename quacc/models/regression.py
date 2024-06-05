@@ -256,8 +256,14 @@ class reDAN(CAPDirect):
                 "q_class__classifier__class_weight": [None, "balanced"],
             }
             v11, v12 = val.split_stratified(self.val_prop, random_state=qp.environ["_R_SEED"])
-            v_prot = UPP(v12, self.sample_size, repeats=100, random_state=qp.environ["_R_SEED"])
-            n2e_opt = GSCAP(deepcopy(self.n2e), _params, v_prot, self.acc).fit(v11)
+            v_prot = UPP(
+                v12,
+                self.sample_size,
+                repeats=100,
+                random_state=qp.environ["_R_SEED"],
+                return_type="labelled_collection",
+            )
+            n2e_opt = GSCAP(deepcopy(n2e), _params, v_prot, self.acc).fit(v11)
             self.models.append(n2e_opt)
 
     def _get_models_feats(self, X):
