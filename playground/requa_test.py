@@ -23,7 +23,7 @@ from quacc.error import f1_macro, vanilla_acc
 from quacc.experiments.util import split_validation
 from quacc.models.cont_table import N2E, QuAcc1xN2, QuAcc1xNp1, QuAccNxN
 from quacc.models.model_selection import GridSearchCAP as GSCAP
-from quacc.models.requa import ReQua
+from quacc.models.regression import ReQua
 from quacc.utils.commons import parallel as qc_parallel
 from quacc.utils.commons import true_acc
 
