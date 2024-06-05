@@ -31,7 +31,7 @@ from quacc.models.cont_table import (
 )
 from quacc.models.direct import ATC, CAPDirect, DoC, PabloCAP, PrediQuant
 from quacc.models.model_selection import GridSearchCAP as GSCAP
-from quacc.models.requa import ReQua
+from quacc.models.regression import ReQua, reDAN
 from quacc.utils.commons import get_results_path
 
 SLD = True
@@ -135,6 +135,7 @@ def requa_params(h, acc_fn, reg, q_class, config):
     return h, acc_fn, reg, quaccs, quacc_params, sample_size
 
 
+# fmt: off
 def gen_CAP_direct(h, acc_fn, config, with_oracle=False) -> [str, CAPDirect]:
     ### CAP methods ###
     # yield 'SebCAP', SebastianiCAP(h, acc_fn, ACC)
@@ -157,6 +158,8 @@ def gen_CAP_direct(h, acc_fn, config, with_oracle=False) -> [str, CAPDirect]:
         yield "ReQua(SLD-Ridge)-conf", ReQua(*requa_params(h, acc_fn, Ridge(), sld(), config), add_conf=True)
         yield "ReQua(SLD-KRR)", ReQua(*requa_params(h, acc_fn, KRR(), sld(), config))
         yield "ReQua(SLD-KRR)-conf", ReQua(*requa_params(h, acc_fn, KRR(), sld(), config), add_conf=True)
+        yield "reDAN(SLD-KRR)", reDAN(h, acc_fn, KRR(), sld(), sample_size=qp.environ["SAMPLE_SIZE"])
+        yield "reDAN(SLD-KRR)-OPT", reDAN(h, acc_fn, KRR(), sld(), add_n2e_opt=True, sample_size=qp.environ["SAMPLE_SIZE"])
     if KDEy:
         # yield 'SebCAP-KDE', SebastianiCAP(h, acc_fn, KDEyML)
         if MAE:
@@ -171,6 +174,8 @@ def gen_CAP_direct(h, acc_fn, config, with_oracle=False) -> [str, CAPDirect]:
         yield "ReQua(KDEy-Ridge)-conf", ReQua(*requa_params(h, acc_fn, Ridge(), kdey(), config), add_conf=True)
         yield "ReQua(KDEy-KRR)", ReQua(*requa_params(h, acc_fn, KRR(), kdey(), config))
         yield "ReQua(KDEy-KRR)-conf", ReQua(*requa_params(h, acc_fn, KRR(), kdey(), config), add_conf=True)
+    yield "reDAN(KDEy-KRR)", reDAN(h, acc_fn, KRR(), kdey(), sample_size=qp.environ["SAMPLE_SIZE"])
+    yield "reDAN(KDEy-KRR)-OPT", reDAN(h, acc_fn, KRR(), kdey(), add_n2e_opt=True, sample_size=qp.environ["SAMPLE_SIZE"])
 
     ### baselines ###
     yield "ATC-MC", ATC(h, acc_fn, scoring_fn="maxconf")
@@ -178,7 +183,6 @@ def gen_CAP_direct(h, acc_fn, config, with_oracle=False) -> [str, CAPDirect]:
     yield "DoC", DoC(h, acc_fn, sample_size=qp.environ["SAMPLE_SIZE"])
 
 
-# fmt: off
 def gen_CAP_cont_table(h, acc_fn, config) -> [str, CAPContingencyTable]:
     yield "Naive", NaiveCAP(h, acc_fn)
     # yield 'Equations-ACCh', NsquaredEquationsCAP(h, acc_fn, ACC, reuse_h=True)
@@ -199,7 +203,7 @@ def gen_CAP_cont_table(h, acc_fn, config) -> [str, CAPContingencyTable]:
         # yield 'CT-PPSh-SLD', ContTableTransferCAP(h, acc_fn, EMQ(LogisticRegression()), reuse_h=True)
         # yield 'Equations-SLD', NsquaredEquationsCAP(h, acc_fn, EMQ)
         yield "N2E(SLD)", N2E(h, acc_fn, sld())
-    if KDEy:
+    if KDEy or True:
         # yield 'CT-PPS-KDE', ContTableTransferCAP(h, acc_fn, KDEyML(LogisticRegression(class_weight='balanced'), bandwidth=0.01))
         # yield 'CT-PPS-KDE05', ContTableTransferCAP(h, acc_fn, KDEyML(LogisticRegression(class_weight='balanced'), bandwidth=0.05))
         yield "N2E(KDEy)", N2E(h, acc_fn, kdey())
