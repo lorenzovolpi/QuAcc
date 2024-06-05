@@ -5,13 +5,15 @@ from time import time
 import numpy as np
 import quapy as qp
 from quapy.data.base import LabelledCollection
-from quapy.method.aggregative import AggregativeQuantifier
+from quapy.method.aggregative import SLD, AggregativeQuantifier, BaseQuantifier
 from quapy.protocol import UPP, AbstractProtocol
 from sklearn.linear_model import LinearRegression, LogisticRegression
 
 import quacc as qc
-from quacc.models.cont_table import QuAcc
-from quacc.models.direct import CAPDirect
+from quacc.models.base import CAP
+from quacc.models.cont_table import N2E, QuAcc
+from quacc.models.direct import ATC, CAPDirect, DoC
+from quacc.models.model_selection import GridSearchCAP as GSCAP
 from quacc.models.utils import get_posteriors_from_h, max_conf, max_inverse_softmax, neg_entropy
 from quacc.utils.commons import parallel as qc_parallel
 
@@ -213,3 +215,87 @@ class ReQua(CAPDirect):
         if self.clip_vals is not None:
             acc_pred = np.clip(acc_pred, *self.clip_vals)
         return acc_pred.tolist()
+
+
+class reDAN(CAPDirect):
+    def __init__(
+        self,
+        h,
+        acc_fn,
+        reg_model,
+        q_class: BaseQuantifier,
+        sample_size,
+        n_val_samples=500,
+        add_n2e_opt=False,
+        val_prop=0.5,
+        clip_vals=(0, 1),
+        n_jobs=None,
+        verbose=False,
+    ):
+        super().__init__(h, acc_fn)
+        self.reg_model = reg_model
+        self.q_class = q_class
+        self.sample_size = sample_size
+        self.n_val_samples = n_val_samples
+        self.add_n2e_opt = add_n2e_opt
+        self.val_prop = val_prop
+        self.clip_vals = clip_vals
+        self.n_jobs = qc.commons.get_njobs(n_jobs)
+        self.verbose = verbose
+        self.joblib_verbose = 10 if verbose else 0
+
+    def _fit_models(self, val: LabelledCollection):
+        n2e = N2E(self.h, self.acc, self.q_class, reuse_h=True).fit(val)
+        doc = DoC(self.h, self.acc, self.sample_size).fit(val)
+        atc = ATC(self.h, self.acc, scoring_fn="maxconf").fit(val)
+        self.models = [n2e, doc, atc]
+
+        if self.add_n2e_opt:
+            _params = {
+                "q_class__classifier__C": np.logspace(-3, 3, 7),
+                "q_class__classifier__class_weight": [None, "balanced"],
+            }
+            v11, v12 = val.split_stratified(self.val_prop, random_state=qp.environ["_R_SEED"])
+            v_prot = UPP(v12, self.sample_size, repeats=100, random_state=qp.environ["_R_SEED"])
+            n2e_opt = GSCAP(deepcopy(self.n2e), _params, v_prot, self.acc).fit(v11)
+            self.models.append(n2e_opt)
+
+    def _get_models_feats(self, X):
+        preds = np.hstack([m.predict(X) for m in self.models])
+        return preds
+
+    def fit_regression(self, feats, accs):
+        self.reg_model.fit(feats, accs)
+
+    def predict_regression(self, feats):
+        if feats.ndim == 1:
+            feats = feats.reshape(1, -1)
+        pred_acc = self.reg_model.predict(feats)
+        return pred_acc
+
+    def fit(self, val: LabelledCollection):
+        v2, v1 = val.split_stratified(train_prop=self.val_prop)
+
+        v2_prot = UPP(
+            v2,
+            sample_size=self.sample_size,
+            repeats=self.n_val_samples,
+            return_type="labelled_collection",
+        )
+
+        self._fit_models(v1)
+        feats = np.vstack([self._get_models_feats(Ui.X) for Ui in v2_prot()])
+
+        v2_accs = np.asarray([self.true_acc(v2_i) for v2_i in v2_prot()])
+
+        self.reg_model.fit(feats, v2_accs)
+
+        return self
+
+    def predict(self, X, oracle_prev=None) -> float:
+        feats = self._get_models_feats(X)
+        acc_pred = self.predict_regression(feats)
+
+        if self.clip_vals is not None:
+            acc_pred = np.clip(acc_pred, *self.clip_vals)
+        return acc_pred[0]
