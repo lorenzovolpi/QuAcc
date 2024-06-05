@@ -43,3 +43,6 @@ class ClassifierAccuracyPrediction(ABC):
             assert isinstance(oracle_prevs, List), "Invalid oracles"
             estim_accs = [self.predict(Ui.X, oracle_prev=op) for Ui, op in IT.zip_longest(prot(), oracle_prevs)]
             return estim_accs
+
+
+CAP = ClassifierAccuracyPrediction
