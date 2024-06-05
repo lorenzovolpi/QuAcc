@@ -38,15 +38,39 @@ def get_Table(df: pd.DataFrame, method_by_row=True):
     if df is None:
         return None
 
-    if method_by_row:
-        df_idxmin = df.idxmin(axis=0, numeric_only=True)
-        df_idxmin_cols = df_idxmin.index.to_numpy()
-        rows_sorter = np.argsort(df.index.to_numpy())
-        df_idxmin_rows = rows_sorter[np.searchsorted(df.index.to_numpy(), df_idxmin.to_numpy(), sorter=rows_sorter)]
-    else:
-        df_idxmin = df.idxmin(axis=1, numeric_only=True)
-        df_idxmin_cols = df_idxmin.to_numpy()
-        df_idxmin_rows = np.arange(df_idxmin_cols.shape[0])
+    def gen_idxmin(_df):
+        if method_by_row:
+            df_idxmin = _df.idxmin(axis=0, numeric_only=True)
+            df_idxmin_cols = df_idxmin.index.to_numpy()
+            rows_sorter = np.argsort(_df.index.to_numpy())
+            df_idxmin_rows = rows_sorter[
+                np.searchsorted(_df.index.to_numpy(), df_idxmin.to_numpy(), sorter=rows_sorter)
+            ]
+        else:
+            df_idxmin = _df.idxmin(axis=1, numeric_only=True)
+            df_idxmin_cols = df_idxmin.to_numpy()
+            df_idxmin_rows = np.arange(df_idxmin_cols.shape[0])
+
+        for r, c in zip(df_idxmin_rows, df_idxmin_cols):
+            yield r, c
+
+    def gen_beats_baselines(_df):
+        df_idx = df.index.to_numpy()
+        if method_by_row:
+            baselines = ["DoC", "ATC-MC", "ATC-NE"]
+            dfnp = _df.to_numpy()
+            base_idx = np.where(np.in1d(df_idx, baselines))[0]
+            if len(base_idx) == 0:
+                row_idx, col_idx = [], []
+            else:
+                where_beats = np.all([dfnp < dfnp[i] for i in base_idx], axis=0)
+                row_idx, col_idx = np.where(where_beats)
+                col_idx = _df.columns[col_idx].to_numpy()
+        else:
+            row_idx, col_idx = [], []
+
+        for _r, _c in zip(row_idx, col_idx):
+            yield _r, _c
 
     columns = {
         c: dict(
@@ -77,11 +101,18 @@ def get_Table(df: pd.DataFrame, method_by_row=True):
     _style_idx_cell = {"padding": "0 12px", "text_align": "right", "font_family": "sans"}
     # _style_cell_cond = [{"if": {"column_id": "dataset"}, "text_align": "right"}]
     _style_data_cond = []
-    for _r, _c in zip(df_idxmin_rows, df_idxmin_cols):
+    for _r, _c in gen_idxmin(df):
         _style_data_cond.append(
             {
                 "if": {"column_id": _c, "row_index": _r},
                 "font_weight": "bold",
+            }
+        )
+    for _r, _c in gen_beats_baselines(df):
+        _style_data_cond.append(
+            {
+                "if": {"column_id": _c, "row_index": _r},
+                "background": "lightgreen",
             }
         )
 
