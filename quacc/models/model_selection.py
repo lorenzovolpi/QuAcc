@@ -101,8 +101,7 @@ class GridSearchCAP(CAPContingencyTable):
             )
 
     def _evaluate(self, model: CAPContingencyTableQ):
-        with redirect_stdout(os.devnull):
-            estim_tables = [model.predict_ct(sample.X) for sample in self.protocol()]
+        estim_tables = [model.predict_ct(sample.X) for sample in self.protocol()]
         estim_accs = np.array([self.acc_fn(cont_table) for cont_table in estim_tables]).reshape(-1, 1)
 
         return self.error(self.prot_true_accs, estim_accs)
@@ -143,14 +142,16 @@ class GridSearchCAP(CAPContingencyTable):
 
         # train all classifiers and get the predictions
         self._training = training
-        cls_outs = qc.commons.parallel(
-            self._prepare_classifier,
-            cls_configs,
-            seed=qp.environ.get("_R_SEED", None),
-            n_jobs=self.n_jobs,
-            asarray=False,
-        )
-        # cls_outs = [self._prepare_classifier(cfg) for cfg in cls_configs]
+        if self.n_jobs == 0:
+            cls_outs = [self._prepare_classifier(cfg) for cfg in cls_configs]
+        else:
+            cls_outs = qc.commons.parallel(
+                self._prepare_classifier,
+                cls_configs,
+                seed=qp.environ.get("_R_SEED", None),
+                n_jobs=self.n_jobs,
+                asarray=False,
+            )
 
         # filter out classifier configurations that yielded any error
         success_outs = []
@@ -169,10 +170,12 @@ class GridSearchCAP(CAPContingencyTable):
 
         # explore the quantifier-specific hyperparameters for each valid training configuration
         aggr_configs = [(*out, q_config) for out, q_config in itertools.product(success_outs, q_configs)]
-        aggr_outs = qc.commons.parallel(
-            self._prepare_aggregation, aggr_configs, seed=qp.environ.get("_R_SEED", None), n_jobs=self.n_jobs
-        )
-        # aggr_outs = [self._prepare_aggregation(args) for args in aggr_configs]
+        if self.n_jobs == 0:
+            aggr_outs = [self._prepare_aggregation(args) for args in aggr_configs]
+        else:
+            aggr_outs = qc.commons.parallel(
+                self._prepare_aggregation, aggr_configs, seed=qp.environ.get("_R_SEED", None), n_jobs=self.n_jobs
+            )
 
         return aggr_outs
 
