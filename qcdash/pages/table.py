@@ -63,7 +63,7 @@ def get_Table(df: pd.DataFrame, method_by_row=True):
             if len(base_idx) == 0:
                 row_idx, col_idx = [], []
             else:
-                where_beats = np.all([dfnp < dfnp[i] for i in base_idx], axis=0)
+                where_beats = np.all([dfnp <= dfnp[i] for i in base_idx], axis=0)
                 row_idx, col_idx = np.where(where_beats)
                 col_idx = _df.columns[col_idx].to_numpy()
         else:
