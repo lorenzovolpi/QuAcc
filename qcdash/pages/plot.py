@@ -246,7 +246,8 @@ def update_acc(href, config, classifier, tree, acc):
     req_acc = apply_param(href, ctx.triggered_id, "acc", acc)
     valid_accs = get_valid_fields(tree, "acc", config, classifier)
     assert len(valid_accs) > 0, "no valid accs"
-    new_acc = req_acc if req_acc in valid_accs else valid_accs[0]
+    default_acc = "vanilla_accuracy" if "vanilla_accuracy" in valid_accs else valid_accs[0]
+    new_acc = req_acc if req_acc in valid_accs else default_acc
     return new_acc, valid_accs
 
 

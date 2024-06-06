@@ -18,7 +18,7 @@ from quacc.experiments.report import Report
 register_page(__name__, name=f"{APP_NAME} - table", top_nav=True, path="/table")
 
 root_folder = os.path.join(qc.env["OUT_DIR"], "results")
-valid_errors = list(qc.error.ACCURACY_ERROR_SINGLE_NAMES)
+valid_errors = sorted(list(qc.error.ACCURACY_ERROR_SINGLE_NAMES))
 
 
 def get_df(rep: Report, error, method_by_row=True):
@@ -335,7 +335,8 @@ def tbl_update_acc(href, config, classifier, tree, acc):
     req_acc = apply_param(href, ctx.triggered_id, "acc", acc)
     valid_accs = get_valid_fields(tree, "acc", config, classifier)
     assert len(valid_accs) > 0, "no valid accs"
-    new_acc = req_acc if req_acc in valid_accs else valid_accs[0]
+    default_acc = "vanilla_accuracy" if "vanilla_accuracy" in valid_accs else valid_accs[0]
+    new_acc = req_acc if req_acc in valid_accs else default_acc
     return new_acc, valid_accs
 
 
@@ -400,11 +401,12 @@ def tbl_update_methods(href, config, classifier, acc, dataset, tree, methods):
 @callback(
     Output("tbl_error", "value"),
     Output("tbl_error", "options"),
-    Input("url", "href"),
+    Input("tbl_url", "href"),
     State("tbl_error", "value"),
 )
 def tbl_update_error(href, error):
     req_error = apply_param(href, ctx.triggered_id, "error", error)
+    assert len(valid_errors) > 0, "no valid errors"
     new_error = req_error if req_error in valid_errors else valid_errors[0]
     return new_error, valid_errors
 
