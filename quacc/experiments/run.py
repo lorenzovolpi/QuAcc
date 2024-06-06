@@ -66,7 +66,7 @@ def all_exist_pre_check(basedir, cls_name, dataset_name):
 def experiments():
     log.info("-" * 31 + "  start  " + "-" * 31)
 
-    for (dataset_name, (L, V, U)), (cls_name, h) in gen_product(gen_datasets, gen_classifiers):
+    for (cls_name, h), (dataset_name, (L, V, U)) in gen_product(gen_classifiers, gen_datasets):
         if all_exist_pre_check(basedir, cls_name, dataset_name):
             log.info(f"{cls_name} on dataset={dataset_name}: all results already exist, skipping")
             continue
