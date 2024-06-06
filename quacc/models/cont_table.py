@@ -194,8 +194,13 @@ class ContTableTransferCAP(CAPContingencyTableQ):
 class NsquaredEquationsCAP(CAPContingencyTableQ):
     """ """
 
-    def __init__(self, h: BaseEstimator, acc_fn: Callable, q_class, reuse_h=False):
+    def __init__(self, h: BaseEstimator, acc_fn: Callable, q_class, reuse_h=False, verbose=False):
         super().__init__(h, acc_fn, q_class, reuse_h)
+        self.verbose = verbose
+
+    def _sout(self, *msgs, **kwargs):
+        if self.verbose:
+            print(*msgs, **kwargs)
 
     def preprocess_data(self, data: LabelledCollection):
         y_hat = self.h.predict(data.X)
@@ -253,7 +258,7 @@ class NsquaredEquationsCAP(CAPContingencyTableQ):
 
         return A, b
 
-    def predict_ct(self, test, oracle_prev):
+    def predict_ct(self, test, oracle_prev=None):
         """
         :param test: test collection (ignored)
         :param oracle_prev: np.ndarray with the class prevalence of the test set as estimated by
@@ -284,7 +289,7 @@ class NsquaredEquationsCAP(CAPContingencyTableQ):
         x = np.linalg.solve(A, b)
 
         if any(x < 0) or any(x > 0) or not np.isclose(x.sum(), 1):
-            print("L", end="")
+            self._sout("L", end="")
 
             # try the iterative solution
             def loss(x):
@@ -293,7 +298,7 @@ class NsquaredEquationsCAP(CAPContingencyTableQ):
             x = F.optim_minimize(loss, n_classes=n**2)
 
         else:
-            print(".", end="")
+            self._sout(".", end="")
 
         cont_table_test = x.reshape(n, n)
         return cont_table_test
