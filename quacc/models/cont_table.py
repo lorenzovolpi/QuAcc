@@ -258,7 +258,7 @@ class NsquaredEquationsCAP(CAPContingencyTableQ):
 
         return A, b
 
-    def predict_ct(self, test, oracle_prev=None):
+    def predict_ct(self, test, oracle_prev=None, return_true_solve=False):
         """
         :param test: test collection (ignored)
         :param oracle_prev: np.ndarray with the class prevalence of the test set as estimated by
@@ -288,8 +288,10 @@ class NsquaredEquationsCAP(CAPContingencyTableQ):
         # try the fast solution (may not be valid)
         x = np.linalg.solve(A, b)
 
-        if any(x < 0) or any(x > 0) or not np.isclose(x.sum(), 1):
+        _true_solve = True
+        if any(x < 0) or not np.isclose(x.sum(), 1):
             self._sout("L", end="")
+            _true_solve = False
 
             # try the iterative solution
             def loss(x):
@@ -301,7 +303,10 @@ class NsquaredEquationsCAP(CAPContingencyTableQ):
             self._sout(".", end="")
 
         cont_table_test = x.reshape(n, n)
-        return cont_table_test
+        if return_true_solve:
+            return cont_table_test, _true_solve
+        else:
+            return cont_table_test
 
 
 class QuAcc(CAPContingencyTableQ):
