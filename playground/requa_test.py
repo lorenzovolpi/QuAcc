@@ -23,7 +23,7 @@ from quacc.error import f1_macro, vanilla_acc
 from quacc.experiments.util import split_validation
 from quacc.models.cont_table import N2E, QuAcc1xN2, QuAcc1xNp1, QuAccNxN
 from quacc.models.model_selection import GridSearchCAP as GSCAP
-from quacc.models.regression import ReQua
+from quacc.models.regression import ReQua, reDAN
 from quacc.utils.commons import parallel as qc_parallel
 from quacc.utils.commons import true_acc
 
@@ -106,12 +106,14 @@ def gen_methods(h, acc_fn):
     sample_s = qp.environ["SAMPLE_SIZE"]
     # yield "ReQua(SLD-LinReg)", ReQua(h, acc_fn, LinReg(), get_quaccs(h, acc_fn, sld()), param_grid=quacc_params, sample_size=sample_s, verbose=VERBOSE)
     # yield "ReQua(SLD-LinReg)-linfeat", ReQua(h, acc_fn, LinReg(), get_quaccs(h, acc_fn, sld()), param_grid=quacc_params, sample_size=sample_s, add_conf=True, verbose=VERBOSE)
-    yield "ReQua(SLD-Ridge)", ReQua(h, acc_fn, Ridge(), get_quaccs(h, acc_fn, sld()), param_grid=quacc_params, sample_size=sample_s, verbose=VERBOSE)
+    # yield "ReQua(SLD-Ridge)", ReQua(h, acc_fn, Ridge(), get_quaccs(h, acc_fn, sld()), param_grid=quacc_params, sample_size=sample_s, verbose=VERBOSE)
     # yield "ReQua(SLD-Ridge)-linfeat", ReQua(h, acc_fn, Ridge(), get_quaccs(h, acc_fn, sld()), param_grid=quacc_params, sample_size=sample_s, add_conf=True, verbose=VERBOSE)
-    yield "ReQua(SLD-KRR)", ReQua(h, acc_fn, KRR(), get_quaccs(h, acc_fn, sld()), param_grid=quacc_params, sample_size=sample_s, verbose=VERBOSE)
+    # yield "ReQua(SLD-KRR)", ReQua(h, acc_fn, KRR(), get_quaccs(h, acc_fn, sld()), param_grid=quacc_params, sample_size=sample_s, verbose=VERBOSE)
     # yield "ReQua(SLD-KRR)-linfeat", ReQua(h, acc_fn, KRR(), get_quaccs(h, acc_fn, sld()), param_grid=quacc_params, sample_size=sample_s, add_conf=True, verbose=VERBOSE)
     # yield "ReQua(SLD-SVR)", ReQua(h, acc_fn, SVR(), get_quaccs(h, acc_fn, sld()), param_grid=quacc_params, sample_size=sample_s, verbose=VERBOSE)
     # yield "ReQua(SLD-SVR)-linfeat", ReQua(h, acc_fn, SVR(), get_quaccs(h, acc_fn, sld()), param_grid=quacc_params, sample_size=sample_s, add_conf=True, verbose=VERBOSE)
+    yield "reDAN(SLD-KRR)-OPT", reDAN(h, acc_fn, KRR(), sld(), add_n2e_opt=True, sample_size=sample_s)
+    yield "reDAN(KDEy-KRR)-OPT", reDAN(h, acc_fn, KRR(), kdey(), add_n2e_opt=True, sample_size=sample_s)
 
 # fmt: on
 
