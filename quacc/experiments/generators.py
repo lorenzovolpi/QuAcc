@@ -1,4 +1,5 @@
 import os
+from collections import defaultdict
 
 import numpy as np
 import quapy as qp
@@ -35,7 +36,14 @@ from quacc.models.regression import ReQua, reDAN
 from quacc.utils.commons import get_results_path
 
 SLD = True
-KDEy = False
+KDEy = defaultdict(lambda: False)
+KDEy = dict(
+    reDAN=True,
+    PQ=False,
+    ReQua=False,
+    N2E=True,
+    QuAcc=False,
+)
 
 MAE = True
 MSE = True
@@ -158,9 +166,13 @@ def gen_CAP_direct(h, acc_fn, config, with_oracle=False) -> [str, CAPDirect]:
         yield "ReQua(SLD-Ridge)-conf", ReQua(*requa_params(h, acc_fn, Ridge(), sld(), config), add_conf=True)
         yield "ReQua(SLD-KRR)", ReQua(*requa_params(h, acc_fn, KRR(), sld(), config))
         yield "ReQua(SLD-KRR)-conf", ReQua(*requa_params(h, acc_fn, KRR(), sld(), config), add_conf=True)
+        # yield "reDAN(SLD-LinReg)", reDAN(h, acc_fn, LinReg(), sld(), sample_size=qp.environ["SAMPLE_SIZE"])
+        # yield "reDAN(SLD-LinReg)-OPT", reDAN(h, acc_fn, LinReg(), sld(), add_n2e_opt=True, sample_size=qp.environ["SAMPLE_SIZE"])
+        # yield "reDAN(SLD-Ridge)", reDAN(h, acc_fn, Ridge(), sld(), sample_size=qp.environ["SAMPLE_SIZE"])
+        # yield "reDAN(SLD-Ridge)-OPT", reDAN(h, acc_fn, Ridge(), sld(), add_n2e_opt=True, sample_size=qp.environ["SAMPLE_SIZE"])
         yield "reDAN(SLD-KRR)", reDAN(h, acc_fn, KRR(), sld(), sample_size=qp.environ["SAMPLE_SIZE"])
         yield "reDAN(SLD-KRR)-OPT", reDAN(h, acc_fn, KRR(), sld(), add_n2e_opt=True, sample_size=qp.environ["SAMPLE_SIZE"])
-    if KDEy:
+    if KDEy["PQ"]:
         # yield 'SebCAP-KDE', SebastianiCAP(h, acc_fn, KDEyML)
         if MAE:
             yield "PrediQuant(KDEy-ae)", PrediQuant(h, acc_fn, KDEyML)
@@ -168,14 +180,20 @@ def gen_CAP_direct(h, acc_fn, config, with_oracle=False) -> [str, CAPDirect]:
         if MSE:
             yield "PrediQuant(KDEy-se)", PrediQuant(h, acc_fn, KDEyML, error=qc.error.se)
             yield "PrediQuantWeight(KDEy-se)", PrediQuant(h, acc_fn, KDEyML, alpha=0, error=qc.error.se)
+    if KDEy["ReQua"]:
         yield "ReQua(KDEy-LinReg)", ReQua(*requa_params(h, acc_fn, LinReg(), kdey(), config))
         yield "ReQua(KDEy-LinReg)-conf", ReQua(*requa_params(h, acc_fn, LinReg(), kdey(), config), add_conf=True)
         yield "ReQua(KDEy-Ridge)", ReQua(*requa_params(h, acc_fn, Ridge(), kdey(), config))
         yield "ReQua(KDEy-Ridge)-conf", ReQua(*requa_params(h, acc_fn, Ridge(), kdey(), config), add_conf=True)
         yield "ReQua(KDEy-KRR)", ReQua(*requa_params(h, acc_fn, KRR(), kdey(), config))
         yield "ReQua(KDEy-KRR)-conf", ReQua(*requa_params(h, acc_fn, KRR(), kdey(), config), add_conf=True)
-    yield "reDAN(KDEy-KRR)", reDAN(h, acc_fn, KRR(), kdey(), sample_size=qp.environ["SAMPLE_SIZE"])
-    yield "reDAN(KDEy-KRR)-OPT", reDAN(h, acc_fn, KRR(), kdey(), add_n2e_opt=True, sample_size=qp.environ["SAMPLE_SIZE"])
+    if KDEy["reDAN"]:
+        # yield "reDAN(KDEy-LinReg)", reDAN(h, acc_fn, LinReg(), kdey(), sample_size=qp.environ["SAMPLE_SIZE"])
+        # yield "reDAN(KDEy-LinReg)-OPT", reDAN(h, acc_fn, LinReg(), kdey(), add_n2e_opt=True, sample_size=qp.environ["SAMPLE_SIZE"])
+        # yield "reDAN(KDEy-Ridge)", reDAN(h, acc_fn, Ridge(), kdey(), sample_size=qp.environ["SAMPLE_SIZE"])
+        # yield "reDAN(KDEy-Ridge)-OPT", reDAN(h, acc_fn, Ridge(), kdey(), add_n2e_opt=True, sample_size=qp.environ["SAMPLE_SIZE"])
+        yield "reDAN(KDEy-KRR)", reDAN(h, acc_fn, KRR(), kdey(), sample_size=qp.environ["SAMPLE_SIZE"])
+        yield "reDAN(KDEy-KRR)-OPT", reDAN(h, acc_fn, KRR(), kdey(), add_n2e_opt=True, sample_size=qp.environ["SAMPLE_SIZE"])
 
     ### baselines ###
     yield "ATC-MC", ATC(h, acc_fn, scoring_fn="maxconf")
@@ -203,7 +221,7 @@ def gen_CAP_cont_table(h, acc_fn, config) -> [str, CAPContingencyTable]:
         # yield 'CT-PPSh-SLD', ContTableTransferCAP(h, acc_fn, EMQ(LogisticRegression()), reuse_h=True)
         # yield 'Equations-SLD', NsquaredEquationsCAP(h, acc_fn, EMQ)
         yield "N2E(SLD)", N2E(h, acc_fn, sld())
-    if KDEy or True:
+    if KDEy["N2E"]:
         # yield 'CT-PPS-KDE', ContTableTransferCAP(h, acc_fn, KDEyML(LogisticRegression(class_weight='balanced'), bandwidth=0.01))
         # yield 'CT-PPS-KDE05', ContTableTransferCAP(h, acc_fn, KDEyML(LogisticRegression(class_weight='balanced'), bandwidth=0.05))
         yield "N2E(KDEy)", N2E(h, acc_fn, kdey())
@@ -245,7 +263,7 @@ def gen_CAP_cont_table_opt(h, acc_fn, config, val_prot) -> [str, CAPContingencyT
         if config == "binary":
             yield "QuAcc(SLD)1xnp1-OPT(mse)-norefit", GSCAP(QuAcc1xNp1(h, acc_fn, sld()), emq_lr_params, val_prot, acc_fn, error=qc.error.mse, refit=False)
             yield "QuAcc(SLD)1xnp1-OPT(mse)", GSCAP(QuAcc1xNp1(h, acc_fn, sld()), emq_lr_params, val_prot, acc_fn, error=qc.error.mse, refit=True)
-    if KDEy and MAE:
+    if KDEy["QuAcc"] and MAE:
         yield "QuAcc(KDEy)1xn2-OPT(mae)", GSCAP(QuAcc1xN2(h, acc_fn, kdey()), kde_lr_params, val_prot, acc_fn, refit=True)
         yield "QuAcc(KDEy)1xn2-OPT(mae)-norefit", GSCAP(QuAcc1xN2(h, acc_fn, kdey()), kde_lr_params, val_prot, acc_fn, refit=False)
         yield "QuAcc(KDEy)nxn-OPT(mae)", GSCAP(QuAccNxN(h, acc_fn, kdey()), kde_lr_params, val_prot, acc_fn, refit=True)
@@ -253,7 +271,7 @@ def gen_CAP_cont_table_opt(h, acc_fn, config, val_prot) -> [str, CAPContingencyT
         if config == "binary":
             yield "QuAcc(KDEy)1xnp1-OPT(mae)-norefit", GSCAP(QuAcc1xNp1(h, acc_fn, kdey()), kde_lr_params, val_prot, acc_fn, refit=False)
             yield "QuAcc(KDEy)1xnp1-OPT(mae)", GSCAP(QuAcc1xNp1(h, acc_fn, kdey()), kde_lr_params, val_prot, acc_fn, refit=True)
-    if KDEy and MSE:
+    if KDEy["QuAcc"] and MSE:
         yield "QuAcc(KDEy)1xn2-OPT(mse)", GSCAP(QuAcc1xN2(h, acc_fn, kdey()), kde_lr_params, val_prot, acc_fn, error=qc.error.mse, refit=True)
         yield "QuAcc(KDEy)1xn2-OPT(mse)-norefit", GSCAP(QuAcc1xN2(h, acc_fn, kdey()), kde_lr_params, val_prot, acc_fn, error=qc.error.mse, refit=False)
         yield "QuAcc(KDEy)nxn-OPT(mse)", GSCAP(QuAccNxN(h, acc_fn, kdey()), kde_lr_params, val_prot, acc_fn, error=qc.error.mse, refit=True)
