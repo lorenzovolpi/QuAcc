@@ -4,10 +4,7 @@ from collections import defaultdict
 import numpy as np
 import quapy as qp
 from quapy.data.base import LabelledCollection
-from quapy.data.datasets import (
-    TWITTER_SENTIMENT_DATASETS_TEST,
-    UCI_MULTICLASS_DATASETS,
-)
+from quapy.data.datasets import TWITTER_SENTIMENT_DATASETS_TEST, UCI_BINARY_DATASETS, UCI_MULTICLASS_DATASETS
 from quapy.method._kdey import KDEyML
 from quapy.method.aggregative import ACC, EMQ, PACC
 from quapy.protocol import UPP
@@ -68,7 +65,7 @@ def gen_classifiers():
     param_grid = {"C": np.logspace(-4, -4, 9), "class_weight": ["balanced", None]}
 
     yield "LR", LR()
-    yield "LR-opt", GridSearchCV(LR(), param_grid, cv=5, n_jobs=qc.env["N_JOBS"])
+    # yield "LR-opt", GridSearchCV(LR(), param_grid, cv=5, n_jobs=qc.env["N_JOBS"])
     # yield 'NB', GaussianNB()
     # yield 'SVM(rbf)', SVC()
     # yield 'SVM(linear)', LinearSVC()
@@ -111,6 +108,10 @@ def gen_bin_datasets(
         yield dn, dval
     # imdb
     yield "imdb", None if only_names else DP.imdb()
+    # UCI
+    for dn in UCI_BINARY_DATASETS:
+        dval = None if only_names else DP.uci_binary(dn)
+        yield dn, dval
 
 
 def gen_product(gen1, gen2):
@@ -141,6 +142,13 @@ def requa_params(h, acc_fn, reg, q_class, config):
     sample_size = qp.environ["SAMPLE_SIZE"]
 
     return h, acc_fn, reg, quaccs, quacc_params, sample_size
+
+
+### baselines ###
+def gen_CAP_baselines(h, acc_fn, config, with_oracle=False) -> [str, CAPDirect]:
+    yield "ATC-MC", ATC(h, acc_fn, scoring_fn="maxconf")
+    # yield 'ATC-NE', ATC(h, acc_fn, scoring_fn='neg_entropy')
+    yield "DoC", DoC(h, acc_fn, sample_size=qp.environ["SAMPLE_SIZE"])
 
 
 # fmt: off
@@ -194,12 +202,6 @@ def gen_CAP_direct(h, acc_fn, config, with_oracle=False) -> [str, CAPDirect]:
         # yield "reDAN(KDEy-Ridge)-OPT", reDAN(h, acc_fn, Ridge(), kdey(), add_n2e_opt=True, sample_size=qp.environ["SAMPLE_SIZE"])
         yield "reDAN(KDEy-KRR)", reDAN(h, acc_fn, KRR(), kdey(), sample_size=qp.environ["SAMPLE_SIZE"])
         yield "reDAN(KDEy-KRR)-OPT", reDAN(h, acc_fn, KRR(), kdey(), add_n2e_opt=True, sample_size=qp.environ["SAMPLE_SIZE"])
-
-    ### baselines ###
-    yield "ATC-MC", ATC(h, acc_fn, scoring_fn="maxconf")
-    # yield 'ATC-NE', ATC(h, acc_fn, scoring_fn='neg_entropy')
-    yield "DoC", DoC(h, acc_fn, sample_size=qp.environ["SAMPLE_SIZE"])
-
 
 def gen_CAP_cont_table(h, acc_fn, config) -> [str, CAPContingencyTable]:
     yield "Naive", NaiveCAP(h, acc_fn)
@@ -289,6 +291,8 @@ def gen_methods(h, V, config, with_oracle=False):
 
     _, acc_fn = next(gen_acc_measure())
 
+    for name, method in gen_CAP_baselines(h, acc_fn, config, with_oracle):
+        yield name, method, V
     for name, method in gen_CAP_direct(h, acc_fn, config, with_oracle):
         yield name, method, V
     for name, method in gen_CAP_cont_table(h, acc_fn, config):
@@ -304,7 +308,8 @@ def get_method_names(config):
     _, mock_acc_fn = next(gen_acc_measure())
     mock_val_prot = UPP(None)
     return (
-        [m for m, _ in gen_CAP_direct(mock_h, mock_acc_fn, config)]
+        [m for m, _ in gen_CAP_baselines(mock_h, mock_acc_fn, config)]
+        + [m for m, _ in gen_CAP_direct(mock_h, mock_acc_fn, config)]
         + [m for m, _ in gen_CAP_cont_table(mock_h, mock_acc_fn, config)]
         + [m for m, _ in gen_CAP_cont_table_opt(mock_h, mock_acc_fn, config, mock_val_prot)]
     )

@@ -6,7 +6,7 @@ from typing import List
 import numpy as np
 import quapy as qp
 from quapy.data.base import LabelledCollection
-from quapy.data.datasets import fetch_lequa2022, fetch_UCIMulticlassLabelledCollection
+from quapy.data.datasets import fetch_lequa2022, fetch_UCIBinaryDataset, fetch_UCIMulticlassDataset
 from sklearn.datasets import fetch_20newsgroups, fetch_rcv1
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.utils import Bunch
@@ -220,9 +220,16 @@ class DatasetProvider:
         return T, V, U
 
     @classmethod
+    def uci_binary(cls, dataset_name, data_home=env["QUAPY_DATA"]):
+        train, U = fetch_UCIBinaryDataset(dataset_name, data_home=data_home).train_test
+        T, V = cls._split_train(train)
+        return T, V, U
+
+    @classmethod
     def uci_multiclass(cls, dataset_name, data_home=env["QUAPY_DATA"]):
-        dataset = fetch_UCIMulticlassLabelledCollection(dataset_name, data_home=env["QUAPY_DATA"])
-        return cls._split_whole(dataset)
+        train, U = fetch_UCIMulticlassDataset(dataset_name, data_home=data_home).train_test
+        T, V = cls._split_train(train)
+        return T, V, U
 
     @classmethod
     def news20(cls):
