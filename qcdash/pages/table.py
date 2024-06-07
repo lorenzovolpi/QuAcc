@@ -38,6 +38,9 @@ def get_Table(df: pd.DataFrame, method_by_row=True):
     if df is None:
         return None
 
+    # insert avg column
+    df.insert(0, "avg", df.mean(axis=1))
+
     def gen_idxmin(_df):
         if method_by_row:
             df_idxmin = _df.idxmin(axis=0, numeric_only=True)
@@ -61,16 +64,30 @@ def get_Table(df: pd.DataFrame, method_by_row=True):
             dfnp = _df.to_numpy()
             base_idx = np.where(np.in1d(df_idx, baselines))[0]
             if len(base_idx) == 0:
-                row_idx, col_idx = [], []
+                method_row_idx, method_col_idx, base_row_idx, base_col_idx = [], [], [], []
             else:
+                methods_idx = np.setdiff1d(np.arange(len(df_idx)), base_idx)
                 where_beats = np.all([dfnp <= dfnp[i] for i in base_idx], axis=0)
-                row_idx, col_idx = np.where(where_beats)
-                col_idx = _df.columns[col_idx].to_numpy()
-        else:
-            row_idx, col_idx = [], []
 
-        for _r, _c in zip(row_idx, col_idx):
-            yield _r, _c
+                where_methods_beats = np.copy(where_beats)
+                where_methods_beats[base_idx] = False
+
+                where_base_beats = np.copy(where_beats)
+                where_base_beats[methods_idx] = False
+
+                print(where_methods_beats)
+                print(where_base_beats)
+
+                base_row_idx, base_col_idx = np.where(where_base_beats)
+                method_row_idx, method_col_idx = np.where(where_methods_beats)
+                base_col_idx = _df.columns[base_col_idx].to_numpy()
+                method_col_idx = _df.columns[method_col_idx].to_numpy()
+        else:
+            method_row_idx, method_col_idx, base_row_idx, base_col_idx = [], [], [], []
+
+        gen_base = ((_r, _c) for _r, _c in zip(base_row_idx, base_col_idx))
+        gen_methods = ((_r, _c) for _r, _c in zip(method_row_idx, method_col_idx))
+        return gen_base, gen_methods
 
     columns = {
         c: dict(
@@ -108,7 +125,15 @@ def get_Table(df: pd.DataFrame, method_by_row=True):
                 "font_weight": "bold",
             }
         )
-    for _r, _c in gen_beats_baselines(df):
+    gen_baseline, gen_methods = gen_beats_baselines(df)
+    for _r, _c in gen_baseline:
+        _style_data_cond.append(
+            {
+                "if": {"column_id": _c, "row_index": _r},
+                "background": "yellow",
+            }
+        )
+    for _r, _c in gen_methods:
         _style_data_cond.append(
             {
                 "if": {"column_id": _c, "row_index": _r},
