@@ -39,7 +39,10 @@ def get_Table(df: pd.DataFrame, method_by_row=True):
         return None
 
     # insert avg column
-    df.insert(0, "avg", df.mean(axis=1))
+    if method_by_row:
+        df.insert(0, "avg", df.mean(axis=1))
+    else:
+        df.loc["avg", :] = df.mean(axis=0)
 
     def gen_idxmin(_df):
         if method_by_row:
@@ -58,8 +61,8 @@ def get_Table(df: pd.DataFrame, method_by_row=True):
             yield r, c
 
     def gen_beats_baselines(_df):
-        df_idx = df.index.to_numpy()
         if method_by_row:
+            df_idx = df.index.to_numpy()
             baselines = ["DoC", "ATC-MC", "ATC-NE"]
             dfnp = _df.to_numpy()
             base_idx = np.where(np.in1d(df_idx, baselines))[0]
@@ -75,15 +78,31 @@ def get_Table(df: pd.DataFrame, method_by_row=True):
                 where_base_beats = np.copy(where_beats)
                 where_base_beats[methods_idx] = False
 
-                print(where_methods_beats)
-                print(where_base_beats)
-
                 base_row_idx, base_col_idx = np.where(where_base_beats)
                 method_row_idx, method_col_idx = np.where(where_methods_beats)
                 base_col_idx = _df.columns[base_col_idx].to_numpy()
                 method_col_idx = _df.columns[method_col_idx].to_numpy()
         else:
-            method_row_idx, method_col_idx, base_row_idx, base_col_idx = [], [], [], []
+            df_col = df.columns.to_numpy()
+            baselines = ["DoC", "ATC-MC", "ATC-NE"]
+            dfnp = _df.to_numpy()
+            base_col = np.where(np.in1d(df_col, baselines))[0]
+            if len(base_col) == 0:
+                method_row_idx, method_col_idx, base_row_idx, base_col_idx = [], [], [], []
+            else:
+                methods_col = np.setdiff1d(np.arange(len(df_col)), base_col)
+                where_beats = np.all([dfnp.T <= dfnp.T[i] for i in base_col], axis=0)
+
+                where_methods_beats = np.copy(where_beats)
+                where_methods_beats[base_col] = False
+
+                where_base_beats = np.copy(where_beats)
+                where_base_beats[methods_col] = False
+
+                base_col_idx, base_row_idx = np.where(where_base_beats)
+                method_col_idx, method_row_idx = np.where(where_methods_beats)
+                base_col_idx = _df.columns[base_col_idx].to_numpy()
+                method_col_idx = _df.columns[method_col_idx].to_numpy()
 
         gen_base = ((_r, _c) for _r, _c in zip(base_row_idx, base_col_idx))
         gen_methods = ((_r, _c) for _r, _c in zip(method_row_idx, method_col_idx))
@@ -229,6 +248,7 @@ def get_sidebar(**kwargs):
             ],
             className="mb-3",
         ),
+        dbc.Switch(id="tbl_mbr", label="Methods by Row", value=True, class_name="mb-3"),
         dbc.Accordion(
             [
                 dbc.AccordionItem([dbc.Checklist(id="tbl_datasets", value=datasets, switch=True)], title="Datasets"),
@@ -437,17 +457,29 @@ def tbl_update_error(href, error):
 
 
 @callback(
+    Output("tbl_mbr", "value"),
+    Input("tbl_url", "href"),
+    State("tbl_mbr", "value"),
+)
+def tbl_update_mbr(href, mbr):
+    req_mbr = apply_param(href, ctx.triggered_id, "mbr", mbr)
+    assert isinstance(mbr, bool), "invalid mbr value"
+    return req_mbr
+
+
+@callback(
     Output("tbl_app_content", "children"),
     Output("tbl_url", "search"),
     Input("tbl_config", "value"),
     Input("tbl_classifier", "value"),
     Input("tbl_acc", "value"),
     Input("tbl_error", "value"),
+    Input("tbl_mbr", "value"),
     Input("tbl_datasets", "value"),
     Input("tbl_methods", "value"),
     State("tbl_tree", "data"),
 )
-def tbl_update_content(config, classifier, acc, error, datasets, methods, tree):
+def tbl_update_content(config, classifier, acc, error, mbr, datasets, methods, tree):
     def get_search():
         return urlencode(
             dict(
@@ -455,6 +487,7 @@ def tbl_update_content(config, classifier, acc, error, datasets, methods, tree):
                 classifier=classifier,
                 acc=acc,
                 error=error,
+                mbr=mbr,
                 datasets=json.dumps(datasets),
                 methods=json.dumps(methods),
             ),
@@ -471,8 +504,8 @@ def tbl_update_content(config, classifier, acc, error, datasets, methods, tree):
     if report is None:
         return [], search_str
 
-    df = get_df(report, error)
-    table = get_Table(df)
+    df = get_df(report, error, method_by_row=mbr)
+    table = get_Table(df, method_by_row=mbr)
     app_content = [] if table is None else [table]
 
     return app_content, search_str
