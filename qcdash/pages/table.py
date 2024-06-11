@@ -161,7 +161,10 @@ def get_Table(df: pd.DataFrame, method_by_row=True):
         )
 
     idx_table = dash_table.DataTable(
-        df.index.to_frame().to_dict("records"), style_table=_style_idx_table, style_cell=_style_idx_cell
+        df.index.to_frame().to_dict("records"),
+        style_table=_style_idx_table,
+        style_cell=_style_idx_cell,
+        cell_selectable=False,
     )
     table = dash_table.DataTable(
         df.to_dict("records"),
@@ -170,6 +173,7 @@ def get_Table(df: pd.DataFrame, method_by_row=True):
         style_cell=_style_cell,
         # style_cell_conditional=_style_cell_cond,
         style_data_conditional=_style_data_cond,
+        cell_selectable=False,
     )
     return html.Div(
         [idx_table, table],
@@ -220,7 +224,6 @@ def get_sidebar(**kwargs):
     mbr = json.loads(kwargs.get("mbr", "True").lower())
     datasets = kwargs.get("datasets", [])
     methods = kwargs.get("methods", [])
-    print(mbr, type(mbr))
     return [
         dbc.Row(
             [
@@ -470,8 +473,6 @@ def tbl_update_error(href, error):
 )
 def tbl_update_mbr(href, mbr):
     req_mbr = apply_param(href, ctx.triggered_id, "mbr", mbr)
-    print(type(mbr), type(req_mbr))
-    print(mbr, req_mbr)
     assert isinstance(mbr, bool), "invalid mbr value"
     return req_mbr
 
