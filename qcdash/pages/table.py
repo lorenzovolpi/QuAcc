@@ -21,6 +21,10 @@ root_folder = os.path.join(qc.env["OUT_DIR"], "results")
 valid_errors = sorted(list(qc.error.ACCURACY_ERROR_SINGLE_NAMES))
 
 
+def mbr_label(mbr):
+    return "Methods x Datasets" if mbr else "Datasets x Methods"
+
+
 def get_df(rep: Report, error, method_by_row=True):
     if error == "ae":
         df = rep.table_data()
@@ -253,12 +257,13 @@ def get_sidebar(**kwargs):
             ],
             className="mb-3",
         ),
-        dbc.Switch(id="tbl_mbr", label="Methods by Row", value=mbr, class_name="mb-3"),
+        dbc.Switch(id="tbl_mbr", label=mbr_label(mbr), value=mbr, class_name="mb-3"),
         dbc.Accordion(
             [
                 dbc.AccordionItem([dbc.Checklist(id="tbl_datasets", value=datasets, switch=True)], title="Datasets"),
                 dbc.AccordionItem([dbc.Checklist(id="tbl_methods", value=methods, switch=True)], title="Methods"),
             ],
+            always_open=True,
             class_name="mb-1",
         ),
         # dbc.Row(
@@ -480,6 +485,7 @@ def tbl_update_mbr(href, mbr):
 @callback(
     Output("tbl_app_content", "children"),
     Output("tbl_url", "search"),
+    Output("tbl_mbr", "label"),
     Input("tbl_config", "value"),
     Input("tbl_classifier", "value"),
     Input("tbl_acc", "value"),
@@ -518,4 +524,4 @@ def tbl_update_content(config, classifier, acc, error, mbr, datasets, methods, t
     table = get_Table(df, method_by_row=mbr)
     app_content = [] if table is None else [table]
 
-    return app_content, search_str
+    return app_content, search_str, mbr_label(mbr)
