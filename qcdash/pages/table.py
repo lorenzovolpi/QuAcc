@@ -217,9 +217,10 @@ def get_sidebar(**kwargs):
     classifier = kwargs.get("classifier", None)
     acc = kwargs.get("acc", None)
     error = kwargs.get("error", None)
-    mbr = kwargs.get("mbr", True)
+    mbr = json.loads(kwargs.get("mbr", "True").lower())
     datasets = kwargs.get("datasets", [])
     methods = kwargs.get("methods", [])
+    print(mbr, type(mbr))
     return [
         dbc.Row(
             [
@@ -307,7 +308,12 @@ def apply_param(href, triggered_id, id, curr):
     match triggered_id:
         case "tbl_url":
             params = parse_href(href)
-            return params.get(id, None)
+            if id == "mbr":
+                val = json.loads(params.get(id, "True").lower())
+            else:
+                val = params.get(id, None)
+
+            return val
         case _:
             return curr
 
@@ -464,6 +470,8 @@ def tbl_update_error(href, error):
 )
 def tbl_update_mbr(href, mbr):
     req_mbr = apply_param(href, ctx.triggered_id, "mbr", mbr)
+    print(type(mbr), type(req_mbr))
+    print(mbr, req_mbr)
     assert isinstance(mbr, bool), "invalid mbr value"
     return req_mbr
 
