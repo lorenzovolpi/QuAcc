@@ -217,6 +217,7 @@ def get_sidebar(**kwargs):
     classifier = kwargs.get("classifier", None)
     acc = kwargs.get("acc", None)
     error = kwargs.get("error", None)
+    mbr = kwargs.get("mbr", True)
     datasets = kwargs.get("datasets", [])
     methods = kwargs.get("methods", [])
     return [
@@ -248,7 +249,7 @@ def get_sidebar(**kwargs):
             ],
             className="mb-3",
         ),
-        dbc.Switch(id="tbl_mbr", label="Methods by Row", value=True, class_name="mb-3"),
+        dbc.Switch(id="tbl_mbr", label="Methods by Row", value=mbr, class_name="mb-3"),
         dbc.Accordion(
             [
                 dbc.AccordionItem([dbc.Checklist(id="tbl_datasets", value=datasets, switch=True)], title="Datasets"),
