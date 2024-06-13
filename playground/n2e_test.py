@@ -69,7 +69,7 @@ def get_multi_quaccs(h, acc_fn, q_class):
 
 
 def gen_bin_datasets():
-    for dataset_name in ["CCAT", "GCAT", "MCAT", "ECAT"][:1]:
+    for dataset_name in ["CCAT", "GCAT", "MCAT", "ECAT"]:
         yield dataset_name, DP.rcv1_binary(dataset_name)
 
 
@@ -94,6 +94,7 @@ elif CONFIG == "binary":
 
 def gen_methods(h, acc_fn):
     yield "N2E(SLD)", N2E(h, acc_fn, sld(), verbose=True)
+    yield "N2E(SLD)-optim", N2E(h, acc_fn, sld(), always_optimize=True, verbose=True)
 
 # fmt: on
 
