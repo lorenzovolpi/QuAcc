@@ -13,6 +13,8 @@ from sklearn.linear_model import LinearRegression as LinReg
 from sklearn.linear_model import LogisticRegression as LR
 from sklearn.linear_model import Ridge
 from sklearn.model_selection import GridSearchCV
+from sklearn.neighbors import KNeighborsClassifier as KNN
+from sklearn.svm import SVC
 
 import quacc as qc
 from quacc.dataset import RCV1_BINARY_DATASETS, RCV1_MULTICLASS_DATASETS
@@ -32,10 +34,11 @@ from quacc.models.model_selection import GridSearchCAP as GSCAP
 from quacc.models.regression import ReQua, reDAN
 from quacc.utils.commons import get_results_path
 
-SLD = True
-KDEy = defaultdict(lambda: False)
-KDEy = dict(
-    reDAN=True,
+_ACC = True
+_SLD = False
+_KDEy = defaultdict(lambda: False)
+_KDEy = dict(
+    reDAN=False,
     PQ=False,
     ReQua=False,
     N2E=True,
@@ -66,8 +69,9 @@ def gen_classifiers():
 
     yield "LR", LR()
     # yield "LR-opt", GridSearchCV(LR(), param_grid, cv=5, n_jobs=qc.env["N_JOBS"])
+    yield "KNN", KNN(n_neighbors=5)
+    yield "SVM(rbf)", SVC(probability=True)
     # yield 'NB', GaussianNB()
-    # yield 'SVM(rbf)', SVC()
     # yield 'SVM(linear)', LinearSVC()
 
 
@@ -103,13 +107,15 @@ def gen_bin_datasets(
     only_names=False,
 ) -> [str, [LabelledCollection, LabelledCollection, LabelledCollection]]:
     # rcv1
-    for dn in RCV1_BINARY_DATASETS:
-        dval = None if only_names else DP.rcv1_binary(dn)
-        yield dn, dval
+    # for dn in RCV1_BINARY_DATASETS:
+    #     dval = None if only_names else DP.rcv1_binary(dn)
+    #     yield dn, dval
     # imdb
-    yield "imdb", None if only_names else DP.imdb()
+    # yield "imdb", None if only_names else DP.imdb()
     # UCI
-    for dn in UCI_BINARY_DATASETS:
+    _uci_skip = ["acute.a", "acute.b", "balance.2", "iris.1"]
+    _uci_names = [d for d in UCI_BINARY_DATASETS if d not in _uci_skip]
+    for dn in _uci_names:
         dval = None if only_names else DP.uci_binary(dn)
         yield dn, dval
 
@@ -153,13 +159,19 @@ def gen_CAP_baselines(h, acc_fn, config, with_oracle=False) -> [str, CAPDirect]:
 
 # fmt: off
 def gen_CAP_direct(h, acc_fn, config, with_oracle=False) -> [str, CAPDirect]:
+    redan_q_params= {
+        "classifier__C": np.logspace(-3, 3, 7),
+        "classifier__class_weight": [None, "balanced"],
+    }
+    rdan_q_params_sld = redan_q_params | {"recalib": [None, "bcts"]}
+    rdan_q_params_kdey = redan_q_params | {"bandwidth": np.linspace(0.01, 0.2, 5)}
     ### CAP methods ###
     # yield 'SebCAP', SebastianiCAP(h, acc_fn, ACC)
     # yield 'SebCAPweight', SebastianiCAP(h, acc_fn, ACC, alpha=0)
     # yield "PrediQuant(ACC)", PrediQuant(h, acc_fn, ACC)
     # yield "PrediQuantWeight(ACC)", PrediQuant(h, acc_fn, ACC, alpha=0)
     # yield 'PabCAP', PabloCAP(h, acc_fn, ACC)
-    if SLD:
+    if _SLD:
         # yield 'SebCAP-SLD', SebastianiCAP(h, acc_fn, EMQ, predict_train_prev=not with_oracle)
         # yield 'PabCAP-SLD-median', PabloCAP(h, acc_fn, EMQ, aggr='median')
         if MAE:
@@ -178,9 +190,10 @@ def gen_CAP_direct(h, acc_fn, config, with_oracle=False) -> [str, CAPDirect]:
         # yield "reDAN(SLD-LinReg)-OPT", reDAN(h, acc_fn, LinReg(), sld(), add_n2e_opt=True, sample_size=qp.environ["SAMPLE_SIZE"])
         # yield "reDAN(SLD-Ridge)", reDAN(h, acc_fn, Ridge(), sld(), sample_size=qp.environ["SAMPLE_SIZE"])
         # yield "reDAN(SLD-Ridge)-OPT", reDAN(h, acc_fn, Ridge(), sld(), add_n2e_opt=True, sample_size=qp.environ["SAMPLE_SIZE"])
-        yield "reDAN(SLD-KRR)", reDAN(h, acc_fn, KRR(), sld(), sample_size=qp.environ["SAMPLE_SIZE"])
-        yield "reDAN(SLD-KRR)-OPT", reDAN(h, acc_fn, KRR(), sld(), add_n2e_opt=True, sample_size=qp.environ["SAMPLE_SIZE"])
-    if KDEy["PQ"]:
+        yield "reDAN(SLD-KRR)", reDAN(h, acc_fn, KRR(), sld(), q_params=rdan_q_params_sld, sample_size=qp.environ["SAMPLE_SIZE"])
+        yield "reDAN(SLD-KRR)-OPT", reDAN(h, acc_fn, KRR(), sld(), q_params=rdan_q_params_sld, add_n2e_opt=True, sample_size=qp.environ["SAMPLE_SIZE"])
+        yield "reDAN(SLD-KRR)-OPT+", reDAN(h, acc_fn, KRR(), sld(), q_params=rdan_q_params_sld, add_n2e_opt=True, add_conf=True, sample_size=qp.environ["SAMPLE_SIZE"])
+    if _KDEy["PQ"]:
         # yield 'SebCAP-KDE', SebastianiCAP(h, acc_fn, KDEyML)
         if MAE:
             yield "PrediQuant(KDEy-ae)", PrediQuant(h, acc_fn, KDEyML)
@@ -188,26 +201,29 @@ def gen_CAP_direct(h, acc_fn, config, with_oracle=False) -> [str, CAPDirect]:
         if MSE:
             yield "PrediQuant(KDEy-se)", PrediQuant(h, acc_fn, KDEyML, error=qc.error.se)
             yield "PrediQuantWeight(KDEy-se)", PrediQuant(h, acc_fn, KDEyML, alpha=0, error=qc.error.se)
-    if KDEy["ReQua"]:
+    if _KDEy["ReQua"]:
         yield "ReQua(KDEy-LinReg)", ReQua(*requa_params(h, acc_fn, LinReg(), kdey(), config))
         yield "ReQua(KDEy-LinReg)-conf", ReQua(*requa_params(h, acc_fn, LinReg(), kdey(), config), add_conf=True)
         yield "ReQua(KDEy-Ridge)", ReQua(*requa_params(h, acc_fn, Ridge(), kdey(), config))
         yield "ReQua(KDEy-Ridge)-conf", ReQua(*requa_params(h, acc_fn, Ridge(), kdey(), config), add_conf=True)
         yield "ReQua(KDEy-KRR)", ReQua(*requa_params(h, acc_fn, KRR(), kdey(), config))
         yield "ReQua(KDEy-KRR)-conf", ReQua(*requa_params(h, acc_fn, KRR(), kdey(), config), add_conf=True)
-    if KDEy["reDAN"]:
+    if _KDEy["reDAN"]:
         # yield "reDAN(KDEy-LinReg)", reDAN(h, acc_fn, LinReg(), kdey(), sample_size=qp.environ["SAMPLE_SIZE"])
         # yield "reDAN(KDEy-LinReg)-OPT", reDAN(h, acc_fn, LinReg(), kdey(), add_n2e_opt=True, sample_size=qp.environ["SAMPLE_SIZE"])
         # yield "reDAN(KDEy-Ridge)", reDAN(h, acc_fn, Ridge(), kdey(), sample_size=qp.environ["SAMPLE_SIZE"])
         # yield "reDAN(KDEy-Ridge)-OPT", reDAN(h, acc_fn, Ridge(), kdey(), add_n2e_opt=True, sample_size=qp.environ["SAMPLE_SIZE"])
         yield "reDAN(KDEy-KRR)", reDAN(h, acc_fn, KRR(), kdey(), sample_size=qp.environ["SAMPLE_SIZE"])
-        yield "reDAN(KDEy-KRR)-OPT", reDAN(h, acc_fn, KRR(), kdey(), add_n2e_opt=True, sample_size=qp.environ["SAMPLE_SIZE"])
+        # yield "reDAN(KDEy-KRR)-OPT", reDAN(h, acc_fn, KRR(), kdey(), q_params = rdan_q_params_kdey, add_n2e_opt=True, sample_size=qp.environ["SAMPLE_SIZE"])
+        # yield "reDAN(KDEy-KRR)-OPT+", reDAN(h, acc_fn, KRR(), kdey(), q_params = rdan_q_params_kdey, add_n2e_opt=True, add_conf=True, sample_size=qp.environ["SAMPLE_SIZE"])
 
 def gen_CAP_cont_table(h, acc_fn, config) -> [str, CAPContingencyTable]:
     yield "Naive", NaiveCAP(h, acc_fn)
     # yield 'Equations-ACCh', NsquaredEquationsCAP(h, acc_fn, ACC, reuse_h=True)
     # yield 'Equations-ACC', NsquaredEquationsCAP(h, acc_fn, ACC)
-    if SLD:
+    if _ACC:
+        yield "N2E(ACC-h0)", N2E(h, acc_fn, ACC(LR()), reuse_h=True)
+    if _SLD:
         # yield "CT-PPS-SLD", ContTableTransferCAP(h, acc_fn, EMQ(LogisticRegression()))
         # yield 'QuAcc(SLD)nxn-noX', QuAccNxN(h, acc_fn, EMQ(LogisticRegression()), add_posteriors=True, add_X=False)
         # yield 'QuAcc(SLD)nxn', QuAccNxN(h, acc_fn, EMQ(LogisticRegression()))
@@ -223,10 +239,11 @@ def gen_CAP_cont_table(h, acc_fn, config) -> [str, CAPContingencyTable]:
         # yield 'CT-PPSh-SLD', ContTableTransferCAP(h, acc_fn, EMQ(LogisticRegression()), reuse_h=True)
         # yield 'Equations-SLD', NsquaredEquationsCAP(h, acc_fn, EMQ)
         yield "N2E(SLD)", N2E(h, acc_fn, sld())
-    if KDEy["N2E"]:
+    if _KDEy["N2E"]:
         # yield 'CT-PPS-KDE', ContTableTransferCAP(h, acc_fn, KDEyML(LogisticRegression(class_weight='balanced'), bandwidth=0.01))
         # yield 'CT-PPS-KDE05', ContTableTransferCAP(h, acc_fn, KDEyML(LogisticRegression(class_weight='balanced'), bandwidth=0.05))
-        yield "N2E(KDEy)", N2E(h, acc_fn, kdey())
+        yield "N2E(KDEy-h0)", N2E(h, acc_fn, kdey(), reuse_h=True)
+        yield "N2E(KDEy-h+)", N2E(h, acc_fn, kdey(), reuse_h=False)
 # fmt: on
 
 
@@ -244,12 +261,17 @@ def gen_CAP_cont_table_opt(h, acc_fn, config, val_prot) -> [str, CAPContingencyT
     }
     emq_lr_params = pacc_lr_params | {"q_class__recalib": [None, "bcts"]}
     kde_lr_params = pacc_lr_params | {"q_class__bandwidth": np.linspace(0.01, 0.2, 5)}
+    n2e_kde_h0_params = {"q_class__bandwidth": np.linspace(0.01, 0.2, 20)}
+    n2e_kde_hplus_params = n2e_kde_h0_params | {
+        "q_class__classifier__C": np.logspace(-3, 3, 7),
+        "q_class__classifier__class_weight": [None, "balanced"],
+    }
 
     # yield "QuAcc(PACC)1xn2-OPT", GSCAP(QuAcc1xN2(h, acc_fn, pacc()), pacc_lr_params, val_prot, acc_fn, refit=True)
     # yield "QuAcc(PACC)nxn-OPT", GSCAP(QuAccNxN(h, acc_fn, pacc()), pacc_lr_params, val_prot, acc_fn, refit=True)
     # yield "QuAcc(PACC)1xn2-OPT-norefit", GSCAP(QuAcc1xN2(h, acc_fn, pacc()), pacc_lr_params, val_prot, acc_fn, refit=False)
     # yield "QuAcc(PACC)nxn-OPT-norefit", GSCAP(QuAccNxN(h, acc_fn, pacc()), pacc_lr_params, val_prot, acc_fn, refit=False)
-    if SLD and MAE:
+    if _SLD and MAE:
         yield "QuAcc(SLD)1xn2-OPT(mae)-norefit", GSCAP(QuAcc1xN2(h, acc_fn, sld()), emq_lr_params, val_prot, acc_fn, refit=False)
         yield "QuAcc(SLD)1xn2-OPT(mae)", GSCAP(QuAcc1xN2(h, acc_fn, sld()), emq_lr_params, val_prot, acc_fn, refit=True)
         yield "QuAcc(SLD)nxn-OPT(mae)-norefit", GSCAP(QuAccNxN(h, acc_fn, sld()), emq_lr_params, val_prot, acc_fn, refit=False)
@@ -257,7 +279,7 @@ def gen_CAP_cont_table_opt(h, acc_fn, config, val_prot) -> [str, CAPContingencyT
         if config == "binary":
             yield "QuAcc(SLD)1xnp1-OPT(mae)-norefit", GSCAP(QuAcc1xNp1(h, acc_fn, sld()), emq_lr_params, val_prot, acc_fn, refit=False)
             yield "QuAcc(SLD)1xnp1-OPT(mae)", GSCAP(QuAcc1xNp1(h, acc_fn, sld()), emq_lr_params, val_prot, acc_fn, refit=True)
-    if SLD and MSE:
+    if _SLD and MSE:
         yield "QuAcc(SLD)1xn2-OPT(mse)-norefit", GSCAP(QuAcc1xN2(h, acc_fn, sld()), emq_lr_params, val_prot, acc_fn, error=qc.error.mse, refit=False)
         yield "QuAcc(SLD)1xn2-OPT(mse)", GSCAP(QuAcc1xN2(h, acc_fn, sld()), emq_lr_params, val_prot, acc_fn, error=qc.error.mse, refit=True)
         yield "QuAcc(SLD)nxn-OPT(mse)-norefit", GSCAP(QuAccNxN(h, acc_fn, sld()), emq_lr_params, val_prot, acc_fn, error=qc.error.mse, refit=False)
@@ -265,7 +287,7 @@ def gen_CAP_cont_table_opt(h, acc_fn, config, val_prot) -> [str, CAPContingencyT
         if config == "binary":
             yield "QuAcc(SLD)1xnp1-OPT(mse)-norefit", GSCAP(QuAcc1xNp1(h, acc_fn, sld()), emq_lr_params, val_prot, acc_fn, error=qc.error.mse, refit=False)
             yield "QuAcc(SLD)1xnp1-OPT(mse)", GSCAP(QuAcc1xNp1(h, acc_fn, sld()), emq_lr_params, val_prot, acc_fn, error=qc.error.mse, refit=True)
-    if KDEy["QuAcc"] and MAE:
+    if _KDEy["QuAcc"] and MAE:
         yield "QuAcc(KDEy)1xn2-OPT(mae)", GSCAP(QuAcc1xN2(h, acc_fn, kdey()), kde_lr_params, val_prot, acc_fn, refit=True)
         yield "QuAcc(KDEy)1xn2-OPT(mae)-norefit", GSCAP(QuAcc1xN2(h, acc_fn, kdey()), kde_lr_params, val_prot, acc_fn, refit=False)
         yield "QuAcc(KDEy)nxn-OPT(mae)", GSCAP(QuAccNxN(h, acc_fn, kdey()), kde_lr_params, val_prot, acc_fn, refit=True)
@@ -273,7 +295,7 @@ def gen_CAP_cont_table_opt(h, acc_fn, config, val_prot) -> [str, CAPContingencyT
         if config == "binary":
             yield "QuAcc(KDEy)1xnp1-OPT(mae)-norefit", GSCAP(QuAcc1xNp1(h, acc_fn, kdey()), kde_lr_params, val_prot, acc_fn, refit=False)
             yield "QuAcc(KDEy)1xnp1-OPT(mae)", GSCAP(QuAcc1xNp1(h, acc_fn, kdey()), kde_lr_params, val_prot, acc_fn, refit=True)
-    if KDEy["QuAcc"] and MSE:
+    if _KDEy["QuAcc"] and MSE:
         yield "QuAcc(KDEy)1xn2-OPT(mse)", GSCAP(QuAcc1xN2(h, acc_fn, kdey()), kde_lr_params, val_prot, acc_fn, error=qc.error.mse, refit=True)
         yield "QuAcc(KDEy)1xn2-OPT(mse)-norefit", GSCAP(QuAcc1xN2(h, acc_fn, kdey()), kde_lr_params, val_prot, acc_fn, error=qc.error.mse, refit=False)
         yield "QuAcc(KDEy)nxn-OPT(mse)", GSCAP(QuAccNxN(h, acc_fn, kdey()), kde_lr_params, val_prot, acc_fn, error=qc.error.mse, refit=True)
@@ -281,6 +303,9 @@ def gen_CAP_cont_table_opt(h, acc_fn, config, val_prot) -> [str, CAPContingencyT
         if config == "binary":
             yield "QuAcc(KDEy)1xnp1-OPT-norefit", GSCAP(QuAcc1xNp1(h, acc_fn, kdey()), kde_lr_params, val_prot, acc_fn, error=qc.error.mse, refit=False)
             yield "QuAcc(KDEy)1xnp1-OPT", GSCAP(QuAcc1xNp1(h, acc_fn, kdey()), kde_lr_params, val_prot, acc_fn, error=qc.error.mse, refit=True)
+    if _KDEy["N2E"]:
+        yield "N2E(KDEy-h0)-OPT", GSCAP(N2E(h, acc_fn, kdey(), reuse_h=True), n2e_kde_h0_params, val_prot, acc_fn, refit=False)
+        yield "N2E(KDEy-h+)-OPT", GSCAP(N2E(h, acc_fn, kdey(), reuse_h=False), n2e_kde_hplus_params, val_prot, acc_fn, refit=False)
     # return
     # yield
 # fmt: on
