@@ -5,7 +5,7 @@ from time import time
 import numpy as np
 import quapy as qp
 from quapy.data.base import LabelledCollection
-from quapy.method.aggregative import SLD, AggregativeQuantifier, BaseQuantifier
+from quapy.method.aggregative import ACC, SLD, AggregativeQuantifier, BaseQuantifier
 from quapy.protocol import UPP, AbstractProtocol
 from sklearn.linear_model import LinearRegression, LogisticRegression
 
@@ -225,8 +225,10 @@ class reDAN(CAPDirect):
         reg_model,
         q_class: BaseQuantifier,
         sample_size,
+        q_params: dict | None = None,
         n_val_samples=500,
-        add_n2e_opt=False,
+        n2e_opt_h0=True,
+        add_conf=False,
         val_prop=0.5,
         clip_vals=(0, 1),
         n_jobs=None,
@@ -235,9 +237,11 @@ class reDAN(CAPDirect):
         super().__init__(h, acc_fn)
         self.reg_model = reg_model
         self.q_class = q_class
+        self.q_params = q_params
         self.sample_size = sample_size
         self.n_val_samples = n_val_samples
-        self.add_n2e_opt = add_n2e_opt
+        self.n2e_opt_h0 = n2e_opt_h0
+        self.add_conf = add_conf
         self.val_prop = val_prop
         self.clip_vals = clip_vals
         self.n_jobs = qc.commons.get_njobs(n_jobs)
@@ -245,30 +249,32 @@ class reDAN(CAPDirect):
         self.joblib_verbose = 10 if verbose else 0
 
     def _fit_models(self, val: LabelledCollection):
-        n2e = N2E(self.h, self.acc, self.q_class, reuse_h=True).fit(val)
+        n2e_acc = N2E(self.h, self.acc, ACC(LogisticRegression()), reuse_h=True).fit(val)
         doc = DoC(self.h, self.acc, self.sample_size).fit(val)
         atc = ATC(self.h, self.acc, scoring_fn="maxconf").fit(val)
-        self.models = [n2e, doc, atc]
 
-        if self.add_n2e_opt:
-            _params = {
-                "q_class__classifier__C": np.logspace(-3, 3, 7),
-                "q_class__classifier__class_weight": [None, "balanced"],
-            }
-            v11, v12 = val.split_stratified(self.val_prop, random_state=qp.environ["_R_SEED"])
-            v_prot = UPP(
-                v12,
-                self.sample_size,
-                repeats=100,
-                random_state=qp.environ["_R_SEED"],
-                return_type="labelled_collection",
-            )
-            n2e_opt = GSCAP(deepcopy(n2e), _params, v_prot, self.acc).fit(v11)
-            self.models.append(n2e_opt)
+        v11, v12 = val.split_stratified(self.val_prop, random_state=qp.environ["_R_SEED"])
+        v_prot = UPP(
+            v12,
+            self.sample_size,
+            repeats=100,
+            random_state=qp.environ["_R_SEED"],
+            return_type="labelled_collection",
+        )
+        _n2e_q = N2E(self.h, self.acc, self.q_class, reuse_h=self.n2e_opt_h0)
+        _params = None if self.q_params is None else {("q_class__" + k, v) for k, v in self.q_params.items()}
+        n2e_opt = _n2e_q.fit(val) if _params is None else GSCAP(_n2e_q, _params, v_prot, self.acc).fit(v11)
+        self.models = [n2e_acc, n2e_opt, doc, atc]
 
     def _get_models_feats(self, X):
-        preds = np.hstack([m.predict(X) for m in self.models])
-        return preds
+        feats = np.hstack([m.predict(X) for m in self.models])
+        if self.add_conf:
+            P = get_posteriors_from_h(self.h, X)
+            conf_fns = [max_conf, neg_entropy, max_inverse_softmax]
+            conf_feats = np.hstack([fn(P, keepdims=True) for fn in conf_fns]).mean(axis=0)
+            feats = np.hstack([feats, conf_feats])
+
+        return feats
 
     def fit_regression(self, feats, accs):
         self.reg_model.fit(feats, accs)

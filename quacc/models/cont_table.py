@@ -194,9 +194,12 @@ class ContTableTransferCAP(CAPContingencyTableQ):
 class NsquaredEquationsCAP(CAPContingencyTableQ):
     """ """
 
-    def __init__(self, h: BaseEstimator, acc_fn: Callable, q_class, reuse_h=False, verbose=False):
+    def __init__(
+        self, h: BaseEstimator, acc_fn: Callable, q_class, always_optimize=False, reuse_h=False, verbose=False
+    ):
         super().__init__(h, acc_fn, q_class, reuse_h)
         self.verbose = verbose
+        self.always_optimize = always_optimize
 
     def _sout(self, *msgs, **kwargs):
         if self.verbose:
@@ -289,7 +292,7 @@ class NsquaredEquationsCAP(CAPContingencyTableQ):
         x = np.linalg.solve(A, b)
 
         _true_solve = True
-        if any(x < 0) or not np.isclose(x.sum(), 1):
+        if any(x < 0) or not np.isclose(x.sum(), 1) or self.always_optimize:
             self._sout("L", end="")
             _true_solve = False
 
