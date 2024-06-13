@@ -55,3 +55,4 @@ var/
 test*.py
 *.sh
 !build/*.sh
+*.txt
