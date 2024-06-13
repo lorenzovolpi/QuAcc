@@ -117,29 +117,6 @@ def experiments():
 
 
 # generate plots
-def plotting():
-    for (cls_name, _), (acc_name, _) in IT.product(gen_classifiers(), gen_acc_measure()):
-        # save_plot_diagonal(basedir, cls_name, acc_name)
-        for dataset_name, _ in gen_datasets(only_names=True):
-            methods = get_method_names(PROBLEM)
-            rep = Report.load_results(basedir, cls_name, acc_name, dataset_name=dataset_name, method_name=methods)
-            qc.plot.seaborn.plot_diagonal(
-                rep.diagonal_plot_data(), cls_name, acc_name, dataset_name, basedir=plots_basedir
-            )
-            qc.plot.seaborn.plot_shift(rep.shift_plot_data(), cls_name, acc_name, dataset_name, basedir=plots_basedir)
-            for _method in methods:
-                m_rep = rep.filter_by_method(_method)
-                qc.plot.seaborn.plot_diagonal(
-                    m_rep.diagonal_plot_data(),
-                    cls_name,
-                    acc_name,
-                    dataset_name,
-                    basedir=plots_basedir,
-                    file_name=f"diagonal_{_method}",
-                )
-        print(f"{cls_name}-{acc_name} plots generated")
-
-
 # print("generating tables")
 # gen_tables(basedir, datasets=[d for d, _ in gen_datasets(only_names=True)])
 
