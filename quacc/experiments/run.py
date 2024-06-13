@@ -37,7 +37,7 @@ plots_basedir = basedir if PLOTS is None else basedir + "_" + PLOTS
 NUM_TEST = 1000
 
 if PROBLEM == "binary":
-    qp.environ["SAMPLE_SIZE"] = 1000
+    qp.environ["SAMPLE_SIZE"] = 100
     gen_datasets = gen_bin_datasets
 elif PROBLEM == "multiclass":
     qp.environ["SAMPLE_SIZE"] = 250
