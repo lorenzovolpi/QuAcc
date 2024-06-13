@@ -39,6 +39,12 @@ def plot_diagonal(df: pd.DataFrame, cls_name, acc_name, dataset_name, *, basedir
     )
 
 
+def plot_diagonal_grid(
+    dfs: list[pd.DataFrame], cls_name, acc_name, dataset_names, *, basedir=None, file_name=None, n_cols=1
+):
+    pass
+
+
 def plot_shift(
     df: pd.DataFrame,
     cls_name,
