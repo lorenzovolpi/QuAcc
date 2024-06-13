@@ -111,7 +111,7 @@ class Report:
             methods = [methods]
         return Report({_m: _rs for _m, _rs in self.results.items() if _m in methods})
 
-    def table_data(self, error=qc.error.ae):
+    def table_data(self, mean=True, error=qc.error.ae):
         assert error in qc.error.ACCURACY_ERROR_SINGLE, "Unknown error function"
         dfs = []
         for _method, _results in self.results.items():
@@ -131,7 +131,8 @@ class Report:
                 dfs.append(report_df)
 
         all_df = pd.concat(dfs, axis=0, ignore_index=True)
-        all_df = all_df.groupby(["method", "dataset"]).mean().reset_index()
+        if mean:
+            all_df = all_df.groupby(["method", "dataset"]).mean().reset_index()
         return all_df
 
     def diagonal_plot_data(self):
