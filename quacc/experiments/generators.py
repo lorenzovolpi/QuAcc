@@ -8,12 +8,14 @@ from quapy.data.datasets import TWITTER_SENTIMENT_DATASETS_TEST, UCI_BINARY_DATA
 from quapy.method._kdey import KDEyML
 from quapy.method.aggregative import ACC, EMQ, PACC
 from quapy.protocol import UPP
+from sklearn.ensemble import RandomForestClassifier as RFC
 from sklearn.kernel_ridge import KernelRidge as KRR
 from sklearn.linear_model import LinearRegression as LinReg
 from sklearn.linear_model import LogisticRegression as LR
 from sklearn.linear_model import Ridge
 from sklearn.model_selection import GridSearchCV
 from sklearn.neighbors import KNeighborsClassifier as KNN
+from sklearn.neural_network import MLPClassifier as MLP
 from sklearn.svm import SVC
 
 import quacc as qc
@@ -42,7 +44,7 @@ _KDEy = dict(
     PQ=False,
     ReQua=False,
     N2E=True,
-    QuAcc=False,
+    QuAcc=True,
 )
 
 MAE = True
@@ -70,7 +72,10 @@ def gen_classifiers():
     yield "LR", LR()
     # yield "LR-opt", GridSearchCV(LR(), param_grid, cv=5, n_jobs=qc.env["N_JOBS"])
     yield "KNN", KNN(n_neighbors=5)
+    yield "KNN_10", KNN(n_neighbors=10)
     yield "SVM(rbf)", SVC(probability=True)
+    yield "RFC", RFC()
+    yield "MLP", MLP(hidden_layer_sizes=(100, 15), max_iter=300, random_state=0)
     # yield 'NB', GaussianNB()
     # yield 'SVM(linear)', LinearSVC()
 
@@ -267,42 +272,16 @@ def gen_CAP_cont_table_opt(h, acc_fn, config, val_prot) -> [str, CAPContingencyT
         "q_class__classifier__class_weight": [None, "balanced"],
     }
 
-    # yield "QuAcc(PACC)1xn2-OPT", GSCAP(QuAcc1xN2(h, acc_fn, pacc()), pacc_lr_params, val_prot, acc_fn, refit=True)
-    # yield "QuAcc(PACC)nxn-OPT", GSCAP(QuAccNxN(h, acc_fn, pacc()), pacc_lr_params, val_prot, acc_fn, refit=True)
-    # yield "QuAcc(PACC)1xn2-OPT-norefit", GSCAP(QuAcc1xN2(h, acc_fn, pacc()), pacc_lr_params, val_prot, acc_fn, refit=False)
-    # yield "QuAcc(PACC)nxn-OPT-norefit", GSCAP(QuAccNxN(h, acc_fn, pacc()), pacc_lr_params, val_prot, acc_fn, refit=False)
-    if _SLD and MAE:
-        yield "QuAcc(SLD)1xn2-OPT(mae)-norefit", GSCAP(QuAcc1xN2(h, acc_fn, sld()), emq_lr_params, val_prot, acc_fn, refit=False)
-        yield "QuAcc(SLD)1xn2-OPT(mae)", GSCAP(QuAcc1xN2(h, acc_fn, sld()), emq_lr_params, val_prot, acc_fn, refit=True)
-        yield "QuAcc(SLD)nxn-OPT(mae)-norefit", GSCAP(QuAccNxN(h, acc_fn, sld()), emq_lr_params, val_prot, acc_fn, refit=False)
-        yield "QuAcc(SLD)nxn-OPT(mae)", GSCAP(QuAccNxN(h, acc_fn, sld()), emq_lr_params, val_prot, acc_fn, refit=True)
+    if _SLD:
+        yield "QuAcc(SLD)1xn2-OPT", GSCAP(QuAcc1xN2(h, acc_fn, sld()), emq_lr_params, val_prot, acc_fn, refit=False)
+        yield "QuAcc(SLD)nxn-OPT", GSCAP(QuAccNxN(h, acc_fn, sld()), emq_lr_params, val_prot, acc_fn, refit=False)
         if config == "binary":
-            yield "QuAcc(SLD)1xnp1-OPT(mae)-norefit", GSCAP(QuAcc1xNp1(h, acc_fn, sld()), emq_lr_params, val_prot, acc_fn, refit=False)
-            yield "QuAcc(SLD)1xnp1-OPT(mae)", GSCAP(QuAcc1xNp1(h, acc_fn, sld()), emq_lr_params, val_prot, acc_fn, refit=True)
-    if _SLD and MSE:
-        yield "QuAcc(SLD)1xn2-OPT(mse)-norefit", GSCAP(QuAcc1xN2(h, acc_fn, sld()), emq_lr_params, val_prot, acc_fn, error=qc.error.mse, refit=False)
-        yield "QuAcc(SLD)1xn2-OPT(mse)", GSCAP(QuAcc1xN2(h, acc_fn, sld()), emq_lr_params, val_prot, acc_fn, error=qc.error.mse, refit=True)
-        yield "QuAcc(SLD)nxn-OPT(mse)-norefit", GSCAP(QuAccNxN(h, acc_fn, sld()), emq_lr_params, val_prot, acc_fn, error=qc.error.mse, refit=False)
-        yield "QuAcc(SLD)nxn-OPT(mse)", GSCAP(QuAccNxN(h, acc_fn, sld()), emq_lr_params, val_prot, acc_fn, error=qc.error.mse, refit=True)
+            yield "QuAcc(SLD)1xnp1-OPT", GSCAP(QuAcc1xNp1(h, acc_fn, sld()), emq_lr_params, val_prot, acc_fn, refit=False)
+    if _KDEy["QuAcc"]:
+        yield "QuAcc(KDEy)1xn2-OPT", GSCAP(QuAcc1xN2(h, acc_fn, kdey()), kde_lr_params, val_prot, acc_fn, refit=False)
+        yield "QuAcc(KDEy)nxn-OPT", GSCAP(QuAccNxN(h, acc_fn, kdey()), kde_lr_params, val_prot, acc_fn, refit=False)
         if config == "binary":
-            yield "QuAcc(SLD)1xnp1-OPT(mse)-norefit", GSCAP(QuAcc1xNp1(h, acc_fn, sld()), emq_lr_params, val_prot, acc_fn, error=qc.error.mse, refit=False)
-            yield "QuAcc(SLD)1xnp1-OPT(mse)", GSCAP(QuAcc1xNp1(h, acc_fn, sld()), emq_lr_params, val_prot, acc_fn, error=qc.error.mse, refit=True)
-    if _KDEy["QuAcc"] and MAE:
-        yield "QuAcc(KDEy)1xn2-OPT(mae)", GSCAP(QuAcc1xN2(h, acc_fn, kdey()), kde_lr_params, val_prot, acc_fn, refit=True)
-        yield "QuAcc(KDEy)1xn2-OPT(mae)-norefit", GSCAP(QuAcc1xN2(h, acc_fn, kdey()), kde_lr_params, val_prot, acc_fn, refit=False)
-        yield "QuAcc(KDEy)nxn-OPT(mae)", GSCAP(QuAccNxN(h, acc_fn, kdey()), kde_lr_params, val_prot, acc_fn, refit=True)
-        yield "QuAcc(KDEy)nxn-OPT(mae)-norefit", GSCAP(QuAccNxN(h, acc_fn, kdey()), kde_lr_params, val_prot, acc_fn, refit=False)
-        if config == "binary":
-            yield "QuAcc(KDEy)1xnp1-OPT(mae)-norefit", GSCAP(QuAcc1xNp1(h, acc_fn, kdey()), kde_lr_params, val_prot, acc_fn, refit=False)
-            yield "QuAcc(KDEy)1xnp1-OPT(mae)", GSCAP(QuAcc1xNp1(h, acc_fn, kdey()), kde_lr_params, val_prot, acc_fn, refit=True)
-    if _KDEy["QuAcc"] and MSE:
-        yield "QuAcc(KDEy)1xn2-OPT(mse)", GSCAP(QuAcc1xN2(h, acc_fn, kdey()), kde_lr_params, val_prot, acc_fn, error=qc.error.mse, refit=True)
-        yield "QuAcc(KDEy)1xn2-OPT(mse)-norefit", GSCAP(QuAcc1xN2(h, acc_fn, kdey()), kde_lr_params, val_prot, acc_fn, error=qc.error.mse, refit=False)
-        yield "QuAcc(KDEy)nxn-OPT(mse)", GSCAP(QuAccNxN(h, acc_fn, kdey()), kde_lr_params, val_prot, acc_fn, error=qc.error.mse, refit=True)
-        yield "QuAcc(KDEy)nxn-OPT(mse)-norefit", GSCAP(QuAccNxN(h, acc_fn, kdey()), kde_lr_params, val_prot, acc_fn, error=qc.error.mse, refit=False)
-        if config == "binary":
-            yield "QuAcc(KDEy)1xnp1-OPT-norefit", GSCAP(QuAcc1xNp1(h, acc_fn, kdey()), kde_lr_params, val_prot, acc_fn, error=qc.error.mse, refit=False)
-            yield "QuAcc(KDEy)1xnp1-OPT", GSCAP(QuAcc1xNp1(h, acc_fn, kdey()), kde_lr_params, val_prot, acc_fn, error=qc.error.mse, refit=True)
+            yield "QuAcc(KDEy)1xnp1-OPT", GSCAP(QuAcc1xNp1(h, acc_fn, kdey()), kde_lr_params, val_prot, acc_fn, refit=False)
     if _KDEy["N2E"]:
         yield "N2E(KDEy-h0)-OPT", GSCAP(N2E(h, acc_fn, kdey(), reuse_h=True), n2e_kde_h0_params, val_prot, acc_fn, refit=False)
         yield "N2E(KDEy-h+)-OPT", GSCAP(N2E(h, acc_fn, kdey(), reuse_h=False), n2e_kde_hplus_params, val_prot, acc_fn, refit=False)
