@@ -40,7 +40,7 @@ sync_res() {
 daemon_sync_res() {
     while true; do
         sync_res
-        sleep 30
+        sleep 10
     done
 }
 
