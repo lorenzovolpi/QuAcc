@@ -39,10 +39,17 @@ def plot_diagonal(df: pd.DataFrame, cls_name, acc_name, dataset_name, *, basedir
     )
 
 
-def plot_diagonal_grid(
-    dfs: list[pd.DataFrame], cls_name, acc_name, dataset_names, *, basedir=None, file_name=None, n_cols=1
-):
-    pass
+def plot_diagonal_grid(df: pd.DataFrame, cls_name, acc_name, dataset_names, *, basedir=None, file_name=None, n_cols=1):
+    plot = sns.FacetGrid(df, col="dataset", col_wrap=n_cols, hue="method")
+    plot.map(sns.scatterplot, "true_accs", "estim_accs", alpha=0.5)
+    return _save_figure(
+        plot,
+        basedir,
+        cls_name,
+        acc_name,
+        "grid",
+        "diagonal" if file_name is None else file_name,
+    )
 
 
 def plot_shift(

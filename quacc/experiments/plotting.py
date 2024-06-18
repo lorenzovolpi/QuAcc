@@ -7,14 +7,26 @@ from quacc.experiments.run import PROBLEM, basedir, gen_datasets, plots_basedir
 
 
 def plot_grid_of_diagonals():
-    for (cls_name, _), (acc_name, _) in IT.product(gen_classifiers(), gen_acc_measure()):
+    methods = [
+        "ATC-MC",
+        "DoC",
+        "Naive",
+        "N2E(ACC-h0)",
+        "N2E(KDEy-h0)",
+    ]
+    classifiers = [
+        "KNN_10",
+        "LR",
+        "SVM(rbf)",
+    ]
+    for cls_name, (acc_name, _) in IT.product(classifiers, gen_acc_measure()):
         # save_plot_diagonal(basedir, cls_name, acc_name)
-        methods = get_method_names(PROBLEM)
         dataset_names = [dataset_name for dataset_name, _ in gen_datasets(only_names=True)]
-        reps = [
-            Report.load_results(basedir, cls_name, acc_name, dataset_name=dataset_name, method_name=methods)
-            for dataset_name in dataset_names
-        ]
-        dfs = [r.diagonal_plot_data() for r in reps]
-        qc.plot.seaborn.plot_diagonal_grid(dfs, cls_name, acc_name, dataset_names, basedir=plots_basedir, n_cols=4)
+        rep = Report.load_results(basedir, cls_name, acc_name, dataset_name=dataset_names, method_name=methods)
+        df = rep.table_data(mean=False)
+        qc.plot.seaborn.plot_diagonal_grid(df, cls_name, acc_name, dataset_names, basedir=plots_basedir, n_cols=5)
         print(f"{cls_name}-{acc_name} plots generated")
+
+
+if __name__ == "__main__":
+    plot_grid_of_diagonals()
