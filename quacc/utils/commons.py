@@ -94,7 +94,7 @@ def get_results_path(basedir, cls_name, acc_name, dataset_name, method_name):
     )
 
 
-def get_plots_path(basedir, cls_name, acc_name, dataset_name, plot_type):
+def get_plots_path(basedir, cls_name, acc_name, dataset_name, plot_type, ext="svg"):
     return os.path.join(
         qc.env["OUT_DIR"],
         "plots",
@@ -102,7 +102,7 @@ def get_plots_path(basedir, cls_name, acc_name, dataset_name, plot_type):
         cls_name,
         acc_name,
         dataset_name,
-        plot_type + ".svg",
+        f"{plot_type}.{ext}",
     )
 
 
