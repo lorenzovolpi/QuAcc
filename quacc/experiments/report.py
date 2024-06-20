@@ -140,7 +140,10 @@ class Report:
         for _method, _results in self.results.items():
             _true_acc = np.hstack([_r.true_accs for _r in _results])
             _estim_acc = np.hstack([_r.estim_accs for _r in _results])
-            method_df = pd.DataFrame(np.vstack([_true_acc, _estim_acc]).T, columns=["true_accs", "estim_accs"])
+            _prev = np.hstack([_r.test_prevs for _r in _results])
+            method_df = pd.DataFrame(
+                np.vstack([_true_acc, _estim_acc, _prev]).T, columns=["true_accs", "estim_accs", "prev"]
+            )
             method_df.loc[:, "method"] = np.tile(_method, (len(method_df),))
             dfs.append(method_df)
 
