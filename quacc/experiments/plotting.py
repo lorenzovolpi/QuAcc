@@ -1,5 +1,6 @@
 import itertools as IT
 
+import numpy as np
 import pandas as pd
 
 import quacc as qc
@@ -19,22 +20,8 @@ def rename_methods(df: pd.DataFrame, methods: dict):
         df.loc[df["method"] == om, "method"] = nm
 
 
-def plot_grid_of_diagonals():
-    methods = {
-        "ATC-MC": "ATC",
-        "DoC": "DoC",
-        # "Naive",
-        "N2E(ACC-h0)": "P$h$D",
-        "N2E(KDEy-h0)": "P$h$D*",
-    }
-    classifiers = [
-        # "KNN_10",
-        "LR",
-        # "SVM(rbf)",
-    ]
+def plot_grid_of_diagonals(methods, dataset_names, classifiers, filename=None, n_cols=5, **kwargs):
     for cls_name, (acc_name, _) in IT.product(classifiers, gen_acc_measure()):
-        # save_plot_diagonal(basedir, cls_name, acc_name)
-        dataset_names = [dataset_name for dataset_name, _ in gen_datasets(only_names=True)]
         rep = Report.load_results(
             basedir, cls_name, acc_name, dataset_name=dataset_names, method_name=list(methods.keys())
         )
@@ -46,12 +33,40 @@ def plot_grid_of_diagonals():
             acc_name,
             dataset_names,
             basedir=plots_basedir,
-            n_cols=5,
+            n_cols=n_cols,
             x_label="True Accuracy",
             y_label="Estimated Accuracy",
+            file_name=f"{PROBLEM}_{filename}" if filename else PROBLEM,
+            **kwargs,
         )
         print(f"{cls_name}-{acc_name} plots generated")
 
 
 if __name__ == "__main__":
-    plot_grid_of_diagonals()
+    methods = {
+        "ATC-MC": "ATC",
+        "DoC": "DoC",
+        # "Naive",
+        "N2E(ACC-h0)": "P$h$D",
+        "N2E(KDEy-h0)": "P$h$D*",
+    }
+    selected_datasets = ["sonar", "haberman", "cmc.2", "german", "iris.2"]
+    plot_grid_of_diagonals(
+        methods,
+        selected_datasets,
+        ["LR"],
+        filename="5x1",
+        n_cols=5,
+        legend_bbox_to_anchor=(0.96, 0.3),
+        legend_wspace=0.08,
+        xtick_vert=True,
+        aspect=0.8,
+        xticks=np.linspace(0, 1, 6, endpoint=True),
+        yticks=np.linspace(0, 1, 6, endpoint=True),
+    )
+
+    all_datasets = [name for name, _ in gen_datasets(only_names=True)]
+    classifiers = ["LR", "KNN_10", "SVM(rbf)", "MLP"]
+    plot_grid_of_diagonals(
+        methods, all_datasets, classifiers, filename="all", n_cols=5, legend_bbox_to_anchor=(0.84, 0.06)
+    )
