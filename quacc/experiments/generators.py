@@ -6,7 +6,7 @@ import quapy as qp
 from quapy.data.base import LabelledCollection
 from quapy.data.datasets import TWITTER_SENTIMENT_DATASETS_TEST, UCI_BINARY_DATASETS, UCI_MULTICLASS_DATASETS
 from quapy.method._kdey import KDEyML
-from quapy.method.aggregative import ACC, EMQ, PACC
+from quapy.method.aggregative import ACC, EMQ, PACC, CC
 from quapy.protocol import UPP
 from sklearn.ensemble import RandomForestClassifier as RFC
 from sklearn.kernel_ridge import KernelRidge as KRR
@@ -36,6 +36,10 @@ from quacc.models.model_selection import GridSearchCAP as GSCAP
 from quacc.models.regression import ReQua, reDAN
 from quacc.utils.commons import get_results_path
 
+_CC = defaultdict(lambda: False)
+_CC = dict(
+    N2E=True,
+)
 _ACC = defaultdict(lambda: False)
 _ACC = dict(
     N2E=True,
@@ -229,6 +233,8 @@ def gen_CAP_cont_table(h, acc_fn, config) -> [str, CAPContingencyTable]:
     yield "Naive", NaiveCAP(h, acc_fn)
     # yield 'Equations-ACCh', NsquaredEquationsCAP(h, acc_fn, ACC, reuse_h=True)
     # yield 'Equations-ACC', NsquaredEquationsCAP(h, acc_fn, ACC)
+    if _CC["N2E"]:
+        yield "N2E(CC-h0)", N2E(h, acc_fn, CC(LR()), reuse_h=True)
     if _ACC["N2E"]:
         yield "N2E(ACC-h0)", N2E(h, acc_fn, ACC(LR()), reuse_h=True)
     if _SLD["N2E"]:
