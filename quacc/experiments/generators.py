@@ -13,13 +13,11 @@ from sklearn.kernel_ridge import KernelRidge as KRR
 from sklearn.linear_model import LinearRegression as LinReg
 from sklearn.linear_model import LogisticRegression as LR
 from sklearn.linear_model import Ridge
-from sklearn.model_selection import GridSearchCV
 from sklearn.neighbors import KNeighborsClassifier as KNN
 from sklearn.neural_network import MLPClassifier as MLP
 from sklearn.svm import SVC
 
-import quacc as qc
-from quacc.dataset import RCV1_BINARY_DATASETS, RCV1_MULTICLASS_DATASETS
+from quacc.dataset import RCV1_MULTICLASS_DATASETS
 from quacc.dataset import DatasetProvider as DP
 from quacc.error import f1, f1_macro, vanilla_acc
 from quacc.experiments.util import split_validation
@@ -31,7 +29,7 @@ from quacc.models.cont_table import (
     QuAcc1xNp1,
     QuAccNxN,
 )
-from quacc.models.direct import ATC, CAPDirect, DoC, PabloCAP, PrediQuant, KFCV
+from quacc.models.direct import ATC, CAPDirect, DoC, PrediQuant, KFCV
 from quacc.models.model_selection import GridSearchCAP as GSCAP
 from quacc.models.regression import ReQua, reDAN
 from quacc.utils.commons import get_results_path
@@ -79,7 +77,7 @@ def kdey():
 
 
 def gen_classifiers():
-    param_grid = {"C": np.logspace(-4, -4, 9), "class_weight": ["balanced", None]}
+    # param_grid = {"C": np.logspace(-4, -4, 9), "class_weight": ["balanced", None]}
 
     yield "LR", LR()
     # yield "LR-opt", GridSearchCV(LR(), param_grid, cv=5, n_jobs=qc.env["N_JOBS"])
@@ -182,7 +180,7 @@ def gen_CAP_direct(h, acc_fn, config, with_oracle=False) -> [str, CAPDirect]:
         "classifier__class_weight": [None, "balanced"],
     }
     rdan_q_params_sld = redan_q_params | {"recalib": [None, "bcts"]}
-    rdan_q_params_kdey = redan_q_params | {"bandwidth": np.linspace(0.01, 0.2, 5)}
+    # rdan_q_params_kdey = redan_q_params | {"bandwidth": np.linspace(0.01, 0.2, 5)}
     ### CAP methods ###
     # yield 'SebCAP', SebastianiCAP(h, acc_fn, ACC)
     # yield 'SebCAPweight', SebastianiCAP(h, acc_fn, ACC, alpha=0)

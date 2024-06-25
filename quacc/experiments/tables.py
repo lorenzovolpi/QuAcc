@@ -4,11 +4,10 @@ from collections import defaultdict
 from io import StringIO
 from pathlib import Path
 
-import numpy as np
 import pandas as pd
 
 import quacc as qc
-from quacc.experiments.generators import gen_acc_measure, gen_bin_datasets, gen_classifiers
+from quacc.experiments.generators import gen_acc_measure, gen_bin_datasets
 from quacc.experiments.report import Report
 from quacc.table import Format, Table
 
