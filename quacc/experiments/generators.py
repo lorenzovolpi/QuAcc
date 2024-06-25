@@ -31,7 +31,7 @@ from quacc.models.cont_table import (
     QuAcc1xNp1,
     QuAccNxN,
 )
-from quacc.models.direct import ATC, CAPDirect, DoC, PabloCAP, PrediQuant
+from quacc.models.direct import ATC, CAPDirect, DoC, PabloCAP, PrediQuant, KFCV
 from quacc.models.model_selection import GridSearchCAP as GSCAP
 from quacc.models.regression import ReQua, reDAN
 from quacc.utils.commons import get_results_path
@@ -46,7 +46,7 @@ _SLD = dict(
     PQ=False,
     ReQua=False,
     N2E=False,
-    QuAcc=True,
+    QuAcc=False,
 )
 _KDEy = defaultdict(lambda: False)
 _KDEy = dict(
@@ -54,7 +54,7 @@ _KDEy = dict(
     PQ=False,
     ReQua=False,
     N2E=True,
-    QuAcc=True,
+    QuAcc=False,
 )
 
 
@@ -168,6 +168,7 @@ def gen_CAP_baselines(h, acc_fn, config, with_oracle=False) -> [str, CAPDirect]:
     yield "ATC-MC", ATC(h, acc_fn, scoring_fn="maxconf")
     # yield 'ATC-NE', ATC(h, acc_fn, scoring_fn='neg_entropy')
     yield "DoC", DoC(h, acc_fn, sample_size=qp.environ["SAMPLE_SIZE"])
+    yield "KFCV", KFCV(h, acc_fn)
 
 
 # fmt: off

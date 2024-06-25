@@ -1,15 +1,14 @@
-from abc import abstractmethod
 from copy import deepcopy
 from typing import Callable
 
 import numpy as np
 import quapy as qp
-import quapy.functional as F
 from quapy.data.base import LabelledCollection
 from quapy.protocol import UPP
 from sklearn.base import BaseEstimator
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import confusion_matrix
+from sklearn.model_selection import cross_val_score
 
 import quacc as qc
 import quacc.models.utils as utils
@@ -31,6 +30,24 @@ class CAPDirect(ClassifierAccuracyPrediction):
     def switch_and_fit(self, acc_fn, data):
         self.acc = acc_fn
         return self.fit(data)
+
+
+class KFCV(CAPDirect):
+    def __init__(self, h: BaseEstimator, acc_fn: Callable):
+        super().__init__(h, acc_fn)
+
+    def _cross_val_scorer(self, h: BaseEstimator, X, y):
+        P = h.predict(X)
+        return self.acc(P, y)
+
+    def fit(self, val: LabelledCollection):
+        cvs = cross_val_score(self.h, val.X, val.y, scoring=self._cross_val_scorer, cv=5)
+        self.cv_score = np.mean(cvs)
+
+        return self
+
+    def predict(self, X, oracle_prev=None) -> float:
+        return self.cv_score
 
 
 class PrediQuant(CAPDirect):
