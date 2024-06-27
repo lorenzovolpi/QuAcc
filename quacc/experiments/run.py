@@ -109,7 +109,7 @@ def experiments():
                     log.warning(f"{method_name}: {acc_name} gave error '{e}' - skipping")
                     continue
 
-                report.save_json(basedir, acc_name)
+                report.save_json()
 
                 log.info(f"{method_name}: {acc_name} done [t_train:{t_train:.3f}s; t_test_ave:{t_test_ave:.3f}s]")
 

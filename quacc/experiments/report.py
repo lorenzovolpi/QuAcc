@@ -5,10 +5,8 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
-import quapy as qp
 
 import quacc as qc
-from quacc.error import ae
 from quacc.utils.commons import get_results_path, get_shift, load_json_file, save_json_file
 
 
@@ -43,7 +41,7 @@ class TestReport:
 
         return self
 
-    def save_json(self, basedir, acc_name):
+    def save_json(self):
         result = {
             "basedir": self.basedir,
             "cls_name": self.cls_name,
@@ -88,13 +86,15 @@ class Report:
         self.results = results
 
     @classmethod
-    def load_results(cls, basedir, cls_name, acc_name, dataset_name="*", method_name="*") -> "Report":
+    def load_results(
+        cls, basedir, cls_name, acc_name, datasets: str | list[str] = "*", methods: str | list[str] = "*"
+    ) -> "Report":
         _results = defaultdict(lambda: [])
-        if isinstance(method_name, str):
-            method_name = [method_name]
-        if isinstance(dataset_name, str):
-            dataset_name = [dataset_name]
-        for dataset_, method_ in itertools.product(dataset_name, method_name):
+        if isinstance(methods, str):
+            methods = [methods]
+        if isinstance(datasets, str):
+            datasets = [datasets]
+        for dataset_, method_ in itertools.product(datasets, methods):
             path = get_results_path(basedir, cls_name, acc_name, dataset_, method_)
             for file in glob(path):
                 if file.endswith(".json"):
@@ -110,6 +110,24 @@ class Report:
         if isinstance(methods, str):
             methods = [methods]
         return Report({_m: _rs for _m, _rs in self.results.items() if _m in methods})
+
+    def time_data(self):
+        dfs = []
+        for _method, _results in self.results.items():
+            _dataset_map = defaultdict(lambda: [])
+            for r in _results:
+                _dataset_map[r.dataset_name].append(r)
+
+            for _dataset, _res in _dataset_map.items():
+                _t_train = np.array([_r.t_train for _r in _res])
+                _t_test_ave = np.array([_r.t_test_ave for _r in _res])
+                report_df = pd.DataFrame(np.vstack([_t_train, _t_test_ave]).T, columns=["t_train", "t_test_ave"])
+                report_df["method"] = _method
+                report_df["dataset"] = _dataset
+                dfs.append(report_df)
+
+        all_df = pd.concat(dfs, axis=0, ignore_index=True)
+        return all_df
 
     def table_data(self, mean=True, error=qc.error.ae):
         assert error in qc.error.ACCURACY_ERROR_SINGLE, "Unknown error function"
