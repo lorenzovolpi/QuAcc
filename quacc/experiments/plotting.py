@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 
 import quacc as qc
-from quacc.experiments.generators import gen_acc_measure, gen_bin_datasets, gen_classifiers, get_method_names
+from quacc.experiments.generators import gen_acc_measure, gen_bin_datasets
 from quacc.experiments.report import Report
 
 PROBLEM = "binary"
@@ -22,9 +22,7 @@ def rename_methods(df: pd.DataFrame, methods: dict):
 
 def plot_grid_of_diagonals(methods, dataset_names, classifiers, filename=None, n_cols=5, **kwargs):
     for cls_name, (acc_name, _) in IT.product(classifiers, gen_acc_measure()):
-        rep = Report.load_results(
-            basedir, cls_name, acc_name, dataset_name=dataset_names, method_name=list(methods.keys())
-        )
+        rep = Report.load_results(basedir, cls_name, acc_name, datasets=dataset_names, methods=list(methods.keys()))
         df = rep.table_data(mean=False)
         rename_methods(df, methods)
         qc.plot.seaborn.plot_diagonal_grid(
