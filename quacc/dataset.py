@@ -119,12 +119,6 @@ class DatasetProvider:
         return T, V, U
 
     @classmethod
-    def spambase(cls):
-        train, U = qp.datasets.fetch_UCIDataset("spambase", verbose=False, data_home=env["QUAPY_DATA"]).train_test
-        T, V = cls._split_train(train)
-        return T, V, U
-
-    @classmethod
     def imdb(cls):
         train, U = qp.datasets.fetch_reviews(
             "imdb", tfidf=True, min_df=10, pickle=True, data_home=env["QUAPY_DATA"]
