@@ -1,7 +1,6 @@
 import os
 import pickle
 import tarfile
-from typing import List
 
 import numpy as np
 import quapy as qp
@@ -13,7 +12,6 @@ from sklearn.utils import Bunch
 
 from quacc.environment import env
 from quacc.utils import commons
-from quacc.utils.commons import save_json_file
 from quacc.utils.dataset import get_rcv1_class_info
 
 TRAIN_VAL_PROP = 0.5
