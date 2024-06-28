@@ -149,12 +149,27 @@ class DatasetProvider:
         return T, V, U
 
     @classmethod
-    def rcv1_multiclass(cls, target):
+    def rcv1_multiclass(cls, target, include_zero=False):
+        """Retrieves a multiclass dataset extracted from the RCV1 taxonomy.
+
+        :param target: the parent of the classes that define the dataset
+        :param include_zero: whether to include the datapoints not belonging to target
+        :return: a tuple with training, validation and test sets.
+        """
+
         def parse_labels(labels):
-            valid_idx = np.nonzero(np.sum(labels, axis=-1) <= 1)[0]
+            if include_zero:
+                valid_idx = np.nonzero(np.sum(labels, axis=-1) <= 1)[0]
+            else:
+                valid_idx = np.nonzero(np.sum(labels, axis=-1) == 1)[0]
+
             labels = labels[valid_idx, :]
             ones_idx, nonzero_vals = np.where(labels == np.ones((len(valid_idx), 1)))
             labels = np.sum(labels, axis=-1)
+
+            # if the 0 class must be included, shift remaining classed by 1 to make them unique
+            nonzero_vals = nonzero_vals + 1 if include_zero else nonzero_vals
+
             labels[ones_idx] = nonzero_vals
             return valid_idx, labels
 
