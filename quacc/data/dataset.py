@@ -1,15 +1,9 @@
 import numpy as np
 import quapy as qp
 from quapy.data.base import Dataset, LabelledCollection
-from quapy.data.datasets import (
-    fetch_lequa2022,
-)
-from quapy.data.datasets import (
-    fetch_UCIBinaryDataset as UCIBin,
-)
-from quapy.data.datasets import (
-    fetch_UCIMulticlassDataset as UCIMulti,
-)
+from quapy.data.datasets import fetch_lequa2022
+from quapy.data.datasets import fetch_UCIBinaryDataset as UCIBin
+from quapy.data.datasets import fetch_UCIMulticlassDataset as UCIMulti
 from sklearn.datasets import fetch_20newsgroups, fetch_rcv1
 from sklearn.feature_extraction.text import TfidfVectorizer
 
