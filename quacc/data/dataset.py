@@ -45,7 +45,7 @@ def fetch_RCV1BinaryDataset(target, train_val_split=0.5):
 
 
 def fetch_RCV1MulticlassDataset(target, train_val_split=0.5, include_zero=False):
-    """Retrieves a multiclass dataset extracted from the RCV1 taxonomy.
+    """Retrieve a multiclass dataset extracted from the RCV1 taxonomy.
 
     :param target: the parent of the classes that define the dataset
     :param include_zero: whether to include the datapoints not belonging to target
