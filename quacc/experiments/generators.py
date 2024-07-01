@@ -6,7 +6,7 @@ import quapy as qp
 from quapy.data.base import LabelledCollection
 from quapy.data.datasets import TWITTER_SENTIMENT_DATASETS_TEST, UCI_BINARY_DATASETS, UCI_MULTICLASS_DATASETS
 from quapy.method._kdey import KDEyML
-from quapy.method.aggregative import ACC, EMQ, PACC, CC
+from quapy.method.aggregative import ACC, CC, EMQ, PACC
 from quapy.protocol import UPP
 from sklearn.ensemble import RandomForestClassifier as RFC
 from sklearn.kernel_ridge import KernelRidge as KRR
@@ -17,8 +17,13 @@ from sklearn.neighbors import KNeighborsClassifier as KNN
 from sklearn.neural_network import MLPClassifier as MLP
 from sklearn.svm import SVC
 
-from quacc.dataset import RCV1_MULTICLASS_DATASETS
-from quacc.dataset import DatasetProvider as DP
+from quacc.data.dataset import (
+    fetch_RCV1MulticlassDataset,
+    fetch_twitterDataset,
+    fetch_UCIBinaryDataset,
+    fetch_UCIMulticlassDataset,
+)
+from quacc.data.dataset import RCV1_MULTICLASS_DATASETS
 from quacc.error import f1, f1_macro, vanilla_acc
 from quacc.experiments.util import split_validation
 from quacc.models.cont_table import (
@@ -29,7 +34,7 @@ from quacc.models.cont_table import (
     QuAcc1xNp1,
     QuAccNxN,
 )
-from quacc.models.direct import ATC, CAPDirect, DoC, PrediQuant, KFCV
+from quacc.models.direct import ATC, KFCV, CAPDirect, DoC, PrediQuant
 from quacc.models.model_selection import GridSearchCAP as GSCAP
 from quacc.models.regression import ReQua, reDAN
 from quacc.utils.commons import get_results_path
@@ -95,17 +100,17 @@ def gen_multi_datasets(
 ) -> [str, [LabelledCollection, LabelledCollection, LabelledCollection]]:
     # yields the UCI multiclass datasets
     for dataset_name in [d for d in UCI_MULTICLASS_DATASETS if d not in ["wine-quality", "letter"]]:
-        yield dataset_name, None if only_names else DP.uci_multiclass(dataset_name)
+        yield dataset_name, None if only_names else fetch_UCIMulticlassDataset(dataset_name)
 
     # yields the 20 newsgroups dataset
-    # yield "20news", None if only_names else DP.news20()
+    # yield "20news", None if only_names else fetch_20newsgroupsdataset()
 
     # yields the T1B@LeQua2022 (training) dataset
-    # yield "T1B-LeQua2022", None if only_names else DP.t1b_lequa2022()
+    # yield "T1B-LeQua2022", None if only_names else fetch_T1BLequa2022Dataset()
 
     # yields the RCV1 multiclass datasets
     for dataset_name in RCV1_MULTICLASS_DATASETS:
-        yield dataset_name, None if only_names else DP.rcv1_multiclass(dataset_name)
+        yield dataset_name, None if only_names else fetch_RCV1MulticlassDataset(dataset_name)
 
 
 def gen_tweet_datasets(
@@ -115,7 +120,7 @@ def gen_tweet_datasets(
         if only_names:
             yield dataset_name, None
         else:
-            yield dataset_name, DP.twitter(dataset_name)
+            yield dataset_name, fetch_twitterDataset(dataset_name)
 
 
 def gen_bin_datasets(
@@ -123,15 +128,15 @@ def gen_bin_datasets(
 ) -> [str, [LabelledCollection, LabelledCollection, LabelledCollection]]:
     # rcv1
     # for dn in RCV1_BINARY_DATASETS:
-    #     dval = None if only_names else DP.rcv1_binary(dn)
+    #     dval = None if only_names else fetch_RCV1BinaryDataset(dn)
     #     yield dn, dval
     # imdb
-    # yield "imdb", None if only_names else DP.imdb()
+    # yield "imdb", None if only_names else fetch_IMDBDataset()
     # UCI
     _uci_skip = ["acute.a", "acute.b", "balance.2", "iris.1"]
     _uci_names = [d for d in UCI_BINARY_DATASETS if d not in _uci_skip]
     for dn in _uci_names:
-        dval = None if only_names else DP.uci_binary(dn)
+        dval = None if only_names else fetch_UCIBinaryDataset(dn)
         yield dn, dval
 
 

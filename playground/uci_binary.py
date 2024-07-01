@@ -1,8 +1,8 @@
 from quapy.data.datasets import UCI_BINARY_DATASETS
+from quacc.data.dataset import fetch_UCIBinaryDataset
 
-from quacc.dataset import DatasetProvider as DP
 
 if __name__ == "__main__":
     for dn in UCI_BINARY_DATASETS:
-        L, V, U = DP.uci_binary(dn)
+        L, V, U = fetch_UCIBinaryDataset(dn)
         print(f"{dn}: L={len(L)}; V={len(V)}; U={len(U)}")

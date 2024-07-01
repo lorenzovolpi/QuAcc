@@ -1,16 +1,13 @@
-import os
 from time import time
 
 import joblib
 import numpy as np
 import quapy as qp
-from quapy.data import LabelledCollection
 from quapy.method.aggregative import PACC
 from sklearn.base import BaseEstimator
 from sklearn.linear_model import LogisticRegression
 
-import quacc as qc
-from quacc.dataset import DatasetProvider as DP
+from quacc.data.dataset import fetch_UCIMulticlassDataset
 from quacc.error import f1_macro
 from quacc.experiments.util import split_validation
 from quacc.models.cont_table import QuAcc1xN2
@@ -53,7 +50,7 @@ class fastPACC(PACC):
 
 
 if __name__ == "__main__":
-    L, V, U = DP.uci_multiclass("letter")
+    L, V, U = fetch_UCIMulticlassDataset("letter")
     V, val_prot = split_validation(V)
 
     h = LogisticRegression().fit(*L.Xy)

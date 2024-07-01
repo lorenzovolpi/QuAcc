@@ -1,16 +1,16 @@
-from contextlib import redirect_stderr, redirect_stdout
+from contextlib import redirect_stdout
 from time import time
 
 import numpy as np
 import quapy as qp
-from quapy.method.aggregative import EMQ, PACC, KDEyML
+from quapy.method.aggregative import EMQ, KDEyML
 from quapy.protocol import UPP
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import GridSearchCV
 
 import quacc as qc
 import quacc.error
-from quacc.dataset import DatasetProvider as DP
+from quacc.data.dataset import fetch_RCV1MulticlassDataset
 from quacc.error import f1_macro, vanilla_acc
 from quacc.experiments.util import split_validation
 from quacc.models.cont_table import N2E, QuAcc1xN2, QuAccNxN
@@ -37,7 +37,7 @@ kde_lr_params = pacc_lr_params | {"q_class__bandwidth": np.linspace(0.01, 0.2, 2
 
 def main():
     dataset_name = "C1"
-    L, V, U = DP.rcv1_multiclass(dataset_name)
+    L, V, U = fetch_RCV1MulticlassDataset(dataset_name)
     V, val_prot = split_validation(V)
     # h = LogisticRegression()
     h_param_grid = {"C": np.logspace(-4, -4, 9), "class_weight": ["balanced", None]}

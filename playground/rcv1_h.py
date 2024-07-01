@@ -5,7 +5,6 @@ from quapy.data.base import LabelledCollection
 from sklearn.datasets import fetch_rcv1
 
 import quacc as qc
-from quacc.dataset import RCV1_MULTICLASS_DATASETS
 from quacc.utils.dataset import get_rcv1_class_info
 
 class_names, tree, index = get_rcv1_class_info()

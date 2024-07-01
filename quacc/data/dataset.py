@@ -106,7 +106,7 @@ def fetch_cifar10Dataset(target, train_val_split=0.5):
 
 
 @classmethod
-def cifar100(target, train_val_split=0.5):
+def fetch_cifar100Dataset(target, train_val_split=0.5):
     dataset = fetch_cifar100()
     available_targets: list = dataset.coarse_label_names
 

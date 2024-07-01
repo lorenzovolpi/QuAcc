@@ -1,30 +1,23 @@
 import os
-from contextlib import redirect_stderr, redirect_stdout
+from contextlib import redirect_stdout
 from glob import glob
 from time import time
 
 import numpy as np
 import pandas as pd
 import quapy as qp
-from quapy.method.aggregative import EMQ, PACC, KDEyML
+from quapy.method.aggregative import EMQ, KDEyML
 from quapy.protocol import UPP
-from sklearn.kernel_ridge import KernelRidge as KRR
-from sklearn.linear_model import LinearRegression as LinReg
-from sklearn.linear_model import LogisticRegression, Ridge
+from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import GridSearchCV
-from sklearn.svm import SVR
-from tqdm import tqdm
 
 import quacc as qc
 import quacc.error
-from quacc.dataset import RCV1_MULTICLASS_DATASETS
-from quacc.dataset import DatasetProvider as DP
-from quacc.error import f1_macro, vanilla_acc
+from quacc.data.dataset import fetch_RCV1BinaryDataset, fetch_RCV1MulticlassDataset
+from quacc.data.dataset import RCV1_MULTICLASS_DATASETS
+from quacc.error import vanilla_acc
 from quacc.experiments.util import split_validation
 from quacc.models.cont_table import N2E, QuAcc1xN2, QuAcc1xNp1, QuAccNxN
-from quacc.models.model_selection import GridSearchCAP as GSCAP
-from quacc.models.regression import ReQua, reDAN
-from quacc.utils.commons import parallel as qc_parallel
 from quacc.utils.commons import true_acc
 
 NUM_TEST = 1000
@@ -70,12 +63,12 @@ def get_multi_quaccs(h, acc_fn, q_class):
 
 def gen_bin_datasets():
     for dataset_name in ["CCAT", "GCAT", "MCAT", "ECAT"]:
-        yield dataset_name, DP.rcv1_binary(dataset_name)
+        yield dataset_name, fetch_RCV1BinaryDataset(dataset_name)
 
 
 def gen_multi_datasets():
     for dataset_name in RCV1_MULTICLASS_DATASETS:
-        yield dataset_name, DP.rcv1_multiclass(dataset_name)
+        yield dataset_name, fetch_RCV1MulticlassDataset(dataset_name)
 
 
 if CONFIG == "multiclass":
