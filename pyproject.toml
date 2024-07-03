@@ -12,6 +12,7 @@ seaborn = "^0.13.2"
 certifi = "^2024.2.2"
 torch = "^2.3.0"
 pot = "^0.9.3"
+torchtext = "^0.18.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.0.0"
