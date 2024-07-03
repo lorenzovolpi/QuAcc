@@ -14,8 +14,7 @@ from sklearn.model_selection import GridSearchCV
 
 import quacc as qc
 import quacc.error
-from quacc.data.dataset import fetch_RCV1BinaryDataset, fetch_RCV1MulticlassDataset
-from quacc.data.dataset import RCV1_MULTICLASS_DATASETS
+from quacc.data.datasets import RCV1_MULTICLASS_DATASETS, fetch_RCV1BinaryDataset, fetch_RCV1MulticlassDataset
 from quacc.error import vanilla_acc
 from quacc.experiments.util import split_validation
 from quacc.models.cont_table import QuAcc1xN2, QuAcc1xNp1, QuAccNxN

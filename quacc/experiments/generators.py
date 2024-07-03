@@ -17,13 +17,13 @@ from sklearn.neighbors import KNeighborsClassifier as KNN
 from sklearn.neural_network import MLPClassifier as MLP
 from sklearn.svm import SVC
 
-from quacc.data.dataset import (
+from quacc.data.datasets import (
+    RCV1_MULTICLASS_DATASETS,
     fetch_RCV1MulticlassDataset,
     fetch_twitterDataset,
     fetch_UCIBinaryDataset,
     fetch_UCIMulticlassDataset,
 )
-from quacc.data.dataset import RCV1_MULTICLASS_DATASETS
 from quacc.error import f1, f1_macro, vanilla_acc
 from quacc.experiments.util import split_validation
 from quacc.models.cont_table import (

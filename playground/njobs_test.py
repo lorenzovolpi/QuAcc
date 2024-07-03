@@ -7,7 +7,7 @@ from quapy.method.aggregative import PACC
 from sklearn.base import BaseEstimator
 from sklearn.linear_model import LogisticRegression
 
-from quacc.data.dataset import fetch_UCIMulticlassDataset
+from quacc.data.datasets import fetch_UCIMulticlassDataset
 from quacc.error import f1_macro
 from quacc.experiments.util import split_validation
 from quacc.models.cont_table import QuAcc1xN2

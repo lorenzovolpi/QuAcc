@@ -10,7 +10,7 @@ from sklearn.model_selection import GridSearchCV
 
 import quacc as qc
 import quacc.error
-from quacc.data.dataset import fetch_RCV1MulticlassDataset
+from quacc.data.datasets import fetch_RCV1MulticlassDataset
 from quacc.error import f1_macro, vanilla_acc
 from quacc.experiments.util import split_validation
 from quacc.models.cont_table import N2E, QuAcc1xN2, QuAccNxN
