@@ -20,6 +20,7 @@ scikit-learn = "^1.5.1"
 threadpoolctl = "^3.5.0"
 ucimlrepo = "^0.0.7"
 xlrd = "^2.0.1"
+quapy = {git = "git@github.com:lorenzovolpi/QuaPy.git", rev = "accuracy"}
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.0.0"
