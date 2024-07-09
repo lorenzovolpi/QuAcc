@@ -1,4 +1,0 @@
-[submodule "QuaPy"]
-	path = QuaPy
-	url = git@github.com:lorenzovolpi/QuaPy.git
-	branch = accuracy
