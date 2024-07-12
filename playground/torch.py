@@ -1,9 +1,9 @@
 import os
 
+import datasets
 import numpy as np
 import torch
 import torch.nn as nn
-import datasets
 from datasets import load_dataset
 from transformers import (
     AutoModelForSequenceClassification,
