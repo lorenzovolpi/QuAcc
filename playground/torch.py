@@ -1,5 +1,5 @@
 import os
-from typing import List
+from typing import Callable, List
 
 import datasets
 import numpy as np
@@ -7,7 +7,9 @@ import torch
 import torch.nn as nn
 from datasets import load_dataset
 from quapy.data.base import LabelledCollection
+from quapy.method.aggregative import SLD
 from quapy.protocol import UPP
+from sklearn.linear_model import LogisticRegression
 from torch.utils.data import DataLoader
 from transformers import (
     AutoModelForSequenceClassification,
@@ -19,6 +21,8 @@ from transformers import (
 
 import quacc as qc
 from quacc.error import vanilla_acc
+from quacc.models.cont_table import QuAcc1xN2
+from quacc.models.direct import DoC
 
 RESUME_CHECKPOINT = True
 
@@ -28,10 +32,41 @@ def softmax(logits: np.ndarray) -> np.ndarray:
     return sm(torch.tensor(logits)).numpy()
 
 
-class LargeModel:
-    def fit(self, train: datasets.Dataset, dataset_name: str): ...
+class HFDatasetAdapter(LabelledCollection):
+    def __init__(self, instances, labels, hf: datasets.Dataset, classes=None):
+        super().__init__(instances, labels, classes=classes)
+        self.hf = hf
 
-    def predict_proba(self, test: datasets.Dataset) -> np.ndarray: ...
+    @classmethod
+    def from_hf_dataset(
+        cls, dataset: datasets.Dataset, collator: Callable, remove_columns: str | List[str] | None = None
+    ) -> "HFDatasetAdapter":
+        if remove_columns is not None:
+            dataset = dataset.remove_columns(remove_columns)
+        ds = next(iter(DataLoader(dataset, collate_fn=collator, batch_size=len(dataset))))
+        lc = HFDatasetAdapter(instances=ds["input_ids"], labels=ds["labels"], hf=dataset)
+
+        return lc
+
+    def sampling_from_index(self, index):
+        instances = self.instances[index]
+        labels = self.labels[index]
+        hf = self.hf.select(index)
+        return HFDatasetAdapter(instances, labels, hf, classes=self.classes_)
+
+    def split_stratified(self, train_prop=0.6, random_state=None):
+        train_idx, test_idx = super().split_index_stratified(train_prop, random_state)
+
+        train = self.sampling_from_index(train_idx)
+        test = self.sampling_from_index(test_idx)
+
+        return train, test
+
+
+class LargeModel:
+    def fit(self, train: HFDatasetAdapter, dataset_name: str): ...
+
+    def predict_proba(self, test: HFDatasetAdapter) -> np.ndarray: ...
 
     def get_model_path(self, dataset_name):
         return os.path.join(qc.env["OUT_DIR"], "models", f"{self.name}_on_{dataset_name}")
@@ -39,7 +74,7 @@ class LargeModel:
     def predict_from_proba(self, proba: np.ndarray) -> np.ndarray:
         return np.argmax(proba, axis=-1)
 
-    def predict(self, test: datasets.Dataset) -> np.ndarray:
+    def predict(self, test: HFDatasetAdapter) -> np.ndarray:
         return self.predict_from_proba(self.predict_proba(test))
 
 
@@ -67,7 +102,7 @@ class DistilBert(LargeModel):
 
         return self.resume_from_checkpoint
 
-    def fit(self, train: datasets.Dataset, dataset_name: str):
+    def fit(self, train: HFDatasetAdapter, dataset_name: str):
         self.training_args = TrainingArguments(
             output_dir=self.get_model_path(dataset_name),
             learning_rate=self.learning_rate,
@@ -81,7 +116,7 @@ class DistilBert(LargeModel):
         self.trainer = Trainer(
             model=self.model,
             args=self.training_args,
-            train_dataset=train,
+            train_dataset=train.hf,
             tokenizer=self.tokenizer,
             data_collator=self.data_collator,
         )
@@ -91,8 +126,8 @@ class DistilBert(LargeModel):
 
         return self
 
-    def predict_proba(self, test: datasets.Dataset, get_labels=False) -> np.ndarray:
-        y_logits, y, _ = self.trainer.predict(test)
+    def predict_proba(self, test: HFDatasetAdapter, get_labels=False) -> np.ndarray:
+        y_logits, y, _ = self.trainer.predict(test.hf)
         y_probs = softmax(y_logits)
         if get_labels:
             return y_probs, y
@@ -106,19 +141,9 @@ def preprocess_data(dataset, name, tokenizer, length: int | None = None, seed=42
 
     d = dataset[name].shuffle(seed=seed)
     if length is not None:
-        d = d.select(list(range(length)))
+        d = d.select(np.arange(length))
     d = d.map(tokenize, batched=True)
     return d
-
-
-def lc_from_dataset(
-    dataset: datasets.Dataset, collator, remove_columns: str | List[str] | None = None
-) -> LabelledCollection:
-    if remove_columns is not None:
-        dataset = dataset.remove_columns(remove_columns)
-    dl = DataLoader(dataset, collate_fn=collator, batch_size=len(dataset))
-    ds = next(dl)
-    return LabelledCollection(instances=ds["input_ids"], labels=ds["label"])
 
 
 if __name__ == "__main__":
@@ -127,15 +152,29 @@ if __name__ == "__main__":
 
     dataset = load_dataset(dataset_name)
 
-    train = preprocess_data(dataset, "train", model.tokenizer)
-    test = preprocess_data(dataset, "test", model.tokenizer)
+    train_vec = preprocess_data(dataset, "train", model.tokenizer)
+    test_vec = preprocess_data(dataset, "test", model.tokenizer)
 
-    train_lc = lc_from_dataset(train, model.data_collator, remove_columns="text")
-    test_lc = lc_from_dataset(test, model.data_collator, remove_columns="text")
+    train = HFDatasetAdapter.from_hf_dataset(train_vec, model.data_collator, remove_columns="text")
+    U = HFDatasetAdapter.from_hf_dataset(test_vec, model.data_collator, remove_columns="text")
+    L, V = train.split_stratified(train_prop=0.5, random_state=42)
 
-    L_idx, V_idx = None, None
+    model.fit(L, dataset_name)
 
-    model.fit(train, dataset_name)
+    test_prot = UPP(U, sample_size=1000, repeats=100, return_type="labelled_collection")
+    assert all([isinstance(sample, HFDatasetAdapter) for sample in test_prot()]), "not hf adapter"
+    true_accs = [vanilla_acc(model.predict(U_i), U_i.y) for U_i in test_prot()]
+
+    quacc = QuAcc1xN2(model, vanilla_acc, SLD(LogisticRegression()), add_maxinfsoft=True).fit(V)
+    doc = DoC(model, vanilla_acc, sample_size=1000).fit(V)
+
+    quacc_accs = [quacc.predict(U_i) for U_i in test_prot()]
+    doc_accs = [doc.predict(U_i) for U_i in test_prot()]
+
+    print(f"quacc:\t{np.mean(quacc_accs - true_accs)}")
+    print(f"doc:\t{np.mean(doc_accs - true_accs)}")
+
+    # change the protocol collator
 
     # print(test.with_format)
     # ams = []
@@ -163,7 +202,6 @@ if __name__ == "__main__":
     # print(min_lens)
 
     # test_lc = LabelledCollection(instances=np.empty((len(test), 1)), labels=test["label"])
-    # test_prot = UPP(test_lc, sample_size=1000, repeats=10, return_type="index")
     # test_samples = [test.select(idx) for idx in test_prot()]
     # for sample in test_samples:
     #     y_prob, y = model.predict_proba(sample, get_labels=True)
