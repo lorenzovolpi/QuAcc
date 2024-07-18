@@ -85,8 +85,8 @@ class CAPContingencyTable(ClassifierAccuracyPrediction):
         self.acc_fn = acc_fn
         return self
 
-    def predict(self, data: LabelledCollection, oracle_prev=None):
-        cont_table = self.predict_ct(data, oracle_prev)
+    def predict(self, X, oracle_prev=None):
+        cont_table = self.predict_ct(X, oracle_prev)
         return self.acc_fn(cont_table)
 
 
