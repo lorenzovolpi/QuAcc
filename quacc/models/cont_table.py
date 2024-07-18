@@ -311,10 +311,11 @@ class NsquaredEquationsCAP(CAPContingencyTableQ):
 
 
 class QuAcc(CAPContingencyTableQ):
-    def _get_X_dot(self, X):
+    def _get_X_dot(self, X, P=None):
         h = self.h
 
-        P = get_posteriors_from_h(h, X)
+        if P is None:
+            P = get_posteriors_from_h(h, X)
 
         add_covs = []
 
@@ -405,14 +406,15 @@ class QuAcc1xN2(QuAcc):
         self.add_maxinfsoft = add_maxinfsoft
 
     def preprocess_data(self, data: LabelledCollection):
-        pred_labels = self.h.predict(data.X)
+        posteriors = get_posteriors_from_h(self.h, data.X)
+        pred_labels = np.argmax(posteriors, axis=-1)
         true_labels = data.y
 
         self.ncl = data.n_classes
         classes_dot = np.arange(self.ncl**2)
         ct_class_idx = classes_dot.reshape(self.ncl, self.ncl)
 
-        X_dot = self._get_X_dot(data.X)
+        X_dot = self._get_X_dot(data.X, P=posteriors)
         y_dot = ct_class_idx[true_labels, pred_labels]
         return LabelledCollection(X_dot, y_dot, classes=classes_dot)
 
@@ -425,7 +427,6 @@ class QuAcc1xN2(QuAcc):
         return flat_ct.reshape(self.ncl, self.ncl)
 
 
-# TODO: fix class
 class QuAcc1xNp1(QuAcc):
     def __init__(
         self,
@@ -450,7 +451,8 @@ class QuAcc1xNp1(QuAcc):
         self.add_maxinfsoft = add_maxinfsoft
 
     def preprocess_data(self, data: LabelledCollection):
-        pred_labels = self.h.predict(data.X)
+        posteriors = get_posteriors_from_h(self.h, data.X)
+        pred_labels = np.argmax(posteriors, axis=-1)
         true_labels = data.y
 
         self.ncl = data.n_classes
@@ -459,7 +461,7 @@ class QuAcc1xNp1(QuAcc):
         ct_class_idx = np.full((self.ncl, self.ncl), self.ncl)
         ct_class_idx[np.diag_indices(self.ncl)] = np.arange(self.ncl)
 
-        X_dot = self._get_X_dot(data.X)
+        X_dot = self._get_X_dot(data.X, P=posteriors)
         y_dot = ct_class_idx[true_labels, pred_labels]
         return LabelledCollection(X_dot, y_dot, classes=classes_dot)
 
@@ -503,9 +505,10 @@ class QuAccNxN(QuAcc):
         self.add_maxinfsoft = add_maxinfsoft
 
     def preprocess_data(self, data: LabelledCollection):
-        pred_labels = self.h.predict(data.X)
+        posteriors = get_posteriors_from_h(self.h, data.X)
+        pred_labels = np.argmax(posteriors, axis=-1)
         true_labels = data.y
-        X_dot = self._get_X_dot(data.X)
+        X_dot = self._get_X_dot(data.X, P=posteriors)
 
         datas = []
         for class_i in self.h.classes_:
