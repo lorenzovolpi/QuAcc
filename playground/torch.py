@@ -308,9 +308,9 @@ if __name__ == "__main__":
     doc = DoC(model, vanilla_acc, sample_size=1000).fit(V)
     print("doc fit")
 
-    quacc_accs = [quacc.predict(U_i) for U_i in test_prot()]
+    quacc_accs = [quacc.predict(U_i.X) for U_i in test_prot()]
     print(f"quacc accs:\t{np.mean(quacc_accs)}")
-    doc_accs = [doc.predict(U_i) for U_i in test_prot()]
+    doc_accs = [doc.predict(U_i.X) for U_i in test_prot()]
     print(f"doc accs:\t{np.mean(doc_accs)}")
 
     true_accs = [vanilla_acc(model.predict(U_i.X), U_i.y) for U_i in test_prot()]
