@@ -1,4 +1,5 @@
 from copy import deepcopy
+from operator import pos
 from typing import Callable
 
 import numpy as np
@@ -46,7 +47,7 @@ class KFCV(CAPDirect):
 
         return self
 
-    def predict(self, X, oracle_prev=None) -> float:
+    def predict(self, X, posteriors=None, oracle_prev=None) -> float:
         return self.cv_score
 
 
@@ -104,7 +105,7 @@ class PrediQuant(CAPDirect):
 
         return self
 
-    def predict(self, X, oracle_prev=None):
+    def predict(self, X, posteriors=None, oracle_prev=None):
         if oracle_prev is None:
             test_pred_prev = self.q.quantify(X)
         else:
@@ -150,7 +151,7 @@ class PabloCAP(CAPDirect):
         self.pre_classified = LabelledCollection(instances=label_predictions, labels=val.labels)
         return self
 
-    def predict(self, X, oracle_prev=None):
+    def predict(self, X, posteriors=None, oracle_prev=None):
         if oracle_prev is None:
             pred_prev = utils.smooth(self.q.quantify(X))
         else:
@@ -199,9 +200,10 @@ class ATC(CAPDirect):
         _, self.threshold = self.__find_ATC_threshold(scores=scores, labels=(pred_labels == true_labels))
         return self
 
-    def predict(self, X, oracle_prev=None):
-        P = get_posteriors_from_h(self.h, X)
-        scores = self.get_scores(P)
+    def predict(self, X, posteriors=None, oracle_prev=None):
+        if posteriors is None:
+            posteriors = get_posteriors_from_h(self.h, X)
+        scores = self.get_scores(posteriors)
         # assert self.acc_fn == 'vanilla_accuracy', \
         #    'use acc_fn=="vanilla_accuracy"; other metris are not yet tested in ATC'
         return self.__get_ATC_acc(self.threshold, scores)
@@ -284,9 +286,10 @@ class DoC(CAPDirect):
 
         return self
 
-    def predict(self, X, oracle_prev=None):
-        P = get_posteriors_from_h(self.h, X)
-        mc = max_conf(P)
+    def predict(self, X, posteriors=None, oracle_prev=None):
+        if posteriors is None:
+            posteriors = get_posteriors_from_h(self.h, X)
+        mc = max_conf(posteriors)
         acc_pred = self.predict_regression(mc)[0]
         if self.clip_vals is not None:
             acc_pred = np.clip(acc_pred, *self.clip_vals)

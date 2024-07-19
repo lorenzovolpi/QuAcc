@@ -69,7 +69,7 @@ class CAPContingencyTable(ClassifierAccuracyPrediction):
         self.acc_fn = acc_fn
 
     @abstractmethod
-    def predict_ct(self, X, oracle_prev=None) -> np.ndarray:
+    def predict_ct(self, X, posteriors=None, oracle_prev=None) -> np.ndarray:
         """
         Predicts the contingency table for the test data
 
@@ -85,8 +85,8 @@ class CAPContingencyTable(ClassifierAccuracyPrediction):
         self.acc_fn = acc_fn
         return self
 
-    def predict(self, X, oracle_prev=None):
-        cont_table = self.predict_ct(X, oracle_prev)
+    def predict(self, X, posteriors=None, oracle_prev=None):
+        cont_table = self.predict_ct(X, posteriors, oracle_prev)
         return self.acc_fn(cont_table)
 
 
@@ -105,7 +105,7 @@ class NaiveCAP(CAPContingencyTable):
         self.cont_table = confusion_matrix(y_true, y_pred=y_hat, labels=val.classes_)
         return self
 
-    def predict_ct(self, test, oracle_prev=None):
+    def predict_ct(self, test, posteriors=None, oracle_prev=None):
         """
         This method disregards the test set, under the assumption that it is IID wrt the training. This meaning that
         the confusion matrix for the test data should coincide with the one computed for training (using any cross
@@ -173,7 +173,7 @@ class ContTableTransferCAP(CAPContingencyTableQ):
         self.train_prev = data.prevalence()
         return data
 
-    def predict_ct(self, test, oracle_prev=None):
+    def predict_ct(self, test, posteriors=None, oracle_prev=None):
         """
         :param test: test collection (ignored)
         :param oracle_prev: np.ndarray with the class prevalence of the test set as estimated by
@@ -259,7 +259,7 @@ class NsquaredEquationsCAP(CAPContingencyTableQ):
 
         return A, b
 
-    def predict_ct(self, test, oracle_prev=None, return_true_solve=False):
+    def predict_ct(self, test, posteriors=None, oracle_prev=None, return_true_solve=False):
         """
         :param test: test collection (ignored)
         :param oracle_prev: np.ndarray with the class prevalence of the test set as estimated by
@@ -270,7 +270,11 @@ class NsquaredEquationsCAP(CAPContingencyTableQ):
 
         n = self.cont_table.shape[1]
 
-        h_label_preds = self.h.predict(test)
+        if posteriors is None:
+            h_label_preds = self.h.predict(test)
+        else:
+            h_label_preds = np.argmax(posteriors, axis=-1)
+
         cc_prev_estim = F.prevalence_from_labels(h_label_preds, self.h.classes_)
         if oracle_prev is None:
             q_prev_estim = self.q.quantify(test)
@@ -421,8 +425,8 @@ class QuAcc1xN2(QuAcc):
     def prepare_quantifier(self):
         self.q = deepcopy(self.q_class)
 
-    def predict_ct(self, X, oracle_prev=None):
-        X_dot = self._get_X_dot(X)
+    def predict_ct(self, X: LabelledCollection, posteriors=None, oracle_prev=None):
+        X_dot = self._get_X_dot(X, P=posteriors)
         flat_ct = self._safe_quantify(X_dot)
         return flat_ct.reshape(self.ncl, self.ncl)
 
@@ -475,8 +479,8 @@ class QuAcc1xNp1(QuAcc):
         ct_hat[ct_rev_idx] = ct_compressed
         return ct_hat
 
-    def predict_ct(self, X: LabelledCollection, oracle_prev=None):
-        X_dot = self._get_X_dot(X)
+    def predict_ct(self, X: LabelledCollection, posteriors=None, oracle_prev=None):
+        X_dot = self._get_X_dot(X, P=posteriors)
         ct_compressed = self._safe_quantify(X_dot)
         return self._get_ct_hat(self.ncl, ct_compressed)
 
@@ -600,7 +604,7 @@ class QuAccNxN(QuAcc):
 
         return prev_vectors
 
-    def predict_ct(self, X, oracle_prev=None):
+    def predict_ct(self, X: LabelledCollection, posteriors=None, oracle_prev=None):
         classes = self.h.classes_
         pred_labels = self.h.predict(X)
         X_dot = self._get_X_dot(X)
