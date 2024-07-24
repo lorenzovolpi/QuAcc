@@ -606,8 +606,10 @@ class QuAccNxN(QuAcc):
 
     def predict_ct(self, X: LabelledCollection, posteriors=None, oracle_prev=None):
         classes = self.h.classes_
-        pred_labels = self.h.predict(X)
-        X_dot = self._get_X_dot(X)
+        if posteriors is None:
+            posteriors = get_posteriors_from_h(self.h, X)
+        pred_labels = np.argmax(posteriors, axis=-1)
+        X_dot = self._get_X_dot(X, P=posteriors)
         pred_prev = F.prevalence_from_labels(pred_labels, classes)
         X_dot_list = [X_dot[pred_labels == class_i] for class_i in classes]
         classcond_cond_table_prevs = self._safe_quantify(X_dot_list)
