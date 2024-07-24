@@ -1,5 +1,4 @@
 import os
-from time import sleep
 from typing import Callable, List
 
 import datasets
@@ -8,12 +7,13 @@ import torch
 import torch.nn as nn
 import torch.utils.data
 from datasets import load_dataset
-from datasets.load import DataFilesPatternsList
 from quapy.data.base import LabelledCollection
 from quapy.method.aggregative import SLD
 from quapy.protocol import UPP
 from scipy.sparse import issparse
 from sklearn.linear_model import LogisticRegression
+from sklearn.neural_network import MLPClassifier as MLP
+from sklearn.svm import SVC
 from torch.optim import AdamW
 from torch.utils.data import DataLoader
 from tqdm import tqdm
@@ -27,11 +27,11 @@ from transformers import (
 
 import quacc as qc
 from quacc.error import vanilla_acc
-from quacc.models.cont_table import QuAcc1xN2
+from quacc.models.cont_table import QuAcc1xN2, QuAccNxN
 from quacc.models.direct import DoC
 
 NUM_SAMPLES = 100
-SAMPLE_SIZE = 1000
+SAMPLE_SIZE = 500
 RANDOM_STATE = 42
 
 
@@ -128,6 +128,7 @@ class DistilBert(LargeModel):
             self.epoch = _checkpoint["epoch"]
 
     def fit(self, train: LabelledCollection, dataset_name: str):
+        self.classes_ = train.classes_
         train_dl = DataLoader(
             TorchLC.from_lc(train, self.data_mapping),
             batch_size=self.batch_size,
@@ -189,9 +190,12 @@ class DistilBert(LargeModel):
         return np.vstack(y_probs)
 
 
-def preprocess_data(dataset, name, tokenizer, length: int | None = None, seed=RANDOM_STATE) -> datasets.Dataset:
+def preprocess_data(
+    dataset, name, tokenizer, columns, length: int | None = None, seed=RANDOM_STATE
+) -> datasets.Dataset:
     def tokenize(datapoint):
-        return tokenizer(datapoint["text"], truncation=True)
+        sentences = [datapoint[c] for c in columns]
+        return tokenizer(*sentences, truncation=True)
 
     d = dataset[name].shuffle(seed=seed)
     if length is not None:
@@ -201,7 +205,7 @@ def preprocess_data(dataset, name, tokenizer, length: int | None = None, seed=RA
 
 
 def from_hf_dataset(
-    cls, dataset: datasets.Dataset, collator: Callable, remove_columns: str | List[str] | None = None
+    dataset: datasets.Dataset, collator: Callable, remove_columns: str | List[str] | None = None
 ) -> LabelledCollection:
     if remove_columns is not None:
         dataset = dataset.remove_columns(remove_columns)
@@ -214,62 +218,85 @@ def get_embeddings(model: DistilBert, data: LabelledCollection) -> LabelledColle
     model.model.to(device)
     model.model.eval()
     data_dl = DataLoader(TorchLC.from_X(data.X, model.data_mapping), batch_size=model.batch_size)
-    data_batches = []
+    X_emb = []
     for batch in data_dl:
         input_ids = batch["input_ids"].to(device)
         batch_emb = model.model.get_input_embeddings()(input_ids)
         batch_emb = torch.flatten(batch_emb, start_dim=1)
-        data_batches.append(batch_emb)
+        batch_emb = batch_emb.cpu().detach().numpy()
+        X_emb.append(batch_emb)
 
-    return LabelledCollection(np.vstack(data_batches), data.y, classes=data.classes_)
+    return LabelledCollection(np.vstack(X_emb), data.y, classes=data.classes_)
+
+
+def mlp():
+    MLP((100, 15), activation="logistic", solver="adam")
+
+
+def lr():
+    return LogisticRegression()
 
 
 if __name__ == "__main__":
     model = DistilBert()
-    dataset_name = "imdb"
+    # dataset_name = "imdb"
+    # dataset_name = "rotten_tomatoes"
+    dataset_name = "amazon_polarity"
+
+    # text_columns = ['text']
+    text_columns = ["title", "content"]
 
     dataset = load_dataset(dataset_name)
 
-    train_vec = preprocess_data(dataset, "train", model.tokenizer)
-    test_vec = preprocess_data(dataset, "test", model.tokenizer)
+    train_vec = preprocess_data(dataset, "train", model.tokenizer, text_columns, length=25000)
+    test_vec = preprocess_data(dataset, "test", model.tokenizer, text_columns)
 
-    train = from_hf_dataset(train_vec, model.data_collator, remove_columns="text")
-    U = from_hf_dataset(test_vec, model.data_collator, remove_columns="text")
+    train = from_hf_dataset(train_vec, model.data_collator, remove_columns=text_columns)
+    U = from_hf_dataset(test_vec, model.data_collator, remove_columns=text_columns)
     L, V = train.split_stratified(train_prop=0.5, random_state=RANDOM_STATE)
 
     model.fit(L, dataset_name)
 
-    V_emb = get_embeddings(model, V)
-
     test_prot = UPP(U, sample_size=SAMPLE_SIZE, repeats=NUM_SAMPLES, return_type="labelled_collection")
 
-    quacc = QuAcc1xN2(
+    quacc_n2 = QuAcc1xN2(
         model,
         vanilla_acc,
-        SLD(LogisticRegression()),
+        SLD(lr()),
         add_X=False,
         add_y_hat=True,
         add_maxinfsoft=True,
-    ).fit(V_emb)
-    print("quacc fit")
-    doc = DoC(model, vanilla_acc, sample_size=SAMPLE_SIZE, num_samples=NUM_SAMPLES).fit(V_emb)
+    ).fit(V)
+    print("quacc_n2 fit")
+    quacc_nn = QuAccNxN(
+        model,
+        vanilla_acc,
+        SLD(lr()),
+        add_X=False,
+        add_y_hat=True,
+        add_maxinfsoft=True,
+    ).fit(V)
+    print("quacc_nn fit")
+    doc = DoC(model, vanilla_acc, sample_size=SAMPLE_SIZE, num_samples=NUM_SAMPLES).fit(V)
     print("doc fit")
 
     test_y_hat, test_y = [], []
-    quacc_accs, doc_accs = [], []
+    quacc_n2_accs, quacc_nn_accs, doc_accs = [], [], []
     true_accs = []
     for U_i in test_prot():
-        U_i_emb = get_embeddings(model, U_i)
-        P = model.predict_proba(U_i_emb.X)
+        P = model.predict_proba(U_i.X)
         y_hat = np.argmax(P, axis=-1)
         test_y_hat.append(y_hat)
-        test_y.append(U_i_emb.y)
-        quacc_accs.append(quacc.predict(U_i_emb.X, posteriors=P))
-        doc_accs.append(doc.predict(U_i_emb.X, posteriors=P))
-        true_accs.append(vanilla_acc(y_hat, U_i_emb.y))
+        test_y.append(U_i.y)
+        quacc_n2_accs.append(quacc_n2.predict(U_i.X, posteriors=P))
+        quacc_nn_accs.append(quacc_nn.predict(U_i.X, posteriors=P))
+        doc_accs.append(doc.predict(U_i.X, posteriors=P))
+        true_accs.append(vanilla_acc(y_hat, U_i.y))
 
-    quacc_accs = np.asarray(quacc_accs)
+    quacc_n2_accs = np.asarray(quacc_n2_accs)
+    quacc_nn_accs = np.asarray(quacc_nn_accs)
     doc_accs = np.asarray(doc_accs)
 
-    print(f"quacc:\t{np.mean(np.abs(quacc_accs - true_accs))}")
+    print(f"quacc_n2:\t{np.mean(np.abs(quacc_n2_accs - true_accs))}")
+    print(f"quacc_nn:\t{np.mean(np.abs(quacc_nn_accs - true_accs))}")
     print(f"doc:\t{np.mean(np.abs(doc_accs - true_accs))}")
