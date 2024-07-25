@@ -8,6 +8,7 @@ from quapy.data.base import LabelledCollection
 from quapy.method.aggregative import ACC, SLD, AggregativeQuantifier, BaseQuantifier
 from quapy.protocol import UPP, AbstractProtocol
 from sklearn.linear_model import LinearRegression, LogisticRegression
+from sklearn.metrics import confusion_matrix
 
 import quacc as qc
 from quacc.models.base import CAP
@@ -77,13 +78,13 @@ class ReQua(CAPDirect):
         pred_acc = self.reg_model.predict(test_feats)
         return pred_acc
 
-    def _fit_quacc_models(self, val, parallel=True):
+    def _fit_quacc_models(self, val, posteriors=None, parallel=True):
         def _fit_model(args):
-            m, train = args
-            return m.fit(train)
+            m, train, _posteriors = args
+            return m.fit(train, posteriors=_posteriors)
 
         # training models
-        models_fit_args = [(m, val) for m in self.models]
+        models_fit_args = [(m, val, posteriors) for m in self.models]
         if parallel:
             self.models = qc_parallel(
                 _fit_model,
@@ -95,22 +96,26 @@ class ReQua(CAPDirect):
         else:
             self.models = [_fit_model(arg) for arg in models_fit_args]
 
-    def _get_quacc_feats(self, X):
+    def _get_quacc_feats(self, X, posteriors=None):
         def predict_cts(m, _X):
-            return m.predict_ct(_X).flatten()
+            return m.predict_ct(_X, posteriors=posteriors).flatten()
 
         cts = np.hstack([predict_cts(m, X) for m in self.models])
         return cts
 
-    def _get_batch_quacc_feats(self, prot, parallel=True):
+    def _get_batch_quacc_feats(self, prot, posteriors=None, parallel=True):
+        posteriors = [] if posteriors is None else posteriors
+
         def _predict_model_cts(args):
-            m, _prot = args
-            cts = np.vstack([m.predict_ct(sigma_i.X).flatten() for sigma_i in _prot()])
+            m, _prot, _posteriors = args
+            cts = np.vstack(
+                [m.predict_ct(sigma_i.X, posteriors=P).flatten() for sigma_i, P in IT.zip_longest(_prot(), _posteriors)]
+            )
 
             return cts
 
         # predicting v2 sample cont. tables for each model
-        models_cts_args = [(m, prot) for m in self.models]
+        models_cts_args = [(m, prot, posteriors) for m in self.models]
         if parallel:
             v2_ctss = qc_parallel(
                 _predict_model_cts,
@@ -128,22 +133,40 @@ class ReQua(CAPDirect):
 
         return v2_ctss
 
-    def _get_linear_feats(self, X):
-        P = get_posteriors_from_h(self.h, X)
+    def _get_linear_feats(self, X, posteriors=None):
+        if posteriors is None:
+            posteriors = get_posteriors_from_h(self.h, X)
+
         conf_fns = [
             max_conf,
             neg_entropy,
             max_inverse_softmax,
         ]
-        lin_feats = np.hstack([fn(P, keepdims=True) for fn in conf_fns]).mean(axis=0)
+        lin_feats = np.hstack([fn(posteriors, keepdims=True) for fn in conf_fns]).mean(axis=0)
         return lin_feats
 
-    def _get_batch_linear_feats(self, prot):
-        lin_feats = np.vstack([self._get_linear_feats(sigma_i.X) for sigma_i in prot()])
+    def _get_batch_linear_feats(self, prot, posteriors=None):
+        posteriors = [] if posteriors is None else posteriors
+        lin_feats = np.vstack(
+            [self._get_linear_feats(sigma_i.X, posteriors=P) for sigma_i, P in IT.zip_longest(prot(), posteriors)]
+        )
         return lin_feats
 
-    def fit(self, val: LabelledCollection):
-        v2, v1 = val.split_stratified(train_prop=self.val_prop)
+    def true_acc(self, sample: LabelledCollection, posteriors=None):
+        if posteriors is None:
+            posteriors = get_posteriors_from_h(self.h, sample.X)
+        y_pred = np.argmax(posteriors, axis=-1)
+        y_true = sample.y
+        conf_table = confusion_matrix(y_true, y_pred=y_pred, labels=sample.classes_)
+        return self.acc(conf_table)
+
+    def fit(self, val: LabelledCollection, posteriors=None):
+        if posteriors is None:
+            posteriors = get_posteriors_from_h(self.h, val.X)
+
+        v2_idx, v1_idx = val.split_stratified_index(train_prop=self.val_prop)
+        v2, v1 = val.sampling_from_index(v2_idx), val.sampling_from_index(v1_idx)
+        v1_posteriors = posteriors[v1_idx]
 
         v2_prot = UPP(
             v2,
@@ -152,10 +175,12 @@ class ReQua(CAPDirect):
             return_type="labelled_collection",
         )
 
+        v2_prot_posteriors = [get_posteriors_from_h(self.h, sigma_i.X) for sigma_i in v2_prot()]
+
         # train models used to generate features
 
         t_fit_init = time()
-        self._fit_quacc_models(v1)
+        self._fit_quacc_models(v1, posteriors=v1_posteriors)
         self._sout(f"training quacc models took {time() - t_fit_init:.3f}s")
 
         # compute features to train the regressor
@@ -163,19 +188,21 @@ class ReQua(CAPDirect):
         features = []
 
         t_ct_init = time()
-        quacc_feats = self._get_batch_quacc_feats(v2_prot)
+        quacc_feats = self._get_batch_quacc_feats(v2_prot, posteriors=v2_prot_posteriors)
         features.append(quacc_feats)
         self._sout(f"generating quacc features took {time() - t_ct_init:.3f}s")
 
         if self.add_conf:
             t_lin_init = time()
-            lin_feats = self._get_batch_linear_feats(v2_prot)
+            lin_feats = self._get_batch_linear_feats(v2_prot, posteriors=v2_prot_posteriors)
             features.append(lin_feats)
             self._sout(f"generating linear features took {time() - t_lin_init:.3f}s")
 
         # compute true accs as targets for the regressor
 
-        v2_accs = np.asarray([self.true_acc(v2_i) for v2_i in v2_prot()])
+        v2_accs = np.asarray(
+            [self.true_acc(v2_i, posteriors=P) for v2_i, P in IT.zip_longest(v2_prot(), v2_prot_posteriors)]
+        )
 
         # train regression model
 
@@ -185,11 +212,11 @@ class ReQua(CAPDirect):
 
         return self
 
-    def predict(self, X, oracle_prev=None) -> float:
+    def predict(self, X, posteriors=None, oracle_prev=None) -> float:
         features = []
-        features.append(self._get_quacc_feats(X))
+        features.append(self._get_quacc_feats(X, posteriors=posteriors))
         if self.add_conf:
-            features.append(self._get_linear_feats(X))
+            features.append(self._get_linear_feats(X, posteriors=posteriors))
 
         acc_pred = self.predict_regression(features)
 
@@ -197,16 +224,16 @@ class ReQua(CAPDirect):
             acc_pred = np.clip(acc_pred, *self.clip_vals)
         return acc_pred[0]
 
-    def batch_predict(self, prot: AbstractProtocol, oracle_prevs=None) -> list[float]:
+    def batch_predict(self, prot: AbstractProtocol, posteriors=None, oracle_prevs=None) -> list[float]:
         t_bpred_init = time()
 
         features = []
 
-        quacc_feats = self._get_batch_quacc_feats(prot)
+        quacc_feats = self._get_batch_quacc_feats(prot, posteriors=posteriors)
         features.append(quacc_feats)
 
         if self.add_conf:
-            lin_feats = self._get_batch_linear_feats(prot)
+            lin_feats = self._get_batch_linear_feats(prot, posteriors=posteriors)
             features.append(lin_feats)
 
         acc_pred = self.predict_regression(features)

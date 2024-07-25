@@ -354,6 +354,13 @@ class QuAcc(CAPContingencyTableQ):
     def _num_non_empty_classes(self):
         return len(self.q_old_class_idx)
 
+    def fit(self, data: LabelledCollection, posteriors=None):
+        data = self.preprocess_data(data, posteriors=posteriors)
+        self.prepare_quantifier()
+        classif_predictions = self.quant_classifier_fit_predict(data)
+        self.quant_aggregation_fit(classif_predictions, data)
+        return self
+
     def quant_classifier_fit_predict(self, data: LabelledCollection):
         self.q_n_classes = data.n_classes
         class_compact_data, self.q_old_class_idx = data.compact_classes()
@@ -409,8 +416,9 @@ class QuAcc1xN2(QuAcc):
         self.add_negentropy = add_negentropy
         self.add_maxinfsoft = add_maxinfsoft
 
-    def preprocess_data(self, data: LabelledCollection):
-        posteriors = get_posteriors_from_h(self.h, data.X)
+    def preprocess_data(self, data: LabelledCollection, posteriors=None):
+        if posteriors is None:
+            posteriors = get_posteriors_from_h(self.h, data.X)
         pred_labels = np.argmax(posteriors, axis=-1)
         true_labels = data.y
 
@@ -454,8 +462,9 @@ class QuAcc1xNp1(QuAcc):
         self.add_negentropy = add_negentropy
         self.add_maxinfsoft = add_maxinfsoft
 
-    def preprocess_data(self, data: LabelledCollection):
-        posteriors = get_posteriors_from_h(self.h, data.X)
+    def preprocess_data(self, data: LabelledCollection, posteriors=None):
+        if posteriors is None:
+            posteriors = get_posteriors_from_h(self.h, data.X)
         pred_labels = np.argmax(posteriors, axis=-1)
         true_labels = data.y
 
@@ -508,8 +517,9 @@ class QuAccNxN(QuAcc):
         self.add_negentropy = add_negentropy
         self.add_maxinfsoft = add_maxinfsoft
 
-    def preprocess_data(self, data: LabelledCollection):
-        posteriors = get_posteriors_from_h(self.h, data.X)
+    def preprocess_data(self, data: LabelledCollection, posteriors=None):
+        if posteriors is None:
+            posteriors = get_posteriors_from_h(self.h, data.X)
         pred_labels = np.argmax(posteriors, axis=-1)
         true_labels = data.y
         X_dot = self._get_X_dot(data.X, P=posteriors)
