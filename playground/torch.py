@@ -1,8 +1,10 @@
 import os
+import pdb
 from typing import Callable, List
 
 import datasets
 import numpy as np
+import quapy as qp
 import torch
 import torch.nn as nn
 import torch.utils.data
@@ -13,7 +15,6 @@ from quapy.protocol import UPP
 from scipy.sparse import issparse
 from sklearn.linear_model import LogisticRegression
 from sklearn.neural_network import MLPClassifier as MLP
-from sklearn.svm import SVC
 from torch.optim import AdamW
 from torch.utils.data import DataLoader
 from tqdm import tqdm
@@ -27,17 +28,22 @@ from transformers import (
 
 import quacc as qc
 from quacc.error import vanilla_acc
+from quacc.experiments.util import split_validation
 from quacc.models.cont_table import QuAcc1xN2, QuAccNxN
 from quacc.models.direct import DoC
+from quacc.models.model_selection import GridSearchCAP
+from quacc.models.utils import get_posteriors_from_h
 
 NUM_SAMPLES = 100
 SAMPLE_SIZE = 500
 RANDOM_STATE = 42
 
+qp.environ["_R_SEED"] = RANDOM_STATE
+qp.environ["SAMPLE_SIZE"] = SAMPLE_SIZE
+
 
 def softmax(logits: torch.Tensor) -> np.ndarray:
-    sm = nn.Softmax(dim=-1)
-    return sm(logits).numpy()
+    return nn.functional.softmax(logits, dim=-1).numpy()
 
 
 class LargeModel:
@@ -166,9 +172,12 @@ class DistilBert(LargeModel):
 
         self.checkpoint(dataset_name)
 
+        # TODO: unload model from CUDA
+
         return self
 
     def predict_proba(self, test) -> np.ndarray:
+        # TODO: load model to cuda
         device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
         test_dl = DataLoader(
@@ -187,6 +196,7 @@ class DistilBert(LargeModel):
                 y_probs.append(softmax(outputs.logits.cpu()))
                 progress_bar.update(1)
 
+        # TODO: unload model from CUDA
         return np.vstack(y_probs)
 
 
@@ -239,12 +249,12 @@ def lr():
 
 if __name__ == "__main__":
     model = DistilBert()
-    # dataset_name = "imdb"
+    dataset_name = "imdb"
     # dataset_name = "rotten_tomatoes"
-    dataset_name = "amazon_polarity"
+    # dataset_name = "amazon_polarity"
 
-    # text_columns = ['text']
-    text_columns = ["title", "content"]
+    text_columns = ["text"]
+    # text_columns = ["title", "content"]
 
     dataset = load_dataset(dataset_name)
 
@@ -259,6 +269,29 @@ if __name__ == "__main__":
 
     test_prot = UPP(U, sample_size=SAMPLE_SIZE, repeats=NUM_SAMPLES, return_type="labelled_collection")
 
+    V1, V2_prot = split_validation(V)
+
+    V_posteriors = get_posteriors_from_h(model, V.X)
+    print("V_posteriors")
+    V1_posteriors = get_posteriors_from_h(model, V1.X)
+    print("V1_posteriors")
+
+    print(type(V1_posteriors))
+
+    pdb.set_trace()
+
+    sld_params = {
+        "q_class__classifier__C": np.logspace(-3, 3, 7),
+        "q_class__classifier__class_weight": [None, "balanced"],
+        "add_X": [False],
+        "add_posteriors": [True, False],
+        "add_y_hat": [True, False],
+        "add_maxconf": [True, False],
+        "add_negentropy": [True, False],
+        "add_maxinfsoft": [True, False],
+        "q_class__recalib": [None, "bcts"],
+    }
+
     quacc_n2 = QuAcc1xN2(
         model,
         vanilla_acc,
@@ -266,7 +299,7 @@ if __name__ == "__main__":
         add_X=False,
         add_y_hat=True,
         add_maxinfsoft=True,
-    ).fit(V)
+    ).fit(V, posteriors=V_posteriors)
     print("quacc_n2 fit")
     quacc_nn = QuAccNxN(
         model,
@@ -275,28 +308,34 @@ if __name__ == "__main__":
         add_X=False,
         add_y_hat=True,
         add_maxinfsoft=True,
-    ).fit(V)
+    ).fit(V, posteriors=V_posteriors)
     print("quacc_nn fit")
+    quacc_nn_opt = GridSearchCAP(
+        QuAccNxN(model, vanilla_acc, SLD(lr())), sld_params, V2_prot, vanilla_acc, refit=False
+    ).fit(V1, posteriors=V1_posteriors)
     doc = DoC(model, vanilla_acc, sample_size=SAMPLE_SIZE, num_samples=NUM_SAMPLES).fit(V)
     print("doc fit")
 
     test_y_hat, test_y = [], []
-    quacc_n2_accs, quacc_nn_accs, doc_accs = [], [], []
+    quacc_n2_accs, quacc_nn_accs, quacc_nn_opt_accs, doc_accs = [], [], [], []
     true_accs = []
     for U_i in test_prot():
-        P = model.predict_proba(U_i.X)
+        P = get_posteriors_from_h(model, U_i.X)
         y_hat = np.argmax(P, axis=-1)
         test_y_hat.append(y_hat)
         test_y.append(U_i.y)
         quacc_n2_accs.append(quacc_n2.predict(U_i.X, posteriors=P))
         quacc_nn_accs.append(quacc_nn.predict(U_i.X, posteriors=P))
+        quacc_nn_opt_accs.append(quacc_nn_opt.predict(U_i.X, posteriors=P))
         doc_accs.append(doc.predict(U_i.X, posteriors=P))
         true_accs.append(vanilla_acc(y_hat, U_i.y))
 
     quacc_n2_accs = np.asarray(quacc_n2_accs)
     quacc_nn_accs = np.asarray(quacc_nn_accs)
+    quacc_nn_opt_accs = np.asarray(quacc_nn_opt_accs)
     doc_accs = np.asarray(doc_accs)
 
     print(f"quacc_n2:\t{np.mean(np.abs(quacc_n2_accs - true_accs))}")
     print(f"quacc_nn:\t{np.mean(np.abs(quacc_nn_accs - true_accs))}")
+    print(f"quacc_nn_opt:\t{np.mean(np.abs(quacc_nn_opt_accs - true_accs))}")
     print(f"doc:\t{np.mean(np.abs(doc_accs - true_accs))}")
