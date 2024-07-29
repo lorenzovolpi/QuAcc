@@ -130,7 +130,7 @@ class CAPContingencyTableQ(CAPContingencyTable, BaseEstimator):
         self.reuse_h = reuse_h
         self.q_class = q_class
 
-    def preprocess_data(self, data: LabelledCollection):
+    def preprocess_data(self, data: LabelledCollection, posteriors=None):
         return data
 
     def prepare_quantifier(self):
@@ -152,12 +152,21 @@ class CAPContingencyTableQ(CAPContingencyTable, BaseEstimator):
     def quant_aggregation_fit(self, classif_predictions: LabelledCollection, data: LabelledCollection):
         self.q.aggregation_fit(classif_predictions, data)
 
-    def fit(self, data: LabelledCollection):
-        data = self.preprocess_data(data)
+    def fit(self, data: LabelledCollection, posteriors=None):
+        data = self.preprocess_data(data, posteriors=posteriors)
         self.prepare_quantifier()
         classif_predictions = self.quant_classifier_fit_predict(data)
         self.quant_aggregation_fit(classif_predictions, data)
         return self
+
+    def true_acc(self, sample: LabelledCollection, acc_fn=None, posteriors=None):
+        if posteriors is None:
+            posteriors = get_posteriors_from_h(self.h, sample.X)
+        y_pred = np.argmax(posteriors, axis=-1)
+        y_true = sample.y
+        conf_table = confusion_matrix(y_true, y_pred=y_pred, labels=sample.classes_)
+        acc_fn = self.acc if acc_fn is None else acc_fn
+        return acc_fn(conf_table)
 
 
 class ContTableTransferCAP(CAPContingencyTableQ):
@@ -166,8 +175,10 @@ class ContTableTransferCAP(CAPContingencyTableQ):
     def __init__(self, h: BaseEstimator, acc_fn: Callable, q_class, reuse_h=False):
         super().__init__(h, acc_fn, q_class, reuse_h)
 
-    def preprocess_data(self, data: LabelledCollection):
-        y_hat = self.h.predict(data.X)
+    def preprocess_data(self, data: LabelledCollection, posteriors=None):
+        if posteriors is None:
+            posteriors = get_posteriors_from_h(self.h, data.X)
+        y_hat = np.argmax(posteriors, axis=-1)
         y_true = data.y
         self.cont_table = confusion_matrix(y_true=y_true, y_pred=y_hat, labels=data.classes_, normalize="all")
         self.train_prev = data.prevalence()
@@ -203,8 +214,10 @@ class NsquaredEquationsCAP(CAPContingencyTableQ):
         if self.verbose:
             print(*msgs, **kwargs)
 
-    def preprocess_data(self, data: LabelledCollection):
-        y_hat = self.h.predict(data.X)
+    def preprocess_data(self, data: LabelledCollection, posteriors=None):
+        if posteriors is None:
+            posteriors = get_posteriors_from_h(self.h, data.X)
+        y_hat = np.argmax(posteriors, axis=-1)
         y_true = data.y
         self.cont_table = confusion_matrix(y_true, y_pred=y_hat, labels=data.classes_)
         self.A, self.partial_b = self._construct_equations()
@@ -353,13 +366,6 @@ class QuAcc(CAPContingencyTableQ):
 
     def _num_non_empty_classes(self):
         return len(self.q_old_class_idx)
-
-    def fit(self, data: LabelledCollection, posteriors=None):
-        data = self.preprocess_data(data, posteriors=posteriors)
-        self.prepare_quantifier()
-        classif_predictions = self.quant_classifier_fit_predict(data)
-        self.quant_aggregation_fit(classif_predictions, data)
-        return self
 
     def quant_classifier_fit_predict(self, data: LabelledCollection):
         self.q_n_classes = data.n_classes
