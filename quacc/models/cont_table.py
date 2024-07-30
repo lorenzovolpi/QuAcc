@@ -121,12 +121,13 @@ class NaiveCAP(CAPContingencyTable):
 class CAPContingencyTableQ(CAPContingencyTable, BaseEstimator):
     def __init__(
         self,
-        h: BaseEstimator,
+        # h: BaseEstimator,
         acc_fn: Callable,
         q_class: AggregativeQuantifier,
-        reuse_h=False,
+        reuse_h: BaseEstimator | None = None,
     ):
-        CAPContingencyTable.__init__(self, h, acc_fn)
+        self.acc = acc_fn
+        # CAPContingencyTable.__init__(self, h, acc_fn)
         self.reuse_h = reuse_h
         self.q_class = q_class
 
@@ -134,17 +135,17 @@ class CAPContingencyTableQ(CAPContingencyTable, BaseEstimator):
         return data
 
     def prepare_quantifier(self):
-        if self.reuse_h:
+        if self.reuse_h is not None:
             assert isinstance(
                 self.q_class, AggregativeQuantifier
             ), f"quantifier {self.q_class} is not of type aggregative"
             self.q = deepcopy(self.q_class)
-            self.q.set_params(classifier=self.h)
+            self.q.set_params(classifier=self.reuse_h)
         else:
             self.q = self.q_class
 
     def quant_classifier_fit_predict(self, data: LabelledCollection):
-        if self.reuse_h:
+        if self.reuse_h is not None:
             return self.q.classifier_fit_predict(data, fit_classifier=False, predict_on=data)
         else:
             return self.q.classifier_fit_predict(data)
@@ -159,9 +160,7 @@ class CAPContingencyTableQ(CAPContingencyTable, BaseEstimator):
         self.quant_aggregation_fit(classif_predictions, data)
         return self
 
-    def true_acc(self, sample: LabelledCollection, acc_fn=None, posteriors=None):
-        if posteriors is None:
-            posteriors = get_posteriors_from_h(self.h, sample.X)
+    def true_acc(self, sample: LabelledCollection, posteriors, acc_fn=None):
         y_pred = np.argmax(posteriors, axis=-1)
         y_true = sample.y
         conf_table = confusion_matrix(y_true, y_pred=y_pred, labels=sample.classes_)
@@ -172,19 +171,23 @@ class CAPContingencyTableQ(CAPContingencyTable, BaseEstimator):
 class ContTableTransferCAP(CAPContingencyTableQ):
     """ """
 
-    def __init__(self, h: BaseEstimator, acc_fn: Callable, q_class, reuse_h=False):
-        super().__init__(h, acc_fn, q_class, reuse_h)
+    def __init__(
+        self,
+        # h: BaseEstimator,
+        acc_fn: Callable,
+        q_class,
+        reuse_h: BaseEstimator | None = None,
+    ):
+        super().__init__(acc_fn, q_class, reuse_h)
 
-    def preprocess_data(self, data: LabelledCollection, posteriors=None):
-        if posteriors is None:
-            posteriors = get_posteriors_from_h(self.h, data.X)
+    def preprocess_data(self, data: LabelledCollection, posteriors):
         y_hat = np.argmax(posteriors, axis=-1)
         y_true = data.y
         self.cont_table = confusion_matrix(y_true=y_true, y_pred=y_hat, labels=data.classes_, normalize="all")
         self.train_prev = data.prevalence()
         return data
 
-    def predict_ct(self, test, posteriors=None, oracle_prev=None):
+    def predict_ct(self, test, posteriors, oracle_prev=None):
         """
         :param test: test collection (ignored)
         :param oracle_prev: np.ndarray with the class prevalence of the test set as estimated by
@@ -204,9 +207,15 @@ class NsquaredEquationsCAP(CAPContingencyTableQ):
     """ """
 
     def __init__(
-        self, h: BaseEstimator, acc_fn: Callable, q_class, always_optimize=False, reuse_h=False, verbose=False
+        self,
+        # h: BaseEstimator,
+        acc_fn: Callable,
+        q_class,
+        always_optimize=False,
+        reuse_h: BaseEstimator | None = None,
+        verbose=False,
     ):
-        super().__init__(h, acc_fn, q_class, reuse_h)
+        super().__init__(acc_fn, q_class, reuse_h)
         self.verbose = verbose
         self.always_optimize = always_optimize
 
@@ -214,9 +223,8 @@ class NsquaredEquationsCAP(CAPContingencyTableQ):
         if self.verbose:
             print(*msgs, **kwargs)
 
-    def preprocess_data(self, data: LabelledCollection, posteriors=None):
-        if posteriors is None:
-            posteriors = get_posteriors_from_h(self.h, data.X)
+    def preprocess_data(self, data: LabelledCollection, posteriors):
+        self.classes_ = data.classes_
         y_hat = np.argmax(posteriors, axis=-1)
         y_true = data.y
         self.cont_table = confusion_matrix(y_true, y_pred=y_hat, labels=data.classes_)
@@ -272,7 +280,7 @@ class NsquaredEquationsCAP(CAPContingencyTableQ):
 
         return A, b
 
-    def predict_ct(self, test, posteriors=None, oracle_prev=None, return_true_solve=False):
+    def predict_ct(self, test, posteriors, oracle_prev=None, return_true_solve=False):
         """
         :param test: test collection (ignored)
         :param oracle_prev: np.ndarray with the class prevalence of the test set as estimated by
@@ -283,12 +291,9 @@ class NsquaredEquationsCAP(CAPContingencyTableQ):
 
         n = self.cont_table.shape[1]
 
-        if posteriors is None:
-            h_label_preds = self.h.predict(test)
-        else:
-            h_label_preds = np.argmax(posteriors, axis=-1)
+        h_label_preds = np.argmax(posteriors, axis=-1)
 
-        cc_prev_estim = F.prevalence_from_labels(h_label_preds, self.h.classes_)
+        cc_prev_estim = F.prevalence_from_labels(h_label_preds, self.classes_)
         if oracle_prev is None:
             q_prev_estim = self.q.quantify(test)
         else:
@@ -328,11 +333,8 @@ class NsquaredEquationsCAP(CAPContingencyTableQ):
 
 
 class QuAcc(CAPContingencyTableQ):
-    def _get_X_dot(self, X, P=None):
-        h = self.h
-
-        if P is None:
-            P = get_posteriors_from_h(h, X)
+    def _get_X_dot(self, X, posteriors):
+        P = posteriors
 
         add_covs = []
 
@@ -402,7 +404,7 @@ class QuAcc(CAPContingencyTableQ):
 class QuAcc1xN2(QuAcc):
     def __init__(
         self,
-        h: BaseEstimator,
+        # h: BaseEstimator,
         acc_fn: Callable,
         q_class: AggregativeQuantifier,
         add_X=True,
@@ -412,7 +414,7 @@ class QuAcc1xN2(QuAcc):
         add_negentropy=False,
         add_maxinfsoft=False,
     ):
-        self.h = h
+        # self.h = h
         self.acc_fn = acc_fn
         self.q_class = q_class
         self.add_X = add_X
@@ -422,9 +424,7 @@ class QuAcc1xN2(QuAcc):
         self.add_negentropy = add_negentropy
         self.add_maxinfsoft = add_maxinfsoft
 
-    def preprocess_data(self, data: LabelledCollection, posteriors=None):
-        if posteriors is None:
-            posteriors = get_posteriors_from_h(self.h, data.X)
+    def preprocess_data(self, data: LabelledCollection, posteriors):
         pred_labels = np.argmax(posteriors, axis=-1)
         true_labels = data.y
 
@@ -432,15 +432,15 @@ class QuAcc1xN2(QuAcc):
         classes_dot = np.arange(self.ncl**2)
         ct_class_idx = classes_dot.reshape(self.ncl, self.ncl)
 
-        X_dot = self._get_X_dot(data.X, P=posteriors)
+        X_dot = self._get_X_dot(data.X, posteriors)
         y_dot = ct_class_idx[true_labels, pred_labels]
         return LabelledCollection(X_dot, y_dot, classes=classes_dot)
 
     def prepare_quantifier(self):
         self.q = deepcopy(self.q_class)
 
-    def predict_ct(self, X: LabelledCollection, posteriors=None, oracle_prev=None):
-        X_dot = self._get_X_dot(X, P=posteriors)
+    def predict_ct(self, X: LabelledCollection, posteriors, oracle_prev=None):
+        X_dot = self._get_X_dot(X, posteriors)
         flat_ct = self._safe_quantify(X_dot)
         return flat_ct.reshape(self.ncl, self.ncl)
 
@@ -448,7 +448,7 @@ class QuAcc1xN2(QuAcc):
 class QuAcc1xNp1(QuAcc):
     def __init__(
         self,
-        h: BaseEstimator,
+        # h: BaseEstimator,
         acc_fn: Callable,
         q_class: AggregativeQuantifier,
         add_X=True,
@@ -458,7 +458,7 @@ class QuAcc1xNp1(QuAcc):
         add_negentropy=False,
         add_maxinfsoft=False,
     ):
-        self.h = h
+        # self.h = h
         self.acc_fn = acc_fn
         self.q_class = q_class
         self.add_X = add_X
@@ -468,9 +468,7 @@ class QuAcc1xNp1(QuAcc):
         self.add_negentropy = add_negentropy
         self.add_maxinfsoft = add_maxinfsoft
 
-    def preprocess_data(self, data: LabelledCollection, posteriors=None):
-        if posteriors is None:
-            posteriors = get_posteriors_from_h(self.h, data.X)
+    def preprocess_data(self, data: LabelledCollection, posteriors):
         pred_labels = np.argmax(posteriors, axis=-1)
         true_labels = data.y
 
@@ -480,7 +478,7 @@ class QuAcc1xNp1(QuAcc):
         ct_class_idx = np.full((self.ncl, self.ncl), self.ncl)
         ct_class_idx[np.diag_indices(self.ncl)] = np.arange(self.ncl)
 
-        X_dot = self._get_X_dot(data.X, P=posteriors)
+        X_dot = self._get_X_dot(data.X, posteriors)
         y_dot = ct_class_idx[true_labels, pred_labels]
         return LabelledCollection(X_dot, y_dot, classes=classes_dot)
 
@@ -494,8 +492,8 @@ class QuAcc1xNp1(QuAcc):
         ct_hat[ct_rev_idx] = ct_compressed
         return ct_hat
 
-    def predict_ct(self, X: LabelledCollection, posteriors=None, oracle_prev=None):
-        X_dot = self._get_X_dot(X, P=posteriors)
+    def predict_ct(self, X: LabelledCollection, posteriors, oracle_prev=None):
+        X_dot = self._get_X_dot(X, posteriors)
         ct_compressed = self._safe_quantify(X_dot)
         return self._get_ct_hat(self.ncl, ct_compressed)
 
@@ -503,7 +501,7 @@ class QuAcc1xNp1(QuAcc):
 class QuAccNxN(QuAcc):
     def __init__(
         self,
-        h: BaseEstimator,
+        # h: BaseEstimator,
         acc_fn: Callable,
         q_class: AggregativeQuantifier,
         add_X=True,
@@ -513,7 +511,7 @@ class QuAccNxN(QuAcc):
         add_negentropy=False,
         add_maxinfsoft=False,
     ):
-        self.h = h
+        # self.h = h
         self.acc_fn = acc_fn
         self.q_class = q_class
         self.add_X = add_X
@@ -523,15 +521,14 @@ class QuAccNxN(QuAcc):
         self.add_negentropy = add_negentropy
         self.add_maxinfsoft = add_maxinfsoft
 
-    def preprocess_data(self, data: LabelledCollection, posteriors=None):
-        if posteriors is None:
-            posteriors = get_posteriors_from_h(self.h, data.X)
+    def preprocess_data(self, data: LabelledCollection, posteriors):
         pred_labels = np.argmax(posteriors, axis=-1)
         true_labels = data.y
-        X_dot = self._get_X_dot(data.X, P=posteriors)
+        X_dot = self._get_X_dot(data.X, posteriors)
 
         datas = []
-        for class_i in self.h.classes_:
+        self.classes_ = data.classes_
+        for class_i in self.classes_:
             X_dot_i = X_dot[pred_labels == class_i]
             y_i = true_labels[pred_labels == class_i]
             data_i = LabelledCollection(X_dot_i, y_i, classes=data.classes_)
@@ -541,7 +538,7 @@ class QuAccNxN(QuAcc):
 
     def prepare_quantifier(self):
         self.q: list[AggregativeQuantifier] = []
-        for class_i in self.h.classes_:
+        for class_i in self.classes_:
             q_i = deepcopy(self.q_class)
             self.q.append(q_i)
 
@@ -620,14 +617,11 @@ class QuAccNxN(QuAcc):
 
         return prev_vectors
 
-    def predict_ct(self, X: LabelledCollection, posteriors=None, oracle_prev=None):
-        classes = self.h.classes_
-        if posteriors is None:
-            posteriors = get_posteriors_from_h(self.h, X)
+    def predict_ct(self, X: LabelledCollection, posteriors, oracle_prev=None):
         pred_labels = np.argmax(posteriors, axis=-1)
-        X_dot = self._get_X_dot(X, P=posteriors)
-        pred_prev = F.prevalence_from_labels(pred_labels, classes)
-        X_dot_list = [X_dot[pred_labels == class_i] for class_i in classes]
+        X_dot = self._get_X_dot(X, posteriors)
+        pred_prev = F.prevalence_from_labels(pred_labels, self.classes_)
+        X_dot_list = [X_dot[pred_labels == class_i] for class_i in self.classes_]
         classcond_cond_table_prevs = self._safe_quantify(X_dot_list)
         cont_table = [p_i * cctp_i for p_i, cctp_i in zip(pred_prev, classcond_cond_table_prevs)]
         cont_table = np.vstack(cont_table)
