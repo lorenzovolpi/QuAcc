@@ -36,7 +36,7 @@ from quacc.models.utils import get_posteriors_from_h
 
 NUM_SAMPLES = 100
 SAMPLE_SIZE = 500
-RANDOM_STATE = 42
+RANDOM_STATE = 313
 
 qp.environ["_R_SEED"] = RANDOM_STATE
 qp.environ["SAMPLE_SIZE"] = SAMPLE_SIZE
@@ -172,12 +172,9 @@ class DistilBert(LargeModel):
 
         self.checkpoint(dataset_name)
 
-        # TODO: unload model from CUDA
-
         return self
 
     def predict_proba(self, test) -> np.ndarray:
-        # TODO: load model to cuda
         device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
         test_dl = DataLoader(
@@ -196,7 +193,6 @@ class DistilBert(LargeModel):
                 y_probs.append(softmax(outputs.logits.cpu()))
                 progress_bar.update(1)
 
-        # TODO: unload model from CUDA
         return np.vstack(y_probs)
 
 
@@ -275,10 +271,8 @@ if __name__ == "__main__":
     print("V_posteriors")
     V1_posteriors = get_posteriors_from_h(model, V1.X)
     print("V1_posteriors")
-
-    print(type(V1_posteriors))
-
-    pdb.set_trace()
+    V2_prot_posteriors = [get_posteriors_from_h(model, sample.X) for sample in V2_prot()]
+    print("V2_prot_posteriors")
 
     sld_params = {
         "q_class__classifier__C": np.logspace(-3, 3, 7),
@@ -293,26 +287,24 @@ if __name__ == "__main__":
     }
 
     quacc_n2 = QuAcc1xN2(
-        model,
         vanilla_acc,
         SLD(lr()),
         add_X=False,
         add_y_hat=True,
         add_maxinfsoft=True,
-    ).fit(V, posteriors=V_posteriors)
+    ).fit(V, V_posteriors)
     print("quacc_n2 fit")
     quacc_nn = QuAccNxN(
-        model,
         vanilla_acc,
         SLD(lr()),
         add_X=False,
         add_y_hat=True,
         add_maxinfsoft=True,
-    ).fit(V, posteriors=V_posteriors)
+    ).fit(V, V_posteriors)
     print("quacc_nn fit")
     quacc_nn_opt = GridSearchCAP(
-        QuAccNxN(model, vanilla_acc, SLD(lr())), sld_params, V2_prot, vanilla_acc, refit=False
-    ).fit(V1, posteriors=V1_posteriors)
+        QuAccNxN(vanilla_acc, SLD(lr())), sld_params, V2_prot, V2_prot_posteriors, vanilla_acc, refit=False
+    ).fit(V1, V1_posteriors)
     doc = DoC(model, vanilla_acc, sample_size=SAMPLE_SIZE, num_samples=NUM_SAMPLES).fit(V)
     print("doc fit")
 
@@ -324,10 +316,10 @@ if __name__ == "__main__":
         y_hat = np.argmax(P, axis=-1)
         test_y_hat.append(y_hat)
         test_y.append(U_i.y)
-        quacc_n2_accs.append(quacc_n2.predict(U_i.X, posteriors=P))
-        quacc_nn_accs.append(quacc_nn.predict(U_i.X, posteriors=P))
-        quacc_nn_opt_accs.append(quacc_nn_opt.predict(U_i.X, posteriors=P))
-        doc_accs.append(doc.predict(U_i.X, posteriors=P))
+        quacc_n2_accs.append(quacc_n2.predict(U_i.X, P))
+        quacc_nn_accs.append(quacc_nn.predict(U_i.X, P))
+        quacc_nn_opt_accs.append(quacc_nn_opt.predict(U_i.X, P))
+        doc_accs.append(doc.predict(U_i.X, P))
         true_accs.append(vanilla_acc(y_hat, U_i.y))
 
     quacc_n2_accs = np.asarray(quacc_n2_accs)
@@ -339,3 +331,5 @@ if __name__ == "__main__":
     print(f"quacc_nn:\t{np.mean(np.abs(quacc_nn_accs - true_accs))}")
     print(f"quacc_nn_opt:\t{np.mean(np.abs(quacc_nn_opt_accs - true_accs))}")
     print(f"doc:\t{np.mean(np.abs(doc_accs - true_accs))}")
+
+    # https://discuss.huggingface.co/t/how-to-get-cls-embeddings-from-bertfortokenclassification-model/9276/2
