@@ -13,7 +13,7 @@ from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import StratifiedKFold, cross_val_predict
 
 from quacc.models.base import ClassifierAccuracyPrediction
-from quacc.models.utils import get_posteriors_from_h, max_conf, max_inverse_softmax, neg_entropy
+from quacc.models.utils import max_conf, max_inverse_softmax, neg_entropy
 
 
 class LabelledCollection(LC):
@@ -64,12 +64,11 @@ class LabelledCollection(LC):
 
 
 class CAPContingencyTable(ClassifierAccuracyPrediction):
-    def __init__(self, h: BaseEstimator, acc_fn: Callable):
-        super().__init__(h)
+    def __init__(self, acc_fn: Callable):
         self.acc_fn = acc_fn
 
     @abstractmethod
-    def predict_ct(self, X, posteriors=None, oracle_prev=None) -> np.ndarray:
+    def predict_ct(self, X, posteriors, oracle_prev=None) -> np.ndarray:
         """
         Predicts the contingency table for the test data
 
@@ -85,7 +84,7 @@ class CAPContingencyTable(ClassifierAccuracyPrediction):
         self.acc_fn = acc_fn
         return self
 
-    def predict(self, X, posteriors=None, oracle_prev=None):
+    def predict(self, X, posteriors, oracle_prev=None):
         cont_table = self.predict_ct(X, posteriors, oracle_prev)
         return self.acc_fn(cont_table)
 
@@ -96,16 +95,16 @@ class NaiveCAP(CAPContingencyTable):
     as an estimate for the test data.
     """
 
-    def __init__(self, h: BaseEstimator, acc_fn: Callable):
-        super().__init__(h, acc_fn)
+    def __init__(self, acc_fn: Callable):
+        super().__init__(acc_fn)
 
-    def fit(self, val: LabelledCollection):
-        y_hat = self.h.predict(val.X)
+    def fit(self, val: LabelledCollection, posteriors):
+        y_hat = np.argmax(posteriors, axis=-1)
         y_true = val.y
         self.cont_table = confusion_matrix(y_true, y_pred=y_hat, labels=val.classes_)
         return self
 
-    def predict_ct(self, test, posteriors=None, oracle_prev=None):
+    def predict_ct(self, test, posteriors, oracle_prev=None):
         """
         This method disregards the test set, under the assumption that it is IID wrt the training. This meaning that
         the confusion matrix for the test data should coincide with the one computed for training (using any cross
@@ -121,17 +120,15 @@ class NaiveCAP(CAPContingencyTable):
 class CAPContingencyTableQ(CAPContingencyTable, BaseEstimator):
     def __init__(
         self,
-        # h: BaseEstimator,
         acc_fn: Callable,
         q_class: AggregativeQuantifier,
         reuse_h: BaseEstimator | None = None,
     ):
-        self.acc = acc_fn
-        # CAPContingencyTable.__init__(self, h, acc_fn)
+        CAPContingencyTable.__init__(self, acc_fn)
         self.reuse_h = reuse_h
         self.q_class = q_class
 
-    def preprocess_data(self, data: LabelledCollection, posteriors=None):
+    def preprocess_data(self, data: LabelledCollection, posteriors):
         return data
 
     def prepare_quantifier(self):
@@ -153,8 +150,8 @@ class CAPContingencyTableQ(CAPContingencyTable, BaseEstimator):
     def quant_aggregation_fit(self, classif_predictions: LabelledCollection, data: LabelledCollection):
         self.q.aggregation_fit(classif_predictions, data)
 
-    def fit(self, data: LabelledCollection, posteriors=None):
-        data = self.preprocess_data(data, posteriors=posteriors)
+    def fit(self, data: LabelledCollection, posteriors):
+        data = self.preprocess_data(data, posteriors)
         self.prepare_quantifier()
         classif_predictions = self.quant_classifier_fit_predict(data)
         self.quant_aggregation_fit(classif_predictions, data)
@@ -173,7 +170,6 @@ class ContTableTransferCAP(CAPContingencyTableQ):
 
     def __init__(
         self,
-        # h: BaseEstimator,
         acc_fn: Callable,
         q_class,
         reuse_h: BaseEstimator | None = None,
@@ -208,7 +204,6 @@ class NsquaredEquationsCAP(CAPContingencyTableQ):
 
     def __init__(
         self,
-        # h: BaseEstimator,
         acc_fn: Callable,
         q_class,
         always_optimize=False,
@@ -333,6 +328,25 @@ class NsquaredEquationsCAP(CAPContingencyTableQ):
 
 
 class QuAcc(CAPContingencyTableQ):
+    def __init__(
+        self,
+        acc_fn: Callable,
+        q_class: AggregativeQuantifier,
+        add_X=True,
+        add_posteriors=True,
+        add_y_hat=False,
+        add_maxconf=False,
+        add_negentropy=False,
+        add_maxinfsoft=False,
+    ):
+        super().__init__(acc_fn, q_class)
+        self.add_X = add_X
+        self.add_posteriors = add_posteriors
+        self.add_y_hat = add_y_hat
+        self.add_maxconf = add_maxconf
+        self.add_negentropy = add_negentropy
+        self.add_maxinfsoft = add_maxinfsoft
+
     def _get_X_dot(self, X, posteriors):
         P = posteriors
 
@@ -402,28 +416,6 @@ class QuAcc(CAPContingencyTableQ):
 
 
 class QuAcc1xN2(QuAcc):
-    def __init__(
-        self,
-        # h: BaseEstimator,
-        acc_fn: Callable,
-        q_class: AggregativeQuantifier,
-        add_X=True,
-        add_posteriors=True,
-        add_y_hat=False,
-        add_maxconf=False,
-        add_negentropy=False,
-        add_maxinfsoft=False,
-    ):
-        # self.h = h
-        self.acc_fn = acc_fn
-        self.q_class = q_class
-        self.add_X = add_X
-        self.add_posteriors = add_posteriors
-        self.add_y_hat = add_y_hat
-        self.add_maxconf = add_maxconf
-        self.add_negentropy = add_negentropy
-        self.add_maxinfsoft = add_maxinfsoft
-
     def preprocess_data(self, data: LabelledCollection, posteriors):
         pred_labels = np.argmax(posteriors, axis=-1)
         true_labels = data.y
@@ -446,28 +438,6 @@ class QuAcc1xN2(QuAcc):
 
 
 class QuAcc1xNp1(QuAcc):
-    def __init__(
-        self,
-        # h: BaseEstimator,
-        acc_fn: Callable,
-        q_class: AggregativeQuantifier,
-        add_X=True,
-        add_posteriors=True,
-        add_y_hat=False,
-        add_maxconf=False,
-        add_negentropy=False,
-        add_maxinfsoft=False,
-    ):
-        # self.h = h
-        self.acc_fn = acc_fn
-        self.q_class = q_class
-        self.add_X = add_X
-        self.add_posteriors = add_posteriors
-        self.add_y_hat = add_y_hat
-        self.add_maxconf = add_maxconf
-        self.add_negentropy = add_negentropy
-        self.add_maxinfsoft = add_maxinfsoft
-
     def preprocess_data(self, data: LabelledCollection, posteriors):
         pred_labels = np.argmax(posteriors, axis=-1)
         true_labels = data.y
@@ -499,28 +469,6 @@ class QuAcc1xNp1(QuAcc):
 
 
 class QuAccNxN(QuAcc):
-    def __init__(
-        self,
-        # h: BaseEstimator,
-        acc_fn: Callable,
-        q_class: AggregativeQuantifier,
-        add_X=True,
-        add_posteriors=True,
-        add_y_hat=False,
-        add_maxconf=False,
-        add_negentropy=False,
-        add_maxinfsoft=False,
-    ):
-        # self.h = h
-        self.acc_fn = acc_fn
-        self.q_class = q_class
-        self.add_X = add_X
-        self.add_posteriors = add_posteriors
-        self.add_y_hat = add_y_hat
-        self.add_maxconf = add_maxconf
-        self.add_negentropy = add_negentropy
-        self.add_maxinfsoft = add_maxinfsoft
-
     def preprocess_data(self, data: LabelledCollection, posteriors):
         pred_labels = np.argmax(posteriors, axis=-1)
         true_labels = data.y

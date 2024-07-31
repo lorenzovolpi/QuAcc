@@ -36,7 +36,7 @@ from quacc.models.utils import get_posteriors_from_h
 
 NUM_SAMPLES = 100
 SAMPLE_SIZE = 500
-RANDOM_STATE = 313
+RANDOM_STATE = 42
 
 qp.environ["_R_SEED"] = RANDOM_STATE
 qp.environ["SAMPLE_SIZE"] = SAMPLE_SIZE
@@ -133,7 +133,7 @@ class DistilBert(LargeModel):
             self.optimizer.load_state_dict(_checkpoint["optimizer_state_dict"])
             self.epoch = _checkpoint["epoch"]
 
-    def fit(self, train: LabelledCollection, dataset_name: str):
+    def fit(self, train: LabelledCollection, dataset_name: str, verbose=True):
         self.classes_ = train.classes_
         train_dl = DataLoader(
             TorchLC.from_lc(train, self.data_mapping),
@@ -154,7 +154,8 @@ class DistilBert(LargeModel):
         device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
         self.model.to(device)
 
-        progress_bar = tqdm(range(num_training_steps))
+        if verbose:
+            progress_bar = tqdm(range(num_training_steps))
 
         self.model.train()
         for epoch in range(self.num_epochs - self.epoch):
@@ -168,13 +169,14 @@ class DistilBert(LargeModel):
                 self.optimizer.step()
                 lr_scheduler.step()
                 self.optimizer.zero_grad()
-                progress_bar.update(1)
+                if verbose:
+                    progress_bar.update(1)
 
         self.checkpoint(dataset_name)
 
         return self
 
-    def predict_proba(self, test) -> np.ndarray:
+    def predict_proba(self, test, verbose=False) -> np.ndarray:
         device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
         test_dl = DataLoader(
@@ -185,13 +187,15 @@ class DistilBert(LargeModel):
 
         self.model.eval()
         y_probs = []
-        progress_bar = tqdm(range(len(test_dl)))
+        if verbose:
+            progress_bar = tqdm(range(len(test_dl)))
         with torch.no_grad():
             for batch in test_dl:
                 batch = {k: v.to(device) for k, v in batch.items()}
                 outputs = self.model(**batch)
                 y_probs.append(softmax(outputs.logits.cpu()))
-                progress_bar.update(1)
+                if verbose:
+                    progress_bar.update(1)
 
         return np.vstack(y_probs)
 
@@ -267,11 +271,13 @@ if __name__ == "__main__":
 
     V1, V2_prot = split_validation(V)
 
-    V_posteriors = get_posteriors_from_h(model, V.X)
+    V_posteriors = model.predict_proba(V.X, verbose=True)
     print("V_posteriors")
-    V1_posteriors = get_posteriors_from_h(model, V1.X)
+    V1_posteriors = model.predict_proba(V1.X, verbose=True)
     print("V1_posteriors")
-    V2_prot_posteriors = [get_posteriors_from_h(model, sample.X) for sample in V2_prot()]
+    V2_prot_posteriors = []
+    for sample in tqdm(V2_prot(), total=V2_prot.total()):
+        V2_prot_posteriors.append(model.predict_proba(sample.X))
     print("V2_prot_posteriors")
 
     sld_params = {
@@ -305,13 +311,13 @@ if __name__ == "__main__":
     quacc_nn_opt = GridSearchCAP(
         QuAccNxN(vanilla_acc, SLD(lr())), sld_params, V2_prot, V2_prot_posteriors, vanilla_acc, refit=False
     ).fit(V1, V1_posteriors)
-    doc = DoC(model, vanilla_acc, sample_size=SAMPLE_SIZE, num_samples=NUM_SAMPLES).fit(V)
+    doc = DoC(vanilla_acc, V2_prot, V2_prot_posteriors).fit(V1, V1_posteriors)
     print("doc fit")
 
     test_y_hat, test_y = [], []
     quacc_n2_accs, quacc_nn_accs, quacc_nn_opt_accs, doc_accs = [], [], [], []
     true_accs = []
-    for U_i in test_prot():
+    for U_i in tqdm(test_prot(), total=test_prot.total()):
         P = get_posteriors_from_h(model, U_i.X)
         y_hat = np.argmax(P, axis=-1)
         test_y_hat.append(y_hat)

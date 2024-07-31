@@ -8,11 +8,11 @@ from sklearn.base import BaseEstimator
 
 
 class ClassifierAccuracyPrediction(ABC):
-    def __init__(self, h: BaseEstimator):
-        self.h = h
+    def __init__(self):
+        pass
 
     @abstractmethod
-    def fit(self, val: LabelledCollection):
+    def fit(self, val: LabelledCollection, posteriors):
         """
         Trains a CAP method.
 
@@ -22,7 +22,7 @@ class ClassifierAccuracyPrediction(ABC):
         ...
 
     @abstractmethod
-    def predict(self, X, posteriors=None, oracle_prev=None) -> float:
+    def predict(self, X, posteriors, oracle_prev=None) -> float:
         """
         Predicts directly the accuracy using the accuracy function
 
@@ -34,15 +34,14 @@ class ClassifierAccuracyPrediction(ABC):
         """
         ...
 
-    def batch_predict(self, prot: AbstractProtocol, posteriors=None, oracle_prevs=None) -> list[float]:
+    def batch_predict(self, prot: AbstractProtocol, posteriors, oracle_prevs=None) -> list[float]:
         if oracle_prevs is None:
             estim_accs = [self.predict(Ui.X, posteriors=P) for Ui, P in IT.zip_longest(prot(), posteriors)]
             return estim_accs
         else:
             assert isinstance(oracle_prevs, List), "Invalid oracles"
             estim_accs = [
-                self.predict(Ui.X, posteriors=P, oracle_prev=op)
-                for Ui, P, op in IT.zip_longest(prot(), posteriors, oracle_prevs)
+                self.predict(Ui.X, P, oracle_prev=op) for Ui, P, op in IT.zip_longest(prot(), posteriors, oracle_prevs)
             ]
             return estim_accs
 

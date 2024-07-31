@@ -1,11 +1,12 @@
+import itertools as IT
 from copy import deepcopy
-from operator import pos
 from typing import Callable
 
 import numpy as np
 import quapy as qp
 from quapy.data.base import LabelledCollection
-from quapy.protocol import UPP
+from quapy.method.aggregative import AggregativeQuantifier, BaseQuantifier
+from quapy.protocol import UPP, AbstractProtocol
 from sklearn.base import BaseEstimator
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import confusion_matrix
@@ -18,12 +19,12 @@ from quacc.models.utils import get_posteriors_from_h, max_conf, neg_entropy
 
 
 class CAPDirect(ClassifierAccuracyPrediction):
-    def __init__(self, h: BaseEstimator, acc: Callable):
-        super().__init__(h)
+    def __init__(self, acc: Callable):
+        super().__init__()
         self.acc = acc
 
-    def true_acc(self, sample: LabelledCollection):
-        y_pred = self.h.predict(sample.X)
+    def true_acc(self, sample: LabelledCollection, posteriors):
+        y_pred = np.argmax(posteriors, axis=-1)
         y_true = sample.y
         conf_table = confusion_matrix(y_true, y_pred=y_pred, labels=sample.classes_)
         return self.acc(conf_table)
@@ -33,38 +34,21 @@ class CAPDirect(ClassifierAccuracyPrediction):
         return self.fit(data)
 
 
-class KFCV(CAPDirect):
-    def __init__(self, h: BaseEstimator, acc_fn: Callable):
-        super().__init__(h, acc_fn)
-
-    def _cross_val_scorer(self, h: BaseEstimator, X, y):
-        P = h.predict(X)
-        return self.acc(P, y)
-
-    def fit(self, val: LabelledCollection):
-        cvs = cross_val_score(self.h, val.X, val.y, scoring=self._cross_val_scorer, cv=5)
-        self.cv_score = np.mean(cvs)
-
-        return self
-
-    def predict(self, X, posteriors=None, oracle_prev=None) -> float:
-        return self.cv_score
-
-
 class PrediQuant(CAPDirect):
     def __init__(
         self,
-        h,
-        acc_fn,
-        q_class,
-        n_val_samples=500,
+        acc_fn: Callable,
+        quantifier: AggregativeQuantifier,
+        protocol: AbstractProtocol,
+        prot_posteriors,
         alpha=0.3,
         error: str | Callable = qc.error.mae,
         predict_train_prev=True,
     ):
-        super().__init__(h, acc_fn)
-        self.q = q_class(h)
-        self.n_val_samples = n_val_samples
+        super().__init__(acc_fn)
+        self.q = quantifier
+        self.protocol = protocol
+        self.prot_posteriors = prot_posteriors
         self.alpha = alpha
         self.sample_size = qp.environ["SAMPLE_SIZE"]
         self.__check_error(error)
@@ -83,29 +67,24 @@ class PrediQuant(CAPDirect):
                 f"representing the name of an error function in {qc.error.ACCURACY_ERROR_NAMES}"
             )
 
-    def fit(self, val: LabelledCollection):
+    def fit(self, val: LabelledCollection, posteriors):
         v2, v1 = val.split_stratified(train_prop=0.5)
         self.q.fit(v1, fit_classifier=False, val_split=v1)
 
         # precompute classifier predictions on samples
-        gen_samples = UPP(
-            v2,
-            repeats=self.n_val_samples,
-            sample_size=self.sample_size,
-            return_type="labelled_collection",
-        )
-        self.sigma_acc = [self.true_acc(sigma_i) for sigma_i in gen_samples()]
+        self.sigma_acc = [
+            self.true_acc(sigma_i, P) for sigma_i, P in IT.zip_longest(self.protocol(), self.prot_posteriors)
+        ]
 
         # precompute prevalence predictions on samples
         if self.predict_train_prev:
-            gen_samples.on_preclassified_instances(self.q.classify(v2.X), in_place=True)
-            self.sigma_pred_prevs = [self.q.aggregate(sigma_i.X) for sigma_i in gen_samples()]
+            self.sigma_pred_prevs = [self.q.aggregate(P) for P in self.prot_posteriors]
         else:
-            self.sigma_pred_prevs = [sigma_i.prevalence() for sigma_i in gen_samples()]
+            self.sigma_pred_prevs = [sigma_i.prevalence() for sigma_i in self.protocol()]
 
         return self
 
-    def predict(self, X, posteriors=None, oracle_prev=None):
+    def predict(self, X, posteriors, oracle_prev=None):
         if oracle_prev is None:
             test_pred_prev = self.q.quantify(X)
         else:
@@ -135,9 +114,15 @@ class PrediQuant(CAPDirect):
 
 
 class PabloCAP(CAPDirect):
-    def __init__(self, h, acc_fn, q_class, n_val_samples=100, aggr="mean"):
-        super().__init__(h, acc_fn)
-        self.q = q_class(deepcopy(h))
+    def __init__(
+        self,
+        acc_fn: Callable,
+        quantifier: AggregativeQuantifier,
+        n_val_samples=100,
+        aggr="mean",
+    ):
+        super().__init__(acc_fn)
+        self.q = quantifier
         self.n_val_samples = n_val_samples
         self.aggr = aggr
         assert aggr in [
@@ -145,13 +130,13 @@ class PabloCAP(CAPDirect):
             "median",
         ], "unknown aggregation function, use mean or median"
 
-    def fit(self, val: LabelledCollection):
+    def fit(self, val: LabelledCollection, posteriors):
         self.q.fit(val)
-        label_predictions = self.h.predict(val.X)
+        label_predictions = np.argmax(posteriors, axis=-1)
         self.pre_classified = LabelledCollection(instances=label_predictions, labels=val.labels)
         return self
 
-    def predict(self, X, posteriors=None, oracle_prev=None):
+    def predict(self, X, posteriors, oracle_prev=None):
         if oracle_prev is None:
             pred_prev = utils.smooth(self.q.quantify(X))
         else:
@@ -178,11 +163,11 @@ class PabloCAP(CAPDirect):
 class ATC(CAPDirect):
     VALID_FUNCTIONS = {"maxconf", "neg_entropy"}
 
-    def __init__(self, h, acc_fn, scoring_fn="maxconf"):
+    def __init__(self, acc_fn: Callable, scoring_fn="maxconf"):
         assert scoring_fn in ATC.VALID_FUNCTIONS, f"unknown scoring function, use any from {ATC.VALID_FUNCTIONS}"
         # assert acc_fn == 'vanilla_accuracy', \
         #    'use acc_fn=="vanilla_accuracy"; other metris are not yet tested in ATC'
-        super().__init__(h, acc_fn)
+        super().__init__(acc_fn)
         self.scoring_fn = scoring_fn
 
     def get_scores(self, P):
@@ -192,17 +177,14 @@ class ATC(CAPDirect):
             scores = neg_entropy(P)
         return scores
 
-    def fit(self, val: LabelledCollection):
-        P = get_posteriors_from_h(self.h, val.X)
-        pred_labels = np.argmax(P, axis=1)
+    def fit(self, val: LabelledCollection, posteriors):
+        pred_labels = np.argmax(posteriors, axis=1)
         true_labels = val.y
-        scores = self.get_scores(P)
+        scores = self.get_scores(posteriors)
         _, self.threshold = self.__find_ATC_threshold(scores=scores, labels=(pred_labels == true_labels))
         return self
 
-    def predict(self, X, posteriors=None, oracle_prev=None):
-        if posteriors is None:
-            posteriors = get_posteriors_from_h(self.h, X)
+    def predict(self, X, posteriors, oracle_prev=None):
         scores = self.get_scores(posteriors)
         # assert self.acc_fn == 'vanilla_accuracy', \
         #    'use acc_fn=="vanilla_accuracy"; other metris are not yet tested in ATC'
@@ -238,15 +220,14 @@ class ATC(CAPDirect):
 
 
 class DoC(CAPDirect):
-    def __init__(self, h, acc, sample_size, num_samples=500, clip_vals=(0, 1)):
-        self.h = h
-        self.acc = acc
-        self.sample_size = sample_size
-        self.num_samples = num_samples
+    def __init__(self, acc_fn: Callable, protocol: AbstractProtocol, prot_posteriors, clip_vals=(0, 1)):
+        super().__init__(acc_fn)
+        self.protocol = protocol
+        self.prot_posteriors = prot_posteriors
         self.clip_vals = clip_vals
 
-    def _get_post_stats(self, X, y):
-        P = get_posteriors_from_h(self.h, X)
+    def _get_post_stats(self, X, y, posteriors):
+        P = posteriors
         mc = max_conf(P)
         pred_labels = np.argmax(P, axis=-1)
         acc = self.acc(y, pred_labels)
@@ -255,40 +236,32 @@ class DoC(CAPDirect):
     def _doc(self, mc1, mc2):
         return mc2.mean() - mc1.mean()
 
-    def train_regression(self, v2_mcs, v2_accs):
-        docs = [self._doc(self.v1_mc, v2_mc_i) for v2_mc_i in v2_mcs]
-        target = [self.v1_acc - v2_acc_i for v2_acc_i in v2_accs]
+    def train_regression(self, prot_mcs, prot_accs):
+        docs = [self._doc(self.val_mc, prot_mc_i) for prot_mc_i in prot_mcs]
+        target = [self.val_acc - prot_acc_i for prot_acc_i in prot_accs]
         docs = np.asarray(docs).reshape(-1, 1)
         target = np.asarray(target)
         lin_reg = LinearRegression()
         return lin_reg.fit(docs, target)
 
     def predict_regression(self, test_mc):
-        docs = np.asarray([self._doc(self.v1_mc, test_mc)]).reshape(-1, 1)
+        docs = np.asarray([self._doc(self.val_mc, test_mc)]).reshape(-1, 1)
         pred_acc = self.reg_model.predict(docs)
-        return self.v1_acc - pred_acc
+        return self.val_acc - pred_acc
 
-    def fit(self, val: LabelledCollection):
-        v1, v2 = val.split_stratified(train_prop=0.5, random_state=0)
+    def fit(self, val: LabelledCollection, posteriors):
+        self.val_mc, self.val_acc = self._get_post_stats(*val.Xy, posteriors)
 
-        self.v1_mc, self.v1_acc = self._get_post_stats(*v1.Xy)
+        prot_stats = [
+            self._get_post_stats(*sample.Xy, P) for sample, P in IT.zip_longest(self.protocol(), self.prot_posteriors)
+        ]
+        prot_mcs, prot_accs = list(zip(*prot_stats))
 
-        v2_prot = UPP(
-            v2,
-            sample_size=self.sample_size,
-            repeats=self.num_samples,
-            return_type="labelled_collection",
-        )
-        v2_stats = [self._get_post_stats(*sample.Xy) for sample in v2_prot()]
-        v2_mcs, v2_accs = list(zip(*v2_stats))
-
-        self.reg_model = self.train_regression(v2_mcs, v2_accs)
+        self.reg_model = self.train_regression(prot_mcs, prot_accs)
 
         return self
 
-    def predict(self, X, posteriors=None, oracle_prev=None):
-        if posteriors is None:
-            posteriors = get_posteriors_from_h(self.h, X)
+    def predict(self, X, posteriors, oracle_prev=None):
         mc = max_conf(posteriors)
         acc_pred = self.predict_regression(mc)[0]
         if self.clip_vals is not None:
