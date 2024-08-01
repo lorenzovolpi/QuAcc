@@ -21,16 +21,12 @@ from quacc.utils.commons import parallel as qc_parallel
 class ReQua(CAPDirect):
     def __init__(
         self,
-        # h,
         acc_fn,
         reg_model,
         quacc_classes: QuAcc | list[QuAcc],
         param_grid: dict,
         protocol: AbstractProtocol,
         prot_posteriors,
-        # sample_size,
-        # n_val_samples=500,
-        # val_prop=0.5,
         clip_vals=(0, 1),
         add_conf=False,
         n_jobs=None,
@@ -159,21 +155,6 @@ class ReQua(CAPDirect):
         return self.acc(conf_table)
 
     def fit(self, val: LabelledCollection, val_posteriors):
-        # v2_idx, v1_idx = val.split_stratified_index(train_prop=self.val_prop)
-        # v2, v1 = val.sampling_from_index(v2_idx), val.sampling_from_index(v1_idx)
-        # v1_posteriors = posteriors[v1_idx]
-        #
-        # v2_prot = UPP(
-        #     v2,
-        #     sample_size=self.sample_size,
-        #     repeats=self.n_val_samples,
-        #     return_type="labelled_collection",
-        # )
-        #
-        # v2_prot_posteriors = [get_posteriors_from_h(self.h, sigma_i.X) for sigma_i in v2_prot()]
-
-        # train models used to generate features
-
         t_fit_init = time()
         self._fit_quacc_models(val, val_posteriors)
         self._sout(f"training quacc models took {time() - t_fit_init:.3f}s")
