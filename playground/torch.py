@@ -1,5 +1,4 @@
 import os
-import pdb
 from typing import Callable, List
 
 import datasets
@@ -13,6 +12,7 @@ from quapy.data.base import LabelledCollection
 from quapy.method.aggregative import SLD
 from quapy.protocol import UPP
 from scipy.sparse import issparse
+from sklearn.kernel_ridge import KernelRidge as KRR
 from sklearn.linear_model import LogisticRegression
 from sklearn.neural_network import MLPClassifier as MLP
 from torch.optim import AdamW
@@ -29,14 +29,15 @@ from transformers import (
 import quacc as qc
 from quacc.error import vanilla_acc
 from quacc.experiments.util import split_validation
-from quacc.models.cont_table import QuAcc1xN2, QuAccNxN
+from quacc.models.cont_table import QuAcc1xN2, QuAcc1xNp1, QuAccNxN
 from quacc.models.direct import DoC
 from quacc.models.model_selection import GridSearchCAP
+from quacc.models.regression import ReQua
 from quacc.models.utils import get_posteriors_from_h
 
 NUM_SAMPLES = 100
 SAMPLE_SIZE = 500
-RANDOM_STATE = 42
+RANDOM_STATE = 313
 
 qp.environ["_R_SEED"] = RANDOM_STATE
 qp.environ["SAMPLE_SIZE"] = SAMPLE_SIZE
@@ -243,8 +244,10 @@ def mlp():
     MLP((100, 15), activation="logistic", solver="adam")
 
 
-def lr():
-    return LogisticRegression()
+def sld():
+    _sld = SLD(LogisticRegression(), val_split=5)
+    _sld.SUPPRESS_WARNINGS = True
+    return _sld
 
 
 if __name__ == "__main__":
@@ -280,21 +283,24 @@ if __name__ == "__main__":
         V2_prot_posteriors.append(model.predict_proba(sample.X))
     print("V2_prot_posteriors")
 
-    sld_params = {
-        "q_class__classifier__C": np.logspace(-3, 3, 7),
-        "q_class__classifier__class_weight": [None, "balanced"],
+    sld_requa_params = {
         "add_X": [False],
         "add_posteriors": [True, False],
         "add_y_hat": [True, False],
         "add_maxconf": [True, False],
         "add_negentropy": [True, False],
         "add_maxinfsoft": [True, False],
+    }
+
+    sld_opt_params = sld_requa_params | {
+        "q_class__classifier__C": np.logspace(-3, 3, 7),
+        "q_class__classifier__class_weight": [None, "balanced"],
         "q_class__recalib": [None, "bcts"],
     }
 
     quacc_n2 = QuAcc1xN2(
         vanilla_acc,
-        SLD(lr()),
+        sld(),
         add_X=False,
         add_y_hat=True,
         add_maxinfsoft=True,
@@ -302,20 +308,35 @@ if __name__ == "__main__":
     print("quacc_n2 fit")
     quacc_nn = QuAccNxN(
         vanilla_acc,
-        SLD(lr()),
+        sld(),
         add_X=False,
         add_y_hat=True,
         add_maxinfsoft=True,
     ).fit(V, V_posteriors)
     print("quacc_nn fit")
     quacc_nn_opt = GridSearchCAP(
-        QuAccNxN(vanilla_acc, SLD(lr())), sld_params, V2_prot, V2_prot_posteriors, vanilla_acc, refit=False
+        QuAccNxN(vanilla_acc, sld()), sld_opt_params, V2_prot, V2_prot_posteriors, vanilla_acc, refit=False
     ).fit(V1, V1_posteriors)
+    print("quacc_nn_opt fit")
+    requa = ReQua(
+        vanilla_acc,
+        KRR(),
+        [QuAcc1xN2(vanilla_acc, sld()), QuAccNxN(vanilla_acc, sld()), QuAcc1xNp1(vanilla_acc, sld())],
+        sld_requa_params,
+        V2_prot,
+        V2_prot_posteriors,
+        n_jobs=0,
+    ).fit(V1, V1_posteriors)
+    print("requa fit")
     doc = DoC(vanilla_acc, V2_prot, V2_prot_posteriors).fit(V1, V1_posteriors)
     print("doc fit")
 
     test_y_hat, test_y = [], []
-    quacc_n2_accs, quacc_nn_accs, quacc_nn_opt_accs, doc_accs = [], [], [], []
+    quacc_n2_accs = []
+    quacc_nn_accs = []
+    quacc_nn_opt_accs = []
+    requa_accs = []
+    doc_accs = []
     true_accs = []
     for U_i in tqdm(test_prot(), total=test_prot.total()):
         P = get_posteriors_from_h(model, U_i.X)
@@ -325,17 +346,20 @@ if __name__ == "__main__":
         quacc_n2_accs.append(quacc_n2.predict(U_i.X, P))
         quacc_nn_accs.append(quacc_nn.predict(U_i.X, P))
         quacc_nn_opt_accs.append(quacc_nn_opt.predict(U_i.X, P))
+        requa_accs.append(requa.predict(U_i.X, P))
         doc_accs.append(doc.predict(U_i.X, P))
         true_accs.append(vanilla_acc(y_hat, U_i.y))
 
     quacc_n2_accs = np.asarray(quacc_n2_accs)
     quacc_nn_accs = np.asarray(quacc_nn_accs)
     quacc_nn_opt_accs = np.asarray(quacc_nn_opt_accs)
+    requa_accs = np.asarray(requa_accs)
     doc_accs = np.asarray(doc_accs)
 
     print(f"quacc_n2:\t{np.mean(np.abs(quacc_n2_accs - true_accs))}")
     print(f"quacc_nn:\t{np.mean(np.abs(quacc_nn_accs - true_accs))}")
     print(f"quacc_nn_opt:\t{np.mean(np.abs(quacc_nn_opt_accs - true_accs))}")
+    print(f"requa:\t{np.mean(np.abs(requa_accs - true_accs))}")
     print(f"doc:\t{np.mean(np.abs(doc_accs - true_accs))}")
 
     # https://discuss.huggingface.co/t/how-to-get-cls-embeddings-from-bertfortokenclassification-model/9276/2
