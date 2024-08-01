@@ -32,19 +32,16 @@ class ReQua(CAPDirect):
         n_jobs=None,
         verbose=False,
     ):
-        self.acc = acc_fn
-        # super().__init__(h, acc_fn)
+        super().__init__(acc_fn)
         self.param_grid = param_grid
         self.reg_model = reg_model
         self._build_models(quacc_classes)
         self.protocol = protocol
         self.prot_posteriors = prot_posteriors
-        # self.sample_size = sample_size
-        # self.n_val_samples = n_val_samples
-        # self.val_prop = val_prop
         self.clip_vals = clip_vals
         self.add_conf = add_conf
         self.n_jobs = qc.commons.get_njobs(n_jobs)
+        self.parallel = self.n_jobs != 0
         self.verbose = verbose
         self.joblib_verbose = 10 if verbose else 0
 
@@ -78,32 +75,38 @@ class ReQua(CAPDirect):
         pred_acc = self.reg_model.predict(test_feats)
         return pred_acc
 
-    def _fit_quacc_models(self, val, posteriors, parallel=True):
+    def _fit_quacc_models(self, val, posteriors):
         def _fit_model(args):
             m, train, _posteriors = args
-            return m.fit(train, _posteriors)
+            try:
+                m = m.fit(train, _posteriors)
+                return m, True
+            except Exception as _:
+                return m, False
 
         # training models
         models_fit_args = [(m, val, posteriors) for m in self.models]
-        if parallel:
-            self.models = qc_parallel(
+        if self.parallel:
+            outs = qc_parallel(
                 _fit_model,
                 models_fit_args,
                 n_jobs=self.n_jobs,
                 seed=qp.environ.get("_R_SEED", None),
                 verbose=self.joblib_verbose,
             )
+            self.models, self.fit_mask = zip(*outs)
         else:
-            self.models = [_fit_model(arg) for arg in models_fit_args]
+            outs = [_fit_model(arg) for arg in models_fit_args]
+            self.models, self.fit_mask = zip(*outs)
 
     def _get_quacc_feats(self, X, posteriors):
         def predict_cts(m, _X):
             return m.predict_ct(_X, posteriors).flatten()
 
-        cts = np.hstack([predict_cts(m, X) for m in self.models])
+        cts = np.hstack([predict_cts(m, X) for m, _valid in zip(self.models, self.fit_mask) if _valid])
         return cts
 
-    def _get_batch_quacc_feats(self, prot, posteriors, parallel=True):
+    def _get_batch_quacc_feats(self, prot, posteriors):
         def _predict_model_cts(args):
             m, _prot, _posteriors = args
             cts = np.vstack(
@@ -113,8 +116,8 @@ class ReQua(CAPDirect):
             return cts
 
         # predicting v2 sample cont. tables for each model
-        models_cts_args = [(m, prot, posteriors) for m in self.models]
-        if parallel:
+        models_cts_args = [(m, prot, posteriors) for m, _valid in zip(self.models, self.fit_mask) if _valid]
+        if self.parallel:
             v2_ctss = qc_parallel(
                 _predict_model_cts,
                 models_cts_args,
@@ -146,7 +149,7 @@ class ReQua(CAPDirect):
         )
         return lin_feats
 
-    def true_acc(self, sample: LabelledCollection, posteriors=None):
+    def true_acc(self, sample: LabelledCollection, posteriors):
         if posteriors is None:
             posteriors = get_posteriors_from_h(self.h, sample.X)
         y_pred = np.argmax(posteriors, axis=-1)
@@ -157,6 +160,7 @@ class ReQua(CAPDirect):
     def fit(self, val: LabelledCollection, val_posteriors):
         t_fit_init = time()
         self._fit_quacc_models(val, val_posteriors)
+        print(f"{np.sum(self.fit_mask)}/{len(self.models)}")
         self._sout(f"training quacc models took {time() - t_fit_init:.3f}s")
 
         # compute features to train the regressor
