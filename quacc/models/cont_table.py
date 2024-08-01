@@ -394,7 +394,6 @@ class QuAcc(CAPContingencyTableQ):
         self.q_n_classes = data.n_classes
         class_compact_data, _ = data.compact_classes()
         if self._num_non_empty_classes() > 1:
-            # pdb.set_trace()
             self.q.aggregation_fit(classif_predictions, class_compact_data)
 
     def _safe_quantify(self, instances):
