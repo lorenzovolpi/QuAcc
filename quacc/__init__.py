@@ -1,5 +1,5 @@
 # fmt: off
-import quacc.dataset as dataset
+import quacc.data.datasets as dataset
 import quacc.error as error
 import quacc.plot as plot
 import quacc.utils.commons as commons
