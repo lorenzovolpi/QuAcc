@@ -513,12 +513,12 @@ def tbl_update_content(config, classifier, acc, error, mbr, datasets, methods, t
     search_str = f"?{get_search()}"
 
     if methods is None or len(methods) == 0:
-        return [], search_str
+        return [], search_str, mbr_label(mbr)
 
     report = get_report(config, classifier, acc, datasets, methods)
 
     if report is None:
-        return [], search_str
+        return [], search_str, mbr_label(mbr)
 
     df = get_df(report, error, method_by_row=mbr)
     table = get_Table(df, method_by_row=mbr)
