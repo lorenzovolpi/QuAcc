@@ -1,8 +1,10 @@
 import os
+from collections import defaultdict
 from typing import Callable, List
 
 import datasets
 import numpy as np
+import pandas as pd
 import quapy as qp
 import torch
 import torch.nn as nn
@@ -37,7 +39,7 @@ from quacc.models.utils import get_posteriors_from_h
 
 NUM_SAMPLES = 100
 SAMPLE_SIZE = 500
-RANDOM_STATE = 313
+RANDOM_STATE = 4125
 
 qp.environ["_R_SEED"] = RANDOM_STATE
 qp.environ["SAMPLE_SIZE"] = SAMPLE_SIZE
@@ -251,115 +253,151 @@ def sld():
 
 
 if __name__ == "__main__":
+    BASE = True
+    OPT = True
+    REQUA = False
+
     model = DistilBert()
-    dataset_name = "imdb"
-    # dataset_name = "rotten_tomatoes"
-    # dataset_name = "amazon_polarity"
 
-    text_columns = ["text"]
-    # text_columns = ["title", "content"]
-
-    dataset = load_dataset(dataset_name)
-
-    train_vec = preprocess_data(dataset, "train", model.tokenizer, text_columns, length=25000)
-    test_vec = preprocess_data(dataset, "test", model.tokenizer, text_columns)
-
-    train = from_hf_dataset(train_vec, model.data_collator, remove_columns=text_columns)
-    U = from_hf_dataset(test_vec, model.data_collator, remove_columns=text_columns)
-    L, V = train.split_stratified(train_prop=0.5, random_state=RANDOM_STATE)
-
-    model.fit(L, dataset_name)
-
-    test_prot = UPP(U, sample_size=SAMPLE_SIZE, repeats=NUM_SAMPLES, return_type="labelled_collection")
-
-    V1, V2_prot = split_validation(V)
-
-    V_posteriors = model.predict_proba(V.X, verbose=True)
-    print("V_posteriors")
-    V1_posteriors = model.predict_proba(V1.X, verbose=True)
-    print("V1_posteriors")
-    V2_prot_posteriors = []
-    for sample in tqdm(V2_prot(), total=V2_prot.total()):
-        V2_prot_posteriors.append(model.predict_proba(sample.X))
-    print("V2_prot_posteriors")
-
-    sld_requa_params = {
-        "add_X": [False],
-        "add_posteriors": [True, False],
-        "add_y_hat": [True, False],
-        "add_maxconf": [True, False],
-        "add_negentropy": [True, False],
-        "add_maxinfsoft": [True, False],
+    dataset_map = {
+        "imdb": (["text"], 25000),
+        "rotten_tomatoes": (["text"], 8530),
+        "amazon_polarity": (["title", "content"], 25000),
     }
 
-    sld_opt_params = sld_requa_params | {
-        "q_class__classifier__C": np.logspace(-3, 3, 7),
-        "q_class__classifier__class_weight": [None, "balanced"],
-        "q_class__recalib": [None, "bcts"],
-    }
+    results = defaultdict(lambda: [])
+    for dataset_name, (text_columns, TRAIN_LENGTH) in dataset_map.items():
+        dataset = load_dataset(dataset_name)
 
-    quacc_n2 = QuAcc1xN2(
-        vanilla_acc,
-        sld(),
-        add_X=False,
-        add_y_hat=True,
-        add_maxinfsoft=True,
-    ).fit(V, V_posteriors)
-    print("quacc_n2 fit")
-    quacc_nn = QuAccNxN(
-        vanilla_acc,
-        sld(),
-        add_X=False,
-        add_y_hat=True,
-        add_maxinfsoft=True,
-    ).fit(V, V_posteriors)
-    print("quacc_nn fit")
-    quacc_nn_opt = GridSearchCAP(
-        QuAccNxN(vanilla_acc, sld()), sld_opt_params, V2_prot, V2_prot_posteriors, vanilla_acc, refit=False
-    ).fit(V1, V1_posteriors)
-    print("quacc_nn_opt fit")
-    requa = ReQua(
-        vanilla_acc,
-        KRR(),
-        [QuAcc1xN2(vanilla_acc, sld()), QuAccNxN(vanilla_acc, sld()), QuAcc1xNp1(vanilla_acc, sld())],
-        sld_requa_params,
-        V2_prot,
-        V2_prot_posteriors,
-        n_jobs=0,
-    ).fit(V1, V1_posteriors)
-    print("requa fit")
-    doc = DoC(vanilla_acc, V2_prot, V2_prot_posteriors).fit(V1, V1_posteriors)
-    print("doc fit")
+        train_vec = preprocess_data(dataset, "train", model.tokenizer, text_columns, length=TRAIN_LENGTH)
+        test_vec = preprocess_data(dataset, "test", model.tokenizer, text_columns)
 
-    test_y_hat, test_y = [], []
-    quacc_n2_accs = []
-    quacc_nn_accs = []
-    quacc_nn_opt_accs = []
-    requa_accs = []
-    doc_accs = []
-    true_accs = []
-    for U_i in tqdm(test_prot(), total=test_prot.total()):
-        P = get_posteriors_from_h(model, U_i.X)
-        y_hat = np.argmax(P, axis=-1)
-        test_y_hat.append(y_hat)
-        test_y.append(U_i.y)
-        quacc_n2_accs.append(quacc_n2.predict(U_i.X, P))
-        quacc_nn_accs.append(quacc_nn.predict(U_i.X, P))
-        quacc_nn_opt_accs.append(quacc_nn_opt.predict(U_i.X, P))
-        requa_accs.append(requa.predict(U_i.X, P))
-        doc_accs.append(doc.predict(U_i.X, P))
-        true_accs.append(vanilla_acc(y_hat, U_i.y))
+        train = from_hf_dataset(train_vec, model.data_collator, remove_columns=text_columns)
+        U = from_hf_dataset(test_vec, model.data_collator, remove_columns=text_columns)
+        L, V = train.split_stratified(train_prop=0.5, random_state=RANDOM_STATE)
 
-    quacc_n2_accs = np.asarray(quacc_n2_accs)
-    quacc_nn_accs = np.asarray(quacc_nn_accs)
-    quacc_nn_opt_accs = np.asarray(quacc_nn_opt_accs)
-    requa_accs = np.asarray(requa_accs)
-    doc_accs = np.asarray(doc_accs)
+        model.fit(L, dataset_name)
 
-    print(f"quacc_n2:\t{np.mean(np.abs(quacc_n2_accs - true_accs))}")
-    print(f"quacc_nn:\t{np.mean(np.abs(quacc_nn_accs - true_accs))}")
-    print(f"quacc_nn_opt:\t{np.mean(np.abs(quacc_nn_opt_accs - true_accs))}")
-    print(f"requa:\t{np.mean(np.abs(requa_accs - true_accs))}")
-    print(f"doc:\t{np.mean(np.abs(doc_accs - true_accs))}")
+        test_prot = UPP(U, sample_size=SAMPLE_SIZE, repeats=NUM_SAMPLES, return_type="labelled_collection")
+
+        V1, V2_prot = split_validation(V)
+
+        V_posteriors = model.predict_proba(V.X, verbose=True)
+        print("V_posteriors")
+        V1_posteriors = model.predict_proba(V1.X, verbose=True)
+        print("V1_posteriors")
+        V2_prot_posteriors = []
+        for sample in tqdm(V2_prot(), total=V2_prot.total()):
+            V2_prot_posteriors.append(model.predict_proba(sample.X))
+        print("V2_prot_posteriors")
+
+        sld_requa_params = {
+            "add_X": [False],
+            "add_posteriors": [True, False],
+            "add_y_hat": [True, False],
+            "add_maxconf": [True, False],
+            "add_negentropy": [True, False],
+            "add_maxinfsoft": [True, False],
+        }
+
+        sld_opt_params = sld_requa_params | {
+            "q_class__classifier__C": np.logspace(-3, 3, 7),
+            "q_class__classifier__class_weight": [None, "balanced"],
+            "q_class__recalib": [None, "bcts"],
+        }
+
+        if BASE:
+            quacc_n2 = QuAcc1xN2(
+                vanilla_acc,
+                sld(),
+                add_X=False,
+                add_y_hat=True,
+                add_maxinfsoft=True,
+            ).fit(V, V_posteriors)
+            print("quacc_n2 fit")
+            quacc_nn = QuAccNxN(
+                vanilla_acc,
+                sld(),
+                add_X=False,
+                add_y_hat=True,
+                add_maxinfsoft=True,
+            ).fit(V, V_posteriors)
+            print("quacc_nn fit")
+        if OPT:
+            quacc_nn_opt = GridSearchCAP(
+                QuAccNxN(vanilla_acc, sld()), sld_opt_params, V2_prot, V2_prot_posteriors, vanilla_acc, refit=False
+            ).fit(V1, V1_posteriors)
+            print("quacc_nn_opt fit")
+            quacc_n2_opt = GridSearchCAP(
+                QuAcc1xN2(vanilla_acc, sld()), sld_opt_params, V2_prot, V2_prot_posteriors, vanilla_acc, refit=False
+            ).fit(V1, V1_posteriors)
+            print("quacc_n2_opt fit")
+        if REQUA:
+            requa = ReQua(
+                vanilla_acc,
+                KRR(),
+                [QuAcc1xN2(vanilla_acc, sld()), QuAccNxN(vanilla_acc, sld()), QuAcc1xNp1(vanilla_acc, sld())],
+                sld_requa_params,
+                V2_prot,
+                V2_prot_posteriors,
+                n_jobs=0,
+            ).fit(V1, V1_posteriors)
+            print("requa fit")
+        doc = DoC(vanilla_acc, V2_prot, V2_prot_posteriors).fit(V1, V1_posteriors)
+        print("doc fit")
+
+        test_y_hat, test_y = [], []
+        if BASE:
+            quacc_n2_accs = []
+            quacc_nn_accs = []
+        if OPT:
+            quacc_nn_opt_accs = []
+            quacc_n2_opt_accs = []
+        if REQUA:
+            requa_accs = []
+        doc_accs = []
+        true_accs = []
+        for U_i in tqdm(test_prot(), total=test_prot.total()):
+            P = get_posteriors_from_h(model, U_i.X)
+            y_hat = np.argmax(P, axis=-1)
+            test_y_hat.append(y_hat)
+            test_y.append(U_i.y)
+            if BASE:
+                quacc_n2_accs.append(quacc_n2.predict(U_i.X, P))
+                quacc_nn_accs.append(quacc_nn.predict(U_i.X, P))
+            if OPT:
+                quacc_nn_opt_accs.append(quacc_nn_opt.predict(U_i.X, P))
+                quacc_n2_opt_accs.append(quacc_n2_opt.predict(U_i.X, P))
+            if REQUA:
+                requa_accs.append(requa.predict(U_i.X, P))
+            doc_accs.append(doc.predict(U_i.X, P))
+            true_accs.append(vanilla_acc(y_hat, U_i.y))
+
+        if BASE:
+            quacc_n2_accs = np.asarray(quacc_n2_accs)
+            quacc_nn_accs = np.asarray(quacc_nn_accs)
+            quacc_n2_mean = np.mean(np.abs(quacc_n2_accs - true_accs))
+            quacc_nn_mean = np.mean(np.abs(quacc_nn_accs - true_accs))
+            results["quacc_nn"].append(quacc_nn_mean)
+            results["quacc_n2"].append(quacc_n2_mean)
+        if OPT:
+            quacc_nn_opt_accs = np.asarray(quacc_nn_opt_accs)
+            quacc_n2_opt_accs = np.asarray(quacc_n2_opt_accs)
+            quacc_nn_opt_mean = np.mean(np.abs(quacc_nn_opt_accs - true_accs))
+            quacc_n2_opt_mean = np.mean(np.abs(quacc_n2_opt_accs - true_accs))
+            results["quacc_nn_opt"].append(quacc_nn_opt_mean)
+            results["quacc_n2_opt"].append(quacc_n2_opt_mean)
+        if REQUA:
+            requa_accs = np.asarray(requa_accs)
+            requa_mean = np.mean(np.abs(requa_accs - true_accs))
+            results["requa"].append(requa_mean)
+
+        doc_accs = np.asarray(doc_accs)
+        doc_mean = np.mean(np.abs(doc_accs - true_accs))
+        results["doc"].append(doc_mean)
+        results["dataset"].append(dataset_name)
+
+    df = pd.DataFrame(np.vstack(list(results.values())).T, columns=list(results.keys()))
+    print(df)
 
     # https://discuss.huggingface.co/t/how-to-get-cls-embeddings-from-bertfortokenclassification-model/9276/2
