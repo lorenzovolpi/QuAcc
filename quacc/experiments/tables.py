@@ -27,7 +27,7 @@ def rename_method(m):
     methods_dict = {
         "ATC-MC": "ATC",
         "Naive": "\\naive",
-        "N2E(ACC-h0)": "\\phd",
+        "N2E(ACC-h0)": "\\phdacc",
         "N2E(KDEy-h0)": "\\phdplus",
     }
     return methods_dict.get(m, m)
