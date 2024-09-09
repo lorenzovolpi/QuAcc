@@ -398,6 +398,7 @@ if __name__ == "__main__":
         results["dataset"].append(dataset_name)
 
     df = pd.DataFrame(np.vstack(list(results.values())).T, columns=list(results.keys()))
-    print(df)
+    print(df.transpose())
+    # print(df.pivot_table(columns=["dataset"]))
 
     # https://discuss.huggingface.co/t/how-to-get-cls-embeddings-from-bertfortokenclassification-model/9276/2
