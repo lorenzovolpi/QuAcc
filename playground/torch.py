@@ -252,9 +252,10 @@ def sld():
     return _sld
 
 
-if __name__ == "__main__":
-    BASE = True
-    OPT = True
+def main():
+    BASE = False
+    OPT_N2 = True
+    OPT_NN = True
     REQUA = False
 
     model = DistilBert()
@@ -323,11 +324,12 @@ if __name__ == "__main__":
                 add_maxinfsoft=True,
             ).fit(V, V_posteriors)
             print("quacc_nn fit")
-        if OPT:
+        if OPT_NN:
             quacc_nn_opt = GridSearchCAP(
                 QuAccNxN(vanilla_acc, sld()), sld_opt_params, V2_prot, V2_prot_posteriors, vanilla_acc, refit=False
             ).fit(V1, V1_posteriors)
             print("quacc_nn_opt fit")
+        if OPT_N2:
             quacc_n2_opt = GridSearchCAP(
                 QuAcc1xN2(vanilla_acc, sld()), sld_opt_params, V2_prot, V2_prot_posteriors, vanilla_acc, refit=False
             ).fit(V1, V1_posteriors)
@@ -350,8 +352,9 @@ if __name__ == "__main__":
         if BASE:
             quacc_n2_accs = []
             quacc_nn_accs = []
-        if OPT:
+        if OPT_NN:
             quacc_nn_opt_accs = []
+        if OPT_N2:
             quacc_n2_opt_accs = []
         if REQUA:
             requa_accs = []
@@ -365,8 +368,9 @@ if __name__ == "__main__":
             if BASE:
                 quacc_n2_accs.append(quacc_n2.predict(U_i.X, P))
                 quacc_nn_accs.append(quacc_nn.predict(U_i.X, P))
-            if OPT:
+            if OPT_NN:
                 quacc_nn_opt_accs.append(quacc_nn_opt.predict(U_i.X, P))
+            if OPT_N2:
                 quacc_n2_opt_accs.append(quacc_n2_opt.predict(U_i.X, P))
             if REQUA:
                 requa_accs.append(requa.predict(U_i.X, P))
@@ -380,12 +384,13 @@ if __name__ == "__main__":
             quacc_nn_mean = np.mean(np.abs(quacc_nn_accs - true_accs))
             results["quacc_nn"].append(quacc_nn_mean)
             results["quacc_n2"].append(quacc_n2_mean)
-        if OPT:
+        if OPT_NN:
             quacc_nn_opt_accs = np.asarray(quacc_nn_opt_accs)
-            quacc_n2_opt_accs = np.asarray(quacc_n2_opt_accs)
             quacc_nn_opt_mean = np.mean(np.abs(quacc_nn_opt_accs - true_accs))
-            quacc_n2_opt_mean = np.mean(np.abs(quacc_n2_opt_accs - true_accs))
             results["quacc_nn_opt"].append(quacc_nn_opt_mean)
+        if OPT_N2:
+            quacc_n2_opt_accs = np.asarray(quacc_n2_opt_accs)
+            quacc_n2_opt_mean = np.mean(np.abs(quacc_n2_opt_accs - true_accs))
             results["quacc_n2_opt"].append(quacc_n2_opt_mean)
         if REQUA:
             requa_accs = np.asarray(requa_accs)
@@ -395,10 +400,10 @@ if __name__ == "__main__":
         doc_accs = np.asarray(doc_accs)
         doc_mean = np.mean(np.abs(doc_accs - true_accs))
         results["doc"].append(doc_mean)
-        results["dataset"].append(dataset_name)
 
-    df = pd.DataFrame(np.vstack(list(results.values())).T, columns=list(results.keys()))
-    print(df.transpose())
-    # print(df.pivot_table(columns=["dataset"]))
+    df = pd.DataFrame(np.vstack(list(results.values())), columns=list(dataset_map.keys()), index=list(results.keys()))
+    print(df)
 
-    # https://discuss.huggingface.co/t/how-to-get-cls-embeddings-from-bertfortokenclassification-model/9276/2
+
+if __name__ == "__main__":
+    main()
