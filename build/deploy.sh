@@ -33,5 +33,5 @@ elif [[ $SERVER == "bcuda" || $SERVER == "barracuda" ]]; then
   DEST="$HOST:$WORKDIR"
 
   rsync -ai quacc playground $DEST
-  rsync -i README.md build/run.sh build/bcuda.env pyproject.toml $DEST
+  rsync -i README.md build/run.sh build/bcuda.env build/filter_out.py pyproject.toml $DEST
 fi
