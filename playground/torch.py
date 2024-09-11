@@ -1,3 +1,4 @@
+import contextlib
 import os
 from collections import defaultdict
 from typing import Callable, List
@@ -253,21 +254,22 @@ def sld():
 
 
 def main():
-    BASE = False
-    OPT_N2 = True
-    OPT_NN = True
-    REQUA = False
+    BASE = True
+    OPT_N2 = False
+    OPT_NN = False
+    REQUA = True
 
     model = DistilBert()
 
     dataset_map = {
-        "imdb": (["text"], 25000),
+        # "imdb": (["text"], 25000),
         "rotten_tomatoes": (["text"], 8530),
-        "amazon_polarity": (["title", "content"], 25000),
+        # "amazon_polarity": (["title", "content"], 25000),
     }
 
     results = defaultdict(lambda: [])
     for dataset_name, (text_columns, TRAIN_LENGTH) in dataset_map.items():
+        print("-" * 10, dataset_name, "-" * 10)
         dataset = load_dataset(dataset_name)
 
         train_vec = preprocess_data(dataset, "train", model.tokenizer, text_columns, length=TRAIN_LENGTH)
@@ -360,21 +362,27 @@ def main():
             requa_accs = []
         doc_accs = []
         true_accs = []
-        for U_i in tqdm(test_prot(), total=test_prot.total()):
+        for i, U_i in enumerate(tqdm(test_prot(), total=test_prot.total())):
             P = get_posteriors_from_h(model, U_i.X)
             y_hat = np.argmax(P, axis=-1)
             test_y_hat.append(y_hat)
             test_y.append(U_i.y)
             if BASE:
-                quacc_n2_accs.append(quacc_n2.predict(U_i.X, P))
                 quacc_nn_accs.append(quacc_nn.predict(U_i.X, P))
+                print(f"quacc_nn prediction n. {i}")
+                quacc_n2_accs.append(quacc_n2.predict(U_i.X, P))
+                print(f"quacc_n2 prediction n. {i}")
             if OPT_NN:
                 quacc_nn_opt_accs.append(quacc_nn_opt.predict(U_i.X, P))
+                print(f"quacc_nn_opt prediction n. {i}")
             if OPT_N2:
                 quacc_n2_opt_accs.append(quacc_n2_opt.predict(U_i.X, P))
+                print(f"quacc_n2_opt prediction n. {i}")
             if REQUA:
                 requa_accs.append(requa.predict(U_i.X, P))
+                print(f"requa prediction n. {i}")
             doc_accs.append(doc.predict(U_i.X, P))
+            print(f"doc prediction n. {i}")
             true_accs.append(vanilla_acc(y_hat, U_i.y))
 
         if BASE:
@@ -402,8 +410,9 @@ def main():
         results["doc"].append(doc_mean)
 
     df = pd.DataFrame(np.vstack(list(results.values())), columns=list(dataset_map.keys()), index=list(results.keys()))
-    print(df)
+    return df
 
 
 if __name__ == "__main__":
-    main()
+    res = main()
+    print(res)
