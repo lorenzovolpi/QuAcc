@@ -13,10 +13,11 @@ if __name__ == "__main__":
         for line in f.readlines():
             if line.startswith("[warning] "):
                 continue
-            if line[3:].startswith("%|") and line[:3] != "100":
-                continue
-            if line[8:].startswith("%|") and line[:8] != "Map: 100":
-                continue
+            if (line[3:].startswith("%|") and line[:3] != "100") or (
+                line[8:].startswith("%|") and line[:8] != "Map: 100"
+            ):
+                end_idx = line.find("]")
+                line = line[end_idx + 1 :]
             if len(line.strip()) == 0:
                 continue
             res += line
