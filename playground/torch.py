@@ -112,7 +112,7 @@ class DistilBert(LargeModel):
         self.epoch = 0
 
         self.tokenizer = AutoTokenizer.from_pretrained(self.tokenizer_name)
-        self.data_collator = DataCollatorWithPadding(tokenizer=self.tokenizer)
+        self.data_collator = DataCollatorWithPadding(tokenizer=self.tokenizer, padding="max_length")
         self.model: DistilBertForSequenceClassification = AutoModelForSequenceClassification.from_pretrained(self.name)
 
     def get_model_path(self, dataset_name):
@@ -254,7 +254,7 @@ def sld():
 
 
 def main():
-    BASE = True
+    BASE = False
     OPT_N2 = False
     OPT_NN = False
     REQUA = True
@@ -263,8 +263,8 @@ def main():
 
     dataset_map = {
         # "imdb": (["text"], 25000),
-        "rotten_tomatoes": (["text"], 8530),
-        # "amazon_polarity": (["title", "content"], 25000),
+        # "rotten_tomatoes": (["text"], 8530),
+        "amazon_polarity": (["title", "content"], 25000),
     }
 
     results = defaultdict(lambda: [])
@@ -275,6 +275,11 @@ def main():
         train_vec = preprocess_data(dataset, "train", model.tokenizer, text_columns, length=TRAIN_LENGTH)
         test_vec = preprocess_data(dataset, "test", model.tokenizer, text_columns)
 
+        print(f"train_vec len: {len(train_vec['input_ids'])}")
+        print(f"max train_vec lens: {max([len(le) for le in train_vec['input_ids']])}")
+        print(f"test_vec len: {len(test_vec['input_ids'])}")
+        print(f"max test_vec lens: {max([len(le) for le in test_vec['input_ids']])}")
+
         train = from_hf_dataset(train_vec, model.data_collator, remove_columns=text_columns)
         U = from_hf_dataset(test_vec, model.data_collator, remove_columns=text_columns)
         L, V = train.split_stratified(train_prop=0.5, random_state=RANDOM_STATE)
@@ -284,6 +289,11 @@ def main():
         test_prot = UPP(U, sample_size=SAMPLE_SIZE, repeats=NUM_SAMPLES, return_type="labelled_collection")
 
         V1, V2_prot = split_validation(V)
+        print(f"V1 shape: {V1.X.shape}")
+        for i, v2 in enumerate(V2_prot()):
+            print(f"v2_prot#{i} shape: {v2.X.shape}")
+        for i, t in enumerate(test_prot()):
+            print(f"test_prot#{i} shape: {t.X.shape}")
 
         V_posteriors = model.predict_proba(V.X, verbose=True)
         print("V_posteriors")
@@ -369,20 +379,20 @@ def main():
             test_y.append(U_i.y)
             if BASE:
                 quacc_nn_accs.append(quacc_nn.predict(U_i.X, P))
-                print(f"quacc_nn prediction n. {i}")
+                print(f"quacc_nn prediction #{i}")
                 quacc_n2_accs.append(quacc_n2.predict(U_i.X, P))
-                print(f"quacc_n2 prediction n. {i}")
+                print(f"quacc_n2 prediction #{i}")
             if OPT_NN:
                 quacc_nn_opt_accs.append(quacc_nn_opt.predict(U_i.X, P))
-                print(f"quacc_nn_opt prediction n. {i}")
+                print(f"quacc_nn_opt prediction #{i}")
             if OPT_N2:
                 quacc_n2_opt_accs.append(quacc_n2_opt.predict(U_i.X, P))
-                print(f"quacc_n2_opt prediction n. {i}")
+                print(f"quacc_n2_opt prediction #{i}")
             if REQUA:
                 requa_accs.append(requa.predict(U_i.X, P))
-                print(f"requa prediction n. {i}")
+                print(f"requa prediction #{i}")
             doc_accs.append(doc.predict(U_i.X, P))
-            print(f"doc prediction n. {i}")
+            print(f"doc prediction #{i}")
             true_accs.append(vanilla_acc(y_hat, U_i.y))
 
         if BASE:
