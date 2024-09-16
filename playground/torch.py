@@ -50,22 +50,7 @@ def softmax(logits: torch.Tensor) -> np.ndarray:
     return nn.functional.softmax(logits, dim=-1).numpy()
 
 
-class LargeModel:
-    def fit(self, train: LabelledCollection, dataset_name: str): ...
-
-    def predict_proba(self, test) -> np.ndarray: ...
-
-    def get_model_path(self, dataset_name):
-        return os.path.join(qc.env["OUT_DIR"], "models", f"{self.name}_on_{dataset_name}")
-
-    def predict_from_proba(self, proba: np.ndarray) -> np.ndarray:
-        return np.argmax(proba, axis=-1)
-
-    def predict(self, test) -> np.ndarray:
-        return self.predict_from_proba(self.predict_proba(test))
-
-
-class TorchLC(torch.utils.data.Dataset):
+class TorchDataset(torch.utils.data.Dataset):
     def __init__(self, X, y, data_mapping, has_labels=True):
         self.X = X
         self.y = y
@@ -89,11 +74,38 @@ class TorchLC(torch.utils.data.Dataset):
 
     @classmethod
     def from_lc(cls, data, data_mapping):
-        return TorchLC(*data.Xy, data_mapping)
+        return TorchDataset(*data.Xy, data_mapping)
 
     @classmethod
     def from_X(cls, data, data_mapping):
-        return TorchLC(data, None, data_mapping, has_labels=False)
+        return TorchDataset(data, None, data_mapping, has_labels=False)
+
+
+class TorchLabelledCollection(LabelledCollection):
+    def __init__(self, instances, labels, attention_mask, classes=None):
+        self.attention_mask = attention_mask
+        super().__init__(instances, labels, classes)
+
+    def sampling_from_index(self, index):
+        documents = self.instances[index]
+        labels = self.labels[index]
+        attention_mask = self.attention_mask[index]
+        return LabelledCollection(documents, labels, attention_mask, classes=self.classes_)
+
+
+class LargeModel:
+    def fit(self, train: LabelledCollection, dataset_name: str): ...
+
+    def predict_proba(self, test) -> np.ndarray: ...
+
+    def get_model_path(self, dataset_name):
+        return os.path.join(qc.env["OUT_DIR"], "models", f"{self.name}_on_{dataset_name}")
+
+    def predict_from_proba(self, proba: np.ndarray) -> np.ndarray:
+        return np.argmax(proba, axis=-1)
+
+    def predict(self, test) -> np.ndarray:
+        return self.predict_from_proba(self.predict_proba(test))
 
 
 class DistilBert(LargeModel):
@@ -140,7 +152,7 @@ class DistilBert(LargeModel):
     def fit(self, train: LabelledCollection, dataset_name: str, verbose=True):
         self.classes_ = train.classes_
         train_dl = DataLoader(
-            TorchLC.from_lc(train, self.data_mapping),
+            TorchDataset.from_lc(train, self.data_mapping),
             batch_size=self.batch_size,
         )
         self.optimizer = AdamW(self.model.parameters(), lr=self.learning_rate)
@@ -184,7 +196,7 @@ class DistilBert(LargeModel):
         device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
         test_dl = DataLoader(
-            TorchLC.from_X(test, self.data_mapping),
+            TorchDataset.from_X(test, self.data_mapping),
             batch_size=self.batch_size,
         )
         self.model.to(device)
@@ -225,22 +237,6 @@ def from_hf_dataset(
         dataset = dataset.remove_columns(remove_columns)
     ds = next(iter(DataLoader(dataset, collate_fn=collator, batch_size=len(dataset))))
     return LabelledCollection(instances=ds["input_ids"], labels=ds["labels"])
-
-
-def get_embeddings(model: DistilBert, data: LabelledCollection) -> LabelledCollection:
-    device = torch.device("cuda")
-    model.model.to(device)
-    model.model.eval()
-    data_dl = DataLoader(TorchLC.from_X(data.X, model.data_mapping), batch_size=model.batch_size)
-    X_emb = []
-    for batch in data_dl:
-        input_ids = batch["input_ids"].to(device)
-        batch_emb = model.model.get_input_embeddings()(input_ids)
-        batch_emb = torch.flatten(batch_emb, start_dim=1)
-        batch_emb = batch_emb.cpu().detach().numpy()
-        X_emb.append(batch_emb)
-
-    return LabelledCollection(np.vstack(X_emb), data.y, classes=data.classes_)
 
 
 def mlp():
