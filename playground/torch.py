@@ -50,11 +50,30 @@ def softmax(logits: torch.Tensor) -> np.ndarray:
     return nn.functional.softmax(logits, dim=-1).numpy()
 
 
+class TorchLabelledCollection(LabelledCollection):
+    def __init__(self, instances, labels, attention_mask, classes=None):
+        self.attention_mask = attention_mask
+        super().__init__(instances, labels, classes)
+
+    def sampling_from_index(self, index):
+        documents = self.instances[index]
+        labels = self.labels[index]
+        attention_mask = self.attention_mask[index]
+        return TorchLabelledCollection(documents, labels, attention_mask, classes=self.classes_)
+
+
 class TorchDataset(torch.utils.data.Dataset):
-    def __init__(self, X, y, data_mapping, has_labels=True):
+    DATA_MAPPING = {
+        "X": "input_ids",
+        "y": "labels",
+        "mask": "attention_mask",
+    }
+
+    def __init__(self, X, y, attention_mask, data_mapping=None, has_labels=True):
         self.X = X
         self.y = y
-        self.data_mapping = data_mapping
+        self.attention_mask = attention_mask
+        self.data_mapping = self.DATA_MAPPING if data_mapping is None else data_mapping
         self.has_labels = has_labels
 
     def __len__(self):
@@ -70,27 +89,17 @@ class TorchDataset(torch.utils.data.Dataset):
         if self.has_labels:
             res["y"] = self.y[index]
 
+        res["mask"] = self.attention_mask[index, :]
+
         return {self.data_mapping[k]: v for k, v in res.items()}
 
     @classmethod
-    def from_lc(cls, data, data_mapping):
-        return TorchDataset(*data.Xy, data_mapping)
+    def from_lc(cls, data: TorchLabelledCollection, data_mapping=None):
+        return TorchDataset(*data.Xy, data.attention_mask, data_mapping=data_mapping)
 
     @classmethod
-    def from_X(cls, data, data_mapping):
-        return TorchDataset(data, None, data_mapping, has_labels=False)
-
-
-class TorchLabelledCollection(LabelledCollection):
-    def __init__(self, instances, labels, attention_mask, classes=None):
-        self.attention_mask = attention_mask
-        super().__init__(instances, labels, classes)
-
-    def sampling_from_index(self, index):
-        documents = self.instances[index]
-        labels = self.labels[index]
-        attention_mask = self.attention_mask[index]
-        return LabelledCollection(documents, labels, attention_mask, classes=self.classes_)
+    def from_X(cls, data, attention_mask, data_mapping=None):
+        return TorchDataset(data, None, attention_mask, data_mapping=data_mapping, has_labels=False)
 
 
 class LargeModel:
@@ -109,11 +118,6 @@ class LargeModel:
 
 
 class DistilBert(LargeModel):
-    data_mapping = {
-        "X": "input_ids",
-        "y": "labels",
-    }
-
     def __init__(self, learning_rate=1e-5, batch_size=64, epochs=3, seed=RANDOM_STATE):
         self.name = "distilbert-base-uncased"
         self.tokenizer_name = self.name
@@ -149,10 +153,10 @@ class DistilBert(LargeModel):
             self.optimizer.load_state_dict(_checkpoint["optimizer_state_dict"])
             self.epoch = _checkpoint["epoch"]
 
-    def fit(self, train: LabelledCollection, dataset_name: str, verbose=True):
+    def fit(self, train: TorchLabelledCollection, dataset_name: str, verbose=True):
         self.classes_ = train.classes_
         train_dl = DataLoader(
-            TorchDataset.from_lc(train, self.data_mapping),
+            TorchDataset.from_lc(train),
             batch_size=self.batch_size,
         )
         self.optimizer = AdamW(self.model.parameters(), lr=self.learning_rate)
@@ -192,11 +196,11 @@ class DistilBert(LargeModel):
 
         return self
 
-    def predict_proba(self, test, verbose=False) -> np.ndarray:
+    def predict_proba(self, test, attention_mask, verbose=False) -> np.ndarray:
         device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
         test_dl = DataLoader(
-            TorchDataset.from_X(test, self.data_mapping),
+            TorchDataset.from_X(test, attention_mask),
             batch_size=self.batch_size,
         )
         self.model.to(device)
@@ -232,11 +236,12 @@ def preprocess_data(
 
 def from_hf_dataset(
     dataset: datasets.Dataset, collator: Callable, remove_columns: str | List[str] | None = None
-) -> LabelledCollection:
+) -> TorchLabelledCollection:
     if remove_columns is not None:
         dataset = dataset.remove_columns(remove_columns)
     ds = next(iter(DataLoader(dataset, collate_fn=collator, batch_size=len(dataset))))
-    return LabelledCollection(instances=ds["input_ids"], labels=ds["labels"])
+    # print(ds["input_ids"].shape, ds["labels"].shape, ds["attention_mask"].shape)
+    return TorchLabelledCollection(instances=ds["input_ids"], labels=ds["labels"], attention_mask=ds["attention_mask"])
 
 
 def mlp():
@@ -271,10 +276,10 @@ def main():
         train_vec = preprocess_data(dataset, "train", model.tokenizer, text_columns, length=TRAIN_LENGTH)
         test_vec = preprocess_data(dataset, "test", model.tokenizer, text_columns)
 
-        print(f"train_vec len: {len(train_vec['input_ids'])}")
-        print(f"max train_vec lens: {max([len(le) for le in train_vec['input_ids']])}")
-        print(f"test_vec len: {len(test_vec['input_ids'])}")
-        print(f"max test_vec lens: {max([len(le) for le in test_vec['input_ids']])}")
+        # print(f"train_vec len: {len(train_vec['input_ids'])}")
+        # print(f"max train_vec lens: {max([len(le) for le in train_vec['input_ids']])}")
+        # print(f"test_vec len: {len(test_vec['input_ids'])}")
+        # print(f"max test_vec lens: {max([len(le) for le in test_vec['input_ids']])}")
 
         train = from_hf_dataset(train_vec, model.data_collator, remove_columns=text_columns)
         U = from_hf_dataset(test_vec, model.data_collator, remove_columns=text_columns)
@@ -285,19 +290,19 @@ def main():
         test_prot = UPP(U, sample_size=SAMPLE_SIZE, repeats=NUM_SAMPLES, return_type="labelled_collection")
 
         V1, V2_prot = split_validation(V)
-        print(f"V1 shape: {V1.X.shape}")
-        for i, v2 in enumerate(V2_prot()):
-            print(f"v2_prot#{i} shape: {v2.X.shape}")
-        for i, t in enumerate(test_prot()):
-            print(f"test_prot#{i} shape: {t.X.shape}")
+        # print(f"V1 shape: {V1.X.shape}")
+        # for i, v2 in enumerate(V2_prot()):
+        #     print(f"v2_prot#{i} shape: {v2.X.shape}")
+        # for i, t in enumerate(test_prot()):
+        #     print(f"test_prot#{i} shape: {t.X.shape}")
 
-        V_posteriors = model.predict_proba(V.X, verbose=True)
+        V_posteriors = model.predict_proba(V.X, V.attention_mask, verbose=True)
         print("V_posteriors")
-        V1_posteriors = model.predict_proba(V1.X, verbose=True)
+        V1_posteriors = model.predict_proba(V1.X, V1.attention_mask, verbose=True)
         print("V1_posteriors")
         V2_prot_posteriors = []
         for sample in tqdm(V2_prot(), total=V2_prot.total()):
-            V2_prot_posteriors.append(model.predict_proba(sample.X))
+            V2_prot_posteriors.append(model.predict_proba(sample.X, sample.attention_mask))
         print("V2_prot_posteriors")
 
         sld_requa_params = {
@@ -369,7 +374,7 @@ def main():
         doc_accs = []
         true_accs = []
         for i, U_i in enumerate(tqdm(test_prot(), total=test_prot.total())):
-            P = get_posteriors_from_h(model, U_i.X)
+            P = model.predict_proba(U_i.X, U_i.attention_mask)
             y_hat = np.argmax(P, axis=-1)
             test_y_hat.append(y_hat)
             test_y.append(U_i.y)
