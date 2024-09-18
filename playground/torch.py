@@ -40,7 +40,7 @@ from quacc.models.utils import get_posteriors_from_h
 
 NUM_SAMPLES = 100
 SAMPLE_SIZE = 500
-RANDOM_STATE = 4125
+RANDOM_STATE = 313
 
 qp.environ["_R_SEED"] = RANDOM_STATE
 qp.environ["SAMPLE_SIZE"] = SAMPLE_SIZE
@@ -358,6 +358,10 @@ def main():
                 n_jobs=0,
             ).fit(V1, V1_posteriors)
             print("requa fit")
+            print(f"V1 shape: {V1.X.shape}")
+            for i, m in enumerate(requa.models):
+                print(f"V1 #{i} re-shape: {m._get_X_dot(V1.X, V1_posteriors).shape}")
+
         doc = DoC(vanilla_acc, V2_prot, V2_prot_posteriors).fit(V1, V1_posteriors)
         print("doc fit")
 
@@ -380,20 +384,20 @@ def main():
             test_y.append(U_i.y)
             if BASE:
                 quacc_nn_accs.append(quacc_nn.predict(U_i.X, P))
-                print(f"quacc_nn prediction #{i}")
+                # print(f"quacc_nn prediction #{i}")
                 quacc_n2_accs.append(quacc_n2.predict(U_i.X, P))
-                print(f"quacc_n2 prediction #{i}")
+                # print(f"quacc_n2 prediction #{i}")
             if OPT_NN:
                 quacc_nn_opt_accs.append(quacc_nn_opt.predict(U_i.X, P))
-                print(f"quacc_nn_opt prediction #{i}")
+                # print(f"quacc_nn_opt prediction #{i}")
             if OPT_N2:
                 quacc_n2_opt_accs.append(quacc_n2_opt.predict(U_i.X, P))
-                print(f"quacc_n2_opt prediction #{i}")
+                # print(f"quacc_n2_opt prediction #{i}")
             if REQUA:
                 requa_accs.append(requa.predict(U_i.X, P))
-                print(f"requa prediction #{i}")
+                # print(f"requa prediction #{i}")
             doc_accs.append(doc.predict(U_i.X, P))
-            print(f"doc prediction #{i}")
+            # print(f"doc prediction #{i}")
             true_accs.append(vanilla_acc(y_hat, U_i.y))
 
         if BASE:
