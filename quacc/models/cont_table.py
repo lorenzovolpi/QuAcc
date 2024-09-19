@@ -349,11 +349,15 @@ class QuAcc(CAPContingencyTableQ):
 
     def _get_X_dot(self, X, posteriors):
         P = posteriors
+        simplex = P[:, 1:]
 
         add_covs = []
 
+        if self.add_X:
+            add_covs.append(X)
+
         if self.add_posteriors:
-            add_covs.append(P[:, 1:])
+            add_covs.append(simplex)
 
         if self.add_y_hat:
             y_hat = np.argmax(P, axis=-1, keepdims=True)
@@ -373,10 +377,8 @@ class QuAcc(CAPContingencyTableQ):
 
         if len(add_covs) > 0:
             X_dot = np.hstack(add_covs)
-            if self.add_X:
-                X_dot = safehstack(X, X_dot)
         else:
-            X_dot = X
+            X_dot = simplex
 
         return X_dot
 
