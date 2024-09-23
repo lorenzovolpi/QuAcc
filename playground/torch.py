@@ -1,7 +1,5 @@
 from collections import defaultdict
-from typing import Callable, List
 
-import datasets
 import numpy as np
 import pandas as pd
 import quapy as qp
@@ -11,10 +9,9 @@ from quapy.protocol import UPP
 from sklearn.kernel_ridge import KernelRidge as KRR
 from sklearn.linear_model import LogisticRegression
 from sklearn.neural_network import MLPClassifier as MLP
-from torch.utils.data import DataLoader
 from tqdm import tqdm
 
-from quacc.data.base import TorchLabelledCollection
+from quacc.data.hfdatasets import fetch_amazonPolarityHFDataset, fetch_imdbHFDataset, fetch_rottenTomatoesHFDataset
 from quacc.error import vanilla_acc
 from quacc.experiments.util import split_validation
 from quacc.models._large_models import DistilBert
@@ -31,30 +28,6 @@ qp.environ["_R_SEED"] = RANDOM_STATE
 qp.environ["SAMPLE_SIZE"] = SAMPLE_SIZE
 
 
-def preprocess_data(
-    dataset, name, tokenizer, columns, length: int | None = None, seed=RANDOM_STATE
-) -> datasets.Dataset:
-    def tokenize(datapoint):
-        sentences = [datapoint[c] for c in columns]
-        return tokenizer(*sentences, truncation=True)
-
-    d = dataset[name].shuffle(seed=seed)
-    if length is not None:
-        d = d.select(np.arange(length))
-    d = d.map(tokenize, batched=True)
-    return d
-
-
-def from_hf_dataset(
-    dataset: datasets.Dataset, collator: Callable, remove_columns: str | List[str] | None = None
-) -> TorchLabelledCollection:
-    if remove_columns is not None:
-        dataset = dataset.remove_columns(remove_columns)
-    ds = next(iter(DataLoader(dataset, collate_fn=collator, batch_size=len(dataset))))
-    # print(ds["input_ids"].shape, ds["labels"].shape, ds["attention_mask"].shape)
-    return TorchLabelledCollection(instances=ds["input_ids"], labels=ds["labels"], attention_mask=ds["attention_mask"])
-
-
 def mlp():
     MLP((100, 15), activation="logistic", solver="adam")
 
@@ -65,6 +38,12 @@ def sld():
     return _sld
 
 
+def gen_hf_datasets(tokenizer, data_collator):
+    yield fetch_imdbHFDataset(tokenizer, data_collator)
+    yield fetch_rottenTomatoesHFDataset(tokenizer, data_collator)
+    yield fetch_amazonPolarityHFDataset(tokenizer, data_collator)
+
+
 def main():
     BASE = True
     OPT_N2 = True
@@ -73,39 +52,15 @@ def main():
 
     model = DistilBert()
 
-    dataset_map = {
-        "imdb": (["text"], 25000),
-        "rotten_tomatoes": (["text"], 8530),
-        "amazon_polarity": (["title", "content"], 25000),
-    }
-
     results = defaultdict(lambda: [])
-    for dataset_name, (text_columns, TRAIN_LENGTH) in dataset_map.items():
+    for dataset_name, (L, V, U) in gen_hf_datasets(model.tokenizer, model.data_collator):
         print("-" * 10, dataset_name, "-" * 10)
-        dataset = load_dataset(dataset_name)
-
-        train_vec = preprocess_data(dataset, "train", model.tokenizer, text_columns, length=TRAIN_LENGTH)
-        test_vec = preprocess_data(dataset, "test", model.tokenizer, text_columns)
-
-        # print(f"train_vec len: {len(train_vec['input_ids'])}")
-        # print(f"max train_vec lens: {max([len(le) for le in train_vec['input_ids']])}")
-        # print(f"test_vec len: {len(test_vec['input_ids'])}")
-        # print(f"max test_vec lens: {max([len(le) for le in test_vec['input_ids']])}")
-
-        train = from_hf_dataset(train_vec, model.data_collator, remove_columns=text_columns)
-        U = from_hf_dataset(test_vec, model.data_collator, remove_columns=text_columns)
-        L, V = train.split_stratified(train_prop=0.5, random_state=RANDOM_STATE)
 
         model.fit(L, dataset_name)
 
         test_prot = UPP(U, sample_size=SAMPLE_SIZE, repeats=NUM_SAMPLES, return_type="labelled_collection")
 
         V1, V2_prot = split_validation(V)
-        # print(f"V1 shape: {V1.X.shape}")
-        # for i, v2 in enumerate(V2_prot()):
-        #     print(f"v2_prot#{i} shape: {v2.X.shape}")
-        # for i, t in enumerate(test_prot()):
-        #     print(f"test_prot#{i} shape: {t.X.shape}")
 
         V_posteriors = model.predict_proba(V.X, V.attention_mask, verbose=True)
         print("V_posteriors")
