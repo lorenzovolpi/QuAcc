@@ -3,7 +3,6 @@ from collections import defaultdict
 import numpy as np
 import pandas as pd
 import quapy as qp
-from datasets import load_dataset
 from quapy.method.aggregative import SLD
 from quapy.protocol import UPP
 from sklearn.kernel_ridge import KernelRidge as KRR
@@ -11,7 +10,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.neural_network import MLPClassifier as MLP
 from tqdm import tqdm
 
-from quacc.data.hfdatasets import fetch_amazonPolarityHFDataset, fetch_imdbHFDataset, fetch_rottenTomatoesHFDataset
+from quacc.data.datasets import HF_DATASETS, fetch_HFDataset
 from quacc.error import vanilla_acc
 from quacc.experiments.util import split_validation
 from quacc.models._large_models import DistilBert
@@ -38,10 +37,9 @@ def sld():
     return _sld
 
 
-def gen_hf_datasets(tokenizer, data_collator):
-    yield fetch_imdbHFDataset(tokenizer, data_collator)
-    yield fetch_rottenTomatoesHFDataset(tokenizer, data_collator)
-    yield fetch_amazonPolarityHFDataset(tokenizer, data_collator)
+def gen_hf_datasets(tokenizer, data_collator, only_names=False):
+    for dataset_name in HF_DATASETS:
+        yield dataset_name, None if only_names else fetch_HFDataset(dataset_name, tokenizer, data_collator)
 
 
 def main():
@@ -187,7 +185,7 @@ def main():
         doc_mean = np.mean(np.abs(doc_accs - true_accs))
         results["doc"].append(doc_mean)
 
-    df = pd.DataFrame(np.vstack(list(results.values())), columns=list(dataset_map.keys()), index=list(results.keys()))
+    df = pd.DataFrame(np.vstack(list(results.values())), columns=HF_DATASETS, index=list(results.keys()))
     return df
 
 
