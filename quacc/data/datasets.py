@@ -1,5 +1,6 @@
 import numpy as np
 import quapy as qp
+from datasets import load_dataset
 from quapy.data.base import Dataset, LabelledCollection
 from quapy.data.datasets import fetch_lequa2022
 from quapy.data.datasets import fetch_UCIBinaryDataset as UCIBin
@@ -8,7 +9,7 @@ from sklearn.datasets import fetch_20newsgroups, fetch_rcv1
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 from quacc.data._cifar import fetch_cifar10, fetch_cifar100
-from quacc.data.util import get_rcv1_class_info, split_train
+from quacc.data.util import _hf_dataset_map, _preprocess_hf_dataset, get_rcv1_class_info, split_train
 from quacc.environment import env
 
 # fmt: off
@@ -18,6 +19,7 @@ RCV1_MULTICLASS_DATASETS = [
     "C17", "C2", "C3", "E1", "M1", "Root",  # 4 classes
     "C1",  # 8 classes
 ]
+HF_DATASETS = ["imdb", "rotten_tomatoes", "amazon_polarity"]
 # fmt: on
 
 
@@ -86,7 +88,6 @@ def fetch_RCV1MulticlassDataset(target, train_val_split=0.5, include_zero=False)
     return T, V, U
 
 
-@classmethod
 def fetch_cifar10Dataset(target, train_val_split=0.5):
     dataset = fetch_cifar10()
     available_targets: list = dataset.label_names
@@ -106,7 +107,6 @@ def fetch_cifar10Dataset(target, train_val_split=0.5):
     return T, V, U
 
 
-@classmethod
 def fetch_cifar100Dataset(target, train_val_split=0.5):
     dataset = fetch_cifar100()
     available_targets: list = dataset.coarse_label_names
@@ -126,28 +126,24 @@ def fetch_cifar100Dataset(target, train_val_split=0.5):
     return T, V, U
 
 
-@classmethod
 def fetch_twitterDataset(dataset_name, data_home=env["QUAPY_DATA"], train_val_split=0.5):
     train, U = qp.datasets.fetch_twitter(dataset_name, min_df=3, pickle=True, data_home=data_home)
     T, V = split_train(train, train_val_split)
     return T, V, U
 
 
-@classmethod
 def fetch_UCIBinaryDataset(dataset_name, data_home=env["QUAPY_DATA"], train_val_split=0.5):
     train, U = UCIBin(dataset_name, data_home=data_home).train_test
     T, V = split_train(train, train_val_split)
     return T, V, U
 
 
-@classmethod
 def fetch_UCIMulticlassDataset(dataset_name, data_home=env["QUAPY_DATA"], train_val_split=0.5):
     train, U = UCIMulti(dataset_name, data_home=data_home).train_test
     T, V = split_train(train, train_val_split)
     return T, V, U
 
 
-@classmethod
 def fetch_20newsgroupsDataset(train_val_split=0.5):
     train = fetch_20newsgroups(subset="train", remove=("headers", "footers", "quotes"), data_home=env["SKLEARN_DATA"])
     test = fetch_20newsgroups(subset="test", remove=("headers", "footers", "quotes"), data_home=env["SKLEARN_DATA"])
@@ -160,9 +156,23 @@ def fetch_20newsgroupsDataset(train_val_split=0.5):
     return T, V, U
 
 
-@classmethod
 def fetch_T1BLequa2022Dataset(train_val_split=0.5, test_split=0.3):
     dataset, _, _ = fetch_lequa2022(task="T1B", data_home=env["QUAPY_DATA"])
     train, U = Dataset.SplitStratified(dataset, train_size=1 - test_split)
     L, V = split_train(train, train_val_split)
+    return L, V, U
+
+
+def fetch_HFDataset(dataset_name, tokenizer, data_collator, train_length=None):
+    if dataset_name not in _hf_dataset_map:
+        raise ValueError(f"HuggingFace dataset {dataset_name} not supported yet")
+
+    text_columns, default_train_length = _hf_dataset_map[dataset_name]
+    train_length = default_train_length if train_length is None else train_length
+    dataset = load_dataset(dataset_name)
+
+    train = _preprocess_hf_dataset(dataset, "train", tokenizer, data_collator, text_columns, length=train_length)
+    U = _preprocess_hf_dataset(dataset, "test", tokenizer, data_collator, text_columns)
+    L, V = train.split_stratified(train_prop=0.5, random_state=qp.environ["_R_SEED"])
+
     return L, V, U

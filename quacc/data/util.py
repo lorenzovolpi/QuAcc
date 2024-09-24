@@ -3,10 +3,14 @@ import os
 import urllib.request
 from collections import defaultdict
 
+import datasets
 import numpy as np
+import quapy as qp
 from quapy.data.base import LabelledCollection
+from torch.utils.data import DataLoader
 
 import quacc as qc
+from quacc.data.base import TorchLabelledCollection
 
 # fmt: off
 RCV1_HIERARCHY_URL = "http://www.ai.mit.edu/projects/jmlr/papers/volume5/lewis04a/a02-orig-topics-hierarchy/rcv1.topics.hier.orig"
@@ -65,3 +69,27 @@ def get_rcv1_class_info():
         print(parent, children, idxs)
 
     return class_names.tolist(), tree, index
+
+
+hf_dataset_map = {
+    "imdb": (["text"], 25000),
+    "rotten_tomatoes": (["text"], 8530),
+    "amazon_polarity": (["title", "content"], 25000),
+}
+
+
+def preprocess_hf_dataset(
+    dataset: datasets.Dataset, set_name, tokenizer, collator, text_columns: [str], length: int | None = None
+) -> TorchLabelledCollection:
+    def tokenize(datapoint):
+        sentences = [datapoint[c] for c in text_columns]
+        return tokenizer(*sentences, truncation=True)
+
+    d = dataset[set_name].shuffle(seed=qp.environ["_R_SEED"])
+    if length is not None:
+        d = d.select(np.arange(length))
+    d = d.map(tokenize, batched=True)
+
+    d = d.remove_columns(text_columns)
+    ds = next(iter(DataLoader(d, collate_fn=collator, batch_size=len(d))))
+    return TorchLabelledCollection(instances=ds["input_ids"], labels=ds["labels"], attention_mask=ds["attention_mask"])
