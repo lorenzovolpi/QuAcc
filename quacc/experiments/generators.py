@@ -18,7 +18,9 @@ from sklearn.neural_network import MLPClassifier as MLP
 from sklearn.svm import SVC
 
 from quacc.data.datasets import (
+    HF_DATASETS,
     RCV1_MULTICLASS_DATASETS,
+    fetch_HFDataset,
     fetch_RCV1MulticlassDataset,
     fetch_twitterDataset,
     fetch_UCIBinaryDataset,
@@ -26,6 +28,7 @@ from quacc.data.datasets import (
 )
 from quacc.error import f1, f1_macro, vanilla_acc
 from quacc.experiments.util import split_validation
+from quacc.models._large_models import DistilBert
 from quacc.models.cont_table import (
     N2E,
     CAPContingencyTable,
@@ -95,6 +98,10 @@ def gen_classifiers():
     # yield 'SVM(linear)', LinearSVC()
 
 
+def gen_lm_classifiers():
+    yield "DistilBert", DistilBert()
+
+
 def gen_multi_datasets(
     only_names=False,
 ) -> [str, [LabelledCollection, LabelledCollection, LabelledCollection]]:
@@ -140,13 +147,24 @@ def gen_bin_datasets(
         yield dn, dval
 
 
-def gen_product(gen1, gen2):
-    for v1 in gen1():
-        for v2 in gen2():
-            yield v1, v2
+def gen_model_dataset(_gen_model, _gen_dataset):
+    for model in _gen_model():
+        for dataset in _gen_dataset():
+            yield model, dataset
 
 
-def requa_params(acc_fn, reg, q_class, config):
+def gen_bin_lm_datasets(tokenizer, data_collator, only_names=False):
+    for dataset_name in HF_DATASETS:
+        yield dataset_name, None if only_names else fetch_HFDataset(dataset_name, tokenizer, data_collator)
+
+
+def gen_lm_model_dataset(_gen_model, _gen_dataset):
+    for model_name, model in _gen_model():
+        for ds in _gen_dataset(model.tokenizer, model.data_collator):
+            yield (model_name, model), ds
+
+
+def requa_params(acc_fn, reg, q_class, config, model_type):
     quaccs = [
         QuAcc1xN2(acc_fn, q_class),
         QuAccNxN(acc_fn, q_class),
@@ -157,7 +175,6 @@ def requa_params(acc_fn, reg, q_class, config):
     quacc_params = {
         # "q_class__classifier__C": np.logspace(-3, 3, 7),
         # "q_class__classifier__class_weight": [None, "balanced"],
-        "add_X": [True, False],
         "add_posteriors": [True, False],
         "add_y_hat": [True, False],
         "add_maxconf": [True, False],
@@ -165,20 +182,29 @@ def requa_params(acc_fn, reg, q_class, config):
         "add_maxinfsoft": [True, False],
     }
 
+    if model_type == "simple":
+        quacc_params = quacc_params | {
+            "add_X": [True, False],
+        }
+    elif model_type == "large":
+        quacc_params = quacc_params | {
+            "add_X": [False],
+        }
+
     sample_size = qp.environ["SAMPLE_SIZE"]
 
     return acc_fn, reg, quaccs, quacc_params, sample_size
 
 
 ### baselines ###
-def gen_CAP_baselines(h, acc_fn, config, with_oracle=False) -> [str, CAPDirect]:
+def gen_CAP_baselines(h, acc_fn, config, mode_type, with_oracle=False) -> [str, CAPDirect]:
     yield "ATC-MC", ATC(acc_fn, scoring_fn="maxconf")
     # yield 'ATC-NE', ATC(h, acc_fn, scoring_fn='neg_entropy')
     yield "DoC", DoC(acc_fn, sample_size=qp.environ["SAMPLE_SIZE"])
 
 
 # fmt: off
-def gen_CAP_direct(h, acc_fn, config, with_oracle=False) -> [str, CAPDirect]:
+def gen_CAP_direct(h, acc_fn, config, model_type, with_oracle=False) -> [str, CAPDirect]:
     redan_q_params= {
         "classifier__C": np.logspace(-3, 3, 7),
         "classifier__class_weight": [None, "balanced"],
@@ -197,12 +223,12 @@ def gen_CAP_direct(h, acc_fn, config, with_oracle=False) -> [str, CAPDirect]:
         yield "PrediQuant(SLD-ae)", PrediQuant(acc_fn, EMQ(h))
         yield "PrediQuantWeight(SLD-ae)", PrediQuant(acc_fn, EMQ(h), alpha=0)
     if _SLD["ReQua"]:
-        yield "ReQua(SLD-LinReg)", ReQua(*requa_params(acc_fn, LinReg(), sld(), config))
-        yield "ReQua(SLD-LinReg)-conf", ReQua(*requa_params(acc_fn, LinReg(), sld(), config), add_conf=True)
-        yield "ReQua(SLD-Ridge)", ReQua(*requa_params(acc_fn, Ridge(), sld(), config))
-        yield "ReQua(SLD-Ridge)-conf", ReQua(*requa_params(acc_fn, Ridge(), sld(), config), add_conf=True)
-        yield "ReQua(SLD-KRR)", ReQua(*requa_params(acc_fn, KRR(), sld(), config))
-        yield "ReQua(SLD-KRR)-conf", ReQua(*requa_params(acc_fn, KRR(), sld(), config), add_conf=True)
+        yield "ReQua(SLD-LinReg)", ReQua(*requa_params(acc_fn, LinReg(), sld(), config, model_type))
+        yield "ReQua(SLD-LinReg)-conf", ReQua(*requa_params(acc_fn, LinReg(), sld(), config, model_type), add_conf=True)
+        yield "ReQua(SLD-Ridge)", ReQua(*requa_params(acc_fn, Ridge(), sld(), config, model_type))
+        yield "ReQua(SLD-Ridge)-conf", ReQua(*requa_params(acc_fn, Ridge(), sld(), config, model_type), add_conf=True)
+        yield "ReQua(SLD-KRR)", ReQua(*requa_params(acc_fn, KRR(), sld(), config, model_type))
+        yield "ReQua(SLD-KRR)-conf", ReQua(*requa_params(acc_fn, KRR(), sld(), config, model_type), add_conf=True)
     if _SLD["reDAN"]:
         # yield "reDAN(SLD-LinReg)", reDAN(acc_fn, LinReg(), sld(), sample_size=qp.environ["SAMPLE_SIZE"])
         # yield "reDAN(SLD-LinReg)-OPT", reDAN(acc_fn, LinReg(), sld(), add_n2e_opt=True, sample_size=qp.environ["SAMPLE_SIZE"])
@@ -231,7 +257,7 @@ def gen_CAP_direct(h, acc_fn, config, with_oracle=False) -> [str, CAPDirect]:
         # yield "reDAN(KDEy-KRR)-OPT", reDAN(acc_fn, KRR(), kdey(), q_params = rdan_q_params_kdey, add_n2e_opt=True, sample_size=qp.environ["SAMPLE_SIZE"])
         # yield "reDAN(KDEy-KRR)-OPT+", reDAN(acc_fn, KRR(), kdey(), q_params = rdan_q_params_kdey, add_n2e_opt=True, add_conf=True, sample_size=qp.environ["SAMPLE_SIZE"])
 
-def gen_CAP_cont_table(h, acc_fn, config) -> [str, CAPContingencyTable]:
+def gen_CAP_cont_table(h, acc_fn, config, model_type) -> [str, CAPContingencyTable]:
     yield "Naive", NaiveCAP(acc_fn)
     # yield 'Equations-ACCh', NsquaredEquationsCAP(h, acc_fn, ACC, reuse_h=True)
     # yield 'Equations-ACC', NsquaredEquationsCAP(h, acc_fn, ACC)
@@ -244,24 +270,33 @@ def gen_CAP_cont_table(h, acc_fn, config) -> [str, CAPContingencyTable]:
         yield "N2E(SLD-h+)", N2E(acc_fn, sld(), reuse_h=False)
     if _KDEy["N2E"]:
         # yield 'CT-PPS-KDE', ContTableTransferCAP(h, acc_fn, KDEyML(LogisticRegression(class_weight='balanced'), bandwidth=0.01))
-        # yield 'CT-PPS-KDE05', ContTableTransferCAP(h, acc_fn, KDEyML(LogisticRegression(class_weight='balanced'), bandwidth=0.05))
+        # yield 'CT-PPS-KDE05
         yield "N2E(KDEy-h0)", N2E(acc_fn, kdey(), reuse_h=True)
         yield "N2E(KDEy-h+)", N2E(acc_fn, kdey(), reuse_h=False)
 # fmt: on
 
 
 # fmt: off
-def gen_CAP_cont_table_opt(h, acc_fn, config, val_prot) -> [str, CAPContingencyTable]:
+def gen_CAP_cont_table_opt(h, acc_fn, config, model_type, val_prot) -> [str, CAPContingencyTable]:
     pacc_lr_params = {
         "q_class__classifier__C": np.logspace(-3, 3, 7),
         "q_class__classifier__class_weight": [None, "balanced"],
-        # "add_X": [True, False],
         "add_posteriors": [True, False],
         "add_y_hat": [True, False],
         "add_maxconf": [True, False],
         "add_negentropy": [True, False],
         "add_maxinfsoft": [True, False],
     }
+
+    if model_type == "simple":
+        pacc_lr_params = pacc_lr_params | {
+            "add_X": [True],
+        }
+    elif model_type == "large":
+        pacc_lr_params = pacc_lr_params | {
+            "add_X": [False]
+        }
+    
     emq_lr_params = pacc_lr_params | {"q_class__recalib": [None, "bcts"]}
     kde_lr_params = pacc_lr_params | {"q_class__bandwidth": np.linspace(0.01, 0.2, 5)}
     n2e_sld_h0_params = {"q_class__recalib": [None, "bcts"]}
@@ -296,16 +331,16 @@ def gen_CAP_cont_table_opt(h, acc_fn, config, val_prot) -> [str, CAPContingencyT
 # fmt: on
 
 
-def gen_methods(h, V, config, with_oracle=False):
+def gen_methods(h, V, config, model_type="simple", with_oracle=False):
     config = "multiclass" if config is None else config
 
     _, acc_fn = next(gen_acc_measure())
 
-    for name, method in gen_CAP_baselines(h, acc_fn, config, with_oracle):
+    for name, method in gen_CAP_baselines(h, acc_fn, config, model_type, with_oracle):
         yield name, method, V
-    for name, method in gen_CAP_direct(h, acc_fn, config, with_oracle):
+    for name, method in gen_CAP_direct(h, acc_fn, config, model_type, with_oracle):
         yield name, method, V
-    for name, method in gen_CAP_cont_table(h, acc_fn, config):
+    for name, method in gen_CAP_cont_table(h, acc_fn, config, model_type):
         yield name, method, V
 
     V, val_prot = split_validation(V)
@@ -313,15 +348,15 @@ def gen_methods(h, V, config, with_oracle=False):
         yield name, method, V
 
 
-def get_method_names(config):
+def get_method_names(config, model_type="simple"):
     mock_h = LR()
     _, mock_acc_fn = next(gen_acc_measure())
     mock_val_prot = UPP(None)
     return (
-        [m for m, _ in gen_CAP_baselines(mock_h, mock_acc_fn, config)]
-        + [m for m, _ in gen_CAP_direct(mock_h, mock_acc_fn, config)]
-        + [m for m, _ in gen_CAP_cont_table(mock_h, mock_acc_fn, config)]
-        + [m for m, _ in gen_CAP_cont_table_opt(mock_h, mock_acc_fn, config, mock_val_prot)]
+        [m for m, _ in gen_CAP_baselines(mock_h, mock_acc_fn, config, model_type)]
+        + [m for m, _ in gen_CAP_direct(mock_h, mock_acc_fn, config, model_type)]
+        + [m for m, _ in gen_CAP_cont_table(mock_h, mock_acc_fn, config, model_type)]
+        + [m for m, _ in gen_CAP_cont_table_opt(mock_h, mock_acc_fn, config, model_type, mock_val_prot)]
     )
 
 
