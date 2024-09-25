@@ -10,8 +10,9 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.neural_network import MLPClassifier as MLP
 from tqdm import tqdm
 
-from quacc.data.datasets import HF_DATASETS, fetch_HFDataset
+from quacc.data.datasets import HF_DATASETS
 from quacc.error import vanilla_acc
+from quacc.experiments.generators import gen_bin_lm_datasets
 from quacc.experiments.util import split_validation
 from quacc.models._large_models import DistilBert
 from quacc.models.cont_table import QuAcc1xN2, QuAcc1xNp1, QuAccNxN
@@ -37,11 +38,6 @@ def sld():
     return _sld
 
 
-def gen_hf_datasets(tokenizer, data_collator, only_names=False):
-    for dataset_name in HF_DATASETS:
-        yield dataset_name, None if only_names else fetch_HFDataset(dataset_name, tokenizer, data_collator)
-
-
 def main():
     BASE = True
     OPT_N2 = True
@@ -51,7 +47,7 @@ def main():
     model = DistilBert()
 
     results = defaultdict(lambda: [])
-    for dataset_name, (L, V, U) in gen_hf_datasets(model.tokenizer, model.data_collator):
+    for dataset_name, (L, V, U) in gen_bin_lm_datasets(model.tokenizer, model.data_collator):
         print("-" * 10, dataset_name, "-" * 10)
 
         model.fit(L, dataset_name)
