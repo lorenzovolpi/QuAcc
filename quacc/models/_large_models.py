@@ -47,11 +47,9 @@ class DistilBert(LargeModel):
         self.batch_size = batch_size
         self.num_epochs = epochs
         self.seed = qp.environ["_R_SEED"] if seed is None else seed
-        self.epoch = 0
 
         self.tokenizer = AutoTokenizer.from_pretrained(self.tokenizer_name)
         self.data_collator = DataCollatorWithPadding(tokenizer=self.tokenizer, padding="max_length")
-        self.model: DistilBertForSequenceClassification = AutoModelForSequenceClassification.from_pretrained(self.name)
 
     def get_model_path(self, dataset_name):
         return os.path.join(qc.env["OUT_DIR"], "models", f"{self.name}_on_{dataset_name}.tar")
@@ -67,6 +65,11 @@ class DistilBert(LargeModel):
             path,
         )
 
+    def _load_base_model(self):
+        self.model: DistilBertForSequenceClassification = AutoModelForSequenceClassification.from_pretrained(self.name)
+        self.optimizer = AdamW(self.model.parameters(), lr=self.learning_rate)
+        self.epoch = 0
+
     def load_from_checkpoint(self, dataset_name):
         path = self.get_model_path(dataset_name)
         if os.path.exists(path):
@@ -76,15 +79,15 @@ class DistilBert(LargeModel):
             self.epoch = _checkpoint["epoch"]
 
     def fit(self, train: TorchLabelledCollection, dataset_name: str, verbose=True):
+        self._load_base_model()
+        self.load_from_checkpoint(dataset_name)
+
         self.classes_ = train.classes_
         train_dl = DataLoader(
             TorchDataset.from_lc(train),
             batch_size=self.batch_size,
         )
-        self.optimizer = AdamW(self.model.parameters(), lr=self.learning_rate)
         num_training_steps = self.num_epochs * len(train_dl)
-
-        self.load_from_checkpoint(dataset_name)
 
         if self.num_epochs == self.epoch:
             return self
