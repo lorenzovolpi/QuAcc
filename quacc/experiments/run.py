@@ -1,56 +1,41 @@
 import itertools as IT
 import os
-from time import time
 from traceback import print_exception
 
 import quapy as qp
 from quapy.protocol import UPP
 
-import quacc as qc
 from quacc.experiments.generators import (
     gen_acc_measure,
     gen_bin_datasets,
+    gen_bin_lm_datasets,
     gen_classifiers,
+    gen_lm_classifiers,
+    gen_lm_model_dataset,
     gen_methods,
+    gen_model_dataset,
     gen_multi_datasets,
-    gen_product,
     gen_tweet_datasets,
     get_method_names,
 )
-from quacc.experiments.report import Report, TestReport
+from quacc.experiments.report import TestReport
 from quacc.experiments.util import (
     fit_or_switch,
     get_logger,
     get_plain_prev,
     get_predictions,
     prevs_from_prot,
+    split_validation,
 )
 from quacc.utils.commons import save_dataset_stats, true_acc
 
 PROBLEM = "binary"
-ORACLE = False
-basedir = PROBLEM + ("-oracle" if ORACLE else "")
-
-PLOTS = "predi_quant"
-plots_basedir = basedir if PLOTS is None else basedir + "_" + PLOTS
-
-NUM_TEST = 1000
-
-if PROBLEM == "binary":
-    qp.environ["SAMPLE_SIZE"] = 100
-    gen_datasets = gen_bin_datasets
-elif PROBLEM == "multiclass":
-    qp.environ["SAMPLE_SIZE"] = 250
-    gen_datasets = gen_multi_datasets
-elif PROBLEM == "tweet":
-    qp.environ["SAMPLE_SIZE"] = 100
-    gen_datasets = gen_tweet_datasets
 
 log = get_logger()
 
 
-def all_exist_pre_check(basedir, cls_name, dataset_name):
-    method_names = get_method_names(PROBLEM)
+def all_exist_pre_check(basedir, cls_name, dataset_name, model_type):
+    method_names = get_method_names(PROBLEM, model_type)
     acc_names = [acc_name for acc_name, _ in gen_acc_measure()]
 
     all_exist = True
@@ -64,10 +49,25 @@ def all_exist_pre_check(basedir, cls_name, dataset_name):
 
 
 def experiments():
+    MODEL_TYPE = "simple"
+    ORACLE = False
+    basedir = PROBLEM + ("-oracle" if ORACLE else "")
+    NUM_TEST = 1000
+
+    if PROBLEM == "binary":
+        qp.environ["SAMPLE_SIZE"] = 100
+        gen_datasets = gen_bin_datasets
+    elif PROBLEM == "multiclass":
+        qp.environ["SAMPLE_SIZE"] = 250
+        gen_datasets = gen_multi_datasets
+    elif PROBLEM == "tweet":
+        qp.environ["SAMPLE_SIZE"] = 100
+        gen_datasets = gen_tweet_datasets
+
     log.info("-" * 31 + "  start  " + "-" * 31)
 
-    for (cls_name, h), (dataset_name, (L, V, U)) in gen_product(gen_classifiers, gen_datasets):
-        if all_exist_pre_check(basedir, cls_name, dataset_name):
+    for (cls_name, h), (dataset_name, (L, V, U)) in gen_model_dataset(gen_classifiers, gen_datasets):
+        if all_exist_pre_check(basedir, cls_name, dataset_name, MODEL_TYPE):
             log.info(f"{cls_name} on dataset={dataset_name}: all results already exist, skipping")
             continue
 
@@ -116,14 +116,43 @@ def experiments():
     log.info("-" * 32 + "  end  " + "-" * 32)
 
 
-# generate plots
-# print("generating tables")
-# gen_tables(basedir, datasets=[d for d, _ in gen_datasets(only_names=True)])
+def lmexperiments():
+    MODEL_TYPE = "large"
+    ORACLE = False
+    basedir = PROBLEM + ("-oracle" if ORACLE else "")
+    NUM_TEST = 100
+    R_SEED = 42
+    qp.environ["_R_SEED"] = R_SEED
+
+    if PROBLEM == "binary":
+        gen_lm_datasets = gen_bin_lm_datasets
+        qp.environ["SAMPLE_SIZE"] = 500
+
+    for (cls_name, model), (dataset_name, (L, V, U)) in gen_lm_model_dataset(gen_lm_classifiers, gen_lm_datasets):
+        if all_exist_pre_check(basedir, cls_name, dataset_name, MODEL_TYPE):
+            log.info(f"{cls_name} on dataset={dataset_name}: all results already exist, skipping")
+            continue
+
+        log.info(f"{cls_name} training on dataset={dataset_name}")
+        model.fit(L, dataset_name)
+
+        test_prot = UPP(U, repeats=NUM_TEST, return_type="labelled_collection", random_state=R_SEED)
+
+        V1, V2_prot = split_validation(V)
+
+        V_posteriors = model.predict_proba(V.X, V.attention_mask, verbose=True)
+        print("V_posteriors")
+        V1_posteriors = model.predict_proba(V1.X, V1.attention_mask, verbose=True)
+        print("V1_posteriors")
+        V2_prot_posteriors = []
+        for sample in V2_prot():
+            V2_prot_posteriors.append(model.predict_proba(sample.X, sample.attention_mask))
+        print("V2_prot_posteriors")
+
 
 if __name__ == "__main__":
     try:
         experiments()
-        # plotting()
     except Exception as e:
         log.error(e)
         print_exception(e)
