@@ -2,6 +2,7 @@ import itertools as IT
 import os
 from traceback import print_exception
 
+import numpy as np
 import quapy as qp
 from quapy.protocol import UPP
 
@@ -141,13 +142,20 @@ def lmexperiments():
         V1, V2_prot = split_validation(V)
 
         V_posteriors = model.predict_proba(V.X, V.attention_mask, verbose=True)
-        print("V_posteriors")
         V1_posteriors = model.predict_proba(V1.X, V1.attention_mask, verbose=True)
-        print("V1_posteriors")
         V2_prot_posteriors = []
         for sample in V2_prot():
             V2_prot_posteriors.append(model.predict_proba(sample.X, sample.attention_mask))
-        print("V2_prot_posteriors")
+
+        test_prot_posteriors, test_prot_y_hat = [], []
+        for sample in test_prot():
+            P = model.predict_proba(sample.X, sample.attention_mask)
+            test_prot_posteriors.append(P)
+            test_prot_y_hat.append(np.argmax(P, axis=-1))
+
+        true_accs = {}
+        for acc_name, acc_fn in gen_acc_measure(multiclass=True):
+            true_accs[acc_name] = [acc_fn(y_hat, Ui.y) for y_hat, Ui in zip(test_prot_y_hat, test_prot())]
 
 
 if __name__ == "__main__":
