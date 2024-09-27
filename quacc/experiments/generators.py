@@ -44,18 +44,18 @@ from quacc.utils.commons import get_results_path
 
 _CC = defaultdict(lambda: False)
 _CC = dict(
-    N2E=True,
+    LEAP=True,
 )
 _ACC = defaultdict(lambda: False)
 _ACC = dict(
-    N2E=True,
+    LEAP=True,
 )
 _SLD = defaultdict(lambda: False)
 _SLD = dict(
     reDAN=False,
     PQ=False,
     ReQua=False,
-    N2E=False,
+    LEAP=False,
     QuAcc=False,
 )
 _KDEy = defaultdict(lambda: False)
@@ -63,7 +63,7 @@ _KDEy = dict(
     reDAN=False,
     PQ=False,
     ReQua=False,
-    N2E=True,
+    LEAP=True,
     QuAcc=False,
 )
 
@@ -164,7 +164,43 @@ def gen_lm_model_dataset(_gen_model, _gen_dataset):
             yield (model_name, model), ds
 
 
-def requa_params(acc_fn, reg, q_class, config, model_type):
+### baselines ###
+
+
+def gen_CAP_baselines(h, acc_fn, config, mode_type, with_oracle=False) -> [str, CAPDirect]:
+    yield "ATC-MC", ATC(acc_fn, scoring_fn="maxconf")
+    # yield 'ATC-NE', ATC(h, acc_fn, scoring_fn='neg_entropy')
+
+
+def gen_CAP_baselines_vp(acc_fn, config, model_type, V2_prot, V2_prot_posteriors, with_oracle=False):
+    yield "DoC", DoC(acc_fn, V2_prot, V2_prot_posteriors)
+
+
+### models ###
+
+
+# fmt: off
+def gen_CAP_direct(h, acc_fn, config, model_type, with_oracle=False) -> [str, CAPDirect]:
+    redan_q_params= {
+        "classifier__C": np.logspace(-3, 3, 7),
+        "classifier__class_weight": [None, "balanced"],
+    }
+    rdan_q_params_sld = redan_q_params | {"recalib": [None, "bcts"]}
+    # rdan_q_params_kdey = redan_q_params | {"bandwidth": np.linspace(0.01, 0.2, 5)}
+    ### CAP methods ###
+    # yield 'SebCAP', SebastianiCAP(h, acc_fn, ACC)
+    # yield 'SebCAPweight', SebastianiCAP(h, acc_fn, ACC, alpha=0)
+    # yield "PrediQuant(ACC)", PrediQuant(h, acc_fn, ACC)
+    # yield "PrediQuantWeight(ACC)", PrediQuant(h, acc_fn, ACC, alpha=0)
+    # yield 'PabCAP', PabloCAP(h, acc_fn, ACC)
+    if _SLD["PQ"] and model_type == "simple":
+        yield "PrediQuant(SLD-ae)", PrediQuant(acc_fn, EMQ(h))
+        yield "PrediQuantWeight(SLD-ae)", PrediQuant(acc_fn, EMQ(h), alpha=0)
+    if _KDEy["PQ"] and model_type == "simple":
+        yield "PrediQuant(KDEy-ae)", PrediQuant(acc_fn, KDEyML(h))
+        yield "PrediQuantWeight(KDEy-ae)", PrediQuant(acc_fn, KDEyML(h), alpha=0)
+
+def requa_params(acc_fn, reg, q_class, config, model_type, V2_prot, V2_prot_posteriros):
     quaccs = [
         QuAcc1xN2(acc_fn, q_class),
         QuAccNxN(acc_fn, q_class),
@@ -191,93 +227,47 @@ def requa_params(acc_fn, reg, q_class, config, model_type):
             "add_X": [False],
         }
 
-    sample_size = qp.environ["SAMPLE_SIZE"]
+    return acc_fn, reg, quaccs, quacc_params, V2_prot, V2_prot_posteriros
 
-    return acc_fn, reg, quaccs, quacc_params, sample_size
-
-
-### baselines ###
-def gen_CAP_baselines(h, acc_fn, config, mode_type, with_oracle=False) -> [str, CAPDirect]:
-    yield "ATC-MC", ATC(acc_fn, scoring_fn="maxconf")
-    # yield 'ATC-NE', ATC(h, acc_fn, scoring_fn='neg_entropy')
-    yield "DoC", DoC(acc_fn, sample_size=qp.environ["SAMPLE_SIZE"])
-
-
-# fmt: off
-def gen_CAP_direct(h, acc_fn, config, model_type, with_oracle=False) -> [str, CAPDirect]:
-    redan_q_params= {
-        "classifier__C": np.logspace(-3, 3, 7),
-        "classifier__class_weight": [None, "balanced"],
-    }
-    rdan_q_params_sld = redan_q_params | {"recalib": [None, "bcts"]}
-    # rdan_q_params_kdey = redan_q_params | {"bandwidth": np.linspace(0.01, 0.2, 5)}
-    ### CAP methods ###
-    # yield 'SebCAP', SebastianiCAP(h, acc_fn, ACC)
-    # yield 'SebCAPweight', SebastianiCAP(h, acc_fn, ACC, alpha=0)
-    # yield "PrediQuant(ACC)", PrediQuant(h, acc_fn, ACC)
-    # yield "PrediQuantWeight(ACC)", PrediQuant(h, acc_fn, ACC, alpha=0)
-    # yield 'PabCAP', PabloCAP(h, acc_fn, ACC)
-    if _SLD["PQ"]:
-        # yield 'SebCAP-SLD', SebastianiCAP(h, acc_fn, EMQ, predict_train_prev=not with_oracle)
-        # yield 'PabCAP-SLD-median', PabloCAP(h, acc_fn, EMQ, aggr='median')
-        yield "PrediQuant(SLD-ae)", PrediQuant(acc_fn, EMQ(h))
-        yield "PrediQuantWeight(SLD-ae)", PrediQuant(acc_fn, EMQ(h), alpha=0)
+def gen_CAP_regression(acc_fn, config, model_type, V2_prot, V2_prot_posteriors):
     if _SLD["ReQua"]:
-        yield "ReQua(SLD-LinReg)", ReQua(*requa_params(acc_fn, LinReg(), sld(), config, model_type))
-        yield "ReQua(SLD-LinReg)-conf", ReQua(*requa_params(acc_fn, LinReg(), sld(), config, model_type), add_conf=True)
-        yield "ReQua(SLD-Ridge)", ReQua(*requa_params(acc_fn, Ridge(), sld(), config, model_type))
-        yield "ReQua(SLD-Ridge)-conf", ReQua(*requa_params(acc_fn, Ridge(), sld(), config, model_type), add_conf=True)
-        yield "ReQua(SLD-KRR)", ReQua(*requa_params(acc_fn, KRR(), sld(), config, model_type))
-        yield "ReQua(SLD-KRR)-conf", ReQua(*requa_params(acc_fn, KRR(), sld(), config, model_type), add_conf=True)
-    if _SLD["reDAN"]:
-        # yield "reDAN(SLD-LinReg)", reDAN(acc_fn, LinReg(), sld(), sample_size=qp.environ["SAMPLE_SIZE"])
-        # yield "reDAN(SLD-LinReg)-OPT", reDAN(acc_fn, LinReg(), sld(), add_n2e_opt=True, sample_size=qp.environ["SAMPLE_SIZE"])
-        # yield "reDAN(SLD-Ridge)", reDAN(acc_fn, Ridge(), sld(), sample_size=qp.environ["SAMPLE_SIZE"])
-        # yield "reDAN(SLD-Ridge)-OPT", reDAN(acc_fn, Ridge(), sld(), add_n2e_opt=True, sample_size=qp.environ["SAMPLE_SIZE"])
-        yield "reDAN(SLD-KRR)", reDAN(acc_fn, KRR(), sld(), q_params=rdan_q_params_sld, sample_size=qp.environ["SAMPLE_SIZE"])
-        yield "reDAN(SLD-KRR)-OPT", reDAN(acc_fn, KRR(), sld(), q_params=rdan_q_params_sld, add_n2e_opt=True, sample_size=qp.environ["SAMPLE_SIZE"])
-        yield "reDAN(SLD-KRR)-OPT+", reDAN(acc_fn, KRR(), sld(), q_params=rdan_q_params_sld, add_n2e_opt=True, add_conf=True, sample_size=qp.environ["SAMPLE_SIZE"])
-    if _KDEy["PQ"]:
-        # yield 'SebCAP-KDE', SebastianiCAP(h, acc_fn, KDEyML)
-        yield "PrediQuant(KDEy-ae)", PrediQuant(acc_fn, KDEyML(h))
-        yield "PrediQuantWeight(KDEy-ae)", PrediQuant(acc_fn, KDEyML(h), alpha=0)
+        yield "ReQua(SLD-LinReg)", ReQua(*requa_params(acc_fn, LinReg(), sld(), config, model_type, V2_prot, V2_prot_posteriors))
+        yield "ReQua(SLD-LinReg)-conf", ReQua(*requa_params(acc_fn, LinReg(), sld(), config, model_type, V2_prot, V2_prot_posteriors), add_conf=True)
+        yield "ReQua(SLD-Ridge)", ReQua(*requa_params(acc_fn, Ridge(), sld(), config, model_type, V2_prot, V2_prot_posteriors))
+        yield "ReQua(SLD-Ridge)-conf", ReQua(*requa_params(acc_fn, Ridge(), sld(), config, model_type, V2_prot, V2_prot_posteriors), add_conf=True)
+        yield "ReQua(SLD-KRR)", ReQua(*requa_params(acc_fn, KRR(), sld(), config, model_type, V2_prot, V2_prot_posteriors))
+        yield "ReQua(SLD-KRR)-conf", ReQua(*requa_params(acc_fn, KRR(), sld(), config, model_type, V2_prot, V2_prot_posteriors), add_conf=True)
     if _KDEy["ReQua"]:
-        yield "ReQua(KDEy-LinReg)", ReQua(*requa_params(acc_fn, LinReg(), kdey(), config))
-        yield "ReQua(KDEy-LinReg)-conf", ReQua(*requa_params(acc_fn, LinReg(), kdey(), config), add_conf=True)
-        yield "ReQua(KDEy-Ridge)", ReQua(*requa_params(acc_fn, Ridge(), kdey(), config))
-        yield "ReQua(KDEy-Ridge)-conf", ReQua(*requa_params(acc_fn, Ridge(), kdey(), config), add_conf=True)
-        yield "ReQua(KDEy-KRR)", ReQua(*requa_params(acc_fn, KRR(), kdey(), config))
-        yield "ReQua(KDEy-KRR)-conf", ReQua(*requa_params(acc_fn, KRR(), kdey(), config), add_conf=True)
-    if _KDEy["reDAN"]:
-        # yield "reDAN(KDEy-LinReg)", reDAN(acc_fn, LinReg(), kdey(), sample_size=qp.environ["SAMPLE_SIZE"])
-        # yield "reDAN(KDEy-LinReg)-OPT", reDAN(acc_fn, LinReg(), kdey(), add_n2e_opt=True, sample_size=qp.environ["SAMPLE_SIZE"])
-        # yield "reDAN(KDEy-Ridge)", reDAN(acc_fn, Ridge(), kdey(), sample_size=qp.environ["SAMPLE_SIZE"])
-        # yield "reDAN(KDEy-Ridge)-OPT", reDAN(acc_fn, Ridge(), kdey(), add_n2e_opt=True, sample_size=qp.environ["SAMPLE_SIZE"])
-        yield "reDAN(KDEy-KRR)", reDAN(acc_fn, KRR(), kdey(), sample_size=qp.environ["SAMPLE_SIZE"])
-        # yield "reDAN(KDEy-KRR)-OPT", reDAN(acc_fn, KRR(), kdey(), q_params = rdan_q_params_kdey, add_n2e_opt=True, sample_size=qp.environ["SAMPLE_SIZE"])
-        # yield "reDAN(KDEy-KRR)-OPT+", reDAN(acc_fn, KRR(), kdey(), q_params = rdan_q_params_kdey, add_n2e_opt=True, add_conf=True, sample_size=qp.environ["SAMPLE_SIZE"])
+        yield "ReQua(KDEy-LinReg)", ReQua(*requa_params(acc_fn, LinReg(), kdey(), config, model_type, V2_prot, V2_prot_posteriors))
+        yield "ReQua(KDEy-LinReg)-conf", ReQua(*requa_params(acc_fn, LinReg(), kdey(), config, model_type, V2_prot, V2_prot_posteriors), add_conf=True)
+        yield "ReQua(KDEy-Ridge)", ReQua(*requa_params(acc_fn, Ridge(), kdey(), config, model_type, V2_prot, V2_prot_posteriors))
+        yield "ReQua(KDEy-Ridge)-conf", ReQua(*requa_params(acc_fn, Ridge(), kdey(), config, model_type, V2_prot, V2_prot_posteriors), add_conf=True)
+        yield "ReQua(KDEy-KRR)", ReQua(*requa_params(acc_fn, KRR(), kdey(), config, model_type, V2_prot, V2_prot_posteriors))
+        yield "ReQua(KDEy-KRR)-conf", ReQua(*requa_params(acc_fn, KRR(), kdey(), config, model_type, V2_prot, V2_prot_posteriors), add_conf=True)
 
 def gen_CAP_cont_table(h, acc_fn, config, model_type) -> [str, CAPContingencyTable]:
     yield "Naive", NaiveCAP(acc_fn)
     # yield 'Equations-ACCh', NsquaredEquationsCAP(h, acc_fn, ACC, reuse_h=True)
     # yield 'Equations-ACC', NsquaredEquationsCAP(h, acc_fn, ACC)
-    if _CC["N2E"]:
-        yield "N2E(CC-h0)", N2E(acc_fn, CC(LR()), reuse_h=True)
-    if _ACC["N2E"]:
-        yield "N2E(ACC-h0)", N2E(acc_fn, ACC(LR()), reuse_h=True)
-    if _SLD["N2E"]:
-        yield "N2E(SLD-h0)", N2E(acc_fn, sld(), reuse_h=True)
-        yield "N2E(SLD-h+)", N2E(acc_fn, sld(), reuse_h=False)
-    if _KDEy["N2E"]:
+    if _CC["LEAP"] and model_type == "simple":
+        yield "LEAP(CC)", N2E(acc_fn, CC(LR()), reuse_h=h)
+    if _ACC["LEAP"] and model_type == "simple":
+        yield "LEAP(ACC)", N2E(acc_fn, ACC(LR()), reuse_h=h)
+    if _SLD["LEAP"]:
+        if model_type == "simple":
+            yield "LEAP(SLD)", N2E(acc_fn, sld(), reuse_h=h)
+        yield "LEAP+(SLD)", N2E(acc_fn, sld())
+    if _KDEy["LEAP"]:
         # yield 'CT-PPS-KDE', ContTableTransferCAP(h, acc_fn, KDEyML(LogisticRegression(class_weight='balanced'), bandwidth=0.01))
         # yield 'CT-PPS-KDE05
-        yield "N2E(KDEy-h0)", N2E(acc_fn, kdey(), reuse_h=True)
-        yield "N2E(KDEy-h+)", N2E(acc_fn, kdey(), reuse_h=False)
+        if model_type == "simple":
+            yield "LEAP(KDEy)", N2E(acc_fn, kdey(), reuse_h=h)
+        yield "LEAP+(KDEy)", N2E(acc_fn, kdey())
 # fmt: on
 
 
 # fmt: off
-def gen_CAP_cont_table_opt(h, acc_fn, config, model_type, val_prot) -> [str, CAPContingencyTable]:
+def gen_CAP_cont_table_opt(h, acc_fn, config, model_type, V2_prot, V2_prot_posteriors) -> [str, CAPContingencyTable]:
     pacc_lr_params = {
         "q_class__classifier__C": np.logspace(-3, 3, 7),
         "q_class__classifier__class_weight": [None, "balanced"],
@@ -311,52 +301,62 @@ def gen_CAP_cont_table_opt(h, acc_fn, config, model_type, val_prot) -> [str, CAP
     }
 
     if _SLD["QuAcc"]:
-        yield "QuAcc(SLD)1xn2-OPT", GSCAP(QuAcc1xN2(acc_fn, sld()), emq_lr_params, val_prot, acc_fn, refit=False)
-        yield "QuAcc(SLD)nxn-OPT", GSCAP(QuAccNxN(acc_fn, sld()), emq_lr_params, val_prot, acc_fn, refit=False)
+        yield "QuAcc(SLD)1xn2-OPT", GSCAP(QuAcc1xN2(acc_fn, sld()), emq_lr_params, V2_prot, V2_prot_posteriors, acc_fn, refit=False)
+        yield "QuAcc(SLD)nxn-OPT", GSCAP(QuAccNxN(acc_fn, sld()), emq_lr_params, V2_prot, V2_prot_posteriors, acc_fn, refit=False)
         if config == "binary":
-            yield "QuAcc(SLD)1xnp1-OPT", GSCAP(QuAcc1xNp1(acc_fn, sld()), emq_lr_params, val_prot, acc_fn, refit=False)
-    if _SLD["N2E"]:
-        yield "N2E(SLD-h0)-OPT", GSCAP(N2E(acc_fn, sld(), reuse_h=True), n2e_sld_h0_params, val_prot, acc_fn, refit=False)
-        yield "N2E(SLD-h+)-OPT", GSCAP(N2E(acc_fn, sld(), reuse_h=False), n2e_sld_hplus_params, val_prot, acc_fn, refit=False)
+            yield "QuAcc(SLD)1xnp1-OPT", GSCAP(QuAcc1xNp1(acc_fn, sld()), emq_lr_params, V2_prot, V2_prot_posteriors, acc_fn, refit=False)
+    if _SLD["LEAP"]:
+        if model_type == "simple":
+            yield "LEAP(SLD)-OPT", GSCAP(N2E(acc_fn, sld(), reuse_h=h), n2e_sld_h0_params, V2_prot, V2_prot_posteriors, acc_fn, refit=False)
+        yield "LEAP+(SLD)-OPT", GSCAP(N2E(acc_fn, sld()), n2e_sld_hplus_params, V2_prot, V2_prot_posteriors, acc_fn, refit=False)
     if _KDEy["QuAcc"]:
-        yield "QuAcc(KDEy)1xn2-OPT", GSCAP(QuAcc1xN2(acc_fn, kdey()), kde_lr_params, val_prot, acc_fn, refit=False)
-        yield "QuAcc(KDEy)nxn-OPT", GSCAP(QuAccNxN(acc_fn, kdey()), kde_lr_params, val_prot, acc_fn, refit=False)
+        yield "QuAcc(KDEy)1xn2-OPT", GSCAP(QuAcc1xN2(acc_fn, kdey()), kde_lr_params, V2_prot, V2_prot_posteriors, acc_fn, refit=False)
+        yield "QuAcc(KDEy)nxn-OPT", GSCAP(QuAccNxN(acc_fn, kdey()), kde_lr_params, V2_prot, V2_prot_posteriors, acc_fn, refit=False)
         if config == "binary":
-            yield "QuAcc(KDEy)1xnp1-OPT", GSCAP(QuAcc1xNp1(acc_fn, kdey()), kde_lr_params, val_prot, acc_fn, refit=False)
-    if _KDEy["N2E"]:
-        yield "N2E(KDEy-h0)-OPT", GSCAP(N2E(acc_fn, kdey(), reuse_h=True), n2e_kde_h0_params, val_prot, acc_fn, refit=False)
-        yield "N2E(KDEy-h+)-OPT", GSCAP(N2E(acc_fn, kdey(), reuse_h=False), n2e_kde_hplus_params, val_prot, acc_fn, refit=False)
+            yield "QuAcc(KDEy)1xnp1-OPT", GSCAP(QuAcc1xNp1(acc_fn, kdey()), kde_lr_params, V2_prot, V2_prot_posteriors, acc_fn, refit=False)
+    if _KDEy["LEAP"]:
+        if model_type == "simple":
+            yield "LEAP(KDEy)-OPT", GSCAP(N2E(acc_fn, kdey(), reuse_h=h), n2e_kde_h0_params, V2_prot, V2_prot_posteriors, acc_fn, refit=False)
+        yield "LEAP+(KDEy)-OPT", GSCAP(N2E(acc_fn, kdey()), n2e_kde_hplus_params, V2_prot, V2_prot_posteriors, acc_fn, refit=False)
     # return
     # yield
 # fmt: on
 
 
-def gen_methods(h, V, config, model_type="simple", with_oracle=False):
+def gen_methods(
+    h, V, V_poesteriors, V1, V1_posteriors, V2_prot, V2_prot_posteriros, config, model_type="simple", with_oracle=False
+):
     config = "multiclass" if config is None else config
 
     _, acc_fn = next(gen_acc_measure())
 
-    for name, method in gen_CAP_baselines(h, acc_fn, config, model_type, with_oracle):
-        yield name, method, V
+    for name, method in gen_CAP_baselines(acc_fn, config, model_type, with_oracle):
+        yield name, method, V, V_poesteriors
+    for name, method in gen_CAP_baselines_vp(acc_fn, config, model_type, V2_prot, V2_prot_posteriros, with_oracle):
+        yield name, method, V1, V1_posteriors
     for name, method in gen_CAP_direct(h, acc_fn, config, model_type, with_oracle):
-        yield name, method, V
+        yield name, method, V, V_poesteriors
     for name, method in gen_CAP_cont_table(h, acc_fn, config, model_type):
-        yield name, method, V
+        yield name, method, V, V_poesteriors
 
-    V, val_prot = split_validation(V)
-    for name, method in gen_CAP_cont_table_opt(h, acc_fn, config, val_prot):
-        yield name, method, V
+    for name, method in gen_CAP_cont_table_opt(h, acc_fn, config, model_type, V2_prot, V2_prot_posteriros):
+        yield name, method, V1, V1_posteriors
+    for name, method in gen_CAP_regression(acc_fn, config, model_type, V2_prot, V2_prot_posteriros):
+        yield name, method, V1, V1_posteriors
 
 
 def get_method_names(config, model_type="simple"):
     mock_h = LR()
     _, mock_acc_fn = next(gen_acc_measure())
-    mock_val_prot = UPP(None)
+    mock_V2_prot = UPP(None)
+    mock_V2_post = np.empty((1,))
     return (
-        [m for m, _ in gen_CAP_baselines(mock_h, mock_acc_fn, config, model_type)]
+        [m for m, _ in gen_CAP_baselines(mock_acc_fn, config, model_type)]
+        + [m for m, _ in gen_CAP_baselines_vp(mock_acc_fn, config, model_type, mock_V2_prot, mock_V2_post)]
         + [m for m, _ in gen_CAP_direct(mock_h, mock_acc_fn, config, model_type)]
         + [m for m, _ in gen_CAP_cont_table(mock_h, mock_acc_fn, config, model_type)]
-        + [m for m, _ in gen_CAP_cont_table_opt(mock_h, mock_acc_fn, config, model_type, mock_val_prot)]
+        + [m for m, _ in gen_CAP_cont_table_opt(mock_h, mock_acc_fn, config, model_type, mock_V2_prot, mock_V2_post)]
+        + [m for m, _ in gen_CAP_regression(mock_acc_fn, config, model_type, mock_V2_prot, mock_V2_post)]
     )
 
 
