@@ -139,6 +139,8 @@ def lmexperiments():
 
         test_prot = UPP(U, repeats=NUM_TEST, return_type="labelled_collection", random_state=R_SEED)
 
+        # save_dataset_stats(dataset_name, test_prot, L, V)
+
         V1, V2_prot = split_validation(V)
 
         V_posteriors = model.predict_proba(V.X, V.attention_mask, verbose=True)
@@ -156,6 +158,12 @@ def lmexperiments():
         true_accs = {}
         for acc_name, acc_fn in gen_acc_measure(multiclass=True):
             true_accs[acc_name] = [acc_fn(y_hat, Ui.y) for y_hat, Ui in zip(test_prot_y_hat, test_prot())]
+
+        L_prev = get_plain_prev(L.prevalence())
+        for method_name, method, val, val_posteriors in gen_methods(
+            model, V, V_posteriors, V1, V1_posteriors, V2_prot, V2_prot_posteriors, PROBLEM, "large", ORACLE
+        ):
+            pass
 
 
 if __name__ == "__main__":
