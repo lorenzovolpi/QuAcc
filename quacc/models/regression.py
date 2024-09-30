@@ -224,6 +224,7 @@ class ReQua(CAPDirect):
         return acc_pred.tolist()
 
 
+# TODO: adapt to fit with posteriors change
 class reDAN(CAPDirect):
     def __init__(
         self,
