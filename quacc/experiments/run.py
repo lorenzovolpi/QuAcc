@@ -31,6 +31,7 @@ from quacc.experiments.util import (
 from quacc.utils.commons import save_dataset_stats, true_acc
 
 PROBLEM = "binary"
+MODEL_TYPE = "large"
 
 log = get_logger()
 
@@ -50,7 +51,6 @@ def all_exist_pre_check(basedir, cls_name, dataset_name, model_type):
 
 
 def experiments():
-    MODEL_TYPE = "simple"
     ORACLE = False
     basedir = PROBLEM + ("-oracle" if ORACLE else "")
     NUM_TEST = 1000
@@ -81,29 +81,46 @@ def experiments():
         # compute some stats of the dataset
         save_dataset_stats(dataset_name, test_prot, L, V)
 
-        # precompute the actual accuracy values
+        # split validation set
+        V1, V2_prot = split_validation(V)
 
+        # precomumpute model posteriors for validation and test sets
+        V_posteriors = h.predict_proba(V.X)
+        V1_posteriors = h.predict_proba(V1.X)
+        V2_prot_posteriors = []
+        for sample in V2_prot():
+            V2_prot_posteriors.append(h.predict_proba(sample.X))
+
+        test_prot_posteriors, test_prot_y_hat = [], []
+        for sample in test_prot():
+            P = h.predict_proba(sample.X)
+            test_prot_posteriors.append(P)
+            test_prot_y_hat.append(np.argmax(P, axis=-1))
+
+        # precompute the actual accuracy values
         true_accs = {}
         for acc_name, acc_fn in gen_acc_measure(multiclass=True):
             true_accs[acc_name] = [true_acc(h, acc_fn, Ui) for Ui in test_prot()]
 
         L_prev = get_plain_prev(L.prevalence())
-        for method_name, method, V in gen_methods(h, V, PROBLEM, ORACLE):
-            V_prev = get_plain_prev(V.prevalence())
+        for method_name, method, val, val_posteriors in gen_methods(
+            h, V, V_posteriors, V1, V1_posteriors, V2_prot, V2_prot_posteriors, PROBLEM, MODEL_TYPE, ORACLE
+        ):
+            val_prev = get_plain_prev(V.prevalence())
 
             t_train = None
             for acc_name, acc_fn in gen_acc_measure(multiclass=True):
-                report = TestReport(basedir, cls_name, acc_name, dataset_name, L_prev, V_prev, method_name)
+                report = TestReport(basedir, cls_name, acc_name, dataset_name, L_prev, val_prev, method_name)
                 if os.path.exists(report.get_path()):
                     log.info(f"{method_name}: {acc_name} exists, skipping")
                     continue
 
                 try:
-                    method, _t_train = fit_or_switch(method, V, acc_fn, t_train is not None)
+                    method, _t_train = fit_or_switch(method, val, val_posteriors, acc_fn, t_train is not None)
                     t_train = t_train if _t_train is None else _t_train
 
                     test_prevs = prevs_from_prot(test_prot)
-                    estim_accs, t_test_ave = get_predictions(method, test_prot, ORACLE)
+                    estim_accs, t_test_ave = get_predictions(method, test_prot, test_prot_posteriors, ORACLE)
                     report.add_result(test_prevs, true_accs[acc_name], estim_accs, t_train, t_test_ave)
                 except Exception as e:
                     print_exception(e)
@@ -118,7 +135,6 @@ def experiments():
 
 
 def lmexperiments():
-    MODEL_TYPE = "large"
     ORACLE = False
     basedir = PROBLEM + ("-oracle" if ORACLE else "")
     NUM_TEST = 100
@@ -137,12 +153,16 @@ def lmexperiments():
         log.info(f"{cls_name} training on dataset={dataset_name}")
         model.fit(L, dataset_name)
 
+        # test generation protocol
         test_prot = UPP(U, repeats=NUM_TEST, return_type="labelled_collection", random_state=R_SEED)
 
-        # save_dataset_stats(dataset_name, test_prot, L, V)
+        # compute some stats of the dataset
+        save_dataset_stats(dataset_name, test_prot, L, V)
 
+        # split validation set
         V1, V2_prot = split_validation(V)
 
+        # precomumpute model posteriors for validation and test sets
         V_posteriors = model.predict_proba(V.X, V.attention_mask, verbose=True)
         V1_posteriors = model.predict_proba(V1.X, V1.attention_mask, verbose=True)
         V2_prot_posteriors = []
@@ -155,20 +175,48 @@ def lmexperiments():
             test_prot_posteriors.append(P)
             test_prot_y_hat.append(np.argmax(P, axis=-1))
 
+        # precompute the actual accuracy values
         true_accs = {}
         for acc_name, acc_fn in gen_acc_measure(multiclass=True):
             true_accs[acc_name] = [acc_fn(y_hat, Ui.y) for y_hat, Ui in zip(test_prot_y_hat, test_prot())]
 
         L_prev = get_plain_prev(L.prevalence())
         for method_name, method, val, val_posteriors in gen_methods(
-            model, V, V_posteriors, V1, V1_posteriors, V2_prot, V2_prot_posteriors, PROBLEM, "large", ORACLE
+            model, V, V_posteriors, V1, V1_posteriors, V2_prot, V2_prot_posteriors, PROBLEM, MODEL_TYPE, ORACLE
         ):
-            pass
+            val_prev = get_plain_prev(val.prevalence())
+
+            t_train = None
+            for acc_name, acc_fn in gen_acc_measure(multiclass=True):
+                report = TestReport(basedir, cls_name, acc_name, dataset_name, L_prev, val_prev, method_name)
+                if os.path.exists(report.get_path()):
+                    log.info(f"{method_name}: {acc_name} exists, skipping")
+                    continue
+
+                try:
+                    method, _t_train = fit_or_switch(method, val, val_posteriors, acc_fn, t_train is not None)
+                    t_train = t_train if _t_train is None else _t_train
+
+                    test_prevs = prevs_from_prot(test_prot)
+                    estim_accs, t_test_ave = get_predictions(method, test_prot, test_prot_posteriors, ORACLE)
+                    report.add_result(test_prevs, true_accs[acc_name], estim_accs, t_train, t_test_ave)
+                except Exception as e:
+                    print_exception(e)
+                    log.warning(f"{method_name}: {acc_name} gave_error '{e}' - skipping")
+                    continue
+
+                report.save_json()
+                log.info(f"{method_name}: {acc_name} done [t_train:{t_train:.3f}s; t_test_ave:{t_test_ave:.3f}s]")
+
+    log.info("-" * 32 + "  end  " + "-" * 32)
 
 
 if __name__ == "__main__":
     try:
-        experiments()
+        if MODEL_TYPE == "simple":
+            experiments()
+        if MODEL_TYPE == "large":
+            lmexperiments()
     except Exception as e:
         log.error(e)
         print_exception(e)
