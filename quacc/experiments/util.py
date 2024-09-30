@@ -16,30 +16,30 @@ def method_can_switch(method):
     return method is not None and hasattr(method, "switch") and not isinstance(method, GridSearchCAP)
 
 
-def fit_or_switch(method: ClassifierAccuracyPrediction, V, acc_fn, is_fit):
+def fit_or_switch(method: ClassifierAccuracyPrediction, V, V_posteriors, acc_fn, is_fit):
     if hasattr(method, "switch"):
         method, t_train = method.switch(acc_fn), None
         if not is_fit or isinstance(method, GridSearchCAP):
             tinit = time()
-            method.fit(V)
+            method.fit(V, V_posteriors)
             t_train = time() - tinit
         return method, t_train
     elif hasattr(method, "switch_and_fit"):
         tinit = time()
-        method = method.switch_and_fit(acc_fn, V)
+        method = method.switch_and_fit(acc_fn, V, V_posteriors)
         t_train = time() - tinit
         return method, t_train
     else:
         ValueError("invalid method")
 
 
-def get_predictions(method: ClassifierAccuracyPrediction, test_prot, oracle=False):
+def get_predictions(method: ClassifierAccuracyPrediction, test_prot, test_prot_posteriors, oracle=False):
     tinit = time()
     if not oracle:
-        estim_accs = method.batch_predict(test_prot)
+        estim_accs = method.batch_predict(test_prot, test_prot_posteriors)
     else:
         oracles = [Ui.prevalence() for Ui in test_prot()]
-        estim_accs = method.batch_predict(test_prot, oracle_prevs=oracles)
+        estim_accs = method.batch_predict(test_prot, test_prot_posteriors, oracle_prevs=oracles)
     t_test_ave = (time() - tinit) / test_prot.total()
     return estim_accs, t_test_ave
 
