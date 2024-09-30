@@ -44,27 +44,27 @@ from quacc.utils.commons import get_results_path
 
 _CC = defaultdict(lambda: False)
 _CC = dict(
-    LEAP=True,
+    LEAP=False,
 )
 _ACC = defaultdict(lambda: False)
 _ACC = dict(
-    LEAP=True,
+    LEAP=False,
 )
 _SLD = defaultdict(lambda: False)
 _SLD = dict(
     reDAN=False,
     PQ=False,
-    ReQua=False,
+    ReQua=True,
     LEAP=False,
-    QuAcc=False,
+    QuAcc=True,
 )
 _KDEy = defaultdict(lambda: False)
 _KDEy = dict(
     reDAN=False,
     PQ=False,
-    ReQua=False,
-    LEAP=True,
-    QuAcc=False,
+    ReQua=True,
+    LEAP=False,
+    QuAcc=True,
 )
 
 
