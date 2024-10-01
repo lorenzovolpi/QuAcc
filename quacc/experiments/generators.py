@@ -167,9 +167,9 @@ def gen_lm_model_dataset(_gen_model, _gen_dataset):
 ### baselines ###
 
 
-def gen_CAP_baselines(h, acc_fn, config, mode_type, with_oracle=False) -> [str, CAPDirect]:
+def gen_CAP_baselines(acc_fn, config, mode_type, with_oracle=False) -> [str, CAPDirect]:
     yield "ATC-MC", ATC(acc_fn, scoring_fn="maxconf")
-    # yield 'ATC-NE', ATC(h, acc_fn, scoring_fn='neg_entropy')
+    # yield 'ATC-NE', ATC(acc_fn, scoring_fn='neg_entropy')
 
 
 def gen_CAP_baselines_vp(acc_fn, config, model_type, V2_prot, V2_prot_posteriors, with_oracle=False):

@@ -48,7 +48,7 @@ def get_plain_prev(prev: np.ndarray):
     if prev.shape[0] > 2:
         return tuple(prev[1:])
     else:
-        return prev[-1]
+        return float(prev[-1])
 
 
 def prevs_from_prot(prot):

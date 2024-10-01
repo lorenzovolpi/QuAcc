@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 import numpy as np
 import quapy as qp
@@ -56,6 +57,8 @@ class DistilBert(LargeModel):
 
     def checkpoint(self, dataset_name):
         path = self.get_model_path(dataset_name)
+        parent_dir = Path(path).parent
+        os.makedirs(parent_dir, exist_ok=True)
         torch.save(
             {
                 "epoch": self.epoch,

@@ -199,6 +199,7 @@ class GridSearchCAP(CAPContingencyTable):
             deepcopy(self.model).switch(acc_fn),
             self.param_grid,
             self.protocol,
+            self.prot_posteriors,
             acc_fn,
             self.error,
             self.refit,

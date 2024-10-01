@@ -2,6 +2,7 @@
 
 WORKDIR="quacc"
 
+host="bcuda"
 
 if [[ $1 == "-l" ]]; then
     $host cat $WORKDIR/output/quacc.log | bat -l syslog

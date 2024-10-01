@@ -18,7 +18,7 @@ RCV1_HIERARCHY_URL = "http://www.ai.mit.edu/projects/jmlr/papers/volume5/lewis04
 
 
 def split_train(train: LabelledCollection, train_val_split: float):
-    return train.split_stratified(0.5, random_state=train_val_split)
+    return train.split_stratified(train_prop=train_val_split, random_state=qp.environ["_R_SEED"])
 
 
 def get_rcv1_class_info():
