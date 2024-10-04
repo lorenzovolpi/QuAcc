@@ -55,6 +55,7 @@ _SLD = dict(
     reDAN=False,
     PQ=False,
     ReQua=True,
+    ReQua_conf=False,
     LEAP=False,
     QuAcc=True,
 )
@@ -63,6 +64,7 @@ _KDEy = dict(
     reDAN=False,
     PQ=False,
     ReQua=True,
+    ReQua_conf=False,
     LEAP=False,
     QuAcc=True,
 )
@@ -116,8 +118,8 @@ def gen_multi_datasets(
     # yield "T1B-LeQua2022", None if only_names else fetch_T1BLequa2022Dataset()
 
     # yields the RCV1 multiclass datasets
-    for dataset_name in RCV1_MULTICLASS_DATASETS:
-        yield dataset_name, None if only_names else fetch_RCV1MulticlassDataset(dataset_name)
+    # for dataset_name in RCV1_MULTICLASS_DATASETS:
+    #     yield dataset_name, None if only_names else fetch_RCV1MulticlassDataset(dataset_name)
 
 
 def gen_tweet_datasets(
@@ -232,17 +234,19 @@ def requa_params(acc_fn, reg, q_class, config, model_type, V2_prot, V2_prot_post
 def gen_CAP_regression(acc_fn, config, model_type, V2_prot, V2_prot_posteriors):
     if _SLD["ReQua"]:
         yield "ReQua(SLD-LinReg)", ReQua(*requa_params(acc_fn, LinReg(), sld(), config, model_type, V2_prot, V2_prot_posteriors))
-        yield "ReQua(SLD-LinReg)-conf", ReQua(*requa_params(acc_fn, LinReg(), sld(), config, model_type, V2_prot, V2_prot_posteriors), add_conf=True)
         yield "ReQua(SLD-Ridge)", ReQua(*requa_params(acc_fn, Ridge(), sld(), config, model_type, V2_prot, V2_prot_posteriors))
-        yield "ReQua(SLD-Ridge)-conf", ReQua(*requa_params(acc_fn, Ridge(), sld(), config, model_type, V2_prot, V2_prot_posteriors), add_conf=True)
         yield "ReQua(SLD-KRR)", ReQua(*requa_params(acc_fn, KRR(), sld(), config, model_type, V2_prot, V2_prot_posteriors))
+    if _SLD["ReQua_conf"]:
+        yield "ReQua(SLD-LinReg)-conf", ReQua(*requa_params(acc_fn, LinReg(), sld(), config, model_type, V2_prot, V2_prot_posteriors), add_conf=True)
+        yield "ReQua(SLD-Ridge)-conf", ReQua(*requa_params(acc_fn, Ridge(), sld(), config, model_type, V2_prot, V2_prot_posteriors), add_conf=True)
         yield "ReQua(SLD-KRR)-conf", ReQua(*requa_params(acc_fn, KRR(), sld(), config, model_type, V2_prot, V2_prot_posteriors), add_conf=True)
     if _KDEy["ReQua"]:
         yield "ReQua(KDEy-LinReg)", ReQua(*requa_params(acc_fn, LinReg(), kdey(), config, model_type, V2_prot, V2_prot_posteriors))
-        yield "ReQua(KDEy-LinReg)-conf", ReQua(*requa_params(acc_fn, LinReg(), kdey(), config, model_type, V2_prot, V2_prot_posteriors), add_conf=True)
         yield "ReQua(KDEy-Ridge)", ReQua(*requa_params(acc_fn, Ridge(), kdey(), config, model_type, V2_prot, V2_prot_posteriors))
-        yield "ReQua(KDEy-Ridge)-conf", ReQua(*requa_params(acc_fn, Ridge(), kdey(), config, model_type, V2_prot, V2_prot_posteriors), add_conf=True)
         yield "ReQua(KDEy-KRR)", ReQua(*requa_params(acc_fn, KRR(), kdey(), config, model_type, V2_prot, V2_prot_posteriors))
+    if _KDEy["ReQua_conf"]:
+        yield "ReQua(KDEy-LinReg)-conf", ReQua(*requa_params(acc_fn, LinReg(), kdey(), config, model_type, V2_prot, V2_prot_posteriors), add_conf=True)
+        yield "ReQua(KDEy-Ridge)-conf", ReQua(*requa_params(acc_fn, Ridge(), kdey(), config, model_type, V2_prot, V2_prot_posteriors), add_conf=True)
         yield "ReQua(KDEy-KRR)-conf", ReQua(*requa_params(acc_fn, KRR(), kdey(), config, model_type, V2_prot, V2_prot_posteriors), add_conf=True)
 
 def gen_CAP_cont_table(h, acc_fn, config, model_type) -> [str, CAPContingencyTable]:

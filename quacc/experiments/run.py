@@ -30,8 +30,8 @@ from quacc.experiments.util import (
 )
 from quacc.utils.commons import save_dataset_stats, true_acc
 
-PROBLEM = "binary"
-MODEL_TYPE = "large"
+PROBLEM = "multiclass"
+MODEL_TYPE = "simple"
 
 log = get_logger()
 
@@ -54,6 +54,8 @@ def experiments():
     ORACLE = False
     basedir = PROBLEM + ("-oracle" if ORACLE else "")
     NUM_TEST = 1000
+    R_SEED = 42
+    qp.environ["_R_SEED"] = R_SEED
 
     if PROBLEM == "binary":
         qp.environ["SAMPLE_SIZE"] = 100
@@ -144,6 +146,8 @@ def lmexperiments():
     if PROBLEM == "binary":
         gen_lm_datasets = gen_bin_lm_datasets
         qp.environ["SAMPLE_SIZE"] = 500
+
+    log.info("-" * 31 + "  start  " + "-" * 31)
 
     for (cls_name, model), (dataset_name, (L, V, U)) in gen_lm_model_dataset(gen_lm_classifiers, gen_lm_datasets):
         if all_exist_pre_check(basedir, cls_name, dataset_name, MODEL_TYPE):
