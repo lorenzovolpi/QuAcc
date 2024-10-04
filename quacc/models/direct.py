@@ -265,5 +265,5 @@ class DoC(CAPDirect):
         mc = max_conf(posteriors)
         acc_pred = self.predict_regression(mc)[0]
         if self.clip_vals is not None:
-            acc_pred = np.clip(acc_pred, *self.clip_vals)
+            acc_pred = float(np.clip(acc_pred, *self.clip_vals))
         return acc_pred
