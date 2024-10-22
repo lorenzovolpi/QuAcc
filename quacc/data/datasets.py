@@ -13,7 +13,10 @@ from quacc.data.util import get_rcv1_class_info, hf_dataset_map, preprocess_hf_d
 from quacc.environment import env
 
 # fmt: off
-RCV1_BINARY_DATASETS = ["CCAT", "GCAT", "MCAT", "ECAT", "C151", "GCRIM", "M131", "E41"]
+RCV1_BINARY_DATASETS = [
+    "CCAT", "GCAT", "MCAT", "ECAT", 
+    # "C151", "GCRIM", "M131", "E41",
+]
 RCV1_MULTICLASS_DATASETS = [
     "C18", "C31", "E51", "M14",  # 3 classes
     "C17", "C2", "C3", "E1", "M1", "Root",  # 4 classes
@@ -73,7 +76,7 @@ def fetch_RCV1MulticlassDataset(target, train_val_split=0.5, include_zero=False)
 
     _, _, index = get_rcv1_class_info()
 
-    assert target in RCV1_MULTICLASS_DATASETS, f"invalid class {target}"
+    # assert target in RCV1_MULTICLASS_DATASETS, f"invalid class {target}"
 
     class_idx = index[target]
     training = fetch_rcv1(subset="train", data_home=env["SKLEARN_DATA"])
