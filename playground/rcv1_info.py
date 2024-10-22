@@ -1,19 +1,22 @@
+import quapy as qp
 from quapy.data.base import LabelledCollection
 from sklearn.datasets import fetch_rcv1
 
 import quacc as qc
+from quacc.data.datasets import fetch_RCV1MulticlassDataset
+from quacc.data.util import get_rcv1_class_info
 
-train = fetch_rcv1(data_home=qc.env["SKLEARN_DATA"], subset="train")
-test = fetch_rcv1(data_home=qc.env["SKLEARN_DATA"], subset="test")
+qp.environ["_R_SEED"] = 0
 
-stats = {}
-class_names = train.target_names.tolist()
-for target in class_names:
-    class_idx = class_names.index(target)
-    tr_labels = train.target[:, class_idx].toarray().flatten()
-    tr = LabelledCollection(train.data, tr_labels)
-    stats[target] = tr.prevalence()
+if __name__ == "__main__":
+    cns, tree, index = get_rcv1_class_info()
 
-with open("playground/rcv1.info", "w") as f:
-    for target, prev in sorted(stats.items(), key=lambda x: x[1][0]):
-        f.write(f"{target}: {prev}\n")
+    for name in cns:
+        if name not in index:
+            print(f"{name} - excluded")
+            continue
+
+        T, V, U = fetch_RCV1MulticlassDataset(name)
+        print(
+            f"{name} - Tsize: {len(T)}; Tprev: {T.prevalence()}; Usize: {len(U)}; T/Uclasses: {T.n_classes}/{U.n_classes}"
+        )
