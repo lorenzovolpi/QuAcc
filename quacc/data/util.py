@@ -66,8 +66,6 @@ def get_rcv1_class_info():
             tree[parent] = children
             index[parent] = idxs
 
-        print(parent, children, idxs)
-
     return class_names.tolist(), tree, index
 
 
