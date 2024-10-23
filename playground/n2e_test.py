@@ -16,7 +16,7 @@ import quacc.error
 from quacc.data.datasets import RCV1_MULTICLASS_DATASETS, fetch_RCV1BinaryDataset, fetch_RCV1MulticlassDataset
 from quacc.error import vanilla_acc
 from quacc.experiments.util import split_validation
-from quacc.models.cont_table import N2E, QuAcc1xN2, QuAcc1xNp1, QuAccNxN
+from quacc.models.cont_table import LEAP, QuAcc1xN2, QuAcc1xNp1, QuAccNxN
 from quacc.utils.commons import true_acc
 
 NUM_TEST = 1000
@@ -85,8 +85,8 @@ elif CONFIG == "binary":
 # fmt: off
 
 def gen_methods(h, acc_fn):
-    yield "N2E(SLD)", N2E(h, acc_fn, sld(), verbose=True)
-    yield "N2E(SLD)-optim", N2E(h, acc_fn, sld(), always_optimize=True, verbose=True)
+    yield "N2E(SLD)", LEAP(h, acc_fn, sld(), verbose=True)
+    yield "N2E(SLD)-optim", LEAP(h, acc_fn, sld(), always_optimize=True, verbose=True)
 
 # fmt: on
 

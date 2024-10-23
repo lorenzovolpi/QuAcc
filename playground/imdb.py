@@ -18,7 +18,7 @@ import quacc.error
 from quacc.dataset import DatasetProvider as DP
 from quacc.error import f1_macro, vanilla_acc
 from quacc.experiments.util import split_validation
-from quacc.models.cont_table import N2E, QuAcc1xN2, QuAcc1xNp1, QuAccNxN
+from quacc.models.cont_table import LEAP, QuAcc1xN2, QuAcc1xNp1, QuAccNxN
 from quacc.models.direct import ATC, DoC
 from quacc.models.model_selection import GridSearchCAP as GSCAP
 from quacc.plot.seaborn import plot_shift

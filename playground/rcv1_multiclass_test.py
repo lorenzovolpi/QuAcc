@@ -13,7 +13,7 @@ import quacc.error
 from quacc.data.datasets import fetch_RCV1MulticlassDataset
 from quacc.error import f1_macro, vanilla_acc
 from quacc.experiments.util import split_validation
-from quacc.models.cont_table import N2E, QuAcc1xN2, QuAccNxN
+from quacc.models.cont_table import LEAP, QuAcc1xN2, QuAccNxN
 from quacc.models.model_selection import GridSearchCAP as GSCAP
 from quacc.utils.commons import true_acc
 
@@ -65,7 +65,7 @@ def main():
                     f"QuAcc({q_name})nxn-OPT-norefit",
                     GSCAP(QuAccNxN(h, acc_fn, q), params, val_prot, acc_fn, refit=False, raise_errors=True),
                 ),
-                (f"N2E({q_name})", N2E(h, acc_fn, q)),
+                (f"N2E({q_name})", LEAP(h, acc_fn, q)),
             ]
             for method_name, method in methods[2:]:
                 print(f"\t\t{method_name=}")
