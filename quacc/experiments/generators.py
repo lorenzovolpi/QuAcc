@@ -19,8 +19,10 @@ from sklearn.svm import SVC
 
 from quacc.data.datasets import (
     HF_DATASETS,
+    RCV1_BINARY_DATASETS,
     RCV1_MULTICLASS_DATASETS,
     fetch_HFDataset,
+    fetch_RCV1BinaryDataset,
     fetch_RCV1MulticlassDataset,
     fetch_twitterDataset,
     fetch_UCIBinaryDataset,
@@ -30,7 +32,8 @@ from quacc.error import f1, f1_macro, vanilla_acc
 from quacc.experiments.util import split_validation
 from quacc.models._large_models import DistilBert
 from quacc.models.cont_table import (
-    N2E,
+    LEAP,
+    PHD,
     CAPContingencyTable,
     NaiveCAP,
     QuAcc1xN2,
@@ -45,10 +48,12 @@ from quacc.utils.commons import get_results_path
 _CC = defaultdict(lambda: False)
 _CC = dict(
     LEAP=False,
+    PHD=False,
 )
 _ACC = defaultdict(lambda: False)
 _ACC = dict(
     LEAP=False,
+    PHD=False,
 )
 _SLD = defaultdict(lambda: False)
 _SLD = dict(
@@ -57,6 +62,7 @@ _SLD = dict(
     ReQua=True,
     ReQua_conf=False,
     LEAP=False,
+    PHD=True,
     QuAcc=True,
 )
 _KDEy = defaultdict(lambda: False)
@@ -66,6 +72,7 @@ _KDEy = dict(
     ReQua=True,
     ReQua_conf=False,
     LEAP=False,
+    PHD=True,
     QuAcc=True,
 )
 
@@ -136,9 +143,9 @@ def gen_bin_datasets(
     only_names=False,
 ) -> [str, [LabelledCollection, LabelledCollection, LabelledCollection]]:
     # rcv1
-    # for dn in RCV1_BINARY_DATASETS:
-    #     dval = None if only_names else fetch_RCV1BinaryDataset(dn)
-    #     yield dn, dval
+    for dn in RCV1_BINARY_DATASETS:
+        dval = None if only_names else fetch_RCV1BinaryDataset(dn)
+        yield dn, dval
     # imdb
     # yield "imdb", None if only_names else fetch_IMDBDataset()
     # UCI
@@ -254,19 +261,27 @@ def gen_CAP_cont_table(h, acc_fn, config, model_type) -> [str, CAPContingencyTab
     # yield 'Equations-ACCh', NsquaredEquationsCAP(h, acc_fn, ACC, reuse_h=True)
     # yield 'Equations-ACC', NsquaredEquationsCAP(h, acc_fn, ACC)
     if _CC["LEAP"] and model_type == "simple":
-        yield "LEAP(CC)", N2E(acc_fn, CC(LR()), reuse_h=h)
+        yield "LEAP(CC)", LEAP(acc_fn, CC(LR()), reuse_h=h)
+    if _CC["PHD"] and model_type == "simple":
+        yield "PHD(CC)", PHD(acc_fn, CC(LR()), reuse_h=h)
     if _ACC["LEAP"] and model_type == "simple":
-        yield "LEAP(ACC)", N2E(acc_fn, ACC(LR()), reuse_h=h)
+        yield "LEAP(ACC)", LEAP(acc_fn, ACC(LR()), reuse_h=h)
+    if _ACC["PHD"] and model_type == "simple":
+        yield "PHD(ACC)", PHD(acc_fn, ACC(LR()), reuse_h=h)
     if _SLD["LEAP"]:
         if model_type == "simple":
-            yield "LEAP(SLD)", N2E(acc_fn, sld(), reuse_h=h)
-        yield "LEAP+(SLD)", N2E(acc_fn, sld())
+            yield "LEAP(SLD)", LEAP(acc_fn, sld(), reuse_h=h)
+        yield "LEAP+(SLD)", LEAP(acc_fn, sld())
+    if _SLD["PHD"]:
+        yield "PHD(SLD)", PHD(acc_fn, sld(), reuse_h=h)
     if _KDEy["LEAP"]:
         # yield 'CT-PPS-KDE', ContTableTransferCAP(h, acc_fn, KDEyML(LogisticRegression(class_weight='balanced'), bandwidth=0.01))
         # yield 'CT-PPS-KDE05
         if model_type == "simple":
-            yield "LEAP(KDEy)", N2E(acc_fn, kdey(), reuse_h=h)
-        yield "LEAP+(KDEy)", N2E(acc_fn, kdey())
+            yield "LEAP(KDEy)", LEAP(acc_fn, kdey(), reuse_h=h)
+        yield "LEAP+(KDEy)", LEAP(acc_fn, kdey())
+    if _KDEy["PHD"]:
+        yield "PHD(KDEy)", PHD(acc_fn, kdey(), reuse_h=h)
 # fmt: on
 
 
@@ -311,8 +326,8 @@ def gen_CAP_cont_table_opt(h, acc_fn, config, model_type, V2_prot, V2_prot_poste
             yield "QuAcc(SLD)1xnp1-OPT", GSCAP(QuAcc1xNp1(acc_fn, sld()), emq_lr_params, V2_prot, V2_prot_posteriors, acc_fn, refit=False)
     if _SLD["LEAP"]:
         if model_type == "simple":
-            yield "LEAP(SLD)-OPT", GSCAP(N2E(acc_fn, sld(), reuse_h=h), n2e_sld_h0_params, V2_prot, V2_prot_posteriors, acc_fn, refit=False)
-        yield "LEAP+(SLD)-OPT", GSCAP(N2E(acc_fn, sld()), n2e_sld_hplus_params, V2_prot, V2_prot_posteriors, acc_fn, refit=False)
+            yield "LEAP(SLD)-OPT", GSCAP(LEAP(acc_fn, sld(), reuse_h=h), n2e_sld_h0_params, V2_prot, V2_prot_posteriors, acc_fn, refit=False)
+        yield "LEAP+(SLD)-OPT", GSCAP(LEAP(acc_fn, sld()), n2e_sld_hplus_params, V2_prot, V2_prot_posteriors, acc_fn, refit=False)
     if _KDEy["QuAcc"]:
         yield "QuAcc(KDEy)1xn2-OPT", GSCAP(QuAcc1xN2(acc_fn, kdey()), kde_lr_params, V2_prot, V2_prot_posteriors, acc_fn, refit=False)
         yield "QuAcc(KDEy)nxn-OPT", GSCAP(QuAccNxN(acc_fn, kdey()), kde_lr_params, V2_prot, V2_prot_posteriors, acc_fn, refit=False)
@@ -320,8 +335,8 @@ def gen_CAP_cont_table_opt(h, acc_fn, config, model_type, V2_prot, V2_prot_poste
             yield "QuAcc(KDEy)1xnp1-OPT", GSCAP(QuAcc1xNp1(acc_fn, kdey()), kde_lr_params, V2_prot, V2_prot_posteriors, acc_fn, refit=False)
     if _KDEy["LEAP"]:
         if model_type == "simple":
-            yield "LEAP(KDEy)-OPT", GSCAP(N2E(acc_fn, kdey(), reuse_h=h), n2e_kde_h0_params, V2_prot, V2_prot_posteriors, acc_fn, refit=False)
-        yield "LEAP+(KDEy)-OPT", GSCAP(N2E(acc_fn, kdey()), n2e_kde_hplus_params, V2_prot, V2_prot_posteriors, acc_fn, refit=False)
+            yield "LEAP(KDEy)-OPT", GSCAP(LEAP(acc_fn, kdey(), reuse_h=h), n2e_kde_h0_params, V2_prot, V2_prot_posteriors, acc_fn, refit=False)
+        yield "LEAP+(KDEy)-OPT", GSCAP(LEAP(acc_fn, kdey()), n2e_kde_hplus_params, V2_prot, V2_prot_posteriors, acc_fn, refit=False)
     # return
     # yield
 # fmt: on
