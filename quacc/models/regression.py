@@ -11,7 +11,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import confusion_matrix
 
 import quacc as qc
-from quacc.models.cont_table import N2E, QuAcc
+from quacc.models.cont_table import LEAP, QuAcc
 from quacc.models.direct import ATC, CAPDirect, DoC
 from quacc.models.model_selection import GridSearchCAP as GSCAP
 from quacc.models.utils import get_posteriors_from_h, max_conf, max_inverse_softmax, neg_entropy
@@ -257,7 +257,7 @@ class reDAN(CAPDirect):
         self.joblib_verbose = 10 if verbose else 0
 
     def _fit_models(self, val: LabelledCollection):
-        n2e_acc = N2E(self.h, self.acc, ACC(LogisticRegression()), reuse_h=True).fit(val)
+        n2e_acc = LEAP(self.h, self.acc, ACC(LogisticRegression()), reuse_h=True).fit(val)
         doc = DoC(self.h, self.acc, self.sample_size).fit(val)
         atc = ATC(self.h, self.acc, scoring_fn="maxconf").fit(val)
 
@@ -269,7 +269,7 @@ class reDAN(CAPDirect):
             random_state=qp.environ["_R_SEED"],
             return_type="labelled_collection",
         )
-        _n2e_q = N2E(self.h, self.acc, self.q_class, reuse_h=self.n2e_opt_h0)
+        _n2e_q = LEAP(self.h, self.acc, self.q_class, reuse_h=self.n2e_opt_h0)
         _params = None if self.q_params is None else {("q_class__" + k, v) for k, v in self.q_params.items()}
         n2e_opt = _n2e_q.fit(val) if _params is None else GSCAP(_n2e_q, _params, v_prot, self.acc).fit(v11)
         self.models = [n2e_acc, n2e_opt, doc, atc]
