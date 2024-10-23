@@ -58,6 +58,23 @@ def fetch_RCV1MulticlassDataset(target, train_val_split=0.5, include_zero=False)
     :return: a tuple with training, validation and test sets.
     """
 
+    def extend_labels(orig_labels, orig_cns, ext_cns):
+        ext_cns = np.asarray(ext_cns)
+        sorted_ext_idx = np.argsort(ext_cns)
+        sorted_ext = ext_cns[sorted_ext_idx]
+        subset_idx = np.searchsorted(sorted_ext, orig_cns)
+        ext_labels = np.zeros((orig_labels.shape[0], ext_cns.shape[0]))
+        ext_labels[:, subset_idx] = orig_labels
+
+        for name in ext_cns:
+            if name not in orig_cns:
+                ext_idx = np.where(ext_cns == name)[0][0]
+                new_lbl = np.sum(ext_labels[:, index[name]], axis=-1)
+                new_lbl[np.where(new_lbl > 0)[0]] = 1.0
+                ext_labels[:, ext_idx] = new_lbl
+
+        return ext_labels
+
     def parse_labels(labels):
         if include_zero:
             valid_idx = np.nonzero(np.sum(labels, axis=-1) <= 1)[0]
@@ -74,15 +91,17 @@ def fetch_RCV1MulticlassDataset(target, train_val_split=0.5, include_zero=False)
         labels[ones_idx] = nonzero_vals
         return valid_idx, labels
 
-    _, _, index = get_rcv1_class_info()
+    class_names, _, index = get_rcv1_class_info()
 
     # assert target in RCV1_MULTICLASS_DATASETS, f"invalid class {target}"
 
-    class_idx = index[target]
     training = fetch_rcv1(subset="train", data_home=env["SKLEARN_DATA"])
     test = fetch_rcv1(subset="test", data_home=env["SKLEARN_DATA"])
-    tr_labels = training.target[:, class_idx].toarray()
-    te_labels = test.target[:, class_idx].toarray()
+    tr_labels = extend_labels(training.target.toarray(), training.target_names, class_names)
+    te_labels = extend_labels(test.target.toarray(), test.target_names, class_names)
+    class_idx = index[target]
+    tr_labels = tr_labels[:, class_idx]
+    te_labels = te_labels[:, class_idx]
     tr_valid_idx, tr_labels = parse_labels(tr_labels)
     te_valid_idx, te_labels = parse_labels(te_labels)
     tr = LabelledCollection(training.data[tr_valid_idx, :], tr_labels)
