@@ -630,4 +630,5 @@ def safehstack(X, P):
 
 #     return q
 
-N2E = NsquaredEquationsCAP
+LEAP = NsquaredEquationsCAP
+PHD = ContTableTransferCAP
