@@ -586,49 +586,5 @@ def safehstack(X, P):
     return XP
 
 
-# def make_empty_safe(q: AggregativeQuantifier):
-#     _q_classifier_fit_predict = type(q).classifier_fit_predict
-#     _q_aggregation_fit = type(q).aggregation_fit
-#     _q_quantify = type(q).quantify
-
-#     def num_non_empty_classes(old_class_idx):
-#         return len(old_class_idx)
-
-#     def classifier_fit_predict(self, data: LabelledCollection, fit_classifier=True, predict_on=None):
-#         self.n_classes = data.n_classes
-#         class_compact_data, self.old_class_idx = data.compact_classes()
-#         if num_non_empty_classes(self.old_class_idx) > 1:
-#             return _q_classifier_fit_predict(self, class_compact_data, fit_classifier, predict_on)
-#         return None
-
-#     def aggregation_fit(self, classif_predictions: LabelledCollection, data: LabelledCollection):
-#         self.n_classes = data.n_classes
-#         class_compact_data, _ = data.compact_classes()
-#         if num_non_empty_classes(self.old_class_idx) > 1:
-#             _q_aggregation_fit(self, classif_predictions, class_compact_data)
-
-#     def quantify(self, instances):
-#         num_instances = instances.shape[0]
-#         if num_non_empty_classes(self.old_class_idx) == 0 or num_instances == 0:
-#             # returns the uniform prevalence vector
-#             uniform = np.full(fill_value=1.0 / self.n_classes, shape=self.n_classes, dtype=float)
-#             return uniform
-#         elif num_non_empty_classes(self.old_class_idx) == 1:
-#             # returns a prevalence vector with 100% of the mass in the only non empty class
-#             prev_vector = np.full(fill_value=0.0, shape=self.n_classes, dtype=float)
-#             prev_vector[self.old_class_idx[0]] = 1
-#             return prev_vector
-#         else:
-#             class_compact_prev = _q_quantify(self, instances)
-#             prev_vector = np.full(fill_value=0.0, shape=self.n_classes, dtype=float)
-#             prev_vector[self.old_class_idx] = class_compact_prev
-#             return prev_vector
-
-#     q.classifier_fit_predict = MethodType(classifier_fit_predict, q)
-#     q.aggregation_fit = MethodType(aggregation_fit, q)
-#     q.quantify = MethodType(quantify, q)
-
-#     return q
-
 LEAP = NsquaredEquationsCAP
 PHD = ContTableTransferCAP
