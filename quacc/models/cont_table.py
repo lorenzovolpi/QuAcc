@@ -376,7 +376,7 @@ class QuAcc(CAPContingencyTableQ):
             add_covs.append(mis)
 
         if len(add_covs) > 0:
-            X_dot = np.hstack(add_covs)
+            X_dot = safehstack(add_covs)
         else:
             X_dot = simplex
 
@@ -577,12 +577,21 @@ class QuAccNxN(QuAcc):
         return cont_table
 
 
-def safehstack(X, P):
-    if issparse(X) or issparse(P):
-        XP = scipy.sparse.hstack([X, P])
+# def safehstack(X, P):
+#     if issparse(X) or issparse(P):
+#         XP = scipy.sparse.hstack([X, P])
+#         XP = csr_matrix(XP)
+#     else:
+#         XP = np.hstack([X, P])
+#     return XP
+
+
+def safehstack(covs):
+    if any(map(issparse, covs)):
+        XP = scipy.sparse.hstack(covs)
         XP = csr_matrix(XP)
     else:
-        XP = np.hstack([X, P])
+        XP = np.hstack(covs)
     return XP
 
 
