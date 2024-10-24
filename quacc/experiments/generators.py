@@ -61,7 +61,7 @@ _SLD = dict(
     PQ=False,
     ReQua=True,
     ReQua_conf=False,
-    LEAP=False,
+    LEAP=True,
     PHD=True,
     QuAcc=True,
 )
@@ -71,7 +71,7 @@ _KDEy = dict(
     PQ=False,
     ReQua=True,
     ReQua_conf=False,
-    LEAP=False,
+    LEAP=True,
     PHD=True,
     QuAcc=True,
 )
@@ -271,7 +271,7 @@ def gen_CAP_cont_table(h, acc_fn, config, model_type) -> [str, CAPContingencyTab
     if _SLD["LEAP"]:
         if model_type == "simple":
             yield "LEAP(SLD)", LEAP(acc_fn, sld(), reuse_h=h)
-        yield "LEAP+(SLD)", LEAP(acc_fn, sld())
+        # yield "LEAP+(SLD)", LEAP(acc_fn, sld())
     if _SLD["PHD"]:
         yield "PHD(SLD)", PHD(acc_fn, sld(), reuse_h=h)
     if _KDEy["LEAP"]:
@@ -279,7 +279,7 @@ def gen_CAP_cont_table(h, acc_fn, config, model_type) -> [str, CAPContingencyTab
         # yield 'CT-PPS-KDE05
         if model_type == "simple":
             yield "LEAP(KDEy)", LEAP(acc_fn, kdey(), reuse_h=h)
-        yield "LEAP+(KDEy)", LEAP(acc_fn, kdey())
+        # yield "LEAP+(KDEy)", LEAP(acc_fn, kdey())
     if _KDEy["PHD"]:
         yield "PHD(KDEy)", PHD(acc_fn, kdey(), reuse_h=h)
 # fmt: on
@@ -327,7 +327,7 @@ def gen_CAP_cont_table_opt(h, acc_fn, config, model_type, V2_prot, V2_prot_poste
     if _SLD["LEAP"]:
         if model_type == "simple":
             yield "LEAP(SLD)-OPT", GSCAP(LEAP(acc_fn, sld(), reuse_h=h), n2e_sld_h0_params, V2_prot, V2_prot_posteriors, acc_fn, refit=False)
-        yield "LEAP+(SLD)-OPT", GSCAP(LEAP(acc_fn, sld()), n2e_sld_hplus_params, V2_prot, V2_prot_posteriors, acc_fn, refit=False)
+        # yield "LEAP+(SLD)-OPT", GSCAP(LEAP(acc_fn, sld()), n2e_sld_hplus_params, V2_prot, V2_prot_posteriors, acc_fn, refit=False)
     if _KDEy["QuAcc"]:
         yield "QuAcc(KDEy)1xn2-OPT", GSCAP(QuAcc1xN2(acc_fn, kdey()), kde_lr_params, V2_prot, V2_prot_posteriors, acc_fn, refit=False)
         yield "QuAcc(KDEy)nxn-OPT", GSCAP(QuAccNxN(acc_fn, kdey()), kde_lr_params, V2_prot, V2_prot_posteriors, acc_fn, refit=False)
@@ -336,7 +336,7 @@ def gen_CAP_cont_table_opt(h, acc_fn, config, model_type, V2_prot, V2_prot_poste
     if _KDEy["LEAP"]:
         if model_type == "simple":
             yield "LEAP(KDEy)-OPT", GSCAP(LEAP(acc_fn, kdey(), reuse_h=h), n2e_kde_h0_params, V2_prot, V2_prot_posteriors, acc_fn, refit=False)
-        yield "LEAP+(KDEy)-OPT", GSCAP(LEAP(acc_fn, kdey()), n2e_kde_hplus_params, V2_prot, V2_prot_posteriors, acc_fn, refit=False)
+        # yield "LEAP+(KDEy)-OPT", GSCAP(LEAP(acc_fn, kdey()), n2e_kde_hplus_params, V2_prot, V2_prot_posteriors, acc_fn, refit=False)
     # return
     # yield
 # fmt: on
