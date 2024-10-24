@@ -24,6 +24,7 @@ htmlcov/
 out/*
 output/*
 results/*
+old_results*/*
 tables/*
 plots/*
 dataset_stats/*
