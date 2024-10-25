@@ -115,7 +115,9 @@ def gen_multi_datasets(
     only_names=False,
 ) -> [str, [LabelledCollection, LabelledCollection, LabelledCollection]]:
     # yields the UCI multiclass datasets
-    for dataset_name in [d for d in UCI_MULTICLASS_DATASETS if d not in ["wine-quality", "letter"]]:
+    _uci_skip = ["isolet", "wine-quality", "letter"]
+    _uci_names = [d for d in UCI_MULTICLASS_DATASETS if d not in _uci_skip]
+    for dataset_name in _uci_names:
         yield dataset_name, None if only_names else fetch_UCIMulticlassDataset(dataset_name)
 
     # yields the 20 newsgroups dataset
