@@ -125,8 +125,8 @@ def gen_multi_datasets(
     # yield "T1B-LeQua2022", None if only_names else fetch_T1BLequa2022Dataset()
 
     # yields the RCV1 multiclass datasets
-    # for dataset_name in RCV1_MULTICLASS_DATASETS:
-    #     yield dataset_name, None if only_names else fetch_RCV1MulticlassDataset(dataset_name)
+    for dataset_name in RCV1_MULTICLASS_DATASETS:
+        yield dataset_name, None if only_names else fetch_RCV1MulticlassDataset(dataset_name)
 
 
 def gen_tweet_datasets(
