@@ -4,7 +4,7 @@ from quapy.method.aggregative import EMQ
 from quapy.protocol import UPP
 from sklearn.linear_model import LogisticRegression as LR
 
-from quacc.data.datasets import fetch_RCV1BinaryDataset
+from quacc.data.datasets import fetch_RCV1BinaryDataset, fetch_RCV1MulticlassDataset
 from quacc.error import vanilla_acc
 from quacc.experiments.generators import gen_acc_measure
 from quacc.experiments.util import fit_or_switch, get_predictions, prevs_from_prot, split_validation
@@ -36,7 +36,7 @@ emq_lr_params = pacc_lr_params | {"q_class__recalib": [None, "bcts"]}
 kde_lr_params = pacc_lr_params | {"q_class__bandwidth": np.linspace(0.01, 0.2, 5)}
 
 if __name__ == "__main__":
-    L, V, U = fetch_RCV1BinaryDataset("CCAT")
+    L, V, U = fetch_RCV1MulticlassDataset("C1")
     h = LR()
     h.fit(*L.Xy)
 
@@ -70,22 +70,22 @@ if __name__ == "__main__":
                 acc_fn,
                 refit=False,
                 # n_jobs=0,
-                # raise_errors=True,
+                raise_errors=True,
             ),
             V1,
             V1_posteriors,
         ),
         (
-            "QuAcc(SLD)nxn-OPT",
+            "QuAcc(KDEy)1x2-OPT",
             GSCAP(
-                QuAccNxN(acc_fn, sld()),
+                QuAcc1xN2(acc_fn, sld()),
                 emq_lr_params,
                 V2_prot,
                 V2_prot_posteriors,
                 acc_fn,
                 refit=False,
                 # n_jobs=0,
-                # raise_errors=True,
+                raise_errors=True,
             ),
             V1,
             V1_posteriors,
@@ -96,3 +96,5 @@ if __name__ == "__main__":
         acc_name, acc_fn = "vanilla_accuracy", vanilla_acc
         method, t_train = fit_or_switch(method, val, val_posteriors, acc_fn, False)
         estim_accs, t_test_ave = get_predictions(method, test_prot, test_prot_posteriors, ORACLE)
+        estim_accs = np.asarray(estim_accs)
+        print(f"{method_name}:\t{estim_accs.mean()} [{t_train}s]")
