@@ -86,7 +86,7 @@ def fetch_RCV1MulticlassDataset(target, train_val_split=0.5, include_zero=False)
 
         labels = labels[valid_idx, :]
         ones_idx, nonzero_vals = np.where(labels == np.ones((len(valid_idx), 1)))
-        labels = np.sum(labels, axis=-1)
+        labels = np.sum(labels, axis=-1, dtype=np.int64)
 
         # if the 0 class must be included, shift remaining classed by 1 to make them unique
         nonzero_vals = nonzero_vals + 1 if include_zero else nonzero_vals
