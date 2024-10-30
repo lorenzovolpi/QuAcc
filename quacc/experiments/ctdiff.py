@@ -2,6 +2,7 @@ import numpy as np
 from quapy.protocol import UPP
 
 from quacc.experiments.util import split_validation
+from quacc.models.cont_table import CAPContingencyTable
 
 
 class PredictedSet:
@@ -26,6 +27,10 @@ def gen_classifier_dataset():
     for classifier in gen_classifiers():
         for dataset in gen_datasets():
             yield classifier, dataset
+
+
+def get_cts(method: CAPContingencyTable, test_prot, test_prot_posteriors):
+    pass
 
 
 def ctdiff():
@@ -53,6 +58,7 @@ def ctdiff():
 
         for method_name, method, val_ps in gen_methods(h, V_ps, V1_ps, V2_prot_ps):
             val, val_posteriors = val_ps.A, val_ps.post
+            method.fit(val, val_posteriors)
 
 
 if __name__ == "__main__":
