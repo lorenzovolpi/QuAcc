@@ -1,7 +1,10 @@
 import itertools as IT
+import os
 
 import numpy as np
+import pandas as pd
 import quapy as qp
+import seaborn as sns
 from quapy.data.datasets import UCI_BINARY_DATASETS
 from quapy.method.aggregative import EMQ, KDEyML
 from quapy.protocol import UPP
@@ -45,6 +48,7 @@ def gen_datasets() -> [str, [LabelledCollection, LabelledCollection, LabelledCol
         if MODEL_TYPE == "simple":
             _uci_skip = ["acute.a", "acute.b", "balance.2", "iris.1"]
             _uci_names = [d for d in UCI_BINARY_DATASETS if d not in _uci_skip]
+            # _uci_names = ["cmc.1"]
             for dn in _uci_names:
                 yield dn, fetch_UCIBinaryDataset(dn)
 
@@ -85,6 +89,25 @@ def contingency_matrix(y, y_hat, n_classes):
     return ct / y.shape[0]
 
 
+def save_heatmap(cls_name, dataset, method1, method2, diff_cts, true_cts):
+    def map_heatmap(*args, **kwargs):
+        data: pd.DataFrame = kwargs.pop("data").drop("plot", axis=1).to_numpy()
+        sns.heatmap(data)
+
+    cts1, cts2, cts3 = diff_cts[(method1, method2)], true_cts[method1], true_cts[method2]
+    df = pd.DataFrame(np.vstack([cts1, cts2, cts3]))
+    df["plot"] = np.repeat([f"{method1} - {method2}", f"{method1} - true", f"{method2} - true"], cts1.shape[1])
+
+    plot = sns.FacetGrid(df, col="plot")
+    plot.map_dataframe(map_heatmap)
+
+    parent_dir = f"plots/ctdiff/{PROBLEM}/{cls_name}"
+    os.makedirs(parent_dir, exist_ok=True)
+    fig_path = os.path.join(parent_dir, f"{dataset}_{method1}+{method2}.png")
+    plot.figure.savefig(fig_path)
+    plot.figure.clear()
+
+
 def ctdiff():
     NUM_TEST = 1000
 
@@ -103,11 +126,11 @@ def ctdiff():
         V1_ps = PredictedSet(V1, h.predict_proba(V1.X))
         V2_prot_ps = PredictedSet(V2_prot, [h.predict_proba(sample.X) for sample in V2_prot()])
 
-        test_prot_posteriors, test_prot_y_hat, true_cts = [], [], []
+        test_prot_posteriors, test_prot_y_hat, true_prot_cts = [], [], []
         for sample in test_prot():
             P = h.predict_proba(sample.X)
             y_hat = np.argmax(P, axis=-1)
-            true_cts.append(contingency_matrix(sample.y, y_hat, sample.n_classes))
+            true_prot_cts.append(contingency_matrix(sample.y, y_hat, sample.n_classes))
             test_prot_posteriors.append(P)
             test_prot_y_hat.append(y_hat)
 
@@ -119,16 +142,23 @@ def ctdiff():
             results_cts[method_name] = estim_cts
 
         diff_cts = {}
+        true_cts = {}
         for method1, method2 in IT.product(results_cts.keys(), results_cts.keys()):
             if method1 == method2 or (method1, method2) in diff_cts or (method2, method1) in diff_cts:
                 continue
             diff_cts[(method1, method2)] = get_cts_diff_mean(results_cts[method1], results_cts[method2])
-            diff_cts[(method1, "true")] = get_cts_diff_mean(results_cts[method1], true_cts)
-            diff_cts[(method2, "true")] = get_cts_diff_mean(results_cts[method2], true_cts)
+            true_cts[method1] = get_cts_diff_mean(results_cts[method1], true_prot_cts)
+            true_cts[method2] = get_cts_diff_mean(results_cts[method2], true_prot_cts)
 
-        results[(cls_name, dataset_name)] = diff_cts
+        results[(cls_name, dataset_name)] = {
+            "diff": diff_cts,
+            "true": true_cts,
+        }
 
-    print(results)
+    for (cls_name, dataset), data in results.items():
+        diff_cts, true_cts = data["diff"], data["true"]
+        for (method1, method2), ctss in diff_cts.items():
+            save_heatmap(cls_name, dataset, method1, method2, diff_cts, true_cts)
 
 
 if __name__ == "__main__":
