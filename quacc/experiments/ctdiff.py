@@ -1,4 +1,5 @@
 import itertools as IT
+import json
 import os
 
 import numpy as np
@@ -8,15 +9,21 @@ import seaborn as sns
 from quapy.data.datasets import UCI_BINARY_DATASETS
 from quapy.method.aggregative import EMQ, KDEyML
 from quapy.protocol import UPP
+from sklearn.ensemble import RandomForestClassifier as RFC
 from sklearn.linear_model import LogisticRegression as LR
+from sklearn.neighbors import KNeighborsClassifier as KNN
+from sklearn.neural_network import MLPClassifier as MLP
+from sklearn.svm import SVC
 
 from quacc.data.datasets import fetch_UCIBinaryDataset
 from quacc.error import vanilla_acc
-from quacc.experiments.util import split_validation
+from quacc.experiments.util import get_logger, split_validation
 from quacc.models.cont_table import LEAP, PHD, CAPContingencyTable, LabelledCollection
 
 PROBLEM = "binary"
 MODEL_TYPE = "simple"
+
+log = get_logger(id="ctdiff")
 
 qp.environ["_R_SEED"] = 0
 
@@ -41,6 +48,10 @@ class PredictedSet:
 def gen_classifiers():
     if MODEL_TYPE == "simple":
         yield "LR", LR()
+        yield "KNN_10", KNN(n_neighbors=10)
+        yield "SVM(rbf)", SVC(probability=True)
+        yield "RFC", RFC()
+        yield "MLP", MLP(hidden_layer_sizes=(100, 15), max_iter=300, random_state=0)
 
 
 def gen_datasets() -> [str, [LabelledCollection, LabelledCollection, LabelledCollection]]:
@@ -59,6 +70,12 @@ def gen_methods(h, V_ps, V1_ps, V2_prot_ps):
     yield "PHD(SLD)", PHD(acc_fn, sld(), reuse_h=h), V_ps
     yield "LEAP(KDEy)", LEAP(acc_fn, kdey(), reuse_h=h), V_ps
     yield "PHD(KDEy)", PHD(acc_fn, kdey(), reuse_h=h), V_ps
+
+
+def get_method_names():
+    mock_h = LR()
+    for method_name, _, _ in gen_methods(mock_h, None, None, None):
+        yield method_name
 
 
 def gen_classifier_dataset():
@@ -91,28 +108,78 @@ def contingency_matrix(y, y_hat, n_classes):
 
 def save_heatmap(cls_name, dataset, method1, method2, diff_cts, true_cts):
     def map_heatmap(*args, **kwargs):
-        data: pd.DataFrame = kwargs.pop("data").drop("plot", axis=1).to_numpy()
-        sns.heatmap(data)
+        data = kwargs.pop("data")
+        plot_name = data["plot"].to_numpy()[0]
+        data = data.drop("plot", axis=1).to_numpy()
+        cbar = plot_name.startswith(method2)
+        sns.heatmap(data, cbar=cbar, **kwargs)
 
     cts1, cts2, cts3 = diff_cts[(method1, method2)], true_cts[method1], true_cts[method2]
-    df = pd.DataFrame(np.vstack([cts1, cts2, cts3]))
+    cts = np.vstack([cts1, cts2, cts3])
+    vmin, vmax = np.min(cts), np.max(cts)
+    df = pd.DataFrame(cts)
     df["plot"] = np.repeat([f"{method1} - {method2}", f"{method1} - true", f"{method2} - true"], cts1.shape[1])
 
     plot = sns.FacetGrid(df, col="plot")
-    plot.map_dataframe(map_heatmap)
+    plot.map_dataframe(map_heatmap, vmin=vmin, vmax=vmax, annot=True, cmap="rocket_r")
 
-    parent_dir = f"plots/ctdiff/{PROBLEM}/{cls_name}"
+    # parent_dir = f"plots/ctdiff/{PROBLEM}/{cls_name}"
+    parent_dir = os.path.join("plots", "ct_test", PROBLEM, cls_name)
     os.makedirs(parent_dir, exist_ok=True)
     fig_path = os.path.join(parent_dir, f"{dataset}_{method1}+{method2}.png")
     plot.figure.savefig(fig_path)
     plot.figure.clear()
 
 
+def get_parent_dir(cls_name, dataset_name):
+    return os.path.join("output", "ctdiff", PROBLEM, cls_name, dataset_name)
+
+
+def save_json(cls_name, dataset_name, method_name, estim_cts):
+    parent_dir = get_parent_dir(cls_name, dataset_name)
+    os.makedirs(parent_dir, exist_ok=True)
+    path = os.path.join(parent_dir, f"{method_name}.json")
+    with open(path, "w") as f:
+        json.dump({"estim": estim_cts.tolist()}, f)
+
+
+def load_json(cls_name, dataset_name, method_name):
+    parent_dir = get_parent_dir(cls_name, dataset_name)
+    path = os.path.join(parent_dir, f"{method_name}.json")
+    if not os.path.exists(path):
+        return None
+    with open(path, "r") as f:
+        return np.asarray(json.load(f)["estim"])
+
+
+def all_exist_pre_check(cls_name, dataset_name):
+    all_exist = True
+    for method_name in get_method_names():
+        path = os.path.join(get_parent_dir(cls_name, dataset_name), f"{method_name}.json")
+        all_exist = os.path.exists(path)
+        if not all_exist:
+            break
+
+    return all_exist
+
+
 def ctdiff():
     NUM_TEST = 1000
 
+    _comparing_methods = {
+        ("LEAP(SLD)", "PHD(SLD)"),
+        ("LEAP(KDEy)", "PHD(KDEy)"),
+    }
+
+    log.info("-" * 31 + "  start  " + "-" * 31)
+
     results = {}
     for (cls_name, h), (dataset_name, (L, V, U)) in gen_classifier_dataset():
+        if all_exist_pre_check(cls_name, dataset_name):
+            log.info(f"{cls_name} on dataset={dataset_name}: all results already exist, skipping")
+            continue
+
+        log.info(f"{cls_name} training on dataset={dataset_name}")
         h.fit(*L.Xy)
 
         # test generation protocol
@@ -136,14 +203,23 @@ def ctdiff():
 
         results_cts = {}
         for method_name, method, val_ps in gen_methods(h, V_ps, V1_ps, V2_prot_ps):
+            loaded_cts = load_json(cls_name, dataset_name, method_name)
+            if loaded_cts is not None:
+                results_cts[method_name] = loaded_cts
+                log.info(f"{method_name} exists, skipping")
+                continue
+
             val, val_posteriors = val_ps.A, val_ps.post
             method.fit(val, val_posteriors)
             estim_cts = get_cts(method, test_prot, test_prot_posteriors)
             results_cts[method_name] = estim_cts
+            save_json(cls_name, dataset_name, method_name, estim_cts)
+            log.info(f"{method_name} done")
 
         diff_cts = {}
         true_cts = {}
-        for method1, method2 in IT.product(results_cts.keys(), results_cts.keys()):
+        # for method1, method2 in IT.product(results_cts.keys(), results_cts.keys()):
+        for method1, method2 in _comparing_methods:
             if method1 == method2 or (method1, method2) in diff_cts or (method2, method1) in diff_cts:
                 continue
             diff_cts[(method1, method2)] = get_cts_diff_mean(results_cts[method1], results_cts[method2])
