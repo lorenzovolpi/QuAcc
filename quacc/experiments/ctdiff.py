@@ -1,12 +1,14 @@
 import itertools as IT
 import json
 import os
+from collections import defaultdict
 
 import numpy as np
 import pandas as pd
 import quapy as qp
 import seaborn as sns
-from quapy.data.datasets import UCI_BINARY_DATASETS
+from matplotlib.artist import get
+from quapy.data.datasets import UCI_BINARY_DATASETS, UCI_MULTICLASS_DATASETS
 from quapy.method.aggregative import EMQ, KDEyML
 from quapy.protocol import UPP
 from sklearn.ensemble import RandomForestClassifier as RFC
@@ -15,12 +17,13 @@ from sklearn.neighbors import KNeighborsClassifier as KNN
 from sklearn.neural_network import MLPClassifier as MLP
 from sklearn.svm import SVC
 
-from quacc.data.datasets import fetch_UCIBinaryDataset
+from quacc.data.datasets import fetch_UCIBinaryDataset, fetch_UCIMulticlassDataset
 from quacc.error import vanilla_acc
 from quacc.experiments.util import get_logger, split_validation
 from quacc.models.cont_table import LEAP, PHD, CAPContingencyTable, LabelledCollection
 
-PROBLEM = "binary"
+TRUE_CTS_NAME = "true_cts"
+PROBLEM = "multiclass"
 MODEL_TYPE = "simple"
 
 log = get_logger(id="ctdiff")
@@ -28,6 +31,8 @@ log = get_logger(id="ctdiff")
 qp.environ["_R_SEED"] = 0
 
 if PROBLEM == "binary":
+    qp.environ["SAMPLE_SIZE"] = 100
+elif PROBLEM == "multiclass":
     qp.environ["SAMPLE_SIZE"] = 100
 
 
@@ -59,9 +64,14 @@ def gen_datasets() -> [str, [LabelledCollection, LabelledCollection, LabelledCol
         if MODEL_TYPE == "simple":
             _uci_skip = ["acute.a", "acute.b", "balance.2", "iris.1"]
             _uci_names = [d for d in UCI_BINARY_DATASETS if d not in _uci_skip]
-            # _uci_names = ["cmc.1"]
             for dn in _uci_names:
                 yield dn, fetch_UCIBinaryDataset(dn)
+    elif PROBLEM == "multiclass":
+        if MODEL_TYPE == "simple":
+            _uci_skip = ["isolet", "wine-quality", "letter"]
+            _uci_names = [d for d in UCI_MULTICLASS_DATASETS if d not in _uci_skip]
+            for dataset_name in _uci_names:
+                yield dataset_name, fetch_UCIMulticlassDataset(dataset_name)
 
 
 def gen_methods(h, V_ps, V1_ps, V2_prot_ps):
@@ -76,6 +86,7 @@ def get_method_names():
     mock_h = LR()
     for method_name, _, _ in gen_methods(mock_h, None, None, None):
         yield method_name
+    yield TRUE_CTS_NAME
 
 
 def gen_classifier_dataset():
@@ -123,8 +134,7 @@ def save_heatmap(cls_name, dataset, method1, method2, diff_cts, true_cts):
     plot = sns.FacetGrid(df, col="plot")
     plot.map_dataframe(map_heatmap, vmin=vmin, vmax=vmax, annot=True, cmap="rocket_r")
 
-    # parent_dir = f"plots/ctdiff/{PROBLEM}/{cls_name}"
-    parent_dir = os.path.join("plots", "ct_test", PROBLEM, cls_name)
+    parent_dir = os.path.join("plots", "ctdiff", PROBLEM, cls_name)
     os.makedirs(parent_dir, exist_ok=True)
     fig_path = os.path.join(parent_dir, f"{dataset}_{method1}+{method2}.png")
     plot.figure.savefig(fig_path)
@@ -173,10 +183,12 @@ def ctdiff():
 
     log.info("-" * 31 + "  start  " + "-" * 31)
 
-    results = {}
+    cts = defaultdict(lambda: {})
     for (cls_name, h), (dataset_name, (L, V, U)) in gen_classifier_dataset():
         if all_exist_pre_check(cls_name, dataset_name):
             log.info(f"{cls_name} on dataset={dataset_name}: all results already exist, skipping")
+            for method_name in get_method_names():
+                cts[(cls_name, dataset_name)][method_name] = load_json(cls_name, dataset_name, method_name)
             continue
 
         log.info(f"{cls_name} training on dataset={dataset_name}")
@@ -201,40 +213,58 @@ def ctdiff():
             test_prot_posteriors.append(P)
             test_prot_y_hat.append(y_hat)
 
-        results_cts = {}
+        true_prot_cts = load_json(cls_name, dataset_name, TRUE_CTS_NAME)
+        if true_prot_cts is None:
+            true_prot_cts = np.asarray(
+                [
+                    contingency_matrix(sample.y, y_hat, sample.n_classes)
+                    for sample, y_hat in zip(test_prot(), test_prot_y_hat)
+                ]
+            )
+            save_json(cls_name, dataset_name, TRUE_CTS_NAME, true_prot_cts)
+            log.info(f"{TRUE_CTS_NAME} done")
+        else:
+            log.info(f"{TRUE_CTS_NAME} exists, skipping")
+        cts[(cls_name, dataset_name)][TRUE_CTS_NAME] = true_prot_cts
+
         for method_name, method, val_ps in gen_methods(h, V_ps, V1_ps, V2_prot_ps):
             loaded_cts = load_json(cls_name, dataset_name, method_name)
             if loaded_cts is not None:
-                results_cts[method_name] = loaded_cts
+                cts[(cls_name, dataset_name)][method_name] = loaded_cts
                 log.info(f"{method_name} exists, skipping")
                 continue
 
             val, val_posteriors = val_ps.A, val_ps.post
             method.fit(val, val_posteriors)
             estim_cts = get_cts(method, test_prot, test_prot_posteriors)
-            results_cts[method_name] = estim_cts
+            cts[(cls_name, dataset_name)][method_name] = estim_cts
             save_json(cls_name, dataset_name, method_name, estim_cts)
             log.info(f"{method_name} done")
 
-        diff_cts = {}
-        true_cts = {}
-        # for method1, method2 in IT.product(results_cts.keys(), results_cts.keys()):
+    results = {}
+    for (cls_name, dataset_name), data in cts.items():
+        compare_cts = {}
+        ae_cts = {}
         for method1, method2 in _comparing_methods:
-            if method1 == method2 or (method1, method2) in diff_cts or (method2, method1) in diff_cts:
+            if method1 == method2 or (method1, method2) in compare_cts or (method2, method1) in compare_cts:
                 continue
-            diff_cts[(method1, method2)] = get_cts_diff_mean(results_cts[method1], results_cts[method2])
-            true_cts[method1] = get_cts_diff_mean(results_cts[method1], true_prot_cts)
-            true_cts[method2] = get_cts_diff_mean(results_cts[method2], true_prot_cts)
+            compare_cts[(method1, method2)] = get_cts_diff_mean(data[method1], data[method2])
+            ae_cts[method1] = get_cts_diff_mean(data[method1], data[TRUE_CTS_NAME])
+            ae_cts[method2] = get_cts_diff_mean(data[method2], data[TRUE_CTS_NAME])
 
         results[(cls_name, dataset_name)] = {
-            "diff": diff_cts,
-            "true": true_cts,
+            "diff": compare_cts,
+            "true": ae_cts,
         }
+        log.info(f"{cls_name} on dataset={dataset_name}: diffs generated")
 
     for (cls_name, dataset), data in results.items():
-        diff_cts, true_cts = data["diff"], data["true"]
-        for (method1, method2), ctss in diff_cts.items():
-            save_heatmap(cls_name, dataset, method1, method2, diff_cts, true_cts)
+        compare_cts, ae_cts = data["diff"], data["true"]
+        for (method1, method2), ctss in compare_cts.items():
+            save_heatmap(cls_name, dataset, method1, method2, compare_cts, ae_cts)
+        log.info(f"{cls_name} on dataset={dataset_name}: plots generated")
+
+    log.info("-" * 32 + "  end  " + "-" * 32)
 
 
 if __name__ == "__main__":
