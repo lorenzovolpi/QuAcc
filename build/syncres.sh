@@ -29,7 +29,7 @@ elif [[ $SERVER == "bcuda" || $SERVER == "barracuda" ]]; then
 fi
 
 FROM_WORKDIR="$WORKDIR/output"
-LOCAL_WORKDIR="/home/lorev/quacc"
+LOCAL_WORKDIR="/home/lorev/quacc/output"
 TO_WORKDIR="/home/volpi/quacc_out"
 
 sync_res() {
