@@ -132,7 +132,7 @@ def save_heatmap(cls_name, dataset, method1, method2, diff_cts, true_cts):
     df["plot"] = np.repeat([f"{method1} - {method2}", f"{method1} - true", f"{method2} - true"], cts1.shape[1])
 
     plot = sns.FacetGrid(df, col="plot")
-    plot.map_dataframe(map_heatmap, vmin=vmin, vmax=vmax, annot=True, cmap="rocket_r")
+    plot.map_dataframe(map_heatmap, vmin=vmin, vmax=vmax, annot=cts1.shape[0] <= 4, cmap="rocket_r")
 
     parent_dir = os.path.join("plots", "ctdiff", PROBLEM, cls_name)
     os.makedirs(parent_dir, exist_ok=True)
@@ -258,10 +258,10 @@ def ctdiff():
         }
         log.info(f"{cls_name} on dataset={dataset_name}: diffs generated")
 
-    for (cls_name, dataset), data in results.items():
+    for (cls_name, dataset_name), data in results.items():
         compare_cts, ae_cts = data["diff"], data["true"]
         for (method1, method2), ctss in compare_cts.items():
-            save_heatmap(cls_name, dataset, method1, method2, compare_cts, ae_cts)
+            save_heatmap(cls_name, dataset_name, method1, method2, compare_cts, ae_cts)
         log.info(f"{cls_name} on dataset={dataset_name}: plots generated")
 
     log.info("-" * 32 + "  end  " + "-" * 32)
