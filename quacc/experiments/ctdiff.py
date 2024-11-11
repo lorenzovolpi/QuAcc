@@ -107,6 +107,10 @@ def get_cts_diff_mean(cts1, cts2):
     return np.mean(cts_diff, axis=0)
 
 
+def get_cts_mean(cts):
+    return np.mean(cts, axis=0)
+
+
 def contingency_matrix(y, y_hat, n_classes):
     ct = np.zeros((n_classes, n_classes))
     for _c in range(n_classes):
@@ -117,22 +121,41 @@ def contingency_matrix(y, y_hat, n_classes):
     return ct / y.shape[0]
 
 
-def save_heatmap(cls_name, dataset, method1, method2, diff_cts, true_cts):
+def save_heatmap(cls_name, dataset, method1, method2, compare_cts, ae_cts, true_cts):
     def map_heatmap(*args, **kwargs):
         data = kwargs.pop("data")
         plot_name = data["plot"].to_numpy()[0]
-        data = data.drop("plot", axis=1).to_numpy()
+        vmin, vmax = data["vmin"].to_numpy()[0], data["vmax"].to_numpy()[0]
+        cmap = data["cmap"].to_numpy()[0]
+        data = data.drop(["plot", "vmin", "vmax", "col", "row", "cmap"], axis=1).to_numpy()
         cbar = plot_name.startswith(method2)
-        sns.heatmap(data, cbar=cbar, **kwargs)
+        plot = sns.heatmap(data, cbar=cbar, vmin=vmin, vmax=vmax, **kwargs, cmap=cmap)
+        plot.set_title(plot_name)
 
-    cts1, cts2, cts3 = diff_cts[(method1, method2)], true_cts[method1], true_cts[method2]
-    cts = np.vstack([cts1, cts2, cts3])
-    vmin, vmax = np.min(cts), np.max(cts)
-    df = pd.DataFrame(cts)
-    df["plot"] = np.repeat([f"{method1} - {method2}", f"{method1} - true", f"{method2} - true"], cts1.shape[1])
+    _diff = np.vstack([compare_cts[(method1, method2)], ae_cts[method1], ae_cts[method2]])
+    print(_diff)
+    df_diff = pd.DataFrame(_diff)
+    df_diff["col"] = np.repeat(np.arange(3), _diff.shape[1])
+    df_diff["row"] = "diff cts"
+    df_diff["plot"] = np.repeat([f"{method1} - {method2}", f"{method1} - true", f"{method2} - true"], _diff.shape[1])
+    df_diff["vmin"] = np.min(_diff)
+    df_diff["vmax"] = np.max(_diff)
+    df_diff["cmap"] = "rocket_r"
 
-    plot = sns.FacetGrid(df, col="plot")
-    plot.map_dataframe(map_heatmap, vmin=vmin, vmax=vmax, annot=cts1.shape[0] <= 4, cmap="rocket_r")
+    _true = np.vstack([true_cts[TRUE_CTS_NAME], true_cts[method1], true_cts[method2]])
+    print(_true)
+    df_true = pd.DataFrame(_true)
+    df_true["col"] = np.repeat(np.arange(3), _diff.shape[1])
+    df_true["row"] = "true cts"
+    df_true["plot"] = np.repeat(["true", method1, method2], _true.shape[1])
+    df_true["vmin"] = np.min(_true)
+    df_true["vmax"] = np.max(_true)
+    df_true["cmap"] = "mako_r"
+
+    df = pd.concat([df_diff, df_true])
+
+    plot = sns.FacetGrid(df, col="col", row="row")
+    plot.map_dataframe(map_heatmap, annot=_diff.shape[1] <= 4)
 
     parent_dir = os.path.join("plots", "ctdiff", PROBLEM, cls_name)
     os.makedirs(parent_dir, exist_ok=True)
@@ -243,25 +266,28 @@ def ctdiff():
 
     results = {}
     for (cls_name, dataset_name), data in cts.items():
-        compare_cts = {}
-        ae_cts = {}
+        compare_cts, ae_cts = {}, {}
+        true_cts = {TRUE_CTS_NAME: get_cts_mean(data[TRUE_CTS_NAME])}
         for method1, method2 in _comparing_methods:
             if method1 == method2 or (method1, method2) in compare_cts or (method2, method1) in compare_cts:
                 continue
             compare_cts[(method1, method2)] = get_cts_diff_mean(data[method1], data[method2])
             ae_cts[method1] = get_cts_diff_mean(data[method1], data[TRUE_CTS_NAME])
             ae_cts[method2] = get_cts_diff_mean(data[method2], data[TRUE_CTS_NAME])
+            true_cts[method1] = get_cts_mean(data[method1])
+            true_cts[method2] = get_cts_mean(data[method2])
 
         results[(cls_name, dataset_name)] = {
-            "diff": compare_cts,
-            "true": ae_cts,
+            "compare": compare_cts,
+            "ae": ae_cts,
+            "true": true_cts,
         }
         log.info(f"{cls_name} on dataset={dataset_name}: diffs generated")
 
     for (cls_name, dataset_name), data in results.items():
-        compare_cts, ae_cts = data["diff"], data["true"]
+        compare_cts, ae_cts, true_cts = data["compare"], data["ae"], data["true"]
         for (method1, method2), ctss in compare_cts.items():
-            save_heatmap(cls_name, dataset_name, method1, method2, compare_cts, ae_cts)
+            save_heatmap(cls_name, dataset_name, method1, method2, compare_cts, ae_cts, true_cts)
         log.info(f"{cls_name} on dataset={dataset_name}: plots generated")
 
     log.info("-" * 32 + "  end  " + "-" * 32)
