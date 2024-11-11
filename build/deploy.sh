@@ -34,4 +34,6 @@ elif [[ $SERVER == "bcuda" || $SERVER == "barracuda" ]]; then
 
   rsync -ai quacc playground $DEST
   rsync -i README.md build/run.sh build/bcuda.env build/filter_out.py pyproject.toml $DEST
+  rsync -ai qcdash $DEST
+  rsync -i build/dash.sh build/dash.env $DEST
 fi

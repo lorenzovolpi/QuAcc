@@ -4,7 +4,7 @@ host="bcuda"
 PYTHON_PATH="miniconda3/bin/python"
 WORKDIR="quacc"
 OUTPUT_DIR="output"
-OUTPUT_FILE="quacc.out"
+OUTPUT_FILE="quacc"
 FILTER=false
 TAIL=false
 
@@ -15,7 +15,7 @@ while [[ $# -gt 0 ]]; do
             TAIL=true
             shift 
             ;;
-        -o|--out)
+        -m|--module)
             OUTPUT_FILE=$2
             shift
             shift
@@ -37,11 +37,11 @@ while [[ $# -gt 0 ]]; do
 done
 
 if [[ $TAIL == true ]]; then
-    $host tail -n +0 -f "$WORKDIR/$OUTPUT_DIR/$OUTPUT_FILE" | bat -P
+    $host tail -n +0 -f "$WORKDIR/$OUTPUT_DIR/${OUTPUT_FILE}.out" | bat -P
 else
     if [[ $FILTER == true ]]; then
-        $host "$PYTHON_PATH" "$WORKDIR/filter_out.py" "$WORKDIR/$OUTPUT_DIR/$OUTPUT_FILE" | bat
+        $host "$PYTHON_PATH" "$WORKDIR/filter_out.py" "$WORKDIR/$OUTPUT_DIR/${OUTPUT_FILE}.out" | bat
     else
-        $host cat "$WORKDIR/$OUTPUT_DIR/$OUTPUT_FILE" | bat
+        $host cat "$WORKDIR/$OUTPUT_DIR/${OUTPUT_FILE}.out" | bat
     fi
 fi

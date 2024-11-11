@@ -1,6 +1,8 @@
 #!/bin/bash
 
-SERVER="dgx"
+SERVER="bcuda"
+MODULE="results"
+TYPE="output"
 daemon=0
 while [[ $# -gt 0 ]]; do
     case $1 in
@@ -11,6 +13,16 @@ while [[ $# -gt 0 ]]; do
             ;;
         -d|--daemon)
             daemon=1
+            shift
+            ;;
+        -m|--module)
+            MODULE="$2"
+            shift
+            shift
+            ;;
+        -t|--type)
+            TYPE="$2"
+            shift
             shift
             ;;
         *)
@@ -28,13 +40,11 @@ elif [[ $SERVER == "bcuda" || $SERVER == "barracuda" ]]; then
     WORKDIR="quacc"
 fi
 
-FROM_WORKDIR="$WORKDIR/output"
-LOCAL_WORKDIR="/home/lorev/quacc/output"
-TO_WORKDIR="/home/volpi/quacc_out"
+FROM_WORKDIR="$WORKDIR/$TYPE"
+LOCAL_WORKDIR="/home/lorev/quacc/$TYPE"
 
 sync_res() {
-    rsync -a "$HOST:$FROM_WORKDIR/results" $LOCAL_WORKDIR
-    rsync -a "$LOCAL_WORKDIR/results" "volpi@ilona.isti.cnr.it:$TO_WORKDIR"
+    rsync -a "$HOST:$FROM_WORKDIR/$MODULE" $LOCAL_WORKDIR
 }
 
 daemon_sync_res() {
