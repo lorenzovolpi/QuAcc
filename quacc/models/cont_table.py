@@ -327,6 +327,119 @@ class NsquaredEquationsCAP(CAPContingencyTableQ):
             return cont_table_test
 
 
+class OverConstrainedEquationsCAP(CAPContingencyTableQ):
+    """ """
+
+    def __init__(
+        self,
+        acc_fn: Callable,
+        q_class,
+        reuse_h: BaseEstimator | None = None,
+        verbose=False,
+    ):
+        super().__init__(acc_fn, q_class, reuse_h)
+        self.verbose = verbose
+
+    def _sout(self, *msgs, **kwargs):
+        if self.verbose:
+            print(*msgs, **kwargs)
+
+    def preprocess_data(self, data: LabelledCollection, posteriors):
+        self.classes_ = data.classes_
+        y_hat = np.argmax(posteriors, axis=-1)
+        y_true = data.y
+        self.cont_table = confusion_matrix(y_true, y_pred=y_hat, labels=data.classes_)
+        self.A, self.partial_b = self._construct_equations()
+        return data
+
+    def _construct_equations(self):
+        # we need a n x n matrix of unknowns
+        n = self.cont_table.shape[1]
+        n_eqs = n * n + 2 * n + 1
+        n_unknowns = n * n
+
+        # I is the matrix of indexes of unknowns. For example, if we need the counts of
+        # all instances belonging to class i that have been classified as belonging to 0, 1, ..., n:
+        # the indexes of the corresponding unknowns are given by I[i,:]
+        I = np.arange(n * n).reshape(n, n)
+
+        # system of equations: Ax=b, A.shape=(n*n, n*n,), b.shape=(n*n,)
+        A = np.zeros(shape=(n_eqs, n_unknowns))
+        b = np.zeros(shape=(n_eqs))
+
+        # first equation: the sum of all unknowns is 1
+        eq_no = 0
+        A[eq_no, :] = 1
+        b[eq_no] = 1
+        eq_no += 1
+
+        # (n-1)*(n-1) equations: the class cond ratios should be the same in training and in test due to the
+        # PPS assumptions. Example in three classes, a ratio: a/(a+b+c) [test] = ar [a ratio in training]
+        # a / (a + b + c) = ar
+        # a = (a + b + c) * ar
+        # a = a ar + b ar + c ar
+        # a - a ar - b ar - c ar = 0
+        # a (1-ar) + b (-ar)  + c (-ar) = 0
+        class_cond_ratios_tr = self.cont_table / self.cont_table.sum(axis=1, keepdims=True)
+        for i in range(n):
+            for j in range(n):
+                ratio_ij = class_cond_ratios_tr[i, j]
+                A[eq_no, I[i, :]] = -ratio_ij
+                A[eq_no, I[i, j]] = 1 - ratio_ij
+                b[eq_no] = 0
+                eq_no += 1
+
+        # n-1 equations: the sum of class-cond counts must equal the C&C prevalence prediction
+        for i in range(n):
+            A[eq_no, I[:, i]] = 1
+            # b[eq_no] = cc_prev_estim[i]
+            eq_no += 1
+
+        # n-1 equations: the sum of true true class-conditional positives must equal the class prev label in test
+        for i in range(n):
+            A[eq_no, I[i, :]] = 1
+            # b[eq_no] = q_prev_estim[i]
+            eq_no += 1
+
+        return A, b
+
+    def predict_ct(self, test, posteriors, oracle_prev=None):
+        """
+        :param test: test collection (ignored)
+        :param oracle_prev: np.ndarray with the class prevalence of the test set as estimated by
+            an oracle. This is meant to test the effect of the errors in CAP that are explained by
+            the errors in quantification performance
+        :return: a confusion matrix in the return format of `sklearn.metrics.confusion_matrix`
+        """
+
+        n = self.cont_table.shape[1]
+
+        h_label_preds = np.argmax(posteriors, axis=-1)
+
+        cc_prev_estim = F.prevalence_from_labels(h_label_preds, self.classes_)
+        if oracle_prev is None:
+            q_prev_estim = self.q.quantify(test)
+        else:
+            q_prev_estim = oracle_prev
+
+        A = self.A
+        b = self.partial_b
+
+        # b is partially filled; we finish the vector by plugin in the classify and count
+        # prevalence estimates (n-1 values only), and the quantification estimates (n-1 values only)
+
+        b[-2 * n : -n] = cc_prev_estim
+        b[-n:] = q_prev_estim
+
+        def loss(x):
+            return np.linalg.norm(A @ x - b, ord=2)
+
+        x = F.optim_minimize(loss, n_classes=n**2)
+
+        cont_table_test = x.reshape(n, n)
+        return cont_table_test
+
+
 class QuAcc(CAPContingencyTableQ):
     def __init__(
         self,
@@ -597,3 +710,4 @@ def safehstack(covs):
 
 LEAP = NsquaredEquationsCAP
 PHD = ContTableTransferCAP
+OCE = OverConstrainedEquationsCAP
