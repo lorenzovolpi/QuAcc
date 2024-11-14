@@ -22,5 +22,5 @@ done
 if [[ $1 == "-l" ]]; then
     $host cat "$WORKDIR/output/${LOGFILE}.log" | bat -l syslog
 else
-    $host tail -n +0 -f "$WORKDIR/output/${LOGFILE}.log" | bat -P -l syslog
+    $host tail -n +5000 -f "$WORKDIR/output/${LOGFILE}.log" | bat -P -l syslog
 fi
