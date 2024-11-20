@@ -51,6 +51,7 @@ rcv1_class_info.json
 deploy
 dlog
 syncres
+dash
 
 var/
 test*.py
