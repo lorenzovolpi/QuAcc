@@ -47,37 +47,37 @@ from quacc.models.regression import ReQua, reDAN
 from quacc.utils.commons import get_results_path
 
 _CC = defaultdict(lambda: False)
-_CC = dict(
-    LEAP=False,
-    OCE=False,
-    PHD=False,
+_CC |= dict(
+    # LEAP=True,
+    # OCE=True,
+    # PHD=True,
 )
 _ACC = defaultdict(lambda: False)
-_ACC = dict(
-    LEAP=False,
-    OCE=False,
-    PHD=False,
+_ACC |= dict(
+    LEAP=True,
+    # OCE=True,
+    # PHD=True,
 )
 _SLD = defaultdict(lambda: False)
-_SLD = dict(
-    reDAN=False,
-    PQ=False,
+_SLD |= dict(
+    # reDAN=True,
+    # PQ=True,
     ReQua=True,
-    ReQua_conf=False,
+    # ReQua_conf=True,
     LEAP=True,
-    LEAP_OPT=False,
+    # LEAP_OPT=True,
     OCE=True,
     PHD=True,
     QuAcc=True,
 )
 _KDEy = defaultdict(lambda: False)
-_KDEy = dict(
-    reDAN=False,
-    PQ=False,
+_KDEy |= dict(
+    # reDAN=True,
+    # PQ=True,
     ReQua=True,
-    ReQua_conf=False,
+    # ReQua_conf=True,
     LEAP=True,
-    LEAP_OPT=False,
+    # LEAP_OPT=True,
     OCE=True,
     PHD=True,
     QuAcc=True,
