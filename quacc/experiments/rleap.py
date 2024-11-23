@@ -71,7 +71,7 @@ def local_path(dataset_name, cls_name, method_name, acc_name, L: LabelledCollect
 def gen_methods(h):
     _, acc_fn = next(gen_accs())
     yield "LEAP(SLD)", LEAP(acc_fn, sld(), reuse_h=h)
-    # yield "LEAP(KDEy)", LEAP(acc_fn, kdey(), reuse_h=h)
+    yield "LEAP(KDEy)", LEAP(acc_fn, kdey(), reuse_h=h)
 
 
 def get_method_names():
@@ -107,6 +107,9 @@ def preload_existing(dataset_name, cls_name, L):
     for method, acc in IT.product(method_names, acc_names):
         path = local_path(dataset_name, cls_name, method, acc, L)
         method_df = pd.read_csv(path, sep=CSV_SEP)
+        # if "dataset" not in method_df:
+        #     method_df["dataset"] = dataset_name
+        #     method_df.to_csv(path, sep=CSV_SEP)
         dfs.append(method_df)
 
     return dfs
@@ -175,6 +178,7 @@ def experiments():
                             columns=["shifts", "true_accs", "estim_accs", "acc_err"],
                         )
                         method_df["method"] = method_name
+                        method_df["dataset"] = dataset_name
                         method_df["acc_name"] = acc_name
                         method_df["train_prev"] = np.around(L.prevalence(), decimals=2)[1]
                         log.info(f"{method_name} on {acc_name} done")
@@ -182,6 +186,17 @@ def experiments():
                         dfs.append(method_df)
 
     log.info("-" * 32 + "  end  " + "-" * 32)
+
+    results = pd.concat(dfs, axis=0)
+
+    pivot = (
+        results.groupby(by=["dataset", "acc_name", "method"])
+        .mean()
+        .reset_index()
+        .pivot(index=["acc_name", "method"], columns=["dataset"], values="acc_err")
+    )
+    print(pivot)
+    print(pivot.to_latex())
 
 
 if __name__ == "__main__":
