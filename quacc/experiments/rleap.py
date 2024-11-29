@@ -76,7 +76,6 @@ def gen_methods(h):
 
 def get_method_names():
     mock_h = LogisticRegression()
-
     return [m for m, _ in gen_methods(mock_h)]
 
 
@@ -107,9 +106,6 @@ def preload_existing(dataset_name, cls_name, L):
     for method, acc in IT.product(method_names, acc_names):
         path = local_path(dataset_name, cls_name, method, acc, L)
         method_df = pd.read_csv(path, sep=CSV_SEP)
-        # if "dataset" not in method_df:
-        #     method_df["dataset"] = dataset_name
-        #     method_df.to_csv(path, sep=CSV_SEP)
         dfs.append(method_df)
 
     return dfs
