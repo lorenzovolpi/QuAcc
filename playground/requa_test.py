@@ -1,10 +1,13 @@
+import itertools as IT
 import os
 from contextlib import redirect_stdout
 from time import time
+from traceback import print_exception
 
 import numpy as np
 import pandas as pd
 import quapy as qp
+from quapy.data.datasets import UCI_BINARY_DATASETS
 from quapy.method.aggregative import EMQ, KDEyML
 from quapy.protocol import UPP
 from sklearn.kernel_ridge import KernelRidge as KRR
@@ -13,9 +16,14 @@ from sklearn.linear_model import LogisticRegression, Ridge
 
 import quacc as qc
 import quacc.error
-from quacc.data.datasets import RCV1_MULTICLASS_DATASETS, fetch_RCV1BinaryDataset, fetch_RCV1MulticlassDataset
+from quacc.data.datasets import (
+    RCV1_MULTICLASS_DATASETS,
+    fetch_RCV1BinaryDataset,
+    fetch_RCV1MulticlassDataset,
+    fetch_UCIBinaryDataset,
+)
 from quacc.error import vanilla_acc
-from quacc.experiments.util import split_validation
+from quacc.experiments.util import fit_or_switch, get_logger, get_predictions, split_validation
 from quacc.models.cont_table import QuAcc1xN2, QuAcc1xNp1, QuAccNxN
 from quacc.models.regression import ReQua
 from quacc.utils.commons import true_acc
@@ -27,6 +35,8 @@ qp.environ["_R_SEED"] = 0
 CSV_SEP = ","
 CONFIG = "binary"
 VERBOSE = True
+
+log = get_logger(id="rleap")
 
 
 class cleanEMQ(EMQ):
@@ -61,8 +71,12 @@ def get_multi_quaccs(h, acc_fn, q_class):
 
 
 def gen_bin_datasets():
-    for dataset_name in ["CCAT", "GCAT", "MCAT", "ECAT"]:
-        yield dataset_name, fetch_RCV1BinaryDataset(dataset_name)
+    _uci_skip = ["acute.a", "acute.b", "balance.2", "iris.1"]
+    _uci_names = [d for d in UCI_BINARY_DATASETS if d not in _uci_skip]
+    # for dn in _uci_names:
+    for dn in ["wdbc"]:
+        dval = fetch_UCIBinaryDataset(dn)
+        yield dn, dval
 
 
 def gen_multi_datasets():
@@ -88,7 +102,8 @@ elif CONFIG == "binary":
 
 # fmt: off
 
-def gen_methods(h, acc_fn):
+def gen_methods(h, vprot, vprot_posteriors):
+    _, acc_fn = next(gen_accs())
     quacc_params = {
         # "q_class__classifier__C": np.logspace(-3, 3, 7),
         # "q_class__classifier__class_weight": [None, "balanced"],
@@ -100,16 +115,16 @@ def gen_methods(h, acc_fn):
         "add_maxinfsoft": [True, False],
     }
     sample_s = qp.environ["SAMPLE_SIZE"]
-    yield "ReQua(SLD-LinReg)", ReQua(h, acc_fn, LinReg(), get_quaccs(h, acc_fn, sld()), param_grid=quacc_params, sample_size=sample_s, verbose=VERBOSE)
-    # yield "ReQua(SLD-LinReg)-linfeat", ReQua(h, acc_fn, LinReg(), get_quaccs(h, acc_fn, sld()), param_grid=quacc_params, sample_size=sample_s, add_conf=True, verbose=VERBOSE)
-    yield "ReQua(SLD-Ridge)", ReQua(h, acc_fn, Ridge(), get_quaccs(h, acc_fn, sld()), param_grid=quacc_params, sample_size=sample_s, verbose=VERBOSE)
-    # yield "ReQua(SLD-Ridge)-linfeat", ReQua(h, acc_fn, Ridge(), get_quaccs(h, acc_fn, sld()), param_grid=quacc_params, sample_size=sample_s, add_conf=True, verbose=VERBOSE)
-    yield "ReQua(SLD-KRR)", ReQua(h, acc_fn, KRR(), get_quaccs(h, acc_fn, sld()), param_grid=quacc_params, sample_size=sample_s, verbose=VERBOSE)
-    # yield "ReQua(SLD-KRR)-linfeat", ReQua(h, acc_fn, KRR(), get_quaccs(h, acc_fn, sld()), param_grid=quacc_params, sample_size=sample_s, add_conf=True, verbose=VERBOSE)
-    # yield "ReQua(SLD-SVR)", ReQua(h, acc_fn, SVR(), get_quaccs(h, acc_fn, sld()), param_grid=quacc_params, sample_size=sample_s, verbose=VERBOSE)
-    # yield "ReQua(SLD-SVR)-linfeat", ReQua(h, acc_fn, SVR(), get_quaccs(h, acc_fn, sld()), param_grid=quacc_params, sample_size=sample_s, add_conf=True, verbose=VERBOSE)
+    yield "ReQua(SLD-LinReg)", ReQua(h, acc_fn, LinReg(), get_quaccs(h, acc_fn, sld()), quacc_params, vprot, vprot_posteriors, sample_size=sample_s)
+    yield "ReQua(SLD-Ridge)", ReQua(h, acc_fn, Ridge(), get_quaccs(h, acc_fn, sld()), quacc_params, vprot, vprot_posteriors, sample_size=sample_s)
+    yield "ReQua(SLD-KRR)", ReQua(h, acc_fn, KRR(), get_quaccs(h, acc_fn, sld()), quacc_params, vprot, vprot_posteriors, sample_size=sample_s)
 
 # fmt: on
+
+
+def get_method_names():
+    mock_h = LogisticRegression()
+    return [m for m, _ in gen_methods(mock_h)]
 
 
 def gen_accs():
@@ -123,45 +138,94 @@ def get_local_path(cls_name, acc_name, dataset, method_name):
     return os.path.join(parent_dir, f"{method_name}.csv")
 
 
-def main():
+def all_exist_pre_check(dataset_name, cls_name, L):
+    method_names = get_method_names()
+    acc_names = [acc_name for acc_name, _ in gen_accs()]
+
+    all_exist = True
+    for method, acc in IT.product(method_names, acc_names):
+        path = get_local_path(dataset_name, cls_name, method, acc, L)
+        all_exist = os.path.exists(path)
+        if not all_exist:
+            break
+
+    return all_exist
+
+
+def preload_existing(dataset_name, cls_name, L):
+    method_names = get_method_names()
+    acc_names = [acc_name for acc_name, _ in gen_accs()]
+
     dfs = []
-    for dataset_name, (L, V, U) in gen_datasets():
-        V, val_prot = split_validation(V)
-        for cls_name, h in gen_classifiers():
+    for method, acc in IT.product(method_names, acc_names):
+        path = get_local_path(dataset_name, cls_name, method, acc, L)
+        method_df = pd.read_csv(path, sep=CSV_SEP)
+        dfs.append(method_df)
+
+    return dfs
+
+
+def experiments():
+    log.info("-" * 31 + "  start  " + "-" * 31)
+
+    dfs = []
+    for cls_name, h in gen_classifiers():
+        for dataset_name, (L, V, U) in gen_datasets():
+            V1, V2_prot = split_validation(V)
             test_prot = UPP(U, repeats=NUM_TEST, return_type="labelled_collection", random_state=0)
 
+            log.info(f"Training {cls_name} over {dataset_name}")
             h.fit(*L.Xy)
-            print(f"trained {cls_name} trained over {dataset_name}")
+
+            # generate posteriors
+            V1_posteriors = h.predict_proba(V1.X)
+            V2_prot_posteriors = [h.predict_proba(sample.X) for sample in V2_prot()]
+            test_prot_posteriors, test_prot_y_hat = [], []
+            for sample in test_prot():
+                P = h.predict_proba(sample.X)
+                test_prot_posteriors.append(P)
+                test_prot_y_hat.append(np.argmax(P, axis=-1))
+
+            # precompute the actual accuracy values
+            true_accs = {}
             for acc_name, acc_fn in gen_accs():
-                for method_name, method in gen_methods(h, acc_fn):
+                true_accs[acc_name] = [true_acc(h, acc_fn, Ui) for Ui in test_prot()]
+
+            for method_name, method in gen_methods(h, acc_fn):
+                t_train = None
+                for acc_name, acc_fn in gen_accs():
                     local_path = get_local_path(cls_name, acc_name, dataset_name, method_name)
 
                     if os.path.exists(local_path):
                         method_df = pd.read_csv(local_path, sep=CSV_SEP)
                         dfs.append(method_df)
-                        print(f"method {method_name} for {acc_name} exists, skipping")
+                        log.info(f"{method_name} on {acc_name} exists, skipping")
                         continue
 
-                    t_init = time()
-                    method.fit(V)
-                    true_accs = np.array([true_acc(h, acc_fn, Ui) for Ui in test_prot()])
-                    estim_accs = method.batch_predict(test_prot)
-                    estim_accs = np.asarray(estim_accs)
+                    try:
+                        method, _t_train = fit_or_switch(method, V1, V1_posteriors, acc_fn, t_train is not None)
+                        t_train = t_train if _t_train is None else _t_train
+                        estim_accs, t_test_ave = get_predictions(method, test_prot, test_prot_posteriors, False)
+                    except Exception as e:
+                        print_exception(e)
+                        log.warning(f"{method_name}: {acc_name} gave error '{e}' - skipping")
+                        continue
 
-                    ae = quacc.error.ae(true_accs, estim_accs)
-                    t_method = time() - t_init
-                    print(f"method {method_name} for {acc_name} took {t_method:.3f}s")
+                    ae = quacc.error.ae(np.array(true_accs[acc_name]), np.array(estim_accs))
 
                     method_df = pd.DataFrame(
-                        np.vstack([true_accs, estim_accs, ae]).T,
+                        np.vstack([true_accs[acc_name], estim_accs, ae]).T,
                         columns=["true_accs", "estim_accs", "ae"],
                     )
                     method_df["method"] = method_name
                     method_df["acc_name"] = acc_name
                     method_df["dataset"] = dataset_name
                     method_df["cls"] = cls_name
+                    log.info(f"{method_name} on {acc_name} done")
                     method_df.to_csv(local_path, sep=CSV_SEP)
                     dfs.append(method_df)
+
+    log.info("-" * 32 + "  end  " + "-" * 32)
 
     results = pd.concat(dfs)
 
@@ -176,4 +240,8 @@ def main():
 
 if __name__ == "__main__":
     # clean_results()
-    main()
+    try:
+        experiments()
+    except Exception as e:
+        log.error(e)
+        print_exception(e)
