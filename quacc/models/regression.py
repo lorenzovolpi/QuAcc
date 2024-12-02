@@ -160,7 +160,7 @@ class ReQua(CAPDirect):
     def fit(self, val: LabelledCollection, val_posteriors):
         t_fit_init = time()
         self._fit_quacc_models(val, val_posteriors)
-        print(f"{np.sum(self.fit_mask)}/{len(self.models)}")
+        self._sout(f"trained quacc models: {np.sum(self.fit_mask)}/{len(self.models)}")
         self._sout(f"training quacc models took {time() - t_fit_init:.3f}s")
 
         # compute features to train the regressor
