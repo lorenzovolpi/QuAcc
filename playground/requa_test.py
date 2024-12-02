@@ -36,7 +36,7 @@ CSV_SEP = ","
 CONFIG = "binary"
 VERBOSE = True
 
-log = get_logger(id="rleap")
+log = get_logger(id="requa_test")
 
 
 class cleanEMQ(EMQ):
@@ -55,18 +55,20 @@ def kdey():
     return KDEyML(LogisticRegression())
 
 
-def get_bin_quaccs(h, acc_fn, q_class):
+def get_bin_quaccs(q_class):
+    _, acc_fn = next(gen_accs())
     return [
-        QuAcc1xN2(h, acc_fn, q_class),
-        QuAcc1xNp1(h, acc_fn, q_class),
-        QuAccNxN(h, acc_fn, q_class),
+        QuAcc1xN2(acc_fn, q_class),
+        QuAcc1xNp1(acc_fn, q_class),
+        QuAccNxN(acc_fn, q_class),
     ]
 
 
-def get_multi_quaccs(h, acc_fn, q_class):
+def get_multi_quaccs(q_class):
+    _, acc_fn = next(gen_accs())
     return [
-        QuAcc1xN2(h, acc_fn, q_class),
-        QuAccNxN(h, acc_fn, q_class),
+        QuAcc1xN2(acc_fn, q_class),
+        QuAccNxN(acc_fn, q_class),
     ]
 
 
@@ -114,10 +116,9 @@ def gen_methods(h, vprot, vprot_posteriors):
         "add_negentropy": [True, False],
         "add_maxinfsoft": [True, False],
     }
-    sample_s = qp.environ["SAMPLE_SIZE"]
-    yield "ReQua(SLD-LinReg)", ReQua(h, acc_fn, LinReg(), get_quaccs(h, acc_fn, sld()), quacc_params, vprot, vprot_posteriors, sample_size=sample_s)
-    yield "ReQua(SLD-Ridge)", ReQua(h, acc_fn, Ridge(), get_quaccs(h, acc_fn, sld()), quacc_params, vprot, vprot_posteriors, sample_size=sample_s)
-    yield "ReQua(SLD-KRR)", ReQua(h, acc_fn, KRR(), get_quaccs(h, acc_fn, sld()), quacc_params, vprot, vprot_posteriors, sample_size=sample_s)
+    yield "ReQua(SLD-LinReg)", ReQua(acc_fn, LinReg(), get_quaccs(sld()), quacc_params, vprot, vprot_posteriors, n_jobs=0, verbose=True)
+    yield "ReQua(SLD-Ridge)", ReQua(acc_fn, Ridge(), get_quaccs(sld()), quacc_params, vprot, vprot_posteriors, n_jobs=0, verbose=True)
+    yield "ReQua(SLD-KRR)", ReQua(acc_fn, KRR(), get_quaccs(sld()), quacc_params, vprot, vprot_posteriors, n_jobs=0, verbose=True)
 
 # fmt: on
 
@@ -191,7 +192,7 @@ def experiments():
             for acc_name, acc_fn in gen_accs():
                 true_accs[acc_name] = [true_acc(h, acc_fn, Ui) for Ui in test_prot()]
 
-            for method_name, method in gen_methods(h, acc_fn):
+            for method_name, method in gen_methods(h, V2_prot, V2_prot_posteriors):
                 t_train = None
                 for acc_name, acc_fn in gen_accs():
                     local_path = get_local_path(cls_name, acc_name, dataset_name, method_name)
