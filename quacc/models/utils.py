@@ -27,6 +27,7 @@ def neg_entropy(P, keepdims=False):
 
 
 def max_inverse_softmax(P, keepdims=False):
+    # TODO: fix case when P is 1.
     lgP = np.log(P)
     mis = np.max(lgP - lgP.mean(axis=1, keepdims=True), axis=1, keepdims=keepdims)
     return mis
