@@ -1,3 +1,4 @@
+import pdb
 from abc import abstractmethod
 from copy import deepcopy
 from typing import Callable
@@ -546,6 +547,7 @@ class QuAcc1xN2(QuAcc):
         self.q = deepcopy(self.q_class)
 
     def predict_ct(self, X: LabelledCollection, posteriors, oracle_prev=None):
+        # pdb.set_trace()
         X_dot = self._get_X_dot(X, posteriors)
         flat_ct = self._safe_quantify(X_dot)
         return flat_ct.reshape(self.ncl, self.ncl)
