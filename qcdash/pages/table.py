@@ -25,16 +25,20 @@ def mbr_label(mbr):
     return "Methods x Datasets" if mbr else "Datasets x Methods"
 
 
-def get_df(rep: Report, error, method_by_row=True):
+def get_df(rep: Report, error, method_by_row=True, zscore=False):
     if error == "ae":
         df = rep.table_data()
     elif error == "se":
         df = rep.table_data(error=qc.error.se)
 
     if method_by_row:
-        df = df.pivot_table(values="acc_err", index=["method"], columns=["dataset"], fill_value=np.nan)
+        df = df.pivot_table(
+            values="z_score" if zscore else "acc_err", index=["method"], columns=["dataset"], fill_value=np.nan
+        )
     else:
-        df = df.pivot_table(values="acc_err", index=["dataset"], columns=["method"], fill_value=np.nan)
+        df = df.pivot_table(
+            values="z_score" if zscore else "acc_err", index=["dataset"], columns=["method"], fill_value=np.nan
+        )
     return df
 
 
@@ -226,6 +230,7 @@ def get_sidebar(**kwargs):
     acc = kwargs.get("acc", None)
     error = kwargs.get("error", None)
     mbr = json.loads(kwargs.get("mbr", "True").lower())
+    zscore = json.loads(kwargs.get("zscore", "False").lower())
     datasets = kwargs.get("datasets", [])
     methods = kwargs.get("methods", [])
     return [
@@ -258,6 +263,7 @@ def get_sidebar(**kwargs):
             className="mb-3",
         ),
         dbc.Switch(id="tbl_mbr", label=mbr_label(mbr), value=mbr, class_name="mb-3"),
+        dbc.Switch(id="tbl_zscore", label="z-score", value=zscore, class_name="mb-3"),
         dbc.Accordion(
             [
                 dbc.AccordionItem([dbc.Checklist(id="tbl_datasets", value=datasets, switch=True)], title="Datasets"),
@@ -318,6 +324,8 @@ def apply_param(href, triggered_id, id, curr):
             params = parse_href(href)
             if id == "mbr":
                 val = json.loads(params.get(id, "True").lower())
+            elif id == "zscore":
+                val = json.loads(params.get(id, "False").lower())
             else:
                 val = params.get(id, None)
 
@@ -420,6 +428,8 @@ def tbl_update_dataset(href, config, classifier, acc, tree, datasets):
             req_datasets = json.loads(req_datasets)
         except JSONDecodeError:
             req_datasets = valid_datasets
+    else:
+        req_datasets = valid_datasets
 
     if req_datasets is None or len(req_datasets) == 0:
         return valid_datasets, valid_datasets
@@ -483,6 +493,17 @@ def tbl_update_mbr(href, mbr):
 
 
 @callback(
+    Output("tbl_zscore", "value"),
+    Input("tbl_url", "href"),
+    State("tbl_zscore", "value"),
+)
+def tbl_update_zscore(href, zscore):
+    req_zscore = apply_param(href, ctx.triggered_id, "zscore", zscore)
+    assert isinstance(zscore, bool), "invalid zscore value"
+    return req_zscore
+
+
+@callback(
     Output("tbl_app_content", "children"),
     Output("tbl_url", "search"),
     Output("tbl_mbr", "label"),
@@ -491,11 +512,12 @@ def tbl_update_mbr(href, mbr):
     Input("tbl_acc", "value"),
     Input("tbl_error", "value"),
     Input("tbl_mbr", "value"),
+    Input("tbl_zscore", "value"),
     Input("tbl_datasets", "value"),
     Input("tbl_methods", "value"),
     State("tbl_tree", "data"),
 )
-def tbl_update_content(config, classifier, acc, error, mbr, datasets, methods, tree):
+def tbl_update_content(config, classifier, acc, error, mbr, zscore, datasets, methods, tree):
     def get_search():
         return urlencode(
             dict(
@@ -504,6 +526,7 @@ def tbl_update_content(config, classifier, acc, error, mbr, datasets, methods, t
                 acc=acc,
                 error=error,
                 mbr=mbr,
+                zscore=zscore,
                 datasets=json.dumps(datasets),
                 methods=json.dumps(methods),
             ),
@@ -520,7 +543,7 @@ def tbl_update_content(config, classifier, acc, error, mbr, datasets, methods, t
     if report is None:
         return [], search_str, mbr_label(mbr)
 
-    df = get_df(report, error, method_by_row=mbr)
+    df = get_df(report, error, method_by_row=mbr, zscore=zscore)
     table = get_Table(df, method_by_row=mbr)
     app_content = [] if table is None else [table]
 
