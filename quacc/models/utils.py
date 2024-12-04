@@ -27,13 +27,13 @@ def neg_entropy(P, keepdims=False):
 
 
 def max_inverse_softmax(P, keepdims=False):
-    # TODO: fix case when P is 1.
+    P = smooth(P, epsilon=1e-12, axis=1)
     lgP = np.log(P)
     mis = np.max(lgP - lgP.mean(axis=1, keepdims=True), axis=1, keepdims=keepdims)
     return mis
 
 
-def smooth(prevalences, epsilon=1e-5):
+def smooth(prevalences, epsilon=1e-5, axis=None):
     """
     Smooths a prevalence vector.
 
@@ -42,5 +42,5 @@ def smooth(prevalences, epsilon=1e-5):
     :return: smoothed prevalence vector
     """
     prevalences = prevalences + epsilon
-    prevalences /= prevalences.sum()
+    prevalences /= prevalences.sum(axis=axis, keepdims=axis is not None)
     return prevalences

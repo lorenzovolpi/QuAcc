@@ -59,8 +59,8 @@ def get_bin_quaccs(q_class):
     _, acc_fn = next(gen_accs())
     return [
         QuAcc1xN2(acc_fn, q_class),
-        # QuAcc1xNp1(acc_fn, q_class),
-        # QuAccNxN(acc_fn, q_class),
+        QuAcc1xNp1(acc_fn, q_class),
+        QuAccNxN(acc_fn, q_class),
     ]
 
 
@@ -116,9 +116,9 @@ def gen_methods(h, vprot, vprot_posteriors):
         "add_negentropy": [True, False],
         "add_maxinfsoft": [True, False],
     }
-    yield "ReQua(SLD-LinReg)", ReQua(acc_fn, LinReg(), get_quaccs(sld()), quacc_params, vprot, vprot_posteriors, n_jobs=0, verbose=True)
-    # yield "ReQua(SLD-Ridge)", ReQua(acc_fn, Ridge(), get_quaccs(sld()), quacc_params, vprot, vprot_posteriors, n_jobs=0, verbose=True)
-    # yield "ReQua(SLD-KRR)", ReQua(acc_fn, KRR(), get_quaccs(sld()), quacc_params, vprot, vprot_posteriors, n_jobs=0, verbose=True)
+    yield "ReQua(SLD-LinReg)", ReQua(acc_fn, LinReg(), get_quaccs(sld()), quacc_params, vprot, vprot_posteriors, verbose=True)
+    yield "ReQua(SLD-Ridge)", ReQua(acc_fn, Ridge(), get_quaccs(sld()), quacc_params, vprot, vprot_posteriors, verbose=True)
+    yield "ReQua(SLD-KRR)", ReQua(acc_fn, KRR(), get_quaccs(sld()), quacc_params, vprot, vprot_posteriors, verbose=True)
 
 # fmt: on
 
