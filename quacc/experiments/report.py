@@ -5,6 +5,7 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+import scipy as sp
 
 import quacc as qc
 from quacc.utils.commons import get_results_path, get_shift, load_json_file, save_json_file
@@ -141,8 +142,10 @@ class Report:
                 _true_acc = np.hstack([_r.true_accs for _r in _res])
                 _estim_acc = np.hstack([_r.estim_accs for _r in _res])
                 _acc_err = error(_true_acc, _estim_acc)
+                _z_score = sp.stats.zscore(_acc_err)
                 report_df = pd.DataFrame(
-                    np.vstack([_true_acc, _estim_acc, _acc_err]).T, columns=["true_accs", "estim_accs", "acc_err"]
+                    np.vstack([_true_acc, _estim_acc, _acc_err, _z_score]).T,
+                    columns=["true_accs", "estim_accs", "acc_err", "z_score"],
                 )
                 report_df.loc[:, "method"] = np.tile(_method, (len(report_df),))
                 report_df.loc[:, "dataset"] = np.tile(_dataset, (len(report_df),))
