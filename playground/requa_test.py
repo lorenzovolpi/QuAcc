@@ -75,8 +75,7 @@ def get_multi_quaccs(q_class):
 def gen_bin_datasets():
     _uci_skip = ["acute.a", "acute.b", "balance.2", "iris.1"]
     _uci_names = [d for d in UCI_BINARY_DATASETS if d not in _uci_skip]
-    # for dn in _uci_names:
-    for dn in ["wdbc"]:
+    for dn in _uci_names:
         dval = fetch_UCIBinaryDataset(dn)
         yield dn, dval
 
