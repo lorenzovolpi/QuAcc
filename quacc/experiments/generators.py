@@ -62,7 +62,7 @@ _SLD = defaultdict(lambda: False)
 _SLD |= dict(
     # reDAN=True,
     # PQ=True,
-    ReQua=True,
+    ReQua=False,
     # ReQua_conf=True,
     LEAP=True,
     # LEAP_OPT=True,
@@ -74,7 +74,7 @@ _KDEy = defaultdict(lambda: False)
 _KDEy |= dict(
     # reDAN=True,
     # PQ=True,
-    ReQua=True,
+    ReQua=False,
     # ReQua_conf=True,
     LEAP=True,
     # LEAP_OPT=True,
@@ -106,11 +106,10 @@ def gen_classifiers():
     yield "LR", LR()
     # yield "LR-opt", GridSearchCV(LR(), param_grid, cv=5, n_jobs=qc.env["N_JOBS"])
 
-    # yield "KNN", KNN(n_neighbors=5)
-    # yield "KNN_10", KNN(n_neighbors=10)
-    # yield "SVM(rbf)", SVC(probability=True)
+    yield "KNN", KNN(n_neighbors=10)
+    yield "SVM(rbf)", SVC(probability=True)
+    yield "MLP", MLP(hidden_layer_sizes=(100, 15), max_iter=300, random_state=0)
     # yield "RFC", RFC()
-    # yield "MLP", MLP(hidden_layer_sizes=(100, 15), max_iter=300, random_state=0)
 
     # yield 'NB', GaussianNB()
     # yield 'SVM(linear)', LinearSVC()
