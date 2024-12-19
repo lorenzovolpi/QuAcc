@@ -49,13 +49,10 @@ def do_tempscale_optimization(labels, preacts, verbose, lbfgs_kwargs, epsilon=5e
     return optimal_t
 
 
-class TempScaling(CalibratorFactory):
-    def __init__(self, ece_bins=15, lbfgs_kwargs={}, verbose=False, bias_positions=[]):
+class TemperatureScaling(CalibratorFactory):
+    def __init__(self, lbfgs_kwargs={}, verbose=False):
         self.lbfgs_kwargs = lbfgs_kwargs
         self.verbose = verbose
-        self.ece_bins = ece_bins
-        # the subset of bias positions that we are allowed to optimize for
-        self.bias_positions = bias_positions
 
     def __call__(self, valid_preacts, valid_labels, posterior_supplied=False):
         if posterior_supplied:
@@ -73,3 +70,6 @@ class TempScaling(CalibratorFactory):
             preact=inverse_softmax(preact) if posterior_supplied else preact,
             temp=optimal_t,
         )
+
+
+TS = TemperatureScaling
