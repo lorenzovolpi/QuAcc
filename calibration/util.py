@@ -22,6 +22,13 @@ def t_gradients(labels, preacts, t):
     return (sum_preact_times_exp / sum_exp - nots_logits_trueclass) / (float(t) ** 2)
 
 
+def b_gradients(labels, preacts, t, bs):
+    tsb_preacts = preacts / float(t) + bs[None, :]
+    exp_tsb_logits = np.exp(tsb_preacts)
+    sum_exp = np.sum(exp_tsb_logits, axis=1)
+    return labels - (exp_tsb_logits / (sum_exp[:, None]))
+
+
 def softmax(preact, temp, biases=None):
     if biases is None:
         biases = np.zeros(preact.shape[1])
