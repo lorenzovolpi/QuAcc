@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import quapy as qp
+from pandas.core.internals.blocks import shift
 from quapy.data.datasets import UCI_BINARY_DATASETS
 from quapy.method.aggregative import EMQ, KDEyML
 from quapy.protocol import UPP
@@ -9,6 +10,7 @@ from sklearn.linear_model import LogisticRegression
 # from abstention.calibration import TempScaling
 from calibration import TS
 from calibration.bcts import BCTS
+from calibration.error import calibration_error
 from quacc.data.datasets import fetch_UCIBinaryDataset
 from quacc.error import vanilla_acc
 from quacc.models.cont_table import QuAcc1xN2
@@ -22,9 +24,18 @@ def lblM_from_P(P, n_classes):
     return np.eye(n_classes)[np.argmax(P, axis=-1)]
 
 
+def label_shift_calibration(V_P_recalib, test_P, calib_fn, shift_estimator=None):
+    if shift_estimator is None:
+        return calib_fn(test_P)
+    elif shift_estimator == "em":
+        V_prior_recalib = np.sum(V_P_recalib, axis=0) / V_P_recalib.shape[0]
+        _, test_posteriors_recalib = EMQ.EM(V_prior_recalib, test_P)
+        return test_posteriors_recalib
+
+
 def calib_testing():
-    ts = TS(verbose=True)
-    bcts = BCTS(verbose=True)
+    ts = TS(verbose=False)
+    bcts = BCTS(verbose=False)
 
     L, V, U = fetch_UCIBinaryDataset(dataset_name)
     h = LogisticRegression().fit(*L.Xy)
@@ -32,15 +43,22 @@ def calib_testing():
     V_P = h.predict_proba(V.X)
     ts_fn = ts(V_P, lblM_from_P(V_P, V.n_classes), posterior_supplied=True)
     bcts_fn = bcts(V_P, lblM_from_P(V_P, V.n_classes), posterior_supplied=True)
+    V_P_ts = ts_fn(V_P)
+    V_P_bcts = bcts_fn(V_P)
 
-    test_prot = UPP(U, sample_size=100, repeats=100, return_type="labelled_collection")
-    test_P = [h.predict_proba(U_i.X) for U_i in test_prot()]
+    test_prot = UPP(U, sample_size=100, repeats=10, return_type="labelled_collection")
+    ce_base, ce_ts, ce_bcts = [], [], []
+    for U_i in test_prot():
+        P_i = h.predict_proba(U_i.X)
+        ts_Pi = label_shift_calibration(V_P_ts, P_i, ts_fn)
+        bcts_Pi = label_shift_calibration(V_P_bcts, P_i, bcts_fn, shift_estimator="em")
+        ce_base.append(calibration_error(P_i, U_i.y, norm="l2"))
+        ce_ts.append(calibration_error(ts_Pi, U_i.y, norm="l2"))
+        ce_bcts.append(calibration_error(bcts_Pi, U_i.y, norm="l2"))
+    ce_base, ce_ts, ce_bcts = np.array(ce_base), np.array(ce_ts), np.array(ce_bcts)
 
-    test_ts_Ps = [ts_fn(P_i) for P_i in test_P]
-    test_bcts_Ps = [bcts_fn(P_i) for P_i in test_P]
-
-    print(np.hstack([np.mean(np.abs(test_Pi - test_ts_Pi)) for test_Pi, test_ts_Pi in zip(test_P, test_ts_Ps)]))
-    print(np.hstack([np.mean(np.abs(test_Pi - test_bcts_Pi)) for test_Pi, test_bcts_Pi in zip(test_P, test_bcts_Ps)]))
+    df = pd.DataFrame(np.hstack([ce_base[:, None], ce_ts[:, None], ce_bcts[:, None]]), columns=["uncal", "ts", "bcts"])
+    print(df)
 
 
 def recalib_quacc():
