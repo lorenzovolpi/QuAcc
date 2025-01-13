@@ -14,7 +14,14 @@ import quacc as qc
 from quacc.data.datasets import fetch_IMDBDataset, fetch_RCV1BinaryDataset
 from quacc.data.util import split_train
 from quacc.error import f1_macro, vanilla_acc
-from quacc.experiments.util import fit_or_switch, get_logger, get_plain_prev, get_predictions, prevs_from_prot
+from quacc.experiments.util import (
+    fit_or_switch,
+    get_logger,
+    get_plain_prev,
+    get_predictions,
+    prevs_from_prot,
+    split_validation,
+)
 from quacc.models.cont_table import LEAP
 from quacc.utils.commons import get_shift, true_acc
 
@@ -134,8 +141,16 @@ def experiments():
                 log.info(f"Training {cls_name} over {dataset_name}[{prev_str(L)}]")
                 h.fit(*L.Xy)
 
+                # split validation set
+                V1, V2_prot = split_validation(V)
+
                 # generate posteriors
                 V_posteriors = h.predict_proba(V.X)
+                V1_posteriors = h.predict_proba(V1.X)
+                V2_prot_posteriors = []
+                for sample in V2_prot():
+                    V2_prot_posteriors.append(h.predict_proba(sample.X))
+
                 test_prot_posteriors, test_prot_y_hat = [], []
                 for sample in test_prot():
                     P = h.predict_proba(sample.X)
@@ -147,7 +162,10 @@ def experiments():
                 for acc_name, acc_fn in gen_accs():
                     true_accs[acc_name] = [true_acc(h, acc_fn, Ui) for Ui in test_prot()]
 
-                for method_name, method in gen_methods(h):
+                # for method_name, method in gen_methods(h):
+                for method_name, method, val, val_posteriors in gen_methods(
+                    h, V, V_posteriors, V1, V1_posteriors, V2_prot, V2_prot_posteriors, PROBLEM, MODEL_TYPE, ORACLE
+                ):
                     t_train = None
                     for acc_name, acc_fn in gen_accs():
                         path = local_path(dataset_name, cls_name, method_name, acc_name, L)
