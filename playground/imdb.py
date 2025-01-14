@@ -57,7 +57,7 @@ def get_imdbs():
 
 
 def local_path(method_name, acc_name, L: LabelledCollection):
-    return os.path.join(qc.env["OUT_DIR"], "pg_imdb", f"{method_name}_{acc_name}_{round(L.prevalence()[1]*100)}.csv")
+    return os.path.join(qc.env["OUT_DIR"], "pg_imdb", f"{method_name}_{acc_name}_{round(L.prevalence()[1] * 100)}.csv")
 
 
 def gen_quants():

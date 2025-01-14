@@ -363,24 +363,24 @@ def gen_CAP_cont_table_opt(h, acc_fn, config, model_type, V2_prot, V2_prot_poste
 
 
 def gen_methods(
-    h, V, V_poesteriors, V1, V1_posteriors, V2_prot, V2_prot_posteriros, config, model_type="simple", with_oracle=False
+    h, V, V_posteriors, V1, V1_posteriors, V2_prot, V2_prot_posteriors, config, model_type="simple", with_oracle=False
 ):
     config = "multiclass" if config is None else config
 
     _, acc_fn = next(gen_acc_measure())
 
     for name, method in gen_CAP_baselines(acc_fn, config, model_type, with_oracle):
-        yield name, method, V, V_poesteriors
-    for name, method in gen_CAP_baselines_vp(acc_fn, config, model_type, V2_prot, V2_prot_posteriros, with_oracle):
+        yield name, method, V, V_posteriors
+    for name, method in gen_CAP_baselines_vp(acc_fn, config, model_type, V2_prot, V2_prot_posteriors, with_oracle):
         yield name, method, V1, V1_posteriors
     for name, method in gen_CAP_direct(h, acc_fn, config, model_type, with_oracle):
-        yield name, method, V, V_poesteriors
+        yield name, method, V, V_posteriors
     for name, method in gen_CAP_cont_table(h, acc_fn, config, model_type):
-        yield name, method, V, V_poesteriors
+        yield name, method, V, V_posteriors
 
-    for name, method in gen_CAP_cont_table_opt(h, acc_fn, config, model_type, V2_prot, V2_prot_posteriros):
+    for name, method in gen_CAP_cont_table_opt(h, acc_fn, config, model_type, V2_prot, V2_prot_posteriors):
         yield name, method, V1, V1_posteriors
-    for name, method in gen_CAP_regression(acc_fn, config, model_type, V2_prot, V2_prot_posteriros):
+    for name, method in gen_CAP_regression(acc_fn, config, model_type, V2_prot, V2_prot_posteriors):
         yield name, method, V1, V1_posteriors
 
 
