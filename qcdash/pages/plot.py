@@ -48,7 +48,7 @@ def get_Graph(fig):
 
 
 def get_report(config, classifier, acc, dataset, methods):
-    return Report.load_results(config, classifier, acc, dataset, methods)
+    return Report.load_results(root_folder, config, classifier, acc, dataset, methods)
 
 
 sidebar_style = {

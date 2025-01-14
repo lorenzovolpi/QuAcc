@@ -1,4 +1,5 @@
 import itertools
+import os
 from collections import defaultdict
 from glob import glob
 from pathlib import Path
@@ -15,6 +16,7 @@ from quacc.utils.commons import get_results_path, get_shift, load_json_file, sav
 class TestReport:
     def __init__(
         self,
+        rootdir,
         basedir,
         cls_name,
         acc_name,
@@ -23,6 +25,7 @@ class TestReport:
         val_prev,
         method_name,
     ):
+        self.rootdir = rootdir
         self.basedir = basedir
         self.cls_name = cls_name
         self.acc_name = acc_name
@@ -32,7 +35,16 @@ class TestReport:
         self.method_name = method_name
 
     def get_path(self):
-        return get_results_path(self.basedir, self.cls_name, self.acc_name, self.dataset_name, self.method_name)
+        return get_results_path(
+            self.rootdir, self.basedir, self.cls_name, self.acc_name, self.dataset_name, self.method_name
+        )
+
+    def exists(self):
+        return os.path.exists(self.get_path())
+
+    @classmethod
+    def build_path(cls, rootdir, basedir, cls_name, acc_name, dataset_name, method_name):
+        return get_results_path(rootdir, basedir, cls_name, acc_name, dataset_name, method_name)
 
     def add_result(self, test_prevs, true_accs, estim_accs, t_train, t_test_ave):
         self.test_prevs = test_prevs
@@ -62,9 +74,10 @@ class TestReport:
         save_json_file(self.get_path(), result)
 
     @classmethod
-    def load_json(cls, path) -> "TestReport":
+    def load_json(cls, path, rootdir) -> "TestReport":
         def _test_report_hook(_dict):
             return TestReport(
+                rootdir=rootdir,
                 basedir=_dict["basedir"],
                 cls_name=_dict["cls_name"],
                 acc_name=_dict["acc_name"],
@@ -89,7 +102,7 @@ class Report:
 
     @classmethod
     def load_results(
-        cls, basedir, cls_name, acc_name, datasets: str | list[str] = "*", methods: str | list[str] = "*"
+        cls, rootdir, basedir, cls_name, acc_name, datasets: str | list[str] = "*", methods: str | list[str] = "*"
     ) -> "Report":
         _results = defaultdict(lambda: [])
         if isinstance(methods, str):
@@ -97,11 +110,11 @@ class Report:
         if isinstance(datasets, str):
             datasets = [datasets]
         for dataset_, method_ in itertools.product(datasets, methods):
-            path = get_results_path(basedir, cls_name, acc_name, dataset_, method_)
+            path = get_results_path(rootdir, basedir, cls_name, acc_name, dataset_, method_)
             for file in glob(path):
                 if file.endswith(".json"):
                     method = Path(file).stem
-                    _res = TestReport.load_json(file)
+                    _res = TestReport.load_json(file, rootdir)
                     _results[method].append(_res)
         return Report(_results)
 

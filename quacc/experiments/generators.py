@@ -406,8 +406,8 @@ def gen_acc_measure(multiclass=False):
         yield "macro-F1", f1_macro if multiclass else f1
 
 
-def any_missing(basedir, cls_name, dataset_name, method_name):
+def any_missing(rootdir, basedir, cls_name, dataset_name, method_name):
     for acc_name, _ in gen_acc_measure():
-        if not os.path.exists(get_results_path(basedir, cls_name, acc_name, dataset_name, method_name)):
+        if not os.path.exists(get_results_path(rootdir, basedir, cls_name, acc_name, dataset_name, method_name)):
             return True
     return False

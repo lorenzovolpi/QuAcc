@@ -6,9 +6,11 @@ import subprocess
 from critdd import Diagram
 from quapy.data.datasets import UCI_BINARY_DATASETS
 
+import quacc as qc
 from quacc.experiments.report import Report
 
 PROBLEM = "binary"
+root_folder = os.path.join(qc.env["OUT_DIR"], "results")
 
 
 def get_acc_names():
@@ -55,7 +57,7 @@ def plotting():
         methods = get_method_names()
 
         df = (
-            Report.load_results(PROBLEM, cls_name, acc_name, datasets, methods)
+            Report.load_results(root_folder, PROBLEM, cls_name, acc_name, datasets, methods)
             .table_data()
             .pivot(index="dataset", columns="method", values="acc_err")
         )

@@ -197,7 +197,7 @@ def get_Table(df: pd.DataFrame, method_by_row=True):
 
 
 def get_report(config, classifier, acc, dataset, methods):
-    return Report.load_results(config, classifier, acc, dataset, methods)
+    return Report.load_results(root_folder, config, classifier, acc, dataset, methods)
 
 
 sidebar_style = {

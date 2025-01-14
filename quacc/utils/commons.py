@@ -82,10 +82,9 @@ def load_json_file(path, object_hook=None):
         return json.load(f, object_hook=object_hook)
 
 
-def get_results_path(basedir, cls_name, acc_name, dataset_name, method_name):
+def get_results_path(rootdir, basedir, cls_name, acc_name, dataset_name, method_name):
     return os.path.join(
-        qc.env["OUT_DIR"],
-        "results",
+        rootdir,
         basedir,
         cls_name,
         acc_name,

@@ -1,4 +1,5 @@
 import itertools as IT
+import os
 
 import numpy as np
 import pandas as pd
@@ -10,6 +11,7 @@ from quacc.experiments.report import Report
 PROBLEM = "binary"
 basedir = PROBLEM
 plots_basedir = PROBLEM
+root_folder = os.path.join(qc.env["OUT_DIR"], "results")
 
 if PROBLEM == "binary":
     gen_datasets = gen_bin_datasets
@@ -22,7 +24,9 @@ def rename_methods(df: pd.DataFrame, methods: dict):
 
 def plot_grid_of_diagonals(methods, dataset_names, classifiers, filename=None, n_cols=5, **kwargs):
     for cls_name, (acc_name, _) in IT.product(classifiers, gen_acc_measure()):
-        rep = Report.load_results(basedir, cls_name, acc_name, datasets=dataset_names, methods=list(methods.keys()))
+        rep = Report.load_results(
+            root_folder, basedir, cls_name, acc_name, datasets=dataset_names, methods=list(methods.keys())
+        )
         df = rep.table_data(mean=False)
         rename_methods(df, methods)
         qc.plot.seaborn.plot_diagonal_grid(

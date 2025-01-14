@@ -6,6 +6,7 @@ import numpy as np
 import quapy as qp
 from quapy.protocol import UPP
 
+import quacc as qc
 from quacc.experiments.generators import (
     gen_acc_measure,
     gen_bin_datasets,
@@ -32,6 +33,7 @@ from quacc.utils.commons import save_dataset_stats, true_acc
 
 PROBLEM = "binary"
 MODEL_TYPE = "simple"
+root_folder = os.path.join(qc.env["OUT_DIR"], "results")
 
 log = get_logger()
 
@@ -42,7 +44,7 @@ def all_exist_pre_check(basedir, cls_name, dataset_name, model_type):
 
     all_exist = True
     for method, acc in IT.product(method_names, acc_names):
-        path = TestReport(basedir, cls_name, acc, dataset_name, None, None, method).get_path()
+        path = TestReport.build_path(root_folder, basedir, cls_name, acc, dataset_name, method)
         all_exist = os.path.exists(path)
         if not all_exist:
             break
@@ -112,8 +114,10 @@ def experiments():
 
             t_train = None
             for acc_name, acc_fn in gen_acc_measure(multiclass=True):
-                report = TestReport(basedir, cls_name, acc_name, dataset_name, L_prev, val_prev, method_name)
-                if os.path.exists(report.get_path()):
+                report = TestReport(
+                    root_folder, basedir, cls_name, acc_name, dataset_name, L_prev, val_prev, method_name
+                )
+                if report.exists():
                     log.info(f"{method_name}: {acc_name} exists, skipping")
                     continue
 
@@ -192,8 +196,10 @@ def lmexperiments():
 
             t_train = None
             for acc_name, acc_fn in gen_acc_measure(multiclass=True):
-                report = TestReport(basedir, cls_name, acc_name, dataset_name, L_prev, val_prev, method_name)
-                if os.path.exists(report.get_path()):
+                report = TestReport(
+                    root_folder, basedir, cls_name, acc_name, dataset_name, L_prev, val_prev, method_name
+                )
+                if report.exists():
                     log.info(f"{method_name}: {acc_name} exists, skipping")
                     continue
 
@@ -209,7 +215,7 @@ def lmexperiments():
                     log.warning(f"{method_name}: {acc_name} gave_error '{e}' - skipping")
                     continue
 
-                report.save_json()
+                report.save_json(root_folder)
                 log.info(f"{method_name}: {acc_name} done [t_train:{t_train:.3f}s; t_test_ave:{t_test_ave:.3f}s]")
 
     log.info("-" * 32 + "  end  " + "-" * 32)

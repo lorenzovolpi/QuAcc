@@ -13,6 +13,7 @@ from quacc.table import Format, Table
 
 PROBLEM = "binary"
 ERROR = qc.error.ae
+root_folder = os.path.join(qc.env["OUT_DIR"], "results")
 
 if PROBLEM == "binary":
     gen_datasets = gen_bin_datasets
@@ -115,7 +116,7 @@ def gen_n2e_tables():
     tables = []
     for acc_name in ACC_NAMES:
         for cls_name in CLASSIFIERS:
-            rep = Report.load_results(PROBLEM, cls_name, acc_name, BENCHMARKS, METHODS)
+            rep = Report.load_results(root_folder, PROBLEM, cls_name, acc_name, BENCHMARKS, METHODS)
             df = rep.table_data(mean=False, error=ERROR)
 
             cls_name = rename_cls(cls_name)
