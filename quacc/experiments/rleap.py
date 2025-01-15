@@ -16,6 +16,7 @@ from quacc.error import f1_macro, vanilla_acc
 from quacc.experiments.util import (
     fit_or_switch,
     get_logger,
+    get_plain_prev,
     get_predictions,
     split_validation,
 )
@@ -206,10 +207,13 @@ def experiments():
                 for acc_name, acc_fn in gen_accs():
                     true_accs[acc_name] = [true_acc(h, acc_fn, Ui) for Ui in test_prot()]
 
-                # for method_name, method in gen_methods(h):
+                L_prev = get_plain_prev(L.prevalence())
+
                 for method_name, method, val, val_posteriors in gen_methods(
                     h, V, V_posteriors, V1, V1_posteriors, V2_prot, V2_prot_posteriors
                 ):
+                    val_prev = get_plain_prev(val.prevalence())
+
                     t_train = None
                     for acc_name, acc_fn in gen_accs():
                         path = local_path(dataset_name, cls_name, method_name, acc_name, L)
@@ -238,7 +242,8 @@ def experiments():
                         method_df["method"] = method_name
                         method_df["dataset"] = dataset_name
                         method_df["acc_name"] = acc_name
-                        method_df["train_prev"] = np.around(L.prevalence(), decimals=2)[1]
+                        method_df["train_prev"] = np.around(L_prev, decimals=2)
+                        method_df["val_prev"] = np.around(val_prev, decimals=2)
                         log.info(f"{method_name} on {acc_name} done")
                         method_df.to_csv(path, sep=CSV_SEP)
                         dfs.append(method_df)
