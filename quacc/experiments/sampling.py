@@ -123,10 +123,10 @@ def gen_CAP_cont_table_opt(acc_fn, V2_prot, V2_prot_posteriors):
     yield "QuAcc(SLD)nxn", GSCAP(QuAccNxN(acc_fn, sld()), emq_lr_params, V2_prot, V2_prot_posteriors, acc_fn, refit=False)
     if PROBLEM == "binary":
         yield "QuAcc(SLD)1xnp1", GSCAP(QuAcc1xNp1(acc_fn, sld()), emq_lr_params, V2_prot, V2_prot_posteriors, acc_fn, refit=False)
-    yield "QuAcc(KDEy)1xn2", GSCAP(QuAcc1xN2(acc_fn, kdey()), kde_lr_params, V2_prot, V2_prot_posteriors, acc_fn, refit=False)
-    yield "QuAcc(KDEy)nxn", GSCAP(QuAccNxN(acc_fn, kdey()), kde_lr_params, V2_prot, V2_prot_posteriors, acc_fn, refit=False)
-    if PROBLEM == "binary":
-        yield "QuAcc(KDEy)1xnp1", GSCAP(QuAcc1xNp1(acc_fn, kdey()), kde_lr_params, V2_prot, V2_prot_posteriors, acc_fn, refit=False)
+    # yield "QuAcc(KDEy)1xn2", GSCAP(QuAcc1xN2(acc_fn, kdey()), kde_lr_params, V2_prot, V2_prot_posteriors, acc_fn, refit=False)
+    # yield "QuAcc(KDEy)nxn", GSCAP(QuAccNxN(acc_fn, kdey()), kde_lr_params, V2_prot, V2_prot_posteriors, acc_fn, refit=False)
+    # if PROBLEM == "binary":
+    #     yield "QuAcc(KDEy)1xnp1", GSCAP(QuAcc1xNp1(acc_fn, kdey()), kde_lr_params, V2_prot, V2_prot_posteriors, acc_fn, refit=False)
 # fmt: on
 
 
@@ -138,8 +138,8 @@ def gen_methods(h, V, V_posteriors, V1, V1_posteriors, V2_prot, V2_prot_posterio
         yield name, method, V1, V1_posteriors
     for name, method in gen_CAP_cont_table(h, acc_fn):
         yield name, method, V, V_posteriors
-    # for name, method in gen_CAP_cont_table_opt(acc_fn, V2_prot, V2_prot_posteriors):
-    #     yield name, method, V1, V1_posteriors
+    for name, method in gen_CAP_cont_table_opt(acc_fn, V2_prot, V2_prot_posteriors):
+        yield name, method, V1, V1_posteriors
 
 
 def get_method_names():
@@ -151,7 +151,7 @@ def get_method_names():
         [m for m, _ in gen_baselines(mock_acc_fn)]
         + [m for m, _ in gen_baselines_vp(mock_acc_fn, mock_V2_prot, mock_V2_post)]
         + [m for m, _ in gen_CAP_cont_table(mock_h, mock_acc_fn)]
-        # + [m for m, _ in gen_CAP_cont_table_opt(mock_acc_fn, mock_V2_prot, mock_V2_post)]
+        + [m for m, _ in gen_CAP_cont_table_opt(mock_acc_fn, mock_V2_prot, mock_V2_post)]
     )
 
 
@@ -180,6 +180,11 @@ def preload_existing(dataset_name, cls_name, L):
         dfs.append(method_df)
 
     return dfs
+
+
+def get_extra_from_method(method, df):
+    if isinstance(method, GSCAP) and hasattr(method, "best_model_"):
+        df["fit_score"] = method.best_score_
 
 
 def experiments():
@@ -271,7 +276,7 @@ def experiments():
                     method_df["t_train"] = t_train
                     method_df["t_test_ave"] = t_test_ave
 
-                    # TODO: add scores for GSCAP methods
+                    get_extra_from_method(method, method_df)
 
                     log.info(f"{method_name} on {acc_name} done")
                     method_df.to_csv(path, sep=CSV_SEP)
@@ -281,14 +286,15 @@ def experiments():
 
     results = pd.concat(dfs, axis=0)
 
-    pivot = (
-        results.groupby(by=["dataset", "acc_name", "method"])
-        .mean()
-        .reset_index()
-        .pivot(index=["acc_name", "method"], columns=["dataset"], values="acc_err")
+    print(results["fit_score"])
+
+    pivot = pd.pivot_table(
+        results,
+        index=["acc_name", "method"],
+        columns=["classifier", "dataset"],
+        values="acc_err",
     )
     print(pivot)
-    # print(pivot.to_latex())
 
 
 if __name__ == "__main__":
