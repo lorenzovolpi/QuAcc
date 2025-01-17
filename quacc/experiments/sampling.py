@@ -211,14 +211,14 @@ def experiments():
             # split validation set
             V1, V2_prot = split_validation(V)
 
-            # generate posteriors
+            # precomumpute model posteriors for validation sets
             V_posteriors = h.predict_proba(V.X)
             V1_posteriors = h.predict_proba(V1.X)
             V2_prot_posteriors = []
             for sample in V2_prot():
                 V2_prot_posteriors.append(h.predict_proba(sample.X))
 
-            # get posteriors for test samples
+            # precomumpute model posteriors for test samples
             test_prot_posteriors, test_prot_y_hat = [], []
             for sample in test_prot():
                 P = h.predict_proba(sample.X)

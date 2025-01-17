@@ -76,6 +76,7 @@ def experiments():
             log.info(f"{cls_name} on dataset={dataset_name}: all results already exist, skipping")
             continue
 
+        # fit model
         log.info(f"{cls_name} training on dataset={dataset_name}")
         h.fit(*L.Xy)
 
@@ -95,6 +96,7 @@ def experiments():
         for sample in V2_prot():
             V2_prot_posteriors.append(h.predict_proba(sample.X))
 
+        # get posteriors for test samples
         test_prot_posteriors, test_prot_y_hat = [], []
         for sample in test_prot():
             P = h.predict_proba(sample.X)
