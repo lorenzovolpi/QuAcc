@@ -43,6 +43,7 @@ def get_rcv1_class_info():
             if parent != "None":
                 tree[parent].append(child)
                 class_names.add(child)
+            class_names.add("Root")
 
         # sort class names
         class_names = sorted(list(class_names))
