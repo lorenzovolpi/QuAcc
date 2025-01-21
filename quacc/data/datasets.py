@@ -20,10 +20,12 @@ RCV1_BINARY_DATASETS = [
 RCV1_MULTICLASS_DATASETS = [
     # "C18", "C31", "E51", "M14",  # 3 classes
     # "C17", "C2", "C3", "E1", "M1", "Root",  # 4 classes
-    "C1",  # 8 classes
+    # "C1",  # 8 classes
+    # "ECAT", # 7 classes
+    "Root", # 4 classes
     "CCAT", # 4 classes
-    "ECAT", # 7 classes
     "M1", # 4 classes
+    "M14", # 3 classes
 ]
 HF_DATASETS = ["imdb", "rotten_tomatoes", "amazon_polarity"]
 # fmt: on
