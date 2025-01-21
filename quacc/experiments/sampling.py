@@ -1,5 +1,6 @@
 import itertools as IT
 import os
+import pdb
 from traceback import print_exception
 
 import numpy as np
@@ -63,10 +64,10 @@ def gen_datasets():
             dval = fetch_RCV1BinaryDataset(dn)
             yield dn, dval
     elif PROBLEM == "multiclass":
-        _uci_skip = ["isolet", "wine-quality", "letter"]
-        _uci_names = [d for d in UCI_MULTICLASS_DATASETS if d not in _uci_skip]
-        for dataset_name in _uci_names:
-            yield dataset_name, fetch_UCIMulticlassDataset(dataset_name)
+        # _uci_skip = ["isolet", "wine-quality", "letter"]
+        # _uci_names = [d for d in UCI_MULTICLASS_DATASETS if d not in _uci_skip]
+        # for dataset_name in _uci_names:
+        #     yield dataset_name, fetch_UCIMulticlassDataset(dataset_name)
         for dataset_name in RCV1_MULTICLASS_DATASETS:
             yield dataset_name, fetch_RCV1MulticlassDataset(dataset_name)
 
@@ -75,22 +76,27 @@ def get_train_samples(dataset):
     L, V, U = dataset
 
     if PROBLEM == "binary":
-        train_prevs = np.linspace(0.1, 1, 9, endpoint=False)
+        train_prevs = np.linspace(0.1, 1, 9, endpoint=False)[:, np.newaxis]
         L_size = np.min(np.around(np.min(L.counts()) / train_prevs, decimals=0))
         V_size = np.min(np.around(np.min(V.counts()) / train_prevs, decimals=0))
     elif PROBLEM == "multiclass":
-        train_prevs = uniform_prevalence_sampling(L.n_classes, 9)
+        train_prevs = uniform_prevalence_sampling(L.n_classes, 9)[:, :-1]
+        L_size = len(L) // 2
+        V_size = len(V) // 2
 
-    datasets = [(L.sampling(int(L_size), p), V.sampling(int(V_size), p), U) for p in train_prevs]
+    datasets = [(L.sampling(int(L_size), *p), V.sampling(int(V_size), *p), U) for p in train_prevs]
     return datasets
 
 
 def prev_str(L: LabelledCollection):
-    return round(L.prevalence()[1] * 100)
+    if PROBLEM == "binary":
+        return str(round(L.prevalence()[1] * 100))
+    elif PROBLEM == "multiclass":
+        return "_".join([str(int(x)) for x in np.around(L.prevalence(), decimals=2) * 100][1:])
 
 
 def local_path(dataset_name, cls_name, method_name, acc_name, L: LabelledCollection):
-    L_prev = str(prev_str(L))
+    L_prev = prev_str(L)
     parent_dir = os.path.join(root_dir, cls_name, acc_name, dataset_name, L_prev)
     os.makedirs(parent_dir, exist_ok=True)
     return os.path.join(parent_dir, f"{method_name}.csv")
@@ -191,6 +197,14 @@ def get_extra_from_method(method, df):
         df["fit_score"] = method.best_score_
 
 
+def add_prev_to_df(df, key, prevs):
+    if PROBLEM == "binary":
+        df[key] = np.around(prevs, decimals=2)
+    elif PROBLEM == "multiclass":
+        for i, _p in enumerate(prevs):
+            df[f"{key}_{i + 1}"] = _p
+
+
 def experiments():
     log.info("-" * 31 + "  start  " + "-" * 31)
 
@@ -283,8 +297,10 @@ def experiments():
                     method_df["method"] = method_name
                     method_df["dataset"] = dataset_name
                     method_df["acc_name"] = acc_name
-                    method_df["train_prev"] = np.around(L_prev, decimals=2)
-                    method_df["val_prev"] = np.around(val_prev, decimals=2)
+                    # method_df["train_prev"] = np.around(L_prev, decimals=2)
+                    # method_df["val_prev"] = np.around(val_prev, decimals=2)
+                    add_prev_to_df(method_df, "train_prev", L_prev)
+                    add_prev_to_df(method_df, "val_prev", val_prev)
                     method_df["t_train"] = t_train
                     method_df["t_test_ave"] = t_test_ave
 
