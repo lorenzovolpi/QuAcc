@@ -7,6 +7,7 @@ import pandas as pd
 import quapy as qp
 from quapy.data.base import LabelledCollection
 from quapy.data.datasets import UCI_MULTICLASS_DATASETS
+from quapy.functional import uniform_prevalence_sampling
 from quapy.method.aggregative import EMQ, KDEyML
 from quapy.protocol import APP, UPP
 from sklearn.linear_model import LogisticRegression
@@ -36,7 +37,7 @@ root_dir = os.path.join(qc.env["OUT_DIR"], "sampling")
 qp.environ["SAMPLE_SIZE"] = 1000
 NUM_TEST = 100
 qp.environ["_R_SEED"] = 0
-PROBLEM = "binary"
+PROBLEM = "multiclass"
 
 CSV_SEP = ","
 
@@ -73,9 +74,12 @@ def gen_datasets():
 def get_train_samples(dataset):
     L, V, U = dataset
 
-    train_prevs = np.linspace(0.1, 1, 9, endpoint=False)
-    L_size = np.min(np.around(np.min(L.counts()) / train_prevs, decimals=0))
-    V_size = np.min(np.around(np.min(V.counts()) / train_prevs, decimals=0))
+    if PROBLEM == "binary":
+        train_prevs = np.linspace(0.1, 1, 9, endpoint=False)
+        L_size = np.min(np.around(np.min(L.counts()) / train_prevs, decimals=0))
+        V_size = np.min(np.around(np.min(V.counts()) / train_prevs, decimals=0))
+    elif PROBLEM == "multiclass":
+        train_prevs = uniform_prevalence_sampling(L.n_classes, 9)
 
     datasets = [(L.sampling(int(L_size), p), V.sampling(int(V_size), p), U) for p in train_prevs]
     return datasets
@@ -205,13 +209,21 @@ def experiments():
             h.fit(*L.Xy)
 
             # test generation protocol
-            test_prot = APP(
-                U,
-                n_prevalences=21,
-                repeats=NUM_TEST,
-                return_type="labelled_collection",
-                random_state=qp.environ["_R_SEED"],
-            )
+            if PROBLEM == "binary":
+                test_prot = APP(
+                    U,
+                    n_prevalences=21,
+                    repeats=NUM_TEST,
+                    return_type="labelled_collection",
+                    random_state=qp.environ["_R_SEED"],
+                )
+            elif PROBLEM == "multiclass":
+                test_prot = UPP(
+                    U,
+                    repeats=NUM_TEST,
+                    return_type="labelled_collection",
+                    random_state=qp.environ["_R_SEED"],
+                )
 
             # split validation set
             V1, V2_prot = split_validation(V)

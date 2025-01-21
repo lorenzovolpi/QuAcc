@@ -81,7 +81,7 @@ def experiments():
         h.fit(*L.Xy)
 
         # test generation protocol
-        test_prot = UPP(U, repeats=NUM_TEST, return_type="labelled_collection", random_state=0)
+        test_prot = UPP(U, repeats=NUM_TEST, return_type="labelled_collection", random_state=qp.environ["_R_SEED"])
 
         # compute some stats of the dataset
         save_dataset_stats(dataset_name, test_prot, L, V)
