@@ -46,7 +46,9 @@ log = get_logger(id="sampling")
 
 
 def sld():
-    return EMQ(LogisticRegression(), val_split=5)
+    emq = EMQ(LogisticRegression(), val_split=5)
+    emq.SUPPRESS_WARNINGS = True
+    return emq
 
 
 def kdey():
@@ -70,6 +72,10 @@ def gen_datasets():
         #     yield dataset_name, fetch_UCIMulticlassDataset(dataset_name)
         for dataset_name in RCV1_MULTICLASS_DATASETS:
             yield dataset_name, fetch_RCV1MulticlassDataset(dataset_name)
+
+
+def _uniform_prevalence_sampling(n_classes, repeats, seed=None):
+    pass
 
 
 def get_train_samples(dataset):
@@ -97,7 +103,7 @@ def prev_str(L: LabelledCollection):
 
 def local_path(dataset_name, cls_name, method_name, acc_name, L: LabelledCollection):
     L_prev = prev_str(L)
-    parent_dir = os.path.join(root_dir, cls_name, acc_name, dataset_name, L_prev)
+    parent_dir = os.path.join(root_dir, PROBLEM, cls_name, acc_name, dataset_name, L_prev)
     os.makedirs(parent_dir, exist_ok=True)
     return os.path.join(parent_dir, f"{method_name}.csv")
 
