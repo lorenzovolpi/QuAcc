@@ -8,20 +8,23 @@ from sklearn.datasets import fetch_rcv1
 import quacc as qc
 from quacc.data.datasets import fetch_RCV1MulticlassDataset
 from quacc.data.util import get_rcv1_class_info
+from quacc.experiments.sampling import get_uniform_prevalences
 
 qp.environ["_R_SEED"] = 0
 
 
 if __name__ == "__main__":
-    # L, U = fetch_UCIMulticlassDataset("digits").train_test
-    class_names, _, _ = get_rcv1_class_info()
+    L, U = fetch_UCIMulticlassDataset("digits").train_test
 
-    for cn in class_names:
-        try:
-            L, _, _ = fetch_RCV1MulticlassDataset(cn)
-            print(f"{cn} : {L.counts()} - {len(L)}")
-        except KeyError:
-            pass
+    for _ in range(10):
+        print(get_uniform_prevalences(L.n_classes, 9))
+
+    # for cn in class_names:
+    #     try:
+    #         L, _, _ = fetch_RCV1MulticlassDataset(cn)
+    #         print(f"{cn} : {L.counts()} - {len(L)}")
+    #     except KeyError:
+    #         pass
 
     # class_names, tree, index = get_rcv1_class_info()
     #

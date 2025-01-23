@@ -1,6 +1,7 @@
 import itertools as IT
 import os
 import pdb
+from contextlib import ExitStack
 from traceback import print_exception
 
 import numpy as np
@@ -74,8 +75,13 @@ def gen_datasets():
             yield dataset_name, fetch_RCV1MulticlassDataset(dataset_name)
 
 
-def _uniform_prevalence_sampling(n_classes, repeats, seed=None):
-    pass
+def get_uniform_prevalences(n_classes, repeats, seed=None):
+    qp_seed = qp.environ.get("_R_SEED", None)
+    seed = qp_seed if seed is None else seed
+    with ExitStack() as stack:
+        if seed is not None:
+            stack.enter_context(qp.util.temp_seed(seed))
+        return uniform_prevalence_sampling(n_classes, repeats)
 
 
 def get_train_samples(dataset):
@@ -86,7 +92,7 @@ def get_train_samples(dataset):
         L_size = np.min(np.around(np.min(L.counts()) / train_prevs, decimals=0))
         V_size = np.min(np.around(np.min(V.counts()) / train_prevs, decimals=0))
     elif PROBLEM == "multiclass":
-        train_prevs = uniform_prevalence_sampling(L.n_classes, 9)[:, :-1]
+        train_prevs = get_uniform_prevalences(L.n_classes, 9)[:, :-1]
         L_size = len(L) // 2
         V_size = len(V) // 2
 
@@ -137,12 +143,12 @@ def gen_CAP_cont_table_opt(acc_fn, V2_prot, V2_prot_posteriors):
 
     yield "QuAcc(SLD)1xn2", GSCAP(QuAcc1xN2(acc_fn, sld()), emq_lr_params, V2_prot, V2_prot_posteriors, acc_fn, refit=False)
     yield "QuAcc(SLD)nxn", GSCAP(QuAccNxN(acc_fn, sld()), emq_lr_params, V2_prot, V2_prot_posteriors, acc_fn, refit=False)
-    if PROBLEM == "binary":
-        yield "QuAcc(SLD)1xnp1", GSCAP(QuAcc1xNp1(acc_fn, sld()), emq_lr_params, V2_prot, V2_prot_posteriors, acc_fn, refit=False)
+    # if PROBLEM == "binary":
+    yield "QuAcc(SLD)1xnp1", GSCAP(QuAcc1xNp1(acc_fn, sld()), emq_lr_params, V2_prot, V2_prot_posteriors, acc_fn, refit=False)
     # yield "QuAcc(KDEy)1xn2", GSCAP(QuAcc1xN2(acc_fn, kdey()), kde_lr_params, V2_prot, V2_prot_posteriors, acc_fn, refit=False)
     # yield "QuAcc(KDEy)nxn", GSCAP(QuAccNxN(acc_fn, kdey()), kde_lr_params, V2_prot, V2_prot_posteriors, acc_fn, refit=False)
-    # if PROBLEM == "binary":
-    #     yield "QuAcc(KDEy)1xnp1", GSCAP(QuAcc1xNp1(acc_fn, kdey()), kde_lr_params, V2_prot, V2_prot_posteriors, acc_fn, refit=False)
+    # # if PROBLEM == "binary":
+    # yield "QuAcc(KDEy)1xnp1", GSCAP(QuAcc1xNp1(acc_fn, kdey()), kde_lr_params, V2_prot, V2_prot_posteriors, acc_fn, refit=False)
 # fmt: on
 
 
