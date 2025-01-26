@@ -38,6 +38,7 @@ from quacc.utils.commons import get_shift, true_acc
 root_dir = os.path.join(qc.env["OUT_DIR"], "sampling")
 qp.environ["SAMPLE_SIZE"] = 1000
 NUM_TEST = 100
+N_PREVS = 21
 qp.environ["_R_SEED"] = 0
 PROBLEM = "multiclass"
 
@@ -238,7 +239,7 @@ def experiments():
             if PROBLEM == "binary":
                 test_prot = APP(
                     U,
-                    n_prevalences=21,
+                    n_prevalences=N_PREVS,
                     repeats=NUM_TEST,
                     return_type="labelled_collection",
                     random_state=qp.environ["_R_SEED"],
@@ -246,7 +247,7 @@ def experiments():
             elif PROBLEM == "multiclass":
                 test_prot = UPP(
                     U,
-                    repeats=NUM_TEST,
+                    repeats=NUM_TEST * N_PREVS,
                     return_type="labelled_collection",
                     random_state=qp.environ["_R_SEED"],
                 )
