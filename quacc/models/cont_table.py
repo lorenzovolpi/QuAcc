@@ -134,9 +134,9 @@ class CAPContingencyTableQ(CAPContingencyTable, BaseEstimator):
 
     def prepare_quantifier(self):
         if self.reuse_h is not None:
-            assert isinstance(
-                self.q_class, AggregativeQuantifier
-            ), f"quantifier {self.q_class} is not of type aggregative"
+            assert isinstance(self.q_class, AggregativeQuantifier), (
+                f"quantifier {self.q_class} is not of type aggregative"
+            )
             self.q = deepcopy(self.q_class)
             self.q.set_params(classifier=self.reuse_h)
         else:
@@ -584,6 +584,37 @@ class QuAcc1xNp1(QuAcc):
         return self._get_ct_hat(self.ncl, ct_compressed)
 
 
+class QuAcc1xNN(QuAcc):
+    def preprocess_data(self, data: LabelledCollection, posteriors):
+        pred_labels = np.argmax(posteriors, axis=-1)
+        true_labels = data.y
+
+        self.ncl = data.n_classes
+        classes_dot = np.arange(2 * self.ncl)
+        # ct_class_idx = classes_dot.reshape(n, n)
+        ct_class_idx = (np.full((self.ncl, self.ncl), self.ncl) + np.arange(self.ncl)).T
+        ct_class_idx[np.diag_indices(self.ncl)] = np.arange(self.ncl)
+
+        X_dot = self._get_X_dot(data.X, posteriors)
+        y_dot = ct_class_idx[true_labels, pred_labels]
+        return LabelledCollection(X_dot, y_dot, classes=classes_dot)
+
+    def prepare_quantifier(self):
+        self.q = deepcopy(self.q_class)
+
+    def _get_ct_hat(self, n, ct_compressed):
+        _diag_idx = np.diag_indices(n)
+        ct_rev_idx = (np.append(_diag_idx[0], (_diag_idx[0] + 1) % n), np.append(_diag_idx[1], _diag_idx[1]))
+        ct_hat = np.zeros((n, n))
+        ct_hat[ct_rev_idx] = ct_compressed
+        return ct_hat
+
+    def predict_ct(self, X: LabelledCollection, posteriors, oracle_prev=None):
+        X_dot = self._get_X_dot(X, posteriors)
+        ct_compressed = self._safe_quantify(X_dot)
+        return self._get_ct_hat(self.ncl, ct_compressed)
+
+
 class QuAccNxN(QuAcc):
     def preprocess_data(self, data: LabelledCollection, posteriors):
         pred_labels = np.argmax(posteriors, axis=-1)
@@ -619,9 +650,7 @@ class QuAccNxN(QuAcc):
             predict_on = q_i.val_split
             if isinstance(predict_on, int):
                 if predict_on <= 1:
-                    raise ValueError(
-                        f"invalid value {predict_on} in fit. " f"Specify a integer >1 for kFCV estimation."
-                    )
+                    raise ValueError(f"invalid value {predict_on} in fit. Specify a integer >1 for kFCV estimation.")
 
                 skf = StratifiedKFold(n_splits=predict_on)
 
