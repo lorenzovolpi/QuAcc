@@ -7,6 +7,16 @@ LOGFILE="quacc"
 
 while [[ $# -gt 0 ]]; do
     case $1 in
+        -h|--host)
+            host="$2"
+            shift
+            shift
+            ;;
+        --local)
+            host=""
+            WORKDIR="."
+            shift
+            ;;
         -m|--module)
             LOGFILE="$2"
             shift
