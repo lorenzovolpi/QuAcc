@@ -1,6 +1,8 @@
+import glob
 import itertools as IT
 import os
 import pdb
+from ast import literal_eval
 from contextlib import ExitStack
 from traceback import print_exception
 
@@ -13,6 +15,7 @@ from quapy.functional import uniform_prevalence_sampling
 from quapy.method.aggregative import EMQ, KDEyML
 from quapy.protocol import APP, UPP
 from sklearn.linear_model import LogisticRegression
+from sklearn.utils import column_or_1d
 
 import quacc as qc
 from quacc.data.datasets import (
@@ -36,7 +39,9 @@ from quacc.models.model_selection import GridSearchCAP as GSCAP
 from quacc.table import Format, Table
 from quacc.utils.commons import get_shift, true_acc
 
-root_dir = os.path.join(qc.env["OUT_DIR"], "sampling")
+PROJECT = "sampling_test"
+
+root_dir = os.path.join(qc.env["OUT_DIR"], PROJECT)
 qp.environ["SAMPLE_SIZE"] = 1000
 NUM_TEST = 100
 N_PREVS = 21
@@ -45,7 +50,12 @@ PROBLEM = "multiclass"
 
 CSV_SEP = ","
 
-log = get_logger(id="sampling")
+_toggle = {
+    "sld": True,
+    "kde": False,
+}
+
+log = get_logger(id=PROJECT)
 
 
 def sld():
@@ -97,23 +107,23 @@ def get_train_samples(dataset):
         L_size = np.min(np.around(np.min(L.counts()) / train_prevs, decimals=0))
         V_size = np.min(np.around(np.min(V.counts()) / train_prevs, decimals=0))
     elif PROBLEM == "multiclass":
-        train_prevs = get_uniform_prevalences(L.n_classes, 9)[:, :-1]
+        train_prevs = np.around(get_uniform_prevalences(L.n_classes, 9)[:, 1:], decimals=4)
         L_size = len(L) // 2
         V_size = len(V) // 2
 
-    datasets = [(L.sampling(int(L_size), *p), V.sampling(int(V_size), *p), U) for p in train_prevs]
-    return datasets
+    prev_datasets = [(p, (L.sampling(int(L_size), *p), V.sampling(int(V_size), *p), U)) for p in train_prevs]
+    return prev_datasets
 
 
-def prev_str(L: LabelledCollection):
+def prev_str(train_prev):
     if PROBLEM == "binary":
-        return str(round(L.prevalence()[1] * 100))
+        return str(round(train_prev * 100))
     elif PROBLEM == "multiclass":
-        return "_".join([str(int(x)) for x in np.around(L.prevalence(), decimals=2) * 100][1:])
+        return "_".join([str(int(x)) for x in np.around(train_prev, decimals=2) * 100])
 
 
-def local_path(dataset_name, cls_name, method_name, acc_name, L: LabelledCollection):
-    L_prev = prev_str(L)
+def local_path(dataset_name, cls_name, method_name, acc_name, train_prev):
+    L_prev = prev_str(train_prev)
     parent_dir = os.path.join(root_dir, PROBLEM, cls_name, acc_name, dataset_name, L_prev)
     os.makedirs(parent_dir, exist_ok=True)
     return os.path.join(parent_dir, f"{method_name}.csv")
@@ -128,8 +138,10 @@ def gen_baselines_vp(acc_fn, V2_prot, V2_prot_posteriors):
 
 
 def gen_CAP_cont_table(h, acc_fn):
-    yield "LEAP(SLD)", LEAP(acc_fn, sld(), reuse_h=h)
-    yield "LEAP(KDEy)", LEAP(acc_fn, kdey(), reuse_h=h)
+    if _toggle["sld"]:
+        yield "LEAP(SLD)", LEAP(acc_fn, sld(), reuse_h=h)
+    if _toggle["kde"]:
+        yield "LEAP(KDEy)", LEAP(acc_fn, kdey(), reuse_h=h)
 
 
 # fmt: off
@@ -146,14 +158,16 @@ def gen_CAP_cont_table_opt(acc_fn, V2_prot, V2_prot_posteriors):
     emq_lr_params = pacc_lr_params | {"q_class__recalib": [None, "bcts"]}
     kde_lr_params = pacc_lr_params | {"q_class__bandwidth": np.linspace(0.01, 0.2, 5)}
 
-    yield "QuAcc(SLD)1xn2", GSCAP(QuAcc1xN2(acc_fn, sld()), emq_lr_params, V2_prot, V2_prot_posteriors, acc_fn, refit=False)
-    yield "QuAcc(SLD)nxn", GSCAP(QuAccNxN(acc_fn, sld()), emq_lr_params, V2_prot, V2_prot_posteriors, acc_fn, refit=False)
-    # if PROBLEM == "binary":
-    yield "QuAcc(SLD)1xnp1", GSCAP(QuAcc1xNp1(acc_fn, sld()), emq_lr_params, V2_prot, V2_prot_posteriors, acc_fn, refit=False)
-    # yield "QuAcc(KDEy)1xn2", GSCAP(QuAcc1xN2(acc_fn, kdey()), kde_lr_params, V2_prot, V2_prot_posteriors, acc_fn, refit=False)
-    # yield "QuAcc(KDEy)nxn", GSCAP(QuAccNxN(acc_fn, kdey()), kde_lr_params, V2_prot, V2_prot_posteriors, acc_fn, refit=False)
-    # # if PROBLEM == "binary":
-    # yield "QuAcc(KDEy)1xnp1", GSCAP(QuAcc1xNp1(acc_fn, kdey()), kde_lr_params, V2_prot, V2_prot_posteriors, acc_fn, refit=False)
+    if _toggle["sld"]:
+        yield "QuAcc(SLD)1xn2", GSCAP(QuAcc1xN2(acc_fn, sld()), emq_lr_params, V2_prot, V2_prot_posteriors, acc_fn, refit=False)
+        yield "QuAcc(SLD)nxn", GSCAP(QuAccNxN(acc_fn, sld()), emq_lr_params, V2_prot, V2_prot_posteriors, acc_fn, refit=False)
+        # if PROBLEM == "binary":
+        yield "QuAcc(SLD)1xnp1", GSCAP(QuAcc1xNp1(acc_fn, sld()), emq_lr_params, V2_prot, V2_prot_posteriors, acc_fn, refit=False)
+    if _toggle["kde"]:
+        yield "QuAcc(KDEy)1xn2", GSCAP(QuAcc1xN2(acc_fn, kdey()), kde_lr_params, V2_prot, V2_prot_posteriors, acc_fn, refit=False)
+        yield "QuAcc(KDEy)nxn", GSCAP(QuAccNxN(acc_fn, kdey()), kde_lr_params, V2_prot, V2_prot_posteriors, acc_fn, refit=False)
+        # if PROBLEM == "binary":
+        yield "QuAcc(KDEy)1xnp1", GSCAP(QuAcc1xNp1(acc_fn, kdey()), kde_lr_params, V2_prot, V2_prot_posteriors, acc_fn, refit=False)
 # fmt: on
 
 
@@ -182,13 +196,13 @@ def get_method_names():
     )
 
 
-def all_exist_pre_check(dataset_name, cls_name, L):
+def all_exist_pre_check(dataset_name, cls_name, train_prev):
     method_names = get_method_names()
     acc_names = [acc_name for acc_name, _ in gen_acc_measure()]
 
     all_exist = True
     for method, acc in IT.product(method_names, acc_names):
-        path = local_path(dataset_name, cls_name, method, acc, L)
+        path = local_path(dataset_name, cls_name, method, acc, train_prev)
         all_exist = os.path.exists(path)
         if not all_exist:
             break
@@ -218,25 +232,22 @@ def add_prev_to_df(df, key, prevs):
     if PROBLEM == "binary":
         df[key] = np.around(prevs, decimals=2)
     elif PROBLEM == "multiclass":
-        for i, _p in enumerate(prevs):
-            df[f"{key}_{i + 1}"] = _p
+        df[key] = [tuple(prevs.tolist())] * len(df)
 
 
 def experiments():
-    log.info("-" * 31 + "  start  " + "-" * 31)
-
     dfs = []
     for (cls_name, h), (dataset_name, dataset) in gen_model_dataset(gen_classifiers, gen_datasets):
-        for L, V, U in get_train_samples(dataset):
+        for train_prev, (L, V, U) in get_train_samples(dataset):
             # check if all results for current combination already exist
             # if so, skip the combination
-            if all_exist_pre_check(dataset_name, cls_name, L):
-                log.info(f"All results for {cls_name} over {dataset_name}[{prev_str(L)}] exist, skipping")
+            if all_exist_pre_check(dataset_name, cls_name, train_prev):
+                log.info(f"All results for {cls_name} over {dataset_name}[{prev_str(train_prev)}] exist, skipping")
                 dfs.extend(preload_existing(dataset_name, cls_name, L))
                 continue
 
             # fit model
-            log.info(f"Training {cls_name} over {dataset_name}[{prev_str(L)}]")
+            log.info(f"Training {cls_name} over {dataset_name}[{prev_str(train_prev)}]")
             h.fit(*L.Xy)
 
             # test generation protocol
@@ -278,15 +289,12 @@ def experiments():
             for acc_name, acc_fn in gen_acc_measure(multiclass=PROBLEM == "multiclass"):
                 true_accs[acc_name] = [true_acc(h, acc_fn, Ui) for Ui in test_prot()]
 
-            L_prev = get_plain_prev(L.prevalence())
             for method_name, method, val, val_posteriors in gen_methods(
                 h, V, V_posteriors, V1, V1_posteriors, V2_prot, V2_prot_posteriors
             ):
-                val_prev = get_plain_prev(val.prevalence())
-
                 t_train = None
                 for acc_name, acc_fn in gen_acc_measure(multiclass=PROBLEM == "multiclasss"):
-                    path = local_path(dataset_name, cls_name, method_name, acc_name, L)
+                    path = local_path(dataset_name, cls_name, method_name, acc_name, train_prev)
 
                     if os.path.exists(path):
                         method_df = pd.read_csv(path, sep=CSV_SEP)
@@ -314,10 +322,7 @@ def experiments():
                     method_df["method"] = method_name
                     method_df["dataset"] = dataset_name
                     method_df["acc_name"] = acc_name
-                    # method_df["train_prev"] = np.around(L_prev, decimals=2)
-                    # method_df["val_prev"] = np.around(val_prev, decimals=2)
-                    add_prev_to_df(method_df, "train_prev", L_prev)
-                    add_prev_to_df(method_df, "val_prev", val_prev)
+                    add_prev_to_df(method_df, "train_prev", train_prev)
                     method_df["t_train"] = t_train
                     method_df["t_test_ave"] = t_test_ave
 
@@ -327,11 +332,58 @@ def experiments():
                     method_df.to_csv(path, sep=CSV_SEP)
                     dfs.append(method_df)
 
-    log.info("-" * 32 + "  end  " + "-" * 32)
-
     results = pd.concat(dfs, axis=0)
 
-    print(results["fit_score"])
+    pivot = pd.pivot_table(
+        results,
+        index=["acc_name", "method"],
+        columns=["classifier", "dataset"],
+        values="acc_err",
+    )
+    print(pivot)
+    return results
+
+
+def merge_quacc_methods():
+    dfs = []
+    for path in glob.glob(os.path.join(root_dir, PROBLEM, "**", "*.csv"), recursive=True):
+        dfs.append(pd.read_csv(path, sep=CSV_SEP))
+    df = pd.concat(dfs, axis=0)
+
+    merges = {
+        "QuAcc(SLD)": ["QuAcc(SLD)1xn2", "QuAcc(SLD)nxn", "QuAcc(SLD)1xnp1"],
+        # "QuAcc(KDEy)": ["QuAcc(KDEy)1xn2", "QuAcc(KDEy)nxn", "QuAcc(KDEy)1xnp1"],
+    }
+
+    classifiers = df["classifier"].unique()
+    datasets = df["dataset"].unique()
+    acc_names = df["acc_name"].unique()
+    train_prevs = df["train_prev"].unique()
+
+    new_dfs = []
+    for cls_name, dataset, acc_name, train_prev in IT.product(classifiers, datasets, acc_names, train_prevs):
+        _df = df.loc[
+            (df["classifier"] == cls_name)
+            & (df["dataset"] == dataset)
+            & (df["acc_name"] == acc_name)
+            & (df["train_prev"] == train_prev),
+            :,
+        ]
+        if _df.empty:
+            continue
+
+        for new_method, methods in merges.items():
+            if any(_df.loc[_df["method"] == method, ["fit_score"]].empty for method in methods):
+                print(cls_name, dataset, acc_name, train_prev, "empty")
+            else:
+                print(cls_name, dataset, acc_name, train_prev, "ok")
+            scores = [_df.loc[_df["method"] == method, ["fit_score"]].to_numpy()[0] for method in methods]
+            best_method = methods[np.argmin(scores)]
+            best_method_tbl = _df.loc[_df["method"] == best_method, :]
+            best_method_tbl["method"] = new_method
+            new_dfs.append(best_method_tbl)
+
+    results = pd.concat([df] + new_dfs, axis=0)
 
     pivot = pd.pivot_table(
         results,
@@ -341,11 +393,13 @@ def experiments():
     )
     print(pivot)
 
+    return results
 
-def tables(df: pd.DataFrame, cls_name):
+
+def tables(df: pd.DataFrame):
     def gen_table(df: pd.DataFrame, name, benchmarks, methods):
         tbl = Table(name=name, benchmarks=benchmarks, methods=methods)
-        tbl.format = Format(mean_prec=3, show_std=False, remove_zero=True, with_rank_mean=False, with_mean=True)
+        tbl.format = Format(mean_prec=4, show_std=True, remove_zero=True, with_rank_mean=False, with_mean=False)
         tbl.format.mean_macro = False
         for dataset, method in IT.product(benchmarks, methods):
             values = df.loc[(df["dataset"] == dataset) & (df["method"] == method), ["acc_err"]].to_numpy()
@@ -354,30 +408,58 @@ def tables(df: pd.DataFrame, cls_name):
 
         return tbl
 
-    pdf_path = f"tables/{PROBLEM}.pdf"
+    pdf_path = os.path.join(root_dir, "tables", f"{PROBLEM}.pdf")
 
     acc_names = [
         "vanilla_accuracy",
     ]
     configs = [
-        (get_dataset_names(), get_method_names()),
+        {
+            "name": "all",
+            "benchmarks": get_dataset_names(),
+            "methods": get_method_names(),
+        },
     ]
 
     tables = []
-    for acc_name, (benchmarks, methods) in IT.product(acc_names, configs):
+    for acc_name, config in IT.product(acc_names, configs):
         for cls_name in df["classifier"].unique():
             _df = df.loc[df["classifier"] == cls_name]
             # build table
-            tbl_name = f"{PROBLEM}_{cls_name}_{acc_name}"
-            tbl = gen_table(_df, name=tbl_name, benchmarks=benchmarks, methods=methods)
+            tbl_name = f"{PROBLEM}_{cls_name}_{acc_name}_{config['name']}"
+            tbl = gen_table(_df, name=tbl_name, benchmarks=config["benchmarks"], methods=config["methods"])
+            log.info(f"Table for acc={acc_name} - config={config['name']} - cls={cls_name} generated")
             tables.append(tbl)
 
-    Table.LatexPDF(pdf_path=pdf_path, tables=tables, landscape=False)
+    Table.LatexPDF(pdf_path=pdf_path, tables=tables, landscape=False, transpose=True)
+    log.info("Pdf table summary generated")
+
+
+def upgrade_results():
+    for path in glob.glob(os.path.join(root_dir, PROBLEM, "**", "*.csv"), recursive=True):
+        df = pd.read_csv(path, sep=CSV_SEP)
+        train_prev_cols = [col for col in df.columns if col.startswith("train_prev")]
+        val_prev_cols = [col for col in df.columns if col.startswith("val_prev")]
+        tuple_train_prevs = [tuple(ls) for ls in df.loc[:, train_prev_cols].values.tolist()]
+        tuple_val_prevs = [tuple(ls) for ls in df.loc[:, val_prev_cols].values.tolist()]
+        try:
+            df.insert(len(df.columns) - 2, "train_prev", tuple_train_prevs)
+            df.insert(len(df.columns) - 2, "val_prev", tuple_val_prevs)
+            df.drop(columns=train_prev_cols, inplace=True)
+            df.drop(columns=val_prev_cols, inplace=True)
+            df.to_csv(path, sep=CSV_SEP)
+        except ValueError:
+            pass
 
 
 if __name__ == "__main__":
     try:
-        experiments()
+        log.info("-" * 31 + "  start  " + "-" * 31)
+        # results = experiments()
+        merge_quacc_methods()
+        # upgrade_results()
+        # tables(results)
+        log.info("-" * 32 + "  end  " + "-" * 32)
     except Exception as e:
         log.error(e)
         print_exception(e)
