@@ -46,7 +46,7 @@ def get_predictions(method: ClassifierAccuracyPrediction, test_prot, test_prot_p
 
 def get_plain_prev(prev: np.ndarray):
     if prev.shape[0] > 2:
-        return tuple(prev[1:])
+        return tuple(prev[1:].tolist())
     else:
         return float(prev[-1])
 
