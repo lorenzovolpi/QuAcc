@@ -33,6 +33,7 @@ from quacc.experiments.util import (
 from quacc.models.cont_table import LEAP, QuAcc1xN2, QuAcc1xNp1, QuAccNxN
 from quacc.models.direct import ATC, DoC
 from quacc.models.model_selection import GridSearchCAP as GSCAP
+from quacc.table import Format, Table
 from quacc.utils.commons import get_shift, true_acc
 
 root_dir = os.path.join(qc.env["OUT_DIR"], "sampling")
@@ -61,19 +62,22 @@ def gen_classifiers():
     yield "LR", LogisticRegression()
 
 
-def gen_datasets():
+def gen_datasets(only_names=False):
     if PROBLEM == "binary":
         yield "IMDB", fetch_IMDBDataset()
         for dn in ["CCAT", "GCAT", "MCAT"]:
-            dval = fetch_RCV1BinaryDataset(dn)
-            yield dn, dval
+            yield dn, None if only_names else fetch_RCV1BinaryDataset(dn)
     elif PROBLEM == "multiclass":
         # _uci_skip = ["isolet", "wine-quality", "letter"]
         # _uci_names = [d for d in UCI_MULTICLASS_DATASETS if d not in _uci_skip]
         # for dataset_name in _uci_names:
         #     yield dataset_name, fetch_UCIMulticlassDataset(dataset_name)
         for dataset_name in RCV1_MULTICLASS_DATASETS:
-            yield dataset_name, fetch_RCV1MulticlassDataset(dataset_name)
+            yield dataset_name, None if only_names else fetch_RCV1MulticlassDataset(dataset_name)
+
+
+def get_dataset_names():
+    return [name for name, _ in gen_datasets(only_names=True)]
 
 
 def get_uniform_prevalences(n_classes, repeats, seed=None):
@@ -336,6 +340,39 @@ def experiments():
         values="acc_err",
     )
     print(pivot)
+
+
+def tables(df: pd.DataFrame, cls_name):
+    def gen_table(df: pd.DataFrame, name, benchmarks, methods):
+        tbl = Table(name=name, benchmarks=benchmarks, methods=methods)
+        tbl.format = Format(mean_prec=3, show_std=False, remove_zero=True, with_rank_mean=False, with_mean=True)
+        tbl.format.mean_macro = False
+        for dataset, method in IT.product(benchmarks, methods):
+            values = df.loc[(df["dataset"] == dataset) & (df["method"] == method), ["acc_err"]].to_numpy()
+            for v in values:
+                tbl.add(dataset, method, v)
+
+        return tbl
+
+    pdf_path = f"tables/{PROBLEM}.pdf"
+
+    acc_names = [
+        "vanilla_accuracy",
+    ]
+    configs = [
+        (get_dataset_names(), get_method_names()),
+    ]
+
+    tables = []
+    for acc_name, (benchmarks, methods) in IT.product(acc_names, configs):
+        for cls_name in df["classifier"].unique():
+            _df = df.loc[df["classifier"] == cls_name]
+            # build table
+            tbl_name = f"{PROBLEM}_{cls_name}_{acc_name}"
+            tbl = gen_table(_df, name=tbl_name, benchmarks=benchmarks, methods=methods)
+            tables.append(tbl)
+
+    Table.LatexPDF(pdf_path=pdf_path, tables=tables, landscape=False)
 
 
 if __name__ == "__main__":
