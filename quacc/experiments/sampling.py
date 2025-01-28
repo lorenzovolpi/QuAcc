@@ -368,17 +368,17 @@ def tables(df: pd.DataFrame):
         ls = np.array(ls)
 
         if cat == "m":
-            sorted_ls = np.array(get_method_names())
+            original_ls = np.array(get_method_names())
         elif cat == "b":
-            sorted_ls = np.array(get_dataset_names())
+            original_ls = np.array(get_dataset_names())
         else:
             return ls.tolist()
 
-        sorted_idx = np.searchsorted(sorted_ls, ls)
-        print(sorted_ls)
-        sorted_ls = np.append(sorted_ls, ls[sorted_idx >= len(sorted_ls)])
-        print(sorted_idx, sorted_ls, ls)
-        return sorted_ls[sorted_idx].tolist()
+        original_ls = np.append(original_ls, ls[~np.isin(ls, original_ls)])
+        orig_idx = np.argsort(original_ls)
+        sorted_idx = np.searchsorted(original_ls[orig_idx], ls)
+
+        return original_ls[np.sort(orig_idx[sorted_idx])].tolist()
 
     def gen_table(df: pd.DataFrame, name, benchmarks, methods):
         tbl = Table(name=name, benchmarks=benchmarks, methods=methods)
