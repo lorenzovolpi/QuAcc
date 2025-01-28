@@ -41,6 +41,7 @@ if [[ $(hostname) == "barracuda.isti.cnr.it" ]]; then
                 ;;
             --stop)
                 pkill -f $MODULE -u $USER
+                sleep 2
                 pkill -f joblib -u $USER
                 exit 0
                 ;;
