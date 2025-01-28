@@ -39,7 +39,7 @@ from quacc.models.model_selection import GridSearchCAP as GSCAP
 from quacc.table import Format, Table
 from quacc.utils.commons import get_shift, true_acc
 
-PROJECT = "sampling_test"
+PROJECT = "sampling"
 
 root_dir = os.path.join(qc.env["OUT_DIR"], PROJECT)
 qp.environ["SAMPLE_SIZE"] = 1000
@@ -52,7 +52,7 @@ CSV_SEP = ","
 
 _toggle = {
     "sld": True,
-    "kde": False,
+    "kde": True,
 }
 
 log = get_logger(id=PROJECT)
