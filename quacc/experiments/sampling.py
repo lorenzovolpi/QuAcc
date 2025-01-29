@@ -53,7 +53,7 @@ CSV_SEP = ","
 
 _toggle = {
     "cc_quacc": True,
-    "sld_quacc": False,
+    "sld_quacc": True,
     "kde_quacc": False,
     "sld_leap": False,
     "kde_leap": True,
@@ -477,9 +477,9 @@ def dataset_info():
 if __name__ == "__main__":
     try:
         log.info("-" * 31 + "  start  " + "-" * 31)
-        # experiments()
-        results = load_results()
-        tables(results)
+        experiments()
+        # results = load_results()
+        # tables(results)
         # dataset_info()
         log.info("-" * 32 + "  end  " + "-" * 32)
     except Exception as e:
