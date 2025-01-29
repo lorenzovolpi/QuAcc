@@ -12,7 +12,7 @@ import quapy as qp
 from quapy.data.base import LabelledCollection
 from quapy.data.datasets import UCI_MULTICLASS_DATASETS
 from quapy.functional import uniform_prevalence_sampling
-from quapy.method.aggregative import EMQ, KDEyML
+from quapy.method.aggregative import EMQ, ClassifyAndCount, KDEyML
 from quapy.protocol import APP, UPP
 from sklearn.linear_model import LogisticRegression
 from sklearn.utils import column_or_1d
@@ -25,7 +25,8 @@ from quacc.data.datasets import (
     fetch_RCV1MulticlassDataset,
     fetch_UCIMulticlassDataset,
 )
-from quacc.experiments.generators import gen_acc_measure, gen_model_dataset
+from quacc.error import f1, f1_macro, vanilla_acc
+from quacc.experiments.generators import gen_model_dataset
 from quacc.experiments.util import (
     fit_or_switch,
     get_logger,
@@ -33,7 +34,7 @@ from quacc.experiments.util import (
     get_predictions,
     split_validation,
 )
-from quacc.models.cont_table import LEAP, QuAcc1xN2, QuAcc1xNp1, QuAccNxN
+from quacc.models.cont_table import LEAP, NaiveCAP, QuAcc1xN2, QuAcc1xNp1, QuAccNxN
 from quacc.models.direct import ATC, DoC
 from quacc.models.model_selection import GridSearchCAP as GSCAP
 from quacc.table import Format, Table
@@ -51,13 +52,20 @@ PROBLEM = "multiclass"
 CSV_SEP = ","
 
 _toggle = {
-    "sld_quacc": True,
-    "kde_quacc": True,
-    "sld_leap": True,
+    "cc_quacc": True,
+    "sld_quacc": False,
+    "kde_quacc": False,
+    "sld_leap": False,
     "kde_leap": True,
+    "vanilla": True,
+    "f1": True,
 }
 
 log = get_logger(id=PROJECT)
+
+
+def cc():
+    return ClassifyAndCount()
 
 
 def sld():
@@ -72,6 +80,13 @@ def kdey():
 
 def gen_classifiers():
     yield "LR", LogisticRegression()
+
+
+def gen_acc_measure(multiclass=False):
+    if _toggle["vanilla"]:
+        yield "vanilla_accuracy", vanilla_acc
+    if _toggle["f1"]:
+        yield "macro-F1", f1_macro if multiclass else f1
 
 
 def gen_datasets(only_names=False):
@@ -105,15 +120,16 @@ def get_train_samples(dataset):
     L, V, U = dataset
 
     if PROBLEM == "binary":
-        train_prevs = np.linspace(0.1, 1, 9, endpoint=False)[:, np.newaxis]
+        train_prevs = np.linspace(0.1, 1, 9, endpoint=False)
         L_size = np.min(np.around(np.min(L.counts()) / train_prevs, decimals=0))
         V_size = np.min(np.around(np.min(V.counts()) / train_prevs, decimals=0))
+        prev_datasets = [(p, (L.sampling(int(L_size), p), V.sampling(int(V_size), p), U)) for p in train_prevs]
     elif PROBLEM == "multiclass":
         train_prevs = np.around(get_uniform_prevalences(L.n_classes, 9)[:, 1:], decimals=4)
         L_size = len(L) // 2
         V_size = len(V) // 2
+        prev_datasets = [(p, (L.sampling(int(L_size), *p), V.sampling(int(V_size), *p), U)) for p in train_prevs]
 
-    prev_datasets = [(p, (L.sampling(int(L_size), *p), V.sampling(int(V_size), *p), U)) for p in train_prevs]
     return prev_datasets
 
 
@@ -142,6 +158,7 @@ def gen_baselines_vp(acc_fn, V2_prot, V2_prot_posteriors):
 
 
 def gen_CAP_cont_table(h, acc_fn):
+    yield "Naive", NaiveCAP(acc_fn)
     if _toggle["sld_leap"]:
         yield "LEAP(SLD)", LEAP(acc_fn, sld(), reuse_h=h)
     if _toggle["kde_leap"]:
@@ -150,7 +167,7 @@ def gen_CAP_cont_table(h, acc_fn):
 
 # fmt: off
 def gen_CAP_cont_table_opt(acc_fn, V2_prot, V2_prot_posteriors):
-    pacc_lr_params = {
+    cc_lr_params = {
         "q_class__classifier__C": np.logspace(-3, 3, 7),
         "q_class__classifier__class_weight": [None, "balanced"],
         "add_posteriors": [True, False],
@@ -159,9 +176,13 @@ def gen_CAP_cont_table_opt(acc_fn, V2_prot, V2_prot_posteriors):
         "add_negentropy": [True, False],
         "add_maxinfsoft": [True, False],
     }
-    emq_lr_params = pacc_lr_params | {"q_class__recalib": [None, "bcts"]}
-    kde_lr_params = pacc_lr_params | {"q_class__bandwidth": np.linspace(0.01, 0.2, 5)}
+    emq_lr_params = cc_lr_params | {"q_class__recalib": [None, "bcts"]}
+    kde_lr_params = cc_lr_params | {"q_class__bandwidth": np.linspace(0.01, 0.2, 5)}
 
+    if _toggle["cc_quacc"]:
+        yield "QuAcc(CC)1xn2", GSCAP(QuAcc1xN2(acc_fn, cc()), cc_lr_params, V2_prot, V2_prot_posteriors, acc_fn, refit=False)
+        yield "QuAcc(CC)nxn", GSCAP(QuAccNxN(acc_fn, cc()), cc_lr_params, V2_prot, V2_prot_posteriors, acc_fn, refit=False)
+        yield "QuAcc(CC)1xnp1", GSCAP(QuAcc1xNp1(acc_fn, cc()), cc_lr_params, V2_prot, V2_prot_posteriors, acc_fn, refit=False)
     if _toggle["sld_quacc"]:
         yield "QuAcc(SLD)1xn2", GSCAP(QuAcc1xN2(acc_fn, sld()), emq_lr_params, V2_prot, V2_prot_posteriors, acc_fn, refit=False)
         yield "QuAcc(SLD)nxn", GSCAP(QuAccNxN(acc_fn, sld()), emq_lr_params, V2_prot, V2_prot_posteriors, acc_fn, refit=False)
@@ -217,6 +238,7 @@ def all_exist_pre_check(dataset_name, cls_name, train_prev):
 def get_extra_from_method(method, df):
     if isinstance(method, GSCAP) and hasattr(method, "best_model_"):
         df["fit_score"] = method.best_score_
+        log.info(f"{method.best_params_}")
 
 
 def add_prev_to_df(df, key, prevs):
@@ -328,7 +350,7 @@ def load_results() -> pd.DataFrame:
     # merge quacc results
     merges = {
         "QuAcc(SLD)": ["QuAcc(SLD)1xn2", "QuAcc(SLD)nxn", "QuAcc(SLD)1xnp1"],
-        # "QuAcc(KDEy)": ["QuAcc(KDEy)1xn2", "QuAcc(KDEy)nxn", "QuAcc(KDEy)1xnp1"],
+        "QuAcc(KDEy)": ["QuAcc(KDEy)1xn2", "QuAcc(KDEy)nxn", "QuAcc(KDEy)1xnp1"],
     }
 
     classifiers = df["classifier"].unique()
@@ -382,13 +404,21 @@ def tables(df: pd.DataFrame):
 
     def gen_table(df: pd.DataFrame, name, benchmarks, methods):
         tbl = Table(name=name, benchmarks=benchmarks, methods=methods)
-        tbl.format = Format(mean_prec=4, show_std=True, remove_zero=True, with_rank_mean=False, with_mean=False)
+        tbl.format = Format(
+            mean_prec=4,
+            show_std=True,
+            remove_zero=True,
+            with_rank_mean=False,
+            with_mean=False,
+            color=False,
+            show_stat=False,
+            stat_test=None,
+        )
         tbl.format.mean_macro = False
         for dataset, method in IT.product(benchmarks, methods):
             values = df.loc[(df["dataset"] == dataset) & (df["method"] == method), ["acc_err"]].to_numpy()
             for v in values:
                 tbl.add(dataset, method, v)
-
         return tbl
 
     pdf_path = os.path.join(root_dir, "tables", f"{PROBLEM}.pdf")
@@ -399,14 +429,16 @@ def tables(df: pd.DataFrame):
     configs = [
         {
             "name": "all",
-            "benchmarks": df["dataset"].unique().tolist(),
-            "methods": df["method"].unique(),
+            "benchmarks": df["dataset"].unique(),
+            "methods": [m for m in df["method"].unique() if not m == "LEAP(SLD)"],
         },
         {
             "name": "paper",
-            "benchmarks": df["dataset"].unique().tolist(),
+            "benchmarks": df["dataset"].unique(),
             "methods": [
-                m for m in df["method"].unique() if not (m.endswith("1xn2") or m.endswith("1xnp1") or m.endswith("nxn"))
+                m
+                for m in df["method"].unique()
+                if not (m.endswith("1xn2") or m.endswith("1xnp1") or m.endswith("nxn") or m == "LEAP(SLD)")
             ],
         },
     ]
@@ -426,12 +458,29 @@ def tables(df: pd.DataFrame):
     log.info("Pdf table summary generated")
 
 
+def dataset_info():
+    rows, vals = [], []
+    for name, dataset in gen_datasets():
+        rows.append(name)
+        L, V, U = dataset
+        _, (Li, Vi, _) = get_train_samples(dataset)[0]
+        L_prev = np.around(L.prevalence(), decimals=3)
+        assert np.isclose(L_prev.sum(), 1), f"invalid prevalence: {L_prev}"
+        L_prev = str(L_prev[1:].tolist())
+        vals.append([len(L), len(U), L.n_classes, L_prev, len(Li)])
+
+    _info = pd.DataFrame(vals, index=rows, columns=["|T|", "|U|", "|Y|", "pT", "|Ti|"])
+    _info.to_latex(os.path.join(root_dir, "dataset_info.tex"))
+    log.info("Dataset info generated")
+
+
 if __name__ == "__main__":
     try:
         log.info("-" * 31 + "  start  " + "-" * 31)
         # experiments()
         results = load_results()
         tables(results)
+        # dataset_info()
         log.info("-" * 32 + "  end  " + "-" * 32)
     except Exception as e:
         log.error(e)
