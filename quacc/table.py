@@ -23,6 +23,7 @@ class Format:
     style: str = "minimal"
     lower_is_better: bool = True
     stat_test: str = "wilcoxon"
+    show_stat: bool = True
     color_mode: str = "local"
     with_mean: bool = True
     mean_macro: bool = True
@@ -90,7 +91,7 @@ class Cell:
         if self.isEmpty():
             return ""
 
-        whitespace = "$^{\phantom{\dag}}$"
+        whitespace = "$^{\phantom{\dag}}$" if self.format.show_stat else ""
 
         # mean
         # ---------------------------------------------------
