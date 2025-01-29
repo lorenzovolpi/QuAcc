@@ -47,7 +47,7 @@ qp.environ["SAMPLE_SIZE"] = 1000
 NUM_TEST = 100
 N_PREVS = 21
 qp.environ["_R_SEED"] = 0
-PROBLEM = "multiclass"
+PROBLEM = "binary"
 
 CSV_SEP = ","
 
@@ -238,7 +238,11 @@ def all_exist_pre_check(dataset_name, cls_name, train_prev):
 def get_extra_from_method(method, df):
     if isinstance(method, GSCAP) and hasattr(method, "best_model_"):
         df["fit_score"] = method.best_score_
-        log.info(f"{method.best_params_}")
+        _bp = method.best_params_
+        df["add_cov"] = any([_bp["add_maxconf"], _bp["add_negentropy"], _bp["add_maxinfsoft"]])
+        df["balance"] = _bp["q_class__classifier__class_weight"]
+        if "q_class__recalib" in _bp:
+            df["recalib"] = str(_bp["q_class__recalib"])
 
 
 def add_prev_to_df(df, key, prevs):
@@ -371,8 +375,19 @@ def load_results() -> pd.DataFrame:
             continue
 
         for new_method, methods in merges.items():
-            scores = [_df.loc[_df["method"] == method, ["fit_score"]].to_numpy()[0] for method in methods]
-            best_method = methods[np.argmin(scores)]
+            scores = df.loc[df["method"].isin(methods), ["method", "fit_score"]].groupby(["method"]).mean()
+            if len(scores.index) < len(methods):
+                continue
+            best_method = scores.idxmin()["fit_score"]
+
+            # def _get_score(method):
+            #     score_ls: pd.Series = _df.loc[_df["method"] == method, ["fit_score"]]
+            #     return None if len(score_ls) == 0 else score_ls.to_numpy()[0]
+            #
+            # scores = [_get_score(method) for method in methods]
+            # if any([s is None for s in scores]):
+            #     continue
+            # best_method = methods[np.argmin(scores)]
             best_method_tbl = _df.loc[_df["method"] == best_method, :]
             best_method_tbl["method"] = new_method
             best_method_tbl["best_method"] = best_method
@@ -425,6 +440,7 @@ def tables(df: pd.DataFrame):
 
     acc_names = [
         "vanilla_accuracy",
+        "macro-F1",
     ]
     configs = [
         {
@@ -447,7 +463,8 @@ def tables(df: pd.DataFrame):
     tables = []
     for acc_name, config in IT.product(acc_names, configs):
         for cls_name in df["classifier"].unique():
-            _df = df.loc[df["classifier"] == cls_name]
+            _df = df.loc[(df["classifier"] == cls_name) & (df["acc_name"] == acc_name)]
+            print(_df)
             # build table
             tbl_name = f"{PROBLEM}_{cls_name}_{acc_name}_{config['name']}"
             tbl = gen_table(_df, name=tbl_name, benchmarks=config["benchmarks"], methods=config["methods"])
@@ -477,9 +494,9 @@ def dataset_info():
 if __name__ == "__main__":
     try:
         log.info("-" * 31 + "  start  " + "-" * 31)
-        experiments()
-        # results = load_results()
-        # tables(results)
+        # experiments()
+        results = load_results()
+        tables(results)
         # dataset_info()
         log.info("-" * 32 + "  end  " + "-" * 32)
     except Exception as e:
