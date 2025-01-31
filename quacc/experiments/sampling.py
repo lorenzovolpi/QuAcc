@@ -54,7 +54,7 @@ CSV_SEP = ","
 _toggle = {
     "cc_quacc": True,
     "sld_quacc": True,
-    "kde_quacc": False,
+    "kde_quacc": True,
     "sld_leap": False,
     "kde_leap": True,
     "vanilla": True,
@@ -385,6 +385,7 @@ def load_results() -> pd.DataFrame:
 
     # merge quacc results
     merges = {
+        "QuAcc(CC)": ["QuAcc(CC)1xn2", "QuAcc(CC)nxn", "QuAcc(CC)1xnp1"],
         "QuAcc(SLD)": ["QuAcc(SLD)1xn2", "QuAcc(SLD)nxn", "QuAcc(SLD)1xnp1"],
         "QuAcc(KDEy)": ["QuAcc(KDEy)1xn2", "QuAcc(KDEy)nxn", "QuAcc(KDEy)1xnp1"],
     }
@@ -407,7 +408,7 @@ def load_results() -> pd.DataFrame:
             continue
 
         for new_method, methods in merges.items():
-            scores = df.loc[df["method"].isin(methods), ["method", "fit_score"]].groupby(["method"]).mean()
+            scores = _df.loc[_df["method"].isin(methods), ["method", "fit_score"]].groupby(["method"]).mean()
             if len(scores.index) < len(methods):
                 continue
             best_method = scores.idxmin()["fit_score"]
@@ -449,8 +450,11 @@ def tables(df: pd.DataFrame):
 
         return original_ls[np.sort(orig_idx[sorted_idx])].tolist()
 
-    def gen_table(df: pd.DataFrame, name, benchmarks, methods):
-        tbl = Table(name=name, benchmarks=benchmarks, methods=methods)
+    def gen_table(df: pd.DataFrame, name, benchmarks, methods, acc_names):
+        acc_name_map = {"vanilla_accuracy": "acc", "macro-F1": "f1"}
+        bench_acc_map = {(b, a): f"{b}-{acc_name_map[a]}" for b, a in IT.product(benchmarks, acc_names)}
+
+        tbl = Table(name=name, benchmarks=list(bench_acc_map.values()), methods=methods)
         tbl.format = Format(
             mean_prec=4,
             show_std=True,
@@ -462,10 +466,12 @@ def tables(df: pd.DataFrame):
             stat_test=None,
         )
         tbl.format.mean_macro = False
-        for dataset, method in IT.product(benchmarks, methods):
-            values = df.loc[(df["dataset"] == dataset) & (df["method"] == method), ["acc_err"]].to_numpy()
+        for (dataset, acc), method in IT.product(list(bench_acc_map.keys()), methods):
+            values = df.loc[
+                (df["dataset"] == dataset) & (df["method"] == method) & (df["acc_name"] == acc), ["acc_err"]
+            ].to_numpy()
             for v in values:
-                tbl.add(dataset, method, v)
+                tbl.add(bench_acc_map[(dataset, acc)], method, v)
         return tbl
 
     pdf_path = os.path.join(root_dir, "tables", f"{PROBLEM}.pdf")
@@ -493,14 +499,19 @@ def tables(df: pd.DataFrame):
     configs = [d | {"methods": _sort(d["methods"], "m"), "benchmarks": _sort(d["benchmarks"], "b")} for d in configs]
 
     tables = []
-    for acc_name, config in IT.product(acc_names, configs):
+    for config in configs:
         for cls_name in df["classifier"].unique():
-            _df = df.loc[(df["classifier"] == cls_name) & (df["acc_name"] == acc_name)]
-            print(_df)
+            _df = df.loc[df["classifier"] == cls_name]
             # build table
-            tbl_name = f"{PROBLEM}_{cls_name}_{acc_name}_{config['name']}"
-            tbl = gen_table(_df, name=tbl_name, benchmarks=config["benchmarks"], methods=config["methods"])
-            log.info(f"Table for acc={acc_name} - config={config['name']} - cls={cls_name} generated")
+            tbl_name = f"{PROBLEM}_{cls_name}_{config['name']}"
+            tbl = gen_table(
+                _df,
+                name=tbl_name,
+                benchmarks=config["benchmarks"],
+                methods=config["methods"],
+                acc_names=acc_names,
+            )
+            log.info(f"Table for config={config['name']} - cls={cls_name} generated")
             tables.append(tbl)
 
     Table.LatexPDF(pdf_path=pdf_path, tables=tables, landscape=False, transpose=True)
