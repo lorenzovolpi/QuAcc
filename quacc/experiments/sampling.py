@@ -47,7 +47,7 @@ qp.environ["SAMPLE_SIZE"] = 1000
 NUM_TEST = 100
 N_PREVS = 21
 qp.environ["_R_SEED"] = 0
-PROBLEM = "multiclass"
+PROBLEM = "binary"
 
 CSV_SEP = ","
 
@@ -95,7 +95,7 @@ def gen_acc_measure(multiclass=False):
 
 def gen_datasets(only_names=False):
     if PROBLEM == "binary":
-        yield "IMDB", fetch_IMDBDataset()
+        yield "IMDB", None if only_names else fetch_IMDBDataset()
         for dn in ["CCAT", "GCAT", "MCAT"]:
             yield dn, None if only_names else fetch_RCV1BinaryDataset(dn)
     elif PROBLEM == "multiclass":
@@ -409,7 +409,7 @@ def load_results() -> pd.DataFrame:
 
         for new_method, methods in merges.items():
             scores = _df.loc[_df["method"].isin(methods), ["method", "fit_score"]].groupby(["method"]).mean()
-            if len(scores.index) < len(methods):
+            if len(scores.index) == 0:
                 continue
             best_method = scores.idxmin()["fit_score"]
 
