@@ -47,7 +47,7 @@ qp.environ["SAMPLE_SIZE"] = 1000
 NUM_TEST = 100
 N_PREVS = 21
 qp.environ["_R_SEED"] = 0
-PROBLEM = "binary"
+PROBLEM = "multiclass"
 
 CSV_SEP = ","
 
@@ -80,6 +80,10 @@ def kdey():
 
 def gen_classifiers():
     yield "LR", LogisticRegression()
+
+
+def get_classifier_names():
+    return [name for name, _ in gen_classifiers()]
 
 
 def gen_acc_measure(multiclass=False):
@@ -196,6 +200,30 @@ def gen_CAP_cont_table_opt(acc_fn, V2_prot, V2_prot_posteriors):
 # fmt: on
 
 
+def is_excluded(classifier, dataset, method, acc):
+    _excluded = [
+        {
+            "problem": "multiclass",
+            "classifiers": get_classifier_names(),
+            "datasets": get_dataset_names(),
+            "methods": ["QuAcc(CC)1xnp1", "QuAcc(SLD)1xnp1", "QuAcc(KDEy)1xnp1"],
+            "accs": ["macro-F1"],
+        }
+    ]
+
+    for _ex in _excluded:
+        if (
+            _ex["problem"] == PROBLEM
+            and classifier in _ex["classifiers"]
+            and dataset in _ex["datasets"]
+            and method in _ex["methods"]
+            and acc in _ex["accs"]
+        ):
+            return True
+
+    return False
+
+
 def gen_methods(h, V, V_posteriors, V1, V1_posteriors, V2_prot, V2_prot_posteriors):
     _, acc_fn = next(gen_acc_measure())
     for name, method in gen_baselines(acc_fn):
@@ -227,6 +255,8 @@ def all_exist_pre_check(dataset_name, cls_name, train_prev):
 
     all_exist = True
     for method, acc in IT.product(method_names, acc_names):
+        if is_excluded(cls_name, dataset_name, method, acc):
+            continue
         path = local_path(dataset_name, cls_name, method, acc, train_prev)
         all_exist = os.path.exists(path)
         if not all_exist:
@@ -309,6 +339,8 @@ def experiments():
             ):
                 t_train = None
                 for acc_name, acc_fn in gen_acc_measure(multiclass=PROBLEM == "multiclasss"):
+                    if is_excluded(cls_name, dataset_name, method_name, acc_name):
+                        continue
                     path = local_path(dataset_name, cls_name, method_name, acc_name, train_prev)
                     if os.path.exists(path):
                         log.info(f"{method_name} on {acc_name} exists, skipping")
@@ -494,9 +526,9 @@ def dataset_info():
 if __name__ == "__main__":
     try:
         log.info("-" * 31 + "  start  " + "-" * 31)
-        # experiments()
-        results = load_results()
-        tables(results)
+        experiments()
+        # results = load_results()
+        # tables(results)
         # dataset_info()
         log.info("-" * 32 + "  end  " + "-" * 32)
     except Exception as e:
