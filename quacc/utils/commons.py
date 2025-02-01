@@ -93,15 +93,13 @@ def get_results_path(rootdir, basedir, cls_name, acc_name, dataset_name, method_
     )
 
 
-def get_plots_path(basedir, cls_name, acc_name, dataset_name, plot_type, ext="svg"):
+def get_plots_path(basedir, problem, cls_name, acc_name, dataset_name, plot_type, ext="svg"):
     return os.path.join(
         qc.env["OUT_DIR"],
-        "plots",
         basedir,
-        cls_name,
-        acc_name,
-        dataset_name,
-        f"{plot_type}.{ext}",
+        "plots",
+        problem,
+        f"{cls_name}_{acc_name}_{dataset_name}_{plot_type}.{ext}",
     )
 
 
