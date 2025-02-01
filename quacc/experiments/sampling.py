@@ -37,6 +37,7 @@ from quacc.experiments.util import (
 from quacc.models.cont_table import LEAP, NaiveCAP, QuAcc1xN2, QuAcc1xNp1, QuAccNxN
 from quacc.models.direct import ATC, DoC
 from quacc.models.model_selection import GridSearchCAP as GSCAP
+from quacc.plot.seaborn import plot_diagonal, plot_shift
 from quacc.table import Format, Table
 from quacc.utils.commons import get_shift, true_acc
 
@@ -518,6 +519,85 @@ def tables(df: pd.DataFrame):
     log.info("Pdf table summary generated")
 
 
+def plots(df: pd.DataFrame):
+    configs = [
+        {
+            "problem": "binary",
+            "classifier": "LR",
+            "datasets": ["IMDB"],
+            "methods": ["ATC-MC", "DoC", "LEAP(KDEy)", "QuAcc(SLD)", "QuAcc(KDEy)"],
+            "accs": ["vanilla_accuracy"],
+            "plot": "shift",
+        },
+        {
+            "problem": "binary",
+            "classifier": "LR",
+            "datasets": ["IMDB"],
+            "methods": ["ATC-MC", "DoC", "LEAP(KDEy)", "QuAcc(SLD)", "QuAcc(KDEy)"],
+            "train_prevs": [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9],
+            "accs": ["vanilla_accuracy"],
+            "plot": "diagonal",
+        },
+    ]
+    acc_rename = {
+        "vanilla_accuracy": "Vanilla Accuracy",
+        "macro-F1": "F1",
+    }
+    method_rename = {
+        "LEAP(KDEy)": "LEAP",
+    }
+
+    for cf in configs:
+        if PROBLEM != cf["problem"]:
+            continue
+
+        classifier, methods = cf["classifier"], cf["methods"]
+        train_prevs = cf.get("train_prevs", [None])
+        for dataset, acc, tp in IT.product(cf["datasets"], cf["accs"], train_prevs):
+            cf_df = df.loc[
+                (df["classifier"] == classifier)
+                & (df["dataset"] == dataset)
+                & (df["method"].isin(methods))
+                & (df["acc_name"] == acc),
+                :,
+            ]
+            if tp is not None:
+                cf_df = cf_df.loc[cf_df["train_prev"] == tp, :]
+
+            acc_name = acc_rename[acc]
+            # rename methods
+            for m in methods:
+                cf_df.loc[cf_df["method"] == m, "method"] = [method_rename.get(m, m)] * len(
+                    cf_df.loc[cf_df["method"] == m]
+                )
+
+            if cf["plot"] == "shift":
+                plot_shift(
+                    cf_df,
+                    cls_name=classifier,
+                    acc_name=acc,
+                    dataset_name=dataset,
+                    basedir=PROJECT,
+                    problem=PROBLEM,
+                    linewidth=2,
+                    x_label="Amount of Prior Probability Shift",
+                    y_label=f"Prediction Error for {acc_name}",
+                )
+
+            if cf["plot"] == "diagonal":
+                plot_diagonal(
+                    cf_df,
+                    cls_name=classifier,
+                    acc_name=acc,
+                    dataset_name=dataset,
+                    basedir=PROJECT,
+                    problem=PROBLEM,
+                    x_label=f"True {acc_name}",
+                    y_label=f"Estimated {acc_name}",
+                    file_name=f"{str(int(tp * 100))}_diagonal",
+                )
+
+
 def dataset_info():
     rows, vals = [], []
     for name, dataset in gen_datasets():
@@ -537,9 +617,10 @@ def dataset_info():
 if __name__ == "__main__":
     try:
         log.info("-" * 31 + "  start  " + "-" * 31)
-        experiments()
-        # results = load_results()
+        # experiments()
+        results = load_results()
         # tables(results)
+        plots(results)
         # dataset_info()
         log.info("-" * 32 + "  end  " + "-" * 32)
     except Exception as e:
