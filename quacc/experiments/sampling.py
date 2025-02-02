@@ -175,8 +175,8 @@ def gen_CAP_cont_table_opt(acc_fn, V2_prot, V2_prot_posteriors):
     cc_lr_params = {
         "q_class__classifier__C": np.logspace(-3, 3, 7),
         "q_class__classifier__class_weight": [None, "balanced"],
-        "add_posteriors": [True, False],
-        "add_y_hat": [True, False],
+        "add_posteriors": [True],
+        "add_y_hat": [False],
         "add_maxconf": [True, False],
         "add_negentropy": [True, False],
         "add_maxinfsoft": [True, False],
@@ -464,7 +464,7 @@ def tables(df: pd.DataFrame):
             with_mean=False,
             color=False,
             show_stat=False,
-            stat_test=None,
+            stat_test="wilcoxon",
         )
         tbl.format.mean_macro = False
         for (dataset, acc), method in IT.product(list(bench_acc_map.keys()), methods):
@@ -619,8 +619,8 @@ if __name__ == "__main__":
         log.info("-" * 31 + "  start  " + "-" * 31)
         # experiments()
         results = load_results()
-        # tables(results)
-        plots(results)
+        tables(results)
+        # plots(results)
         # dataset_info()
         log.info("-" * 32 + "  end  " + "-" * 32)
     except Exception as e:
