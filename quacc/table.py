@@ -116,9 +116,9 @@ class Cell:
             if pval is not None:
                 if 0.001 > pval:
                     comp_symbol = whitespace
-                elif 0.01 > pval >= 0.001:
+                elif 0.05 > pval >= 0.001:
                     comp_symbol = "$^{\dag}$"
-                elif pval >= 0.01:
+                elif pval >= 0.05:
                     comp_symbol = "$^{\ddag}$"
             str_cell = f"{mean}{comp_symbol}{std}"
 
