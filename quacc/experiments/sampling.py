@@ -1,21 +1,17 @@
 import glob
 import itertools as IT
 import os
-import pdb
-from ast import literal_eval
+from collections import defaultdict
 from contextlib import ExitStack
 from traceback import print_exception
 
 import numpy as np
 import pandas as pd
 import quapy as qp
-from quapy.data.base import LabelledCollection
-from quapy.data.datasets import UCI_MULTICLASS_DATASETS
 from quapy.functional import uniform_prevalence_sampling
 from quapy.method.aggregative import EMQ, ClassifyAndCount, KDEyML
 from quapy.protocol import APP, UPP
 from sklearn.linear_model import LogisticRegression
-from sklearn.utils import column_or_1d
 
 import quacc as qc
 from quacc.data.datasets import (
@@ -23,14 +19,11 @@ from quacc.data.datasets import (
     fetch_IMDBDataset,
     fetch_RCV1BinaryDataset,
     fetch_RCV1MulticlassDataset,
-    fetch_UCIMulticlassDataset,
 )
 from quacc.error import f1, f1_macro, vanilla_acc
-from quacc.experiments.generators import gen_model_dataset
 from quacc.experiments.util import (
     fit_or_switch,
     get_logger,
-    get_plain_prev,
     get_predictions,
     split_validation,
 )
@@ -94,16 +87,18 @@ def gen_acc_measure(multiclass=False):
         yield "macro-F1", f1_macro if multiclass else f1
 
 
+def gen_model_dataset(_gen_model, _gen_dataset):
+    for model in _gen_model():
+        for dataset in _gen_dataset():
+            yield model, dataset
+
+
 def gen_datasets(only_names=False):
     if PROBLEM == "binary":
         yield "IMDB", None if only_names else fetch_IMDBDataset()
         for dn in ["CCAT", "GCAT", "MCAT"]:
             yield dn, None if only_names else fetch_RCV1BinaryDataset(dn)
     elif PROBLEM == "multiclass":
-        # _uci_skip = ["isolet", "wine-quality", "letter"]
-        # _uci_names = [d for d in UCI_MULTICLASS_DATASETS if d not in _uci_skip]
-        # for dataset_name in _uci_names:
-        #     yield dataset_name, fetch_UCIMulticlassDataset(dataset_name)
         for dataset_name in RCV1_MULTICLASS_DATASETS:
             yield dataset_name, None if only_names else fetch_RCV1MulticlassDataset(dataset_name)
 
@@ -422,7 +417,7 @@ def load_results() -> pd.DataFrame:
             # if any([s is None for s in scores]):
             #     continue
             # best_method = methods[np.argmin(scores)]
-            best_method_tbl = _df.loc[_df["method"] == best_method, :]
+            best_method_tbl = _df.loc[_df["method"] == best_method, :].copy()
             best_method_tbl["method"] = new_method
             best_method_tbl["best_method"] = best_method
             new_dfs.append(best_method_tbl)
@@ -524,7 +519,7 @@ def plots(df: pd.DataFrame):
         {
             "problem": "binary",
             "classifier": "LR",
-            "datasets": ["IMDB"],
+            "datasets": ["IMDB", "CCAT", "GCAT", "MCAT"],
             "methods": ["ATC-MC", "DoC", "LEAP(KDEy)", "QuAcc(SLD)", "QuAcc(KDEy)"],
             "accs": ["vanilla_accuracy"],
             "plot": "shift",
@@ -532,7 +527,7 @@ def plots(df: pd.DataFrame):
         {
             "problem": "binary",
             "classifier": "LR",
-            "datasets": ["IMDB"],
+            "datasets": ["IMDB", "CCAT", "GCAT", "MCAT"],
             "methods": ["ATC-MC", "DoC", "LEAP(KDEy)", "QuAcc(SLD)", "QuAcc(KDEy)"],
             "train_prevs": [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9],
             "accs": ["vanilla_accuracy"],
@@ -614,14 +609,58 @@ def dataset_info():
     log.info("Dataset info generated")
 
 
+def selection_rates(df: pd.DataFrame):
+    quants = ["SLD", "KDEy"]
+    datasets = ["IMDB", "CCAT", "GCAT", "MCAT"]
+    train_prevs = df["train_prev"].unique()
+    series = defaultdict(lambda: [])
+    for q, dataset in IT.product(quants, datasets):
+        methods = [f"QuAcc({q})1xn2", f"QuAcc({q})nxn", f"QuAcc({q})1xnp1"]
+        sel_df = df.loc[(df["method"].isin(methods)) & (df["dataset"] == dataset), :]
+        n_best = np.around(
+            (
+                pd.pivot_table(sel_df, index=["train_prev", "acc_name"], columns=["method"], values="fit_score")
+                .idxmin(axis="columns")
+                .to_numpy()[:, np.newaxis]
+                == np.tile(methods, (len(train_prevs) * 2, 1))
+            ).sum(axis=0)
+            / (len(train_prevs) * 2)
+            * 100,
+            decimals=2,
+        ).tolist()
+        n_bal = np.around((sel_df["balance"].to_numpy() == "balanced").sum() / len(sel_df) * 100, decimals=2)
+        n_cov = np.around(sel_df["add_cov"].to_numpy().sum() / len(sel_df) * 100, decimals=2)
+        series["QuAcc-1xn2"].append(n_best[0])
+        series["QuAcc-nxn"].append(n_best[1])
+        series["QuAcc-1xnp1"].append(n_best[2])
+        series["balance"].append(n_bal)
+        series["covariates"].append(n_cov)
+        series["recalib"].append(np.nan)
+        series["quant"].append(q)
+        series["dataset"].append(dataset)
+        if q == "SLD":
+            n_recalib = np.around((sel_df["recalib"].to_numpy() == "bcts").sum() / len(sel_df) * 100, decimals=2)
+            series["recalib"][-1] = n_recalib
+
+    info = pd.DataFrame.from_dict(series)
+    print(
+        pd.pivot_table(
+            info,
+            index=["dataset", "quant"],
+            values=["QuAcc-1xn2", "QuAcc-nxn", "QuAcc-1xnp1", "balance", "covariates", "recalib"],
+        )
+    )
+
+
 if __name__ == "__main__":
     try:
         log.info("-" * 31 + "  start  " + "-" * 31)
         # experiments()
         results = load_results()
-        tables(results)
+        # tables(results)
         # plots(results)
         # dataset_info()
+        selection_rates(results)
         log.info("-" * 32 + "  end  " + "-" * 32)
     except Exception as e:
         log.error(e)
