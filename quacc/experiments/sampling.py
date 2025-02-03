@@ -658,9 +658,9 @@ if __name__ == "__main__":
         # experiments()
         results = load_results()
         # tables(results)
-        # plots(results)
+        plots(results)
         # dataset_info()
-        selection_rates(results)
+        # selection_rates(results)
         log.info("-" * 32 + "  end  " + "-" * 32)
     except Exception as e:
         log.error(e)
