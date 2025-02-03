@@ -1,7 +1,6 @@
 import os
 from pathlib import Path
 
-import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 from matplotlib.axes import Axes
@@ -10,6 +9,7 @@ from quacc.plot.utils import get_binned_values
 from quacc.utils.commons import get_plots_path
 
 sns.set_theme(style="whitegrid")
+sns.set_palette("colorblind")
 
 DPI = 300
 
