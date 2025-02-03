@@ -11,6 +11,7 @@ import quapy as qp
 from quapy.functional import uniform_prevalence_sampling
 from quapy.method.aggregative import EMQ, ClassifyAndCount, KDEyML
 from quapy.protocol import APP, UPP
+from scipy import stats
 from sklearn.linear_model import LogisticRegression
 
 import quacc as qc
@@ -41,7 +42,7 @@ qp.environ["SAMPLE_SIZE"] = 1000
 NUM_TEST = 100
 N_PREVS = 21
 qp.environ["_R_SEED"] = 0
-PROBLEM = "binary"
+PROBLEM = "multiclass"
 
 CSV_SEP = ","
 
@@ -459,7 +460,7 @@ def tables(df: pd.DataFrame):
             with_mean=False,
             color=False,
             show_stat=False,
-            stat_test="wilcoxon",
+            stat_test="ttest",
         )
         tbl.format.mean_macro = False
         for (dataset, acc), method in IT.product(list(bench_acc_map.keys()), methods):
@@ -652,15 +653,51 @@ def selection_rates(df: pd.DataFrame):
     )
 
 
+def ttest_old():
+    n_test = 9 * 2100
+
+    if PROBLEM == "binary":
+        path = os.path.join(root_dir, "old", "binary", "means.csv")
+        df = pd.read_csv(path, sep=CSV_SEP)
+
+        import json
+
+        with open(os.path.join(root_dir, "old", "binary", "best_method.json"), "r") as f:
+            best_methods = [tuple(ls) for ls in json.load(f)]
+    else:
+        return
+
+    methods = df["method"].unique()
+
+    def compute_ttest(s1):
+        pvalues = {}
+        for m in methods:
+            s2 = df.loc[(df["method"] == m) & (df["dataset"] == s1["dataset"]) & (df["acc_name"] == s1["acc_name"])]
+            pvalues[m] = stats.ttest_ind_from_stats(s1["err"], s1["std"], n_test, s2["err"], s2["std"], n_test).pvalue
+        return pd.Series(
+            [pvalues[m] for m in methods] + [s1["method"], s1["dataset"], s1["acc_name"]],
+            index=np.hstack([methods, ["method", "dataset", "acc_name"]]),
+        )
+
+    test = pd.pivot_table(df.apply(compute_ttest, axis=1), index=["dataset", "acc_name", "method"], values=methods)
+
+    test = test.loc[best_methods, :]
+
+    _parent = os.path.join(root_dir, "ttest")
+    os.makedirs(_parent, exist_ok=True)
+    test.to_markdown(os.path.join(_parent, f"{PROBLEM}.md"))
+
+
 if __name__ == "__main__":
     try:
         log.info("-" * 31 + "  start  " + "-" * 31)
         # experiments()
         results = load_results()
-        # tables(results)
-        plots(results)
+        tables(results)
+        # plots(results)
         # dataset_info()
         # selection_rates(results)
+        # ttest_old()
         log.info("-" * 32 + "  end  " + "-" * 32)
     except Exception as e:
         log.error(e)
