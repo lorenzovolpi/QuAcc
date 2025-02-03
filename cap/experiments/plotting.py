@@ -13,7 +13,7 @@ def plots(df: pd.DataFrame):
         {
             "problem": "binary",
             "classifier": "LR",
-            "datasets": ["IMDB", "CCAT", "GCAT"],
+            "datasets": ["IMDB", "CCAT", "GCAT", "MCAT"],
             "methods": ["ATC-MC", "DoC", "LEAP(KDEy)", "QuAcc(SLD)", "QuAcc(KDEy)"],
             "accs": ["vanilla_accuracy"],
             "plot": "shift",
@@ -21,7 +21,7 @@ def plots(df: pd.DataFrame):
         {
             "problem": "binary",
             "classifier": "LR",
-            "datasets": ["IMDB", "CCAT", "GCAT"],
+            "datasets": ["IMDB", "CCAT", "GCAT", "MCAT"],
             "methods": ["ATC-MC", "DoC", "LEAP(KDEy)", "QuAcc(SLD)", "QuAcc(KDEy)"],
             "train_prevs": [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9],
             "accs": ["vanilla_accuracy"],
