@@ -1,22 +1,16 @@
 import itertools as IT
-import os
-import pdb
-from contextlib import redirect_stdout
 from copy import deepcopy
 from enum import Enum
 from time import time
-from typing import Callable, Union
+from typing import Callable
 
 import numpy as np
 import quapy as qp
-from quapy.data.base import LabelledCollection
 from quapy.protocol import AbstractProtocol, OnLabelledCollectionProtocol
 from quapy.util import timeout
 
 import quacc as qc
 from quacc.models.cont_table import CAPContingencyTable, CAPContingencyTableQ, LabelledCollection
-from quacc.models.utils import get_posteriors_from_h
-from quacc.utils.commons import true_acc
 
 
 class Status(Enum):
@@ -249,8 +243,7 @@ class GridSearchCAP(CAPContingencyTable):
             raise ValueError("no combination of hyperparameters seemed to work")
 
         self._sout(
-            f"optimization finished: best params {self.best_params_} (score={self.best_score_:.5f}) "
-            f"[took {tend:.4f}s]"
+            f"optimization finished: best params {self.best_params_} (score={self.best_score_:.5f}) [took {tend:.4f}s]"
         )
 
         no_errors = len(self.error_collector)
