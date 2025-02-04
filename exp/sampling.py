@@ -610,47 +610,57 @@ def dataset_info():
     log.info("Dataset info generated")
 
 
-def selection_rates(df: pd.DataFrame):
+def selection_rates(df: pd.DataFrame, split_acc=False, out="latex"):
     quants = ["SLD", "KDEy"]
-    datasets = ["IMDB", "CCAT", "GCAT", "MCAT"]
-    train_prevs = df["train_prev"].unique()
-    series = defaultdict(lambda: [])
-    for q, dataset in IT.product(quants, datasets):
-        methods = [f"QuAcc({q})1xn2", f"QuAcc({q})nxn", f"QuAcc({q})1xnp1"]
-        sel_df = df.loc[(df["method"].isin(methods)) & (df["dataset"] == dataset), :]
-        n_best = np.around(
-            (
-                pd.pivot_table(sel_df, index=["train_prev", "acc_name"], columns=["method"], values="fit_score")
-                .idxmin(axis="columns")
-                .to_numpy()[:, np.newaxis]
-                == np.tile(methods, (len(train_prevs) * 2, 1))
-            ).sum(axis=0)
-            / (len(train_prevs) * 2)
-            * 100,
-            decimals=2,
-        ).tolist()
-        n_bal = np.around((sel_df["balance"].to_numpy() == "balanced").sum() / len(sel_df) * 100, decimals=2)
-        n_cov = np.around(sel_df["add_cov"].to_numpy().sum() / len(sel_df) * 100, decimals=2)
-        series["QuAcc-1xn2"].append(n_best[0])
-        series["QuAcc-nxn"].append(n_best[1])
-        series["QuAcc-1xnp1"].append(n_best[2])
-        series["balance"].append(n_bal)
-        series["covariates"].append(n_cov)
-        series["recalib"].append(np.nan)
-        series["quant"].append(q)
-        series["dataset"].append(dataset)
-        if q == "SLD":
-            n_recalib = np.around((sel_df["recalib"].to_numpy() == "bcts").sum() / len(sel_df) * 100, decimals=2)
-            series["recalib"][-1] = n_recalib
+    datasets = get_dataset_names()
 
-    info = pd.DataFrame.from_dict(series)
-    print(
-        pd.pivot_table(
-            info,
-            index=["dataset", "quant"],
-            values=["QuAcc-1xn2", "QuAcc-nxn", "QuAcc-1xnp1", "balance", "covariates", "recalib"],
-        )
-    )
+    if split_acc:
+        acc_names = df["acc_name"].unique()
+        _product_cycle = IT.product(quants, datasets, acc_names)
+    else:
+        _product_cycle = IT.product(quants, datasets)
+
+    data = []
+    for _p in _product_cycle:
+        if split_acc:
+            q, dataset, acc = _p
+        else:
+            q, dataset = _p
+
+        methods = [f"QuAcc({q})1xn2", f"QuAcc({q})nxn", f"QuAcc({q})1xnp1"]
+        if split_acc:
+            sel_df = df.loc[(df["method"].isin(methods)) & (df["dataset"] == dataset) & (df["acc_name"] == acc), :]
+        else:
+            sel_df = df.loc[(df["method"].isin(methods)) & (df["dataset"] == dataset), :]
+        train_prevs = sel_df["train_prev"].unique()
+
+        if split_acc:
+            score_by_tp = pd.pivot_table(sel_df, index=["train_prev"], columns=["method"], values="fit_score")
+            best_by_tp = score_by_tp.idxmin(axis="columns").to_numpy()[:, np.newaxis]
+            n_best = (best_by_tp == np.tile(methods, (len(train_prevs), 1))).sum(axis=0)
+            perc_best = np.around(n_best / len(train_prevs) * 100, decimals=2).tolist()
+            data.append(perc_best + [q, dataset, acc])
+        else:
+            score_by_tp = pd.pivot_table(
+                sel_df, index=["train_prev", "acc_name"], columns=["method"], values="fit_score"
+            )
+            best_by_tp = score_by_tp.idxmin(axis="columns").to_numpy()[:, np.newaxis]
+            n_best = (best_by_tp == np.tile(methods, (len(train_prevs) * 2, 1))).sum(axis=0)
+            perc_best = np.around(n_best / (len(train_prevs) * 2) * 100, decimals=2).tolist()
+            data.append(perc_best + [q, dataset])
+
+    pivot_cols = ["1xn2", "nxn", "1xnp1"]
+    if split_acc:
+        info = pd.DataFrame(np.array(data), columns=pivot_cols + ["quant", "dataset", "acc"])
+        info.set_index(["dataset", "quant", "acc"], inplace=True)
+    else:
+        info = pd.DataFrame(np.array(data), columns=pivot_cols + ["quant", "dataset"])
+        info.set_index(["dataset", "quant"], inplace=True)
+
+    if out == "latex":
+        info.to_latex(os.path.join(root_dir, "tables", "selection_rates" + ("split" if split_acc else "") + ".tex"))
+    elif out == "html":
+        info.to_html(os.path.join(root_dir, "tables", "selection_rates" + ("split" if split_acc else "") + ".html"))
 
 
 def ttest_old():
@@ -693,10 +703,10 @@ if __name__ == "__main__":
         log.info("-" * 31 + "  start  " + "-" * 31)
         # experiments()
         results = load_results()
-        tables(results)
+        # tables(results)
         # plots(results)
         # dataset_info()
-        # selection_rates(results)
+        selection_rates(results)
         # ttest_old()
         log.info("-" * 32 + "  end  " + "-" * 32)
     except Exception as e:
