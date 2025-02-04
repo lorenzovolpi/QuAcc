@@ -7,7 +7,7 @@ import quapy as qp
 from quapy.protocol import UPP
 
 import quacc as qc
-from quacc.experiments.generators import (
+from exp.generators import (
     gen_acc_measure,
     gen_bin_datasets,
     gen_bin_lm_datasets,
@@ -15,14 +15,14 @@ from quacc.experiments.generators import (
     gen_lm_classifiers,
     gen_lm_model_dataset,
     gen_methods,
-    gen_model_dataset,
     gen_multi_datasets,
     gen_tweet_datasets,
     get_method_names,
 )
-from quacc.experiments.report import TestReport
-from quacc.experiments.util import (
+from exp.report import TestReport
+from exp.util import (
     fit_or_switch,
+    gen_model_dataset,
     get_logger,
     get_plain_prev,
     get_predictions,

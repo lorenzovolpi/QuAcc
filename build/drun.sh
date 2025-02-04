@@ -6,7 +6,7 @@ export $(cat docker.env | xargs)
 IMAGE_NAME="lorenzovolpi/quacc_main"
 CONTAINER_NAME="quacc_run"
 CPUS=32
-MODULE="quacc.experiments.run"
+MODULE="exp.run"
 OUTPUT_FILE="quacc.out"
 
 while [[ $# -gt 0 ]]; do

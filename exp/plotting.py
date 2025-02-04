@@ -5,8 +5,8 @@ import numpy as np
 import pandas as pd
 
 import quacc as qc
-from quacc.experiments.generators import gen_acc_measure, gen_bin_datasets
-from quacc.experiments.report import Report
+from quacc.exp.generators import gen_acc_measure, gen_bin_datasets
+from quacc.exp.report import Report
 
 PROBLEM = "binary"
 basedir = PROBLEM

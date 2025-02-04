@@ -7,8 +7,8 @@ from pathlib import Path
 import pandas as pd
 
 import quacc as qc
-from quacc.experiments.generators import gen_acc_measure, gen_bin_datasets
-from quacc.experiments.report import Report
+from exp.generators import gen_acc_measure, gen_bin_datasets
+from exp.report import Report
 from quacc.table import Format, Table
 
 PROBLEM = "binary"

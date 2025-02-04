@@ -15,6 +15,12 @@ from scipy import stats
 from sklearn.linear_model import LogisticRegression
 
 import quacc as qc
+from exp.util import (
+    fit_or_switch,
+    get_logger,
+    get_predictions,
+    split_validation,
+)
 from quacc.data.datasets import (
     RCV1_MULTICLASS_DATASETS,
     fetch_IMDBDataset,
@@ -22,12 +28,6 @@ from quacc.data.datasets import (
     fetch_RCV1MulticlassDataset,
 )
 from quacc.error import f1, f1_macro, vanilla_acc
-from quacc.experiments.util import (
-    fit_or_switch,
-    get_logger,
-    get_predictions,
-    split_validation,
-)
 from quacc.models.cont_table import LEAP, NaiveCAP, QuAcc1xN2, QuAcc1xNp1, QuAccNxN
 from quacc.models.direct import ATC, DoC
 from quacc.models.model_selection import GridSearchCAP as GSCAP

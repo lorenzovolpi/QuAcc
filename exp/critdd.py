@@ -1,13 +1,12 @@
 import itertools as IT
 import os
 import pathlib
-import subprocess
 
 from critdd import Diagram
 from quapy.data.datasets import UCI_BINARY_DATASETS
 
 import quacc as qc
-from quacc.experiments.report import Report
+from exp.report import Report
 
 PROBLEM = "binary"
 root_folder = os.path.join(qc.env["OUT_DIR"], "results")

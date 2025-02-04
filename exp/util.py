@@ -8,7 +8,7 @@ from quapy.protocol import UPP
 
 import quacc as qc
 from quacc.models.base import ClassifierAccuracyPrediction
-from quacc.models.cont_table import CAPContingencyTable, LabelledCollection
+from quacc.models.cont_table import LabelledCollection
 from quacc.models.model_selection import GridSearchCAP
 
 
@@ -46,9 +46,9 @@ def get_predictions(method: ClassifierAccuracyPrediction, test_prot, test_prot_p
 
 def get_plain_prev(prev: np.ndarray):
     if prev.shape[0] > 2:
-        return tuple(prev[1:].tolist())
+        return tuple(np.around(prev[1:], decimals=4).tolist())
     else:
-        return float(prev[-1])
+        return float(np.around(prev, decimals=4)[-1])
 
 
 def prevs_from_prot(prot):
@@ -81,3 +81,9 @@ def get_logger(id="quacc"):
         logger.addHandler(fh)
 
     return logger
+
+
+def gen_model_dataset(_gen_model, _gen_dataset):
+    for model in _gen_model():
+        for dataset in _gen_dataset():
+            yield model, dataset

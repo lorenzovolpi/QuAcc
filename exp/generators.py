@@ -2,13 +2,11 @@ import os
 from collections import defaultdict
 
 import numpy as np
-import quapy as qp
 from quapy.data.base import LabelledCollection
 from quapy.data.datasets import TWITTER_SENTIMENT_DATASETS_TEST, UCI_BINARY_DATASETS, UCI_MULTICLASS_DATASETS
 from quapy.method._kdey import KDEyML
 from quapy.method.aggregative import ACC, CC, EMQ, PACC
 from quapy.protocol import UPP
-from sklearn.ensemble import RandomForestClassifier as RFC
 from sklearn.kernel_ridge import KernelRidge as KRR
 from sklearn.linear_model import LinearRegression as LinReg
 from sklearn.linear_model import LogisticRegression as LR
@@ -29,7 +27,6 @@ from quacc.data.datasets import (
     fetch_UCIMulticlassDataset,
 )
 from quacc.error import f1, f1_macro, vanilla_acc
-from quacc.experiments.util import split_validation
 from quacc.models._large_models import DistilBert
 from quacc.models.cont_table import (
     LEAP,
@@ -43,7 +40,7 @@ from quacc.models.cont_table import (
 )
 from quacc.models.direct import ATC, CAPDirect, DoC, PrediQuant
 from quacc.models.model_selection import GridSearchCAP as GSCAP
-from quacc.models.regression import ReQua, reDAN
+from quacc.models.regression import ReQua
 from quacc.utils.commons import get_results_path
 
 _CC = defaultdict(lambda: False)
@@ -164,12 +161,6 @@ def gen_bin_datasets(
     for dn in _uci_names:
         dval = None if only_names else fetch_UCIBinaryDataset(dn)
         yield dn, dval
-
-
-def gen_model_dataset(_gen_model, _gen_dataset):
-    for model in _gen_model():
-        for dataset in _gen_dataset():
-            yield model, dataset
 
 
 def gen_bin_lm_datasets(tokenizer, data_collator, only_names=False):

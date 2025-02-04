@@ -1,4 +1,3 @@
-import itertools as IT
 import json
 import os
 from collections import defaultdict
@@ -7,7 +6,6 @@ import numpy as np
 import pandas as pd
 import quapy as qp
 import seaborn as sns
-from matplotlib.artist import get
 from quapy.data.datasets import UCI_BINARY_DATASETS, UCI_MULTICLASS_DATASETS
 from quapy.method.aggregative import EMQ, KDEyML
 from quapy.protocol import UPP
@@ -17,9 +15,9 @@ from sklearn.neighbors import KNeighborsClassifier as KNN
 from sklearn.neural_network import MLPClassifier as MLP
 from sklearn.svm import SVC
 
+from exp.util import get_logger, split_validation
 from quacc.data.datasets import fetch_UCIBinaryDataset, fetch_UCIMulticlassDataset
 from quacc.error import vanilla_acc
-from quacc.experiments.util import get_logger, split_validation
 from quacc.models.cont_table import LEAP, PHD, CAPContingencyTable, LabelledCollection
 
 TRUE_CTS_NAME = "true_cts"
