@@ -53,8 +53,7 @@ def all_exist_pre_check(basedir, cls_name, dataset_name, model_type):
 
 
 def experiments():
-    ORACLE = False
-    basedir = PROBLEM + ("-oracle" if ORACLE else "")
+    basedir = PROBLEM
     NUM_TEST = 1000
     R_SEED = 42
     qp.environ["_R_SEED"] = R_SEED
@@ -110,7 +109,7 @@ def experiments():
 
         L_prev = get_plain_prev(L.prevalence())
         for method_name, method, val, val_posteriors in gen_methods(
-            h, V, V_posteriors, V1, V1_posteriors, V2_prot, V2_prot_posteriors, PROBLEM, MODEL_TYPE, ORACLE
+            h, V, V_posteriors, V1, V1_posteriors, V2_prot, V2_prot_posteriors, PROBLEM, MODEL_TYPE
         ):
             val_prev = get_plain_prev(V.prevalence())
 
@@ -128,7 +127,7 @@ def experiments():
                     t_train = t_train if _t_train is None else _t_train
 
                     test_prevs = prevs_from_prot(test_prot)
-                    estim_accs, t_test_ave = get_predictions(method, test_prot, test_prot_posteriors, ORACLE)
+                    estim_accs, t_test_ave = get_predictions(method, test_prot, test_prot_posteriors)
                     report.add_result(test_prevs, true_accs[acc_name], estim_accs, t_train, t_test_ave)
                 except Exception as e:
                     print_exception(e)
@@ -143,8 +142,7 @@ def experiments():
 
 
 def lmexperiments():
-    ORACLE = False
-    basedir = PROBLEM + ("-oracle" if ORACLE else "")
+    basedir = PROBLEM
     NUM_TEST = 100
     R_SEED = 42
     qp.environ["_R_SEED"] = R_SEED
@@ -192,7 +190,7 @@ def lmexperiments():
 
         L_prev = get_plain_prev(L.prevalence())
         for method_name, method, val, val_posteriors in gen_methods(
-            model, V, V_posteriors, V1, V1_posteriors, V2_prot, V2_prot_posteriors, PROBLEM, MODEL_TYPE, ORACLE
+            model, V, V_posteriors, V1, V1_posteriors, V2_prot, V2_prot_posteriors, PROBLEM, MODEL_TYPE
         ):
             val_prev = get_plain_prev(val.prevalence())
 
@@ -210,7 +208,7 @@ def lmexperiments():
                     t_train = t_train if _t_train is None else _t_train
 
                     test_prevs = prevs_from_prot(test_prot)
-                    estim_accs, t_test_ave = get_predictions(method, test_prot, test_prot_posteriors, ORACLE)
+                    estim_accs, t_test_ave = get_predictions(method, test_prot, test_prot_posteriors)
                     report.add_result(test_prevs, true_accs[acc_name], estim_accs, t_train, t_test_ave)
                 except Exception as e:
                     print_exception(e)

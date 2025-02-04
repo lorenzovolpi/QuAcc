@@ -33,13 +33,9 @@ def fit_or_switch(method: ClassifierAccuracyPrediction, V, V_posteriors, acc_fn,
         ValueError("invalid method")
 
 
-def get_predictions(method: ClassifierAccuracyPrediction, test_prot, test_prot_posteriors, oracle=False):
+def get_predictions(method: ClassifierAccuracyPrediction, test_prot, test_prot_posteriors):
     tinit = time()
-    if not oracle:
-        estim_accs = method.batch_predict(test_prot, test_prot_posteriors)
-    else:
-        oracles = [Ui.prevalence() for Ui in test_prot()]
-        estim_accs = method.batch_predict(test_prot, test_prot_posteriors, oracle_prevs=oracles)
+    estim_accs = method.batch_predict(test_prot, test_prot_posteriors)
     t_test_ave = (time() - tinit) / test_prot.total()
     return estim_accs, t_test_ave
 

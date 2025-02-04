@@ -177,12 +177,12 @@ def gen_lm_model_dataset(_gen_model, _gen_dataset):
 ### baselines ###
 
 
-def gen_CAP_baselines(acc_fn, config, mode_type, with_oracle=False) -> [str, CAPDirect]:
+def gen_CAP_baselines(acc_fn, config, mode_type) -> [str, CAPDirect]:
     yield "ATC-MC", ATC(acc_fn, scoring_fn="maxconf")
     # yield 'ATC-NE', ATC(acc_fn, scoring_fn='neg_entropy')
 
 
-def gen_CAP_baselines_vp(acc_fn, config, model_type, V2_prot, V2_prot_posteriors, with_oracle=False):
+def gen_CAP_baselines_vp(acc_fn, config, model_type, V2_prot, V2_prot_posteriors):
     yield "DoC", DoC(acc_fn, V2_prot, V2_prot_posteriors)
 
 
@@ -190,7 +190,7 @@ def gen_CAP_baselines_vp(acc_fn, config, model_type, V2_prot, V2_prot_posteriors
 
 
 # fmt: off
-def gen_CAP_direct(h, acc_fn, config, model_type, with_oracle=False) -> [str, CAPDirect]:
+def gen_CAP_direct(h, acc_fn, config, model_type) -> [str, CAPDirect]:
     redan_q_params= {
         "classifier__C": np.logspace(-3, 3, 7),
         "classifier__class_weight": [None, "balanced"],
@@ -353,18 +353,16 @@ def gen_CAP_cont_table_opt(h, acc_fn, config, model_type, V2_prot, V2_prot_poste
 # fmt: on
 
 
-def gen_methods(
-    h, V, V_posteriors, V1, V1_posteriors, V2_prot, V2_prot_posteriors, config, model_type="simple", with_oracle=False
-):
+def gen_methods(h, V, V_posteriors, V1, V1_posteriors, V2_prot, V2_prot_posteriors, config, model_type="simple"):
     config = "multiclass" if config is None else config
 
     _, acc_fn = next(gen_acc_measure())
 
-    for name, method in gen_CAP_baselines(acc_fn, config, model_type, with_oracle):
+    for name, method in gen_CAP_baselines(acc_fn, config, model_type):
         yield name, method, V, V_posteriors
-    for name, method in gen_CAP_baselines_vp(acc_fn, config, model_type, V2_prot, V2_prot_posteriors, with_oracle):
+    for name, method in gen_CAP_baselines_vp(acc_fn, config, model_type, V2_prot, V2_prot_posteriors):
         yield name, method, V1, V1_posteriors
-    for name, method in gen_CAP_direct(h, acc_fn, config, model_type, with_oracle):
+    for name, method in gen_CAP_direct(h, acc_fn, config, model_type):
         yield name, method, V, V_posteriors
     for name, method in gen_CAP_cont_table(h, acc_fn, config, model_type):
         yield name, method, V, V_posteriors

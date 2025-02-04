@@ -34,16 +34,9 @@ class ClassifierAccuracyPrediction(ABC):
         """
         ...
 
-    def batch_predict(self, prot: AbstractProtocol, posteriors, oracle_prevs=None) -> list[float]:
-        if oracle_prevs is None:
-            estim_accs = [self.predict(Ui.X, posteriors=P) for Ui, P in IT.zip_longest(prot(), posteriors)]
-            return estim_accs
-        else:
-            assert isinstance(oracle_prevs, List), "Invalid oracles"
-            estim_accs = [
-                self.predict(Ui.X, P, oracle_prev=op) for Ui, P, op in IT.zip_longest(prot(), posteriors, oracle_prevs)
-            ]
-            return estim_accs
+    def batch_predict(self, prot: AbstractProtocol, posteriors) -> list[float]:
+        estim_accs = [self.predict(Ui.X, posteriors=P) for Ui, P in IT.zip_longest(prot(), posteriors)]
+        return estim_accs
 
 
 CAP = ClassifierAccuracyPrediction

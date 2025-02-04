@@ -1,3 +1,4 @@
+import itertools as IT
 import pdb
 from abc import abstractmethod
 from copy import deepcopy
@@ -8,6 +9,7 @@ import quapy.functional as F
 import scipy
 from quapy.data.base import LabelledCollection as LC
 from quapy.method.aggregative import AggregativeQuantifier
+from quapy.protocol import AbstractProtocol
 from scipy.sparse import csr_matrix, issparse
 from sklearn.base import BaseEstimator
 from sklearn.metrics import confusion_matrix
@@ -85,8 +87,8 @@ class CAPContingencyTable(ClassifierAccuracyPrediction):
         self.acc_fn = acc_fn
         return self
 
-    def predict(self, X, posteriors, oracle_prev=None):
-        cont_table = self.predict_ct(X, posteriors, oracle_prev)
+    def predict(self, X, posteriors):
+        cont_table = self.predict_ct(X, posteriors)
         return self.acc_fn(cont_table)
 
 
@@ -105,7 +107,7 @@ class NaiveCAP(CAPContingencyTable):
         self.cont_table = confusion_matrix(y_true, y_pred=y_hat, labels=val.classes_)
         return self
 
-    def predict_ct(self, test, posteriors, oracle_prev=None):
+    def predict_ct(self, test, posteriors):
         """
         This method disregards the test set, under the assumption that it is IID wrt the training. This meaning that
         the confusion matrix for the test data should coincide with the one computed for training (using any cross
@@ -184,7 +186,7 @@ class ContTableTransferCAP(CAPContingencyTableQ):
         self.train_prev = data.prevalence()
         return data
 
-    def predict_ct(self, test, posteriors, oracle_prev=None):
+    def predict_ct(self, test, posteriors):
         """
         :param test: test collection (ignored)
         :param oracle_prev: np.ndarray with the class prevalence of the test set as estimated by
@@ -192,10 +194,7 @@ class ContTableTransferCAP(CAPContingencyTableQ):
             the errors in quantification performance
         :return: a confusion matrix in the return format of `sklearn.metrics.confusion_matrix`
         """
-        if oracle_prev is None:
-            prev_hat = self.q.quantify(test)
-        else:
-            prev_hat = oracle_prev
+        prev_hat = self.q.quantify(test)
         adjustment = prev_hat / self.train_prev
         return self.cont_table * adjustment[:, np.newaxis]
 
@@ -208,12 +207,15 @@ class NsquaredEquationsCAP(CAPContingencyTableQ):
         acc_fn: Callable,
         q_class,
         always_optimize=False,
+        log_true_solve=False,
         reuse_h: BaseEstimator | None = None,
         verbose=False,
     ):
         super().__init__(acc_fn, q_class, reuse_h)
         self.verbose = verbose
         self.always_optimize = always_optimize
+        self.log_true_solve = log_true_solve
+        self._true_solve_log = []
 
     def _sout(self, *msgs, **kwargs):
         if self.verbose:
@@ -231,10 +233,10 @@ class NsquaredEquationsCAP(CAPContingencyTableQ):
         # we need a n x n matrix of unknowns
         n = self.cont_table.shape[1]
 
-        # I is the matrix of indexes of unknowns. For example, if we need the counts of
+        # Idx is the matrix of indexes of unknowns. For example, if we need the counts of
         # all instances belonging to class i that have been classified as belonging to 0, 1, ..., n:
         # the indexes of the corresponding unknowns are given by I[i,:]
-        I = np.arange(n * n).reshape(n, n)
+        Idx = np.arange(n * n).reshape(n, n)
 
         # system of equations: Ax=b, A.shape=(n*n, n*n,), b.shape=(n*n,)
         A = np.zeros(shape=(n * n, n * n))
@@ -257,26 +259,26 @@ class NsquaredEquationsCAP(CAPContingencyTableQ):
         for i in range(1, n):
             for j in range(1, n):
                 ratio_ij = class_cond_ratios_tr[i, j]
-                A[eq_no, I[i, :]] = -ratio_ij
-                A[eq_no, I[i, j]] = 1 - ratio_ij
+                A[eq_no, Idx[i, :]] = -ratio_ij
+                A[eq_no, Idx[i, j]] = 1 - ratio_ij
                 b[eq_no] = 0
                 eq_no += 1
 
         # n-1 equations: the sum of class-cond counts must equal the C&C prevalence prediction
         for i in range(1, n):
-            A[eq_no, I[:, i]] = 1
+            A[eq_no, Idx[:, i]] = 1
             # b[eq_no] = cc_prev_estim[i]
             eq_no += 1
 
         # n-1 equations: the sum of true true class-conditional positives must equal the class prev label in test
         for i in range(1, n):
-            A[eq_no, I[i, :]] = 1
+            A[eq_no, Idx[i, :]] = 1
             # b[eq_no] = q_prev_estim[i]
             eq_no += 1
 
         return A, b
 
-    def predict_ct(self, test, posteriors, oracle_prev=None, return_true_solve=False):
+    def predict_ct(self, test, posteriors):
         """
         :param test: test collection (ignored)
         :param oracle_prev: np.ndarray with the class prevalence of the test set as estimated by
@@ -290,10 +292,7 @@ class NsquaredEquationsCAP(CAPContingencyTableQ):
         h_label_preds = np.argmax(posteriors, axis=-1)
 
         cc_prev_estim = F.prevalence_from_labels(h_label_preds, self.classes_)
-        if oracle_prev is None:
-            q_prev_estim = self.q.quantify(test)
-        else:
-            q_prev_estim = oracle_prev
+        q_prev_estim = self.q.quantify(test)
 
         A = self.A
         b = self.partial_b
@@ -322,10 +321,18 @@ class NsquaredEquationsCAP(CAPContingencyTableQ):
             self._sout(".", end="")
 
         cont_table_test = x.reshape(n, n)
-        if return_true_solve:
-            return cont_table_test, _true_solve
-        else:
-            return cont_table_test
+
+        if self.log_true_solve:
+            self._true_solve_log.append([_true_solve])
+
+        return cont_table_test
+
+    def batch_predict(self, prot: AbstractProtocol, posteriors) -> list[float]:
+        estim_accs = [self.predict(Ui.X, posteriors=P) for Ui, P in IT.zip_longest(prot(), posteriors)]
+        if self.log_true_solve:
+            _prot_logs = np.array(self._true_solve_log[-prot.total() :]).flatten().tolist()
+            self._true_solve_log = self._true_solve_log[: -prot.total()] + [_prot_logs]
+        return estim_accs
 
 
 class OverConstrainedEquationsCAP(CAPContingencyTableQ):
@@ -362,7 +369,7 @@ class OverConstrainedEquationsCAP(CAPContingencyTableQ):
         # I is the matrix of indexes of unknowns. For example, if we need the counts of
         # all instances belonging to class i that have been classified as belonging to 0, 1, ..., n:
         # the indexes of the corresponding unknowns are given by I[i,:]
-        I = np.arange(n * n).reshape(n, n)
+        Idx = np.arange(n * n).reshape(n, n)
 
         # system of equations: Ax=b, A.shape=(n*n, n*n,), b.shape=(n*n,)
         A = np.zeros(shape=(n_eqs, n_unknowns))
@@ -385,26 +392,26 @@ class OverConstrainedEquationsCAP(CAPContingencyTableQ):
         for i in range(n):
             for j in range(n):
                 ratio_ij = class_cond_ratios_tr[i, j]
-                A[eq_no, I[i, :]] = -ratio_ij
-                A[eq_no, I[i, j]] = 1 - ratio_ij
+                A[eq_no, Idx[i, :]] = -ratio_ij
+                A[eq_no, Idx[i, j]] = 1 - ratio_ij
                 b[eq_no] = 0
                 eq_no += 1
 
         # n-1 equations: the sum of class-cond counts must equal the C&C prevalence prediction
         for i in range(n):
-            A[eq_no, I[:, i]] = 1
+            A[eq_no, Idx[:, i]] = 1
             # b[eq_no] = cc_prev_estim[i]
             eq_no += 1
 
         # n-1 equations: the sum of true true class-conditional positives must equal the class prev label in test
         for i in range(n):
-            A[eq_no, I[i, :]] = 1
+            A[eq_no, Idx[i, :]] = 1
             # b[eq_no] = q_prev_estim[i]
             eq_no += 1
 
         return A, b
 
-    def predict_ct(self, test, posteriors, oracle_prev=None):
+    def predict_ct(self, test, posteriors):
         """
         :param test: test collection (ignored)
         :param oracle_prev: np.ndarray with the class prevalence of the test set as estimated by
@@ -418,10 +425,7 @@ class OverConstrainedEquationsCAP(CAPContingencyTableQ):
         h_label_preds = np.argmax(posteriors, axis=-1)
 
         cc_prev_estim = F.prevalence_from_labels(h_label_preds, self.classes_)
-        if oracle_prev is None:
-            q_prev_estim = self.q.quantify(test)
-        else:
-            q_prev_estim = oracle_prev
+        q_prev_estim = self.q.quantify(test)
 
         A = self.A
         b = self.partial_b
@@ -546,7 +550,7 @@ class QuAcc1xN2(QuAcc):
     def prepare_quantifier(self):
         self.q = deepcopy(self.q_class)
 
-    def predict_ct(self, X: LabelledCollection, posteriors, oracle_prev=None):
+    def predict_ct(self, X: LabelledCollection, posteriors):
         # pdb.set_trace()
         X_dot = self._get_X_dot(X, posteriors)
         flat_ct = self._safe_quantify(X_dot)
@@ -578,7 +582,7 @@ class QuAcc1xNp1(QuAcc):
         ct_hat[ct_rev_idx] = ct_compressed
         return ct_hat
 
-    def predict_ct(self, X: LabelledCollection, posteriors, oracle_prev=None):
+    def predict_ct(self, X: LabelledCollection, posteriors):
         X_dot = self._get_X_dot(X, posteriors)
         ct_compressed = self._safe_quantify(X_dot)
         return self._get_ct_hat(self.ncl, ct_compressed)
@@ -609,7 +613,7 @@ class QuAcc1xNN(QuAcc):
         ct_hat[ct_rev_idx] = ct_compressed
         return ct_hat
 
-    def predict_ct(self, X: LabelledCollection, posteriors, oracle_prev=None):
+    def predict_ct(self, X: LabelledCollection, posteriors):
         X_dot = self._get_X_dot(X, posteriors)
         ct_compressed = self._safe_quantify(X_dot)
         return self._get_ct_hat(self.ncl, ct_compressed)
@@ -710,7 +714,7 @@ class QuAccNxN(QuAcc):
 
         return prev_vectors
 
-    def predict_ct(self, X: LabelledCollection, posteriors, oracle_prev=None):
+    def predict_ct(self, X: LabelledCollection, posteriors):
         pred_labels = np.argmax(posteriors, axis=-1)
         X_dot = self._get_X_dot(X, posteriors)
         pred_prev = F.prevalence_from_labels(pred_labels, self.classes_)
