@@ -210,7 +210,7 @@ def experiments():
                     t_train = t_train if _t_train is None else _t_train
 
                     test_shift = get_shift(np.array([Ui.prevalence() for Ui in test_prot()]), L.prevalence())
-                    estim_accs, t_test_ave = get_predictions(method, test_prot, test_prot_posteriors, False)
+                    estim_accs, t_test_ave = get_predictions(method, test_prot, test_prot_posteriors)
                 except Exception as e:
                     print_exception(e)
                     log.warning(f"{method_name}: {acc_name} gave error '{e}' - skipping")
