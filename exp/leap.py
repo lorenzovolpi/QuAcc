@@ -12,28 +12,32 @@ from quapy.protocol import UPP
 from sklearn.linear_model import LogisticRegression
 
 import quacc as qc
-from exp.util import fit_or_switch, gen_model_dataset, get_logger, get_plain_prev, get_predictions, split_validation
+from exp.util import (
+    fit_or_switch,
+    gen_model_dataset,
+    get_logger,
+    get_plain_prev,
+    get_predictions,
+    split_validation,
+    timestamp,
+)
 from quacc.data.datasets import fetch_UCIBinaryDataset, fetch_UCIMulticlassDataset
 from quacc.error import f1, f1_macro, vanilla_acc
-from quacc.models.cont_table import LEAP, NaiveCAP
+from quacc.models.cont_table import LEAP, OCE, PHD, NaiveCAP
 from quacc.models.direct import ATC, DoC
+from quacc.table import Format, Table
 from quacc.utils.commons import get_shift, true_acc
 
 PROJECT = "leap"
 
 root_dir = os.path.join(qc.env["OUT_DIR"], PROJECT)
-qp.environ["SAMPLE_SIZE"] = 1000
-NUM_TEST = 200
+qp.environ["SAMPLE_SIZE"] = 100
+NUM_TEST = 1000
 qp.environ["_R_SEED"] = 0
-PROBLEM = "multiclass"
+PROBLEM = "binary"
 CSV_SEP = ","
 
 _toggle = {
-    "cc_quacc": True,
-    "sld_quacc": True,
-    "kde_quacc": True,
-    "sld_leap": False,
-    "kde_leap": True,
     "vanilla": True,
     "f1": True,
 }
@@ -70,7 +74,8 @@ def gen_datasets(only_names=False):
         _uci_skip = ["isolet", "wine-quality", "letter"]
         _uci_names = [d for d in UCI_MULTICLASS_DATASETS if d not in _uci_skip]
         for dataset_name in _uci_names:
-            yield dataset_name, None if only_names else fetch_UCIMulticlassDataset(dataset_name)
+            dval = None if only_names else fetch_UCIMulticlassDataset(dataset_name)
+            yield dataset_name, dval
 
 
 def get_dataset_names():
@@ -95,10 +100,10 @@ def gen_baselines_vp(acc_fn, V2_prot, V2_prot_posteriors):
 
 def gen_CAP_cont_table(h, acc_fn):
     yield "Naive", NaiveCAP(acc_fn)
-    if _toggle["sld_leap"]:
-        yield "LEAP(SLD)", LEAP(acc_fn, sld(), reuse_h=h)
-    if _toggle["kde_leap"]:
-        yield "LEAP(KDEy)", LEAP(acc_fn, kdey(), reuse_h=h)
+    yield "LEAP(KDEy)", LEAP(acc_fn, kdey(), reuse_h=h, log_true_solve=True)
+    yield "PHD(KDEy)", PHD(acc_fn, kdey(), reuse_h=h)
+    yield "OCE(KDEy)-SLSQP", OCE(acc_fn, kdey(), reuse_h=h, optim_method="SLSQP")
+    # yield "OCE(KDEy)-trust-constr", OCE(acc_fn, kdey(), reuse_h=h, optim_method="trust-constr")
 
 
 def gen_methods(h, V, V_posteriors, V1, V1_posteriors, V2_prot, V2_prot_posteriors):
@@ -123,7 +128,7 @@ def get_method_names():
     )
 
 
-def local_path(dataset_name, cls_name, method_name, acc_name, train_prev):
+def local_path(dataset_name, cls_name, method_name, acc_name):
     parent_dir = os.path.join(root_dir, PROBLEM, cls_name, acc_name, dataset_name)
     os.makedirs(parent_dir, exist_ok=True)
     return os.path.join(parent_dir, f"{method_name}.csv")
@@ -133,7 +138,12 @@ def is_excluded(classifier, dataset, method, acc):
     return False
 
 
-def all_exist_pre_check(dataset_name, cls_name, train_prev):
+def get_extra_from_method(df, method):
+    if isinstance(method, LEAP):
+        df["true_solve"] = method._true_solve_log[-1]
+
+
+def all_exist_pre_check(dataset_name, cls_name):
     method_names = get_method_names()
     acc_names = [acc_name for acc_name, _ in gen_acc_measure()]
 
@@ -141,7 +151,7 @@ def all_exist_pre_check(dataset_name, cls_name, train_prev):
     for method, acc in IT.product(method_names, acc_names):
         if is_excluded(cls_name, dataset_name, method, acc):
             continue
-        path = local_path(dataset_name, cls_name, method, acc, train_prev)
+        path = local_path(dataset_name, cls_name, method, acc)
         all_exist = os.path.exists(path)
         if not all_exist:
             break
@@ -188,7 +198,7 @@ def experiments():
 
         # precompute the actual accuracy values
         true_accs = {}
-        for acc_name, acc_fn in gen_acc_measure(multiclass=PROBLEM == "multiclass"):
+        for acc_name, acc_fn in gen_acc_measure():
             true_accs[acc_name] = [true_acc(h, acc_fn, Ui) for Ui in test_prot()]
 
         L_prev = get_plain_prev(L.prevalence())
@@ -197,7 +207,7 @@ def experiments():
         ):
             val_prev = get_plain_prev(val.prevalence())
             t_train = None
-            for acc_name, acc_fn in gen_acc_measure(multiclass=PROBLEM == "multiclasss"):
+            for acc_name, acc_fn in gen_acc_measure():
                 if is_excluded(cls_name, dataset_name, method_name, acc_name):
                     continue
                 path = local_path(dataset_name, cls_name, method_name, acc_name)
@@ -230,7 +240,9 @@ def experiments():
                 method_df["t_train"] = t_train
                 method_df["t_test_ave"] = t_test_ave
 
-                log.info(f"{method_name} on {acc_name} done [{t_train=}s; {t_test_ave=}s]")
+                get_extra_from_method(method_df, method)
+
+                log.info(f"{method_name} on {acc_name} done [{timestamp(t_train, t_test_ave)}]")
                 method_df.to_csv(path, sep=CSV_SEP)
 
 
@@ -241,5 +253,53 @@ def load_results() -> pd.DataFrame:
     return pd.concat(dfs, axis=0)
 
 
+def tables():
+    res = load_results()
+
+    def gen_table(df: pd.DataFrame, name, datasets, methods):
+        tbl = Table(name=name, benchmarks=datasets, methods=methods)
+        tbl.format = Format(
+            mean_prec=4, show_std=True, remove_zero=True, with_rank_mean=False, with_mean=False, color=True
+        )
+        tbl.format.mean_macro = False
+        for dataset, method in IT.product(datasets, methods):
+            values = df.loc[(df["dataset"] == dataset) & (df["method"] == method), "acc_err"].to_numpy()
+            for v in values:
+                tbl.add(dataset, method, v)
+        return tbl
+
+    classifiers = res["classifier"].unique()
+    datasets = get_dataset_names()
+    methods = get_method_names()
+    accs = res["acc_name"].unique()
+
+    tbls = []
+    for classifier, acc in IT.product(classifiers, accs):
+        _df = res.loc[(res["classifier"] == classifier) & (res["acc_name"] == acc), :]
+        name = f"{PROBLEM}_{classifier}_{acc}"
+        tbls.append(gen_table(_df, name, datasets, methods))
+
+    pdf_path = os.path.join(root_dir, "tables", f"{PROBLEM}.pdf")
+    Table.LatexPDF(pdf_path, tables=tbls, landscape=False)
+
+
+def leap_true_solve():
+    res = load_results()
+    method = "LEAP(KDEy)"
+    md_path = os.path.join(root_dir, "tables", f"{PROBLEM}_true_solve.md")
+
+    pd.pivot_table(
+        res.loc[res["method"] == method], columns=["classifier"], index=["dataset"], values="true_solve"
+    ).to_markdown(md_path)
+
+
 if __name__ == "__main__":
-    pass
+    try:
+        log.info("-" * 31 + "  start  " + "-" * 31)
+        # experiments()
+        # tables()
+        leap_true_solve()
+        log.info("-" * 32 + "  end  " + "-" * 32)
+    except Exception as e:
+        log.error(e)
+        print_exception(e)
