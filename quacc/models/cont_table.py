@@ -1,15 +1,15 @@
 import itertools as IT
-import pdb
 from abc import abstractmethod
 from copy import deepcopy
 from typing import Callable
 
 import numpy as np
-import quapy.functional as F
 import scipy
 from quapy.data.base import LabelledCollection as LC
+from quapy.functional import prevalence_from_labels
 from quapy.method.aggregative import AggregativeQuantifier
 from quapy.protocol import AbstractProtocol
+from scipy import optimize
 from scipy.sparse import csr_matrix, issparse
 from sklearn.base import BaseEstimator
 from sklearn.metrics import confusion_matrix
@@ -17,6 +17,28 @@ from sklearn.model_selection import StratifiedKFold, cross_val_predict
 
 from quacc.models.base import ClassifierAccuracyPrediction
 from quacc.models.utils import max_conf, max_inverse_softmax, neg_entropy
+
+
+def _optim_minimize(loss: Callable, n_classes: int, method="SLSQP"):
+    """
+    Searches for the optimal prevalence values, i.e., an `n_classes`-dimensional vector of the (`n_classes`-1)-simplex
+    that yields the smallest lost. This optimization is carried out by means of a constrained search using scipy's
+    SLSQP routine.
+
+    :param loss: (callable) the function to minimize
+    :param n_classes: (int) the number of classes, i.e., the dimensionality of the prevalence vector
+    :param method: (str) the method used by scipy.optimize to minimize the loss; default="SLSQP"
+    :return: (ndarray) the best prevalence vector found
+    """
+
+    # the initial point is set as the uniform distribution
+    uniform_distribution = np.full(fill_value=1 / n_classes, shape=(n_classes,))
+
+    # solutions are bounded to those contained in the unit-simplex
+    bounds = tuple((0, 1) for _ in range(n_classes))  # values in [0,1]
+    constraints = {"type": "eq", "fun": lambda x: 1 - sum(x)}  # values summing up to 1
+    r = optimize.minimize(loss, x0=uniform_distribution, method=method, bounds=bounds, constraints=constraints)
+    return r.x
 
 
 class LabelledCollection(LC):
@@ -248,13 +270,7 @@ class NsquaredEquationsCAP(CAPContingencyTableQ):
         b[eq_no] = 1
         eq_no += 1
 
-        # (n-1)*(n-1) equations: the class cond ratios should be the same in training and in test due to the
-        # PPS assumptions. Example in three classes, a ratio: a/(a+b+c) [test] = ar [a ratio in training]
-        # a / (a + b + c) = ar
-        # a = (a + b + c) * ar
-        # a = a ar + b ar + c ar
-        # a - a ar - b ar - c ar = 0
-        # a (1-ar) + b (-ar)  + c (-ar) = 0
+        # (n-1)*(n-1) equations: the class cond ratios should be the same in training and in test due to the PPS assumptions.
         class_cond_ratios_tr = self.cont_table / self.cont_table.sum(axis=1, keepdims=True)
         for i in range(1, n):
             for j in range(1, n):
@@ -267,13 +283,11 @@ class NsquaredEquationsCAP(CAPContingencyTableQ):
         # n-1 equations: the sum of class-cond counts must equal the C&C prevalence prediction
         for i in range(1, n):
             A[eq_no, Idx[:, i]] = 1
-            # b[eq_no] = cc_prev_estim[i]
             eq_no += 1
 
         # n-1 equations: the sum of true true class-conditional positives must equal the class prev label in test
         for i in range(1, n):
             A[eq_no, Idx[i, :]] = 1
-            # b[eq_no] = q_prev_estim[i]
             eq_no += 1
 
         return A, b
@@ -291,7 +305,7 @@ class NsquaredEquationsCAP(CAPContingencyTableQ):
 
         h_label_preds = np.argmax(posteriors, axis=-1)
 
-        cc_prev_estim = F.prevalence_from_labels(h_label_preds, self.classes_)
+        cc_prev_estim = prevalence_from_labels(h_label_preds, self.classes_)
         q_prev_estim = self.q.quantify(test)
 
         A = self.A
@@ -315,7 +329,7 @@ class NsquaredEquationsCAP(CAPContingencyTableQ):
             def loss(x):
                 return np.linalg.norm(A @ x - b, ord=2)
 
-            x = F.optim_minimize(loss, n_classes=n**2)
+            x = _optim_minimize(loss, n_classes=n**2)
 
         else:
             self._sout(".", end="")
@@ -343,10 +357,12 @@ class OverConstrainedEquationsCAP(CAPContingencyTableQ):
         acc_fn: Callable,
         q_class,
         reuse_h: BaseEstimator | None = None,
+        optim_method: str = "SLSQP",
         verbose=False,
     ):
         super().__init__(acc_fn, q_class, reuse_h)
         self.verbose = verbose
+        self.optim_method = optim_method
 
     def _sout(self, *msgs, **kwargs):
         if self.verbose:
@@ -366,7 +382,7 @@ class OverConstrainedEquationsCAP(CAPContingencyTableQ):
         n_eqs = n * n + 2 * n + 1
         n_unknowns = n * n
 
-        # I is the matrix of indexes of unknowns. For example, if we need the counts of
+        # Idx is the matrix of indexes of unknowns. For example, if we need the counts of
         # all instances belonging to class i that have been classified as belonging to 0, 1, ..., n:
         # the indexes of the corresponding unknowns are given by I[i,:]
         Idx = np.arange(n * n).reshape(n, n)
@@ -381,13 +397,7 @@ class OverConstrainedEquationsCAP(CAPContingencyTableQ):
         b[eq_no] = 1
         eq_no += 1
 
-        # (n-1)*(n-1) equations: the class cond ratios should be the same in training and in test due to the
-        # PPS assumptions. Example in three classes, a ratio: a/(a+b+c) [test] = ar [a ratio in training]
-        # a / (a + b + c) = ar
-        # a = (a + b + c) * ar
-        # a = a ar + b ar + c ar
-        # a - a ar - b ar - c ar = 0
-        # a (1-ar) + b (-ar)  + c (-ar) = 0
+        # (n-1)*(n-1) equations: the class cond ratios should be the same in training and in test due to the PPS assumptions.
         class_cond_ratios_tr = self.cont_table / self.cont_table.sum(axis=1, keepdims=True)
         for i in range(n):
             for j in range(n):
@@ -400,13 +410,11 @@ class OverConstrainedEquationsCAP(CAPContingencyTableQ):
         # n-1 equations: the sum of class-cond counts must equal the C&C prevalence prediction
         for i in range(n):
             A[eq_no, Idx[:, i]] = 1
-            # b[eq_no] = cc_prev_estim[i]
             eq_no += 1
 
         # n-1 equations: the sum of true true class-conditional positives must equal the class prev label in test
         for i in range(n):
             A[eq_no, Idx[i, :]] = 1
-            # b[eq_no] = q_prev_estim[i]
             eq_no += 1
 
         return A, b
@@ -424,7 +432,7 @@ class OverConstrainedEquationsCAP(CAPContingencyTableQ):
 
         h_label_preds = np.argmax(posteriors, axis=-1)
 
-        cc_prev_estim = F.prevalence_from_labels(h_label_preds, self.classes_)
+        cc_prev_estim = prevalence_from_labels(h_label_preds, self.classes_)
         q_prev_estim = self.q.quantify(test)
 
         A = self.A
@@ -439,7 +447,7 @@ class OverConstrainedEquationsCAP(CAPContingencyTableQ):
         def loss(x):
             return np.linalg.norm(A @ x - b, ord=2)
 
-        x = F.optim_minimize(loss, n_classes=n**2)
+        x = _optim_minimize(loss, n_classes=n**2, method=self.optim_method)
 
         cont_table_test = x.reshape(n, n)
         return cont_table_test
@@ -717,7 +725,7 @@ class QuAccNxN(QuAcc):
     def predict_ct(self, X: LabelledCollection, posteriors):
         pred_labels = np.argmax(posteriors, axis=-1)
         X_dot = self._get_X_dot(X, posteriors)
-        pred_prev = F.prevalence_from_labels(pred_labels, self.classes_)
+        pred_prev = prevalence_from_labels(pred_labels, self.classes_)
         X_dot_list = [X_dot[pred_labels == class_i] for class_i in self.classes_]
         classcond_cond_table_prevs = self._safe_quantify(X_dot_list)
         cont_table = [p_i * cctp_i for p_i, cctp_i in zip(pred_prev, classcond_cond_table_prevs)]
