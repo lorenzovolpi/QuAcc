@@ -58,9 +58,9 @@ def get_acc_name(acc_name):
     }
 
 
-def split_validation(V: LabelledCollection, ratio=0.6):
+def split_validation(V: LabelledCollection, ratio=0.6, repeats=100):
     v_train, v_val = V.split_stratified(ratio, random_state=qp.environ["_R_SEED"])
-    val_prot = UPP(v_val, repeats=100, return_type="labelled_collection")
+    val_prot = UPP(v_val, repeats=repeats, return_type="labelled_collection")
     return v_train, val_prot
 
 
@@ -83,3 +83,9 @@ def gen_model_dataset(_gen_model, _gen_dataset):
     for model in _gen_model():
         for dataset in _gen_dataset():
             yield model, dataset
+
+
+def timestamp(t_train: float, t_test_ave: float) -> str:
+    t_train = round(t_train, ndigits=3)
+    t_test_ave = round(t_test_ave, ndigits=3)
+    return f"{t_train=}s; {t_test_ave=}s"
