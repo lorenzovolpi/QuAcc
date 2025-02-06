@@ -10,6 +10,9 @@ from quapy.data.datasets import UCI_BINARY_DATASETS, UCI_MULTICLASS_DATASETS
 from quapy.method.aggregative import EMQ, KDEyML
 from quapy.protocol import UPP
 from sklearn.linear_model import LogisticRegression
+from sklearn.neighbors import KNeighborsClassifier as KNN
+from sklearn.neural_network import MLPClassifier as MLP
+from sklearn.svm import SVC
 
 import quacc as qc
 from exp.util import (
@@ -34,7 +37,7 @@ root_dir = os.path.join(qc.env["OUT_DIR"], PROJECT)
 qp.environ["SAMPLE_SIZE"] = 100
 NUM_TEST = 1000
 qp.environ["_R_SEED"] = 0
-PROBLEM = "binary"
+PROBLEM = "multiclass"
 CSV_SEP = ","
 
 _toggle = {
@@ -57,6 +60,9 @@ def kdey():
 
 def gen_classifiers():
     yield "LR", LogisticRegression()
+    yield "kNN", KNN(n_neighbors=10)
+    yield "SVM", SVC(kernel="rbf", probability=True)
+    yield "MLP", MLP(hidden_layer_sizes=(100, 15), max_iter=300, random_state=qp.environ["_R_SEED"])
 
 
 def get_classifier_names():
@@ -296,9 +302,9 @@ def leap_true_solve():
 if __name__ == "__main__":
     try:
         log.info("-" * 31 + "  start  " + "-" * 31)
-        # experiments()
+        experiments()
         # tables()
-        leap_true_solve()
+        # leap_true_solve()
         log.info("-" * 32 + "  end  " + "-" * 32)
     except Exception as e:
         log.error(e)
