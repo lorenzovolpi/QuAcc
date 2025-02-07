@@ -37,7 +37,7 @@ root_dir = os.path.join(qc.env["OUT_DIR"], PROJECT)
 qp.environ["SAMPLE_SIZE"] = 100
 NUM_TEST = 1000
 qp.environ["_R_SEED"] = 0
-PROBLEM = "binary"
+PROBLEM = "multiclass"
 CSV_SEP = ","
 
 _toggle = {
@@ -320,8 +320,8 @@ def leap_true_solve():
 if __name__ == "__main__":
     try:
         log.info("-" * 31 + "  start  " + "-" * 31)
-        # experiments()
-        tables()
+        experiments()
+        # tables()
         # leap_true_solve()
         log.info("-" * 32 + "  end  " + "-" * 32)
     except Exception as e:
