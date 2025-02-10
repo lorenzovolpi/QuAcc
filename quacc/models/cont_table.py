@@ -1,4 +1,5 @@
 import itertools as IT
+import pdb
 from abc import abstractmethod
 from copy import deepcopy
 from typing import Callable
@@ -19,7 +20,7 @@ from quacc.models.base import ClassifierAccuracyPrediction
 from quacc.models.utils import max_conf, max_inverse_softmax, neg_entropy
 
 
-def _optim_minimize(loss: Callable, n_classes: int, method="SLSQP"):
+def _optim_minimize(loss: Callable, n_classes: int, method="SLSQP", bounds=None, constraints=None):
     """
     Searches for the optimal prevalence values, i.e., an `n_classes`-dimensional vector of the (`n_classes`-1)-simplex
     that yields the smallest lost. This optimization is carried out by means of a constrained search using scipy's
@@ -30,13 +31,10 @@ def _optim_minimize(loss: Callable, n_classes: int, method="SLSQP"):
     :param method: (str) the method used by scipy.optimize to minimize the loss; default="SLSQP"
     :return: (ndarray) the best prevalence vector found
     """
-
     # the initial point is set as the uniform distribution
     uniform_distribution = np.full(fill_value=1 / n_classes, shape=(n_classes,))
 
     # solutions are bounded to those contained in the unit-simplex
-    bounds = tuple((0, 1) for _ in range(n_classes))  # values in [0,1]
-    constraints = {"type": "eq", "fun": lambda x: 1 - sum(x)}  # values summing up to 1
     r = optimize.minimize(loss, x0=uniform_distribution, method=method, bounds=bounds, constraints=constraints)
     return r.x
 
@@ -321,6 +319,7 @@ class NsquaredEquationsCAP(CAPContingencyTableQ):
         x = np.linalg.solve(A, b)
 
         _true_solve = True
+        n_classes = n**2
         if any(x < 0) or not np.isclose(x.sum(), 1) or self.always_optimize:
             self._sout("L", end="")
             _true_solve = False
@@ -329,8 +328,12 @@ class NsquaredEquationsCAP(CAPContingencyTableQ):
             def loss(x):
                 return np.linalg.norm(A @ x - b, ord=2)
 
-            x = _optim_minimize(loss, n_classes=n**2)
-
+            x = _optim_minimize(
+                loss,
+                n_classes=n_classes,
+                bounds=tuple((0, 1) for _ in range(n_classes)),  # values in [0,1]
+                constraints={"type": "eq", "fun": lambda x: 1 - sum(x)},  # values summing up to 1
+            )
         else:
             self._sout(".", end="")
 
@@ -362,11 +365,17 @@ class OverConstrainedEquationsCAP(CAPContingencyTableQ):
     ):
         super().__init__(acc_fn, q_class, reuse_h)
         self.verbose = verbose
-        self.optim_method = optim_method
+        self.optim_method = self._check_optim_method(optim_method)
 
     def _sout(self, *msgs, **kwargs):
         if self.verbose:
             print(*msgs, **kwargs)
+
+    def _check_optim_method(self, method):
+        _valid_methods = ["SLSQP", "SLSQP-c", "L-BFGS-B"]
+        if method not in _valid_methods:
+            raise ValueError(f"Invalid optimization method: {method}; valid methods are: {_valid_methods}")
+        return method
 
     def preprocess_data(self, data: LabelledCollection, posteriors):
         self.classes_ = data.classes_
@@ -447,7 +456,42 @@ class OverConstrainedEquationsCAP(CAPContingencyTableQ):
         def loss(x):
             return np.linalg.norm(A @ x - b, ord=2)
 
-        x = _optim_minimize(loss, n_classes=n**2, method=self.optim_method)
+        n_classes = n**2
+        if self.optim_method == "SLSQP":
+            x = _optim_minimize(
+                loss,
+                n_classes=n_classes,
+                method=self.optim_method,
+                bounds=tuple((0, 1) for _ in range(n_classes)),  # values in [0,1]
+                constraints={"type": "eq", "fun": lambda x: 1 - sum(x)},  # values summing up to 1
+            )
+        elif self.optim_method == "SLSQP-c":
+            self.optim_method = "SLSQP"
+            Idx = np.arange(n * n).reshape(n, n)
+            _constraints = [{"type": "eq", "fun": lambda x: 1 - sum(x)}]
+            for i in range(n):
+                _mask = np.zeros(n_classes)
+                _mask[Idx[:, i]] = 1
+                _constr = {
+                    "type": "eq",
+                    "fun": lambda x: (x * _mask).sum() - cc_prev_estim[i],
+                }
+                _constraints.append(_constr)
+            x = _optim_minimize(
+                loss,
+                n_classes=n_classes,
+                method=self.optim_method,
+                bounds=tuple((0, 1) for _ in range(n_classes)),  # values in [0,1]
+                constraints=_constraints,
+            )
+        elif self.optim_method == "L-BFGS-B":
+            x = _optim_minimize(
+                loss,
+                n_classes=n_classes,
+                method=self.optim_method,
+                bounds=tuple((0, 1) for _ in range(n_classes)),  # values in [0,1]
+            )
+            x = x / x.sum()
 
         cont_table_test = x.reshape(n, n)
         return cont_table_test
