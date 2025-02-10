@@ -37,7 +37,7 @@ root_dir = os.path.join(qc.env["OUT_DIR"], PROJECT)
 qp.environ["SAMPLE_SIZE"] = 100
 NUM_TEST = 1000
 qp.environ["_R_SEED"] = 0
-PROBLEM = "multiclass"
+PROBLEM = "binary"
 CSV_SEP = ","
 
 _toggle = {
@@ -68,9 +68,9 @@ def hdy():
 
 def gen_classifiers():
     yield "LR", LogisticRegression()
-    yield "kNN", KNN(n_neighbors=10)
-    yield "SVM", SVC(kernel="rbf", probability=True)
-    yield "MLP", MLP(hidden_layer_sizes=(100, 15), max_iter=300, random_state=qp.environ["_R_SEED"])
+    # yield "kNN", KNN(n_neighbors=10)
+    # yield "SVM", SVC(kernel="rbf", probability=True)
+    # yield "MLP", MLP(hidden_layer_sizes=(100, 15), max_iter=300, random_state=qp.environ["_R_SEED"])
 
 
 def get_classifier_names():
@@ -117,14 +117,16 @@ def gen_CAP_cont_table(h, acc_fn):
     yield "LEAP(KDEy)", LEAP(acc_fn, kdey(), reuse_h=h, log_true_solve=True)
     yield "PHD(KDEy)", PHD(acc_fn, kdey(), reuse_h=h)
     yield "OCE(KDEy)-SLSQP", OCE(acc_fn, kdey(), reuse_h=h, optim_method="SLSQP")
-    # yield "OCE(KDEy)-trust-constr", OCE(acc_fn, kdey(), reuse_h=h, optim_method="trust-constr")
-    yield "LEAP(KDEy-a)", LEAP(acc_fn, kdey_auto(), reuse_h=h, log_true_solve=True)
-    yield "PHD(KDEy-a)", PHD(acc_fn, kdey_auto(), reuse_h=h)
-    yield "OCE(KDEy-a)-SLSQP", OCE(acc_fn, kdey_auto(), reuse_h=h, optim_method="SLSQP")
-    if PROBLEM == "binary":
-        yield "LEAP(HDy)", LEAP(acc_fn, hdy(), reuse_h=h, log_true_solve=True)
-        yield "PHD(HDy)", PHD(acc_fn, hdy(), reuse_h=h)
-        yield "OCE(HDy)-SLSQP", OCE(acc_fn, hdy(), reuse_h=h, optim_method="SLSQP")
+    yield "OCE(KDEy)-SLSQP-c", OCE(acc_fn, kdey(), reuse_h=h, optim_method="SLSQP-c")
+    yield "OCE(KDEy)-L-BFGS-B", OCE(acc_fn, kdey(), reuse_h=h, optim_method="L-BFGS-B")
+    # yield "OCE(KDEy)-BFGS", OCE(acc_fn, kdey(), reuse_h=h, optim_method="BFGS")
+    # yield "LEAP(KDEy-a)", LEAP(acc_fn, kdey_auto(), reuse_h=h, log_true_solve=True)
+    # yield "PHD(KDEy-a)", PHD(acc_fn, kdey_auto(), reuse_h=h)
+    # yield "OCE(KDEy-a)-SLSQP", OCE(acc_fn, kdey_auto(), reuse_h=h, optim_method="SLSQP")
+    # if PROBLEM == "binary":
+    #     yield "LEAP(HDy)", LEAP(acc_fn, hdy(), reuse_h=h, log_true_solve=True)
+    #     yield "PHD(HDy)", PHD(acc_fn, hdy(), reuse_h=h)
+    #     yield "OCE(HDy)-SLSQP", OCE(acc_fn, hdy(), reuse_h=h, optim_method="SLSQP")
 
 
 def gen_methods(h, V, V_posteriors, V1, V1_posteriors, V2_prot, V2_prot_posteriors):
@@ -320,8 +322,8 @@ def leap_true_solve():
 if __name__ == "__main__":
     try:
         log.info("-" * 31 + "  start  " + "-" * 31)
-        experiments()
-        # tables()
+        # experiments()
+        tables()
         # leap_true_solve()
         log.info("-" * 32 + "  end  " + "-" * 32)
     except Exception as e:
