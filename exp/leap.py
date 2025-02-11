@@ -68,9 +68,9 @@ def dmy():
 
 def gen_classifiers():
     yield "LR", LogisticRegression()
-    # yield "kNN", KNN(n_neighbors=10)
-    # yield "SVM", SVC(kernel="rbf", probability=True)
-    # yield "MLP", MLP(hidden_layer_sizes=(100, 15), max_iter=300, random_state=qp.environ["_R_SEED"])
+    yield "kNN", KNN(n_neighbors=10)
+    yield "SVM", SVC(kernel="rbf", probability=True)
+    yield "MLP", MLP(hidden_layer_sizes=(100, 15), max_iter=300, random_state=qp.environ["_R_SEED"])
 
 
 def get_classifier_names():
@@ -321,8 +321,8 @@ def leap_true_solve():
 if __name__ == "__main__":
     try:
         log.info("-" * 31 + "  start  " + "-" * 31)
-        experiments()
-        # tables()
+        # experiments()
+        tables()
         # leap_true_solve()
         log.info("-" * 32 + "  end  " + "-" * 32)
     except Exception as e:
