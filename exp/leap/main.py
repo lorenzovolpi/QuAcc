@@ -8,8 +8,18 @@ import quapy as qp
 from quapy.protocol import UPP
 
 import quacc as qc
-from exp.leap.config import CSV_SEP, NUM_TEST, PROBLEM, PROJECT, root_dir
-from exp.leap.generators import gen_acc_measure, gen_classifiers, gen_datasets, gen_methods, get_method_names
+from exp.leap.config import (
+    CSV_SEP,
+    NUM_TEST,
+    PROBLEM,
+    PROJECT,
+    gen_acc_measure,
+    gen_classifiers,
+    gen_datasets,
+    gen_methods,
+    get_method_names,
+    root_dir,
+)
 from exp.util import (
     fit_or_switch,
     gen_model_dataset,
