@@ -13,7 +13,7 @@ from sklearn.svm import SVC
 import quacc as qc
 from quacc.data.datasets import fetch_UCIBinaryDataset, fetch_UCIMulticlassDataset
 from quacc.error import f1, f1_macro, vanilla_acc
-from quacc.models.cont_table import LEAP, OCE, PHD, NaiveCAP
+from quacc.models.cont_table import LEAP, OCE, PHD, NaiveCAP, QuAccNxN
 from quacc.models.direct import ATC, DoC
 
 PROJECT = "leap"
@@ -23,7 +23,7 @@ NUM_TEST = 1000
 qp.environ["_R_SEED"] = 0
 CSV_SEP = ","
 
-PROBLEM = "multiclass"
+PROBLEM = "binary"
 
 _toggle = {
     "vanilla": True,
@@ -104,11 +104,13 @@ def gen_CAP_cont_table(h, acc_fn):
     yield "LEAP(KDEy)", LEAP(acc_fn, kdey(), reuse_h=h, log_true_solve=True)
     yield "PHD(KDEy)", PHD(acc_fn, kdey(), reuse_h=h)
     yield "OCE(KDEy)-SLSQP", OCE(acc_fn, kdey(), reuse_h=h, optim_method="SLSQP")
+    yield "QuAccNxN(KDEy)", QuAccNxN(acc_fn, kdey(), add_X=True, add_posteriors=True, add_maxinfsoft=True)
     # yield "OCE(KDEy)-SLSQP-c", OCE(acc_fn, kdey(), reuse_h=h, optim_method="SLSQP-c")
     # yield "OCE(KDEy)-L-BFGS-B", OCE(acc_fn, kdey(), reuse_h=h, optim_method="L-BFGS-B")
     yield "LEAP(KDEy-a)", LEAP(acc_fn, kdey_auto(), reuse_h=h, log_true_solve=True)
     yield "PHD(KDEy-a)", PHD(acc_fn, kdey_auto(), reuse_h=h)
     yield "OCE(KDEy-a)-SLSQP", OCE(acc_fn, kdey_auto(), reuse_h=h, optim_method="SLSQP")
+    yield "QuAccNxN(KDEy-a)", QuAccNxN(acc_fn, kdey_auto(), add_X=True, add_posteriors=True, add_maxinfsoft=True)
     if PROBLEM == "binary":
         yield "LEAP(DMy)", LEAP(acc_fn, dmy(), reuse_h=h, log_true_solve=True)
         yield "PHD(DMy)", PHD(acc_fn, dmy(), reuse_h=h)
