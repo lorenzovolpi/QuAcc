@@ -23,7 +23,7 @@ NUM_TEST = 1000
 qp.environ["_R_SEED"] = 0
 CSV_SEP = ","
 
-PROBLEM = "binary"
+PROBLEM = "multiclass"
 
 _toggle = {
     "vanilla": True,
