@@ -11,24 +11,36 @@ from sklearn.neural_network import MLPClassifier as MLP
 from sklearn.svm import SVC
 
 import quacc as qc
-from quacc.data.datasets import fetch_UCIBinaryDataset, fetch_UCIMulticlassDataset
+from quacc.data.datasets import fetch_UCIBinaryDataset, fetch_UCIMulticlassDataset, sort_datasets_by_size
 from quacc.error import f1, f1_macro, vanilla_acc
 from quacc.models.cont_table import LEAP, OCE, PHD, NaiveCAP, QuAccNxN
 from quacc.models.direct import ATC, DoC
 
-PROJECT = "leap"
+PROJECT = "leap_dyn"
 root_dir = os.path.join(qc.env["OUT_DIR"], PROJECT)
-qp.environ["SAMPLE_SIZE"] = 100
 NUM_TEST = 1000
 qp.environ["_R_SEED"] = 0
 CSV_SEP = ","
 
-PROBLEM = "multiclass"
+PROBLEM = "binary"
 
 _toggle = {
     "vanilla": True,
     "f1": False,
 }
+
+
+def sample_size(test_size):
+    if test_size > 3000:
+        return 500
+    elif test_size > 1000:
+        return 300
+    elif test_size > 400:
+        return 200
+    elif test_size > 150:
+        return 100
+    else:
+        return 50
 
 
 def sld():
@@ -56,27 +68,21 @@ def gen_classifiers():
     yield "MLP", MLP(hidden_layer_sizes=(100, 15), max_iter=300, random_state=qp.environ["_R_SEED"])
 
 
-def get_classifier_names():
-    return [name for name, _ in gen_classifiers()]
-
-
 def gen_datasets(only_names=False):
     if PROBLEM == "binary":
         _uci_skip = ["acute.a", "acute.b", "balance.2", "iris.1"]
         _uci_names = [d for d in UCI_BINARY_DATASETS if d not in _uci_skip]
-        for dn in _uci_names:
+        _sorted_uci_names = sort_datasets_by_size(_uci_names, fetch_UCIBinaryDataset)
+        for dn in _sorted_uci_names:
             dval = None if only_names else fetch_UCIBinaryDataset(dn)
             yield dn, dval
     elif PROBLEM == "multiclass":
         _uci_skip = ["isolet", "wine-quality", "letter"]
         _uci_names = [d for d in UCI_MULTICLASS_DATASETS if d not in _uci_skip]
-        for dataset_name in _uci_names:
+        _sorted_uci_names = sort_datasets_by_size(_uci_names, fetch_UCIMulticlassDataset)
+        for dataset_name in _sorted_uci_names:
             dval = None if only_names else fetch_UCIMulticlassDataset(dataset_name)
             yield dataset_name, dval
-
-
-def get_dataset_names():
-    return [name for name, _ in gen_datasets(only_names=True)]
 
 
 def gen_acc_measure():
@@ -87,13 +93,11 @@ def gen_acc_measure():
         yield "macro-F1", f1_macro if multiclass else f1
 
 
-def get_acc_names():
-    return [acc_name for acc_name, _ in gen_acc_measure()]
-
-
 def gen_baselines(acc_fn):
     yield "Naive", NaiveCAP(acc_fn)
     yield "ATC-MC", ATC(acc_fn, scoring_fn="maxconf")
+    yield "QuAccNxN(KDEy)", QuAccNxN(acc_fn, kdey(), add_X=True, add_posteriors=True, add_maxinfsoft=True)
+    # yield "QuAccNxN(KDEy-a)", QuAccNxN(acc_fn, kdey_auto(), add_X=True, add_posteriors=True, add_maxinfsoft=True)
 
 
 def gen_baselines_vp(acc_fn, V2_prot, V2_prot_posteriors):
@@ -104,17 +108,15 @@ def gen_CAP_cont_table(h, acc_fn):
     yield "LEAP(KDEy)", LEAP(acc_fn, kdey(), reuse_h=h, log_true_solve=True)
     yield "PHD(KDEy)", PHD(acc_fn, kdey(), reuse_h=h)
     yield "OCE(KDEy)-SLSQP", OCE(acc_fn, kdey(), reuse_h=h, optim_method="SLSQP")
-    yield "QuAccNxN(KDEy)", QuAccNxN(acc_fn, kdey(), add_X=True, add_posteriors=True, add_maxinfsoft=True)
     # yield "OCE(KDEy)-SLSQP-c", OCE(acc_fn, kdey(), reuse_h=h, optim_method="SLSQP-c")
     # yield "OCE(KDEy)-L-BFGS-B", OCE(acc_fn, kdey(), reuse_h=h, optim_method="L-BFGS-B")
-    yield "LEAP(KDEy-a)", LEAP(acc_fn, kdey_auto(), reuse_h=h, log_true_solve=True)
-    yield "PHD(KDEy-a)", PHD(acc_fn, kdey_auto(), reuse_h=h)
-    yield "OCE(KDEy-a)-SLSQP", OCE(acc_fn, kdey_auto(), reuse_h=h, optim_method="SLSQP")
-    yield "QuAccNxN(KDEy-a)", QuAccNxN(acc_fn, kdey_auto(), add_X=True, add_posteriors=True, add_maxinfsoft=True)
-    if PROBLEM == "binary":
-        yield "LEAP(DMy)", LEAP(acc_fn, dmy(), reuse_h=h, log_true_solve=True)
-        yield "PHD(DMy)", PHD(acc_fn, dmy(), reuse_h=h)
-        yield "OCE(DMy)-SLSQP", OCE(acc_fn, dmy(), reuse_h=h, optim_method="SLSQP")
+    # yield "LEAP(KDEy-a)", LEAP(acc_fn, kdey_auto(), reuse_h=h, log_true_solve=True)
+    # yield "PHD(KDEy-a)", PHD(acc_fn, kdey_auto(), reuse_h=h)
+    # yield "OCE(KDEy-a)-SLSQP", OCE(acc_fn, kdey_auto(), reuse_h=h, optim_method="SLSQP")
+    # if PROBLEM == "binary":
+    #     yield "LEAP(DMy)", LEAP(acc_fn, dmy(), reuse_h=h, log_true_solve=True)
+    #     yield "PHD(DMy)", PHD(acc_fn, dmy(), reuse_h=h)
+    #     yield "OCE(DMy)-SLSQP", OCE(acc_fn, dmy(), reuse_h=h, optim_method="SLSQP")
 
 
 def gen_methods(h, V, V_posteriors, V1, V1_posteriors, V2_prot, V2_prot_posteriors):
@@ -125,6 +127,18 @@ def gen_methods(h, V, V_posteriors, V1, V1_posteriors, V2_prot, V2_prot_posterio
         yield name, method, V1, V1_posteriors
     for name, method in gen_CAP_cont_table(h, acc_fn):
         yield name, method, V, V_posteriors
+
+
+def get_classifier_names():
+    return [name for name, _ in gen_classifiers()]
+
+
+def get_dataset_names():
+    return [name for name, _ in gen_datasets(only_names=True)]
+
+
+def get_acc_names():
+    return [acc_name for acc_name, _ in gen_acc_measure()]
 
 
 def get_method_names():
@@ -143,6 +157,6 @@ def get_baseline_names():
     _, mock_acc_fn = next(gen_acc_measure())
     mock_V2_prot = UPP(None)
     mock_V2_post = np.empty((1,))
-    return [m for m, _ in gen_baselines(mock_acc_fn)] + [
-        m for m, _ in gen_baselines_vp(mock_acc_fn, mock_V2_prot, mock_V2_post)
-    ]
+    baselines_names = [m for m, _ in gen_baselines(mock_acc_fn)]
+    baselines_vp_names = [m for m, _ in gen_baselines_vp(mock_acc_fn, mock_V2_prot, mock_V2_post)]
+    return baselines_names[:2] + baselines_vp_names + baselines_names[2:]

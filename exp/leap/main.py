@@ -19,6 +19,7 @@ from exp.leap.config import (
     gen_methods,
     get_method_names,
     root_dir,
+    sample_size,
 )
 from exp.util import (
     fit_or_switch,
@@ -68,6 +69,9 @@ def all_exist_pre_check(dataset_name, cls_name):
 
 def experiments():
     for (cls_name, h), (dataset_name, (L, V, U)) in gen_model_dataset(gen_classifiers, gen_datasets):
+        # compute and set the SAMPLE_SIZE for each dataset
+        qp.environ["SAMPLE_SIZE"] = sample_size(len(U))
+
         # check if all results for current combination already exist
         # if so, skip the combination
         if all_exist_pre_check(dataset_name, cls_name):
