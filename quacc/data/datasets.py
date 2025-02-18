@@ -203,3 +203,13 @@ def fetch_HFDataset(dataset_name, tokenizer, data_collator, train_length=None):
     L, V = train.split_stratified(train_prop=0.5, random_state=qp.environ["_R_SEED"])
 
     return L, V, U
+
+
+def sort_datasets_by_size(dataset_names, dataset_fun, descending=True):
+    def get_dataset_size(name):
+        L, V, U = dataset_fun(name)
+        return len(L) + len(V) + len(U)
+
+    datasets = [(d, get_dataset_size(d)) for d in dataset_names]
+    datasets.sort(key=(lambda d: d[1]), reverse=descending)
+    return [d for (d, _) in datasets]
