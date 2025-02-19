@@ -207,3 +207,13 @@ def get_shift(test_prevs: np.ndarray, train_prev: np.ndarray | float, decimals=2
     # _shift = nae(test_prevs, train_prevs)
     _shift = qp.error.ae(test_prevs, train_prevs)
     return np.around(_shift, decimals=decimals)
+
+
+def contingency_table(y, y_hat, n_classes):
+    ct = np.zeros((n_classes, n_classes))
+    for _c in range(n_classes):
+        _idx = y == _c
+        for _c1 in range(n_classes):
+            ct[_c, _c1] = np.sum(y_hat[_idx] == _c1)
+
+    return ct / y.shape[0]

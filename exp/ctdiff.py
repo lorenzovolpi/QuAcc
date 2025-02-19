@@ -19,6 +19,7 @@ from exp.util import get_logger, split_validation
 from quacc.data.datasets import fetch_UCIBinaryDataset, fetch_UCIMulticlassDataset
 from quacc.error import vanilla_acc
 from quacc.models.cont_table import LEAP, PHD, CAPContingencyTable, LabelledCollection
+from quacc.utils.commons import contingency_table
 
 TRUE_CTS_NAME = "true_cts"
 PROBLEM = "binary"
@@ -112,16 +113,6 @@ def get_cts_mean(cts):
 def get_cts_bias_median(cts1, cts2):
     cts_bias = cts1 - cts2
     return np.median(cts_bias, axis=0)
-
-
-def contingency_matrix(y, y_hat, n_classes):
-    ct = np.zeros((n_classes, n_classes))
-    for _c in range(n_classes):
-        _idx = y == _c
-        for _c1 in range(n_classes):
-            ct[_c, _c1] = np.sum(y_hat[_idx] == _c1)
-
-    return ct / y.shape[0]
 
 
 def save_heatmap(cls_name, dataset, method1, method2, ctss):
@@ -242,7 +233,7 @@ def ctdiff():
         for sample in test_prot():
             P = h.predict_proba(sample.X)
             y_hat = np.argmax(P, axis=-1)
-            true_prot_cts.append(contingency_matrix(sample.y, y_hat, sample.n_classes))
+            true_prot_cts.append(contingency_table(sample.y, y_hat, sample.n_classes))
             test_prot_posteriors.append(P)
             test_prot_y_hat.append(y_hat)
 
@@ -250,7 +241,7 @@ def ctdiff():
         if true_prot_cts is None:
             true_prot_cts = np.asarray(
                 [
-                    contingency_matrix(sample.y, y_hat, sample.n_classes)
+                    contingency_table(sample.y, y_hat, sample.n_classes)
                     for sample, y_hat in zip(test_prot(), test_prot_y_hat)
                 ]
             )
