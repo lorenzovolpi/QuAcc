@@ -1,5 +1,6 @@
 import itertools as IT
 import os
+import pdb
 from traceback import print_exception
 
 import numpy as np
@@ -24,6 +25,7 @@ from exp.leap.config import (
 from exp.util import (
     fit_or_switch,
     gen_model_dataset,
+    get_ct_predictions,
     get_logger,
     get_plain_prev,
     get_predictions,
@@ -31,7 +33,7 @@ from exp.util import (
     timestamp,
 )
 from quacc.models.cont_table import LEAP
-from quacc.utils.commons import get_shift, true_acc
+from quacc.utils.commons import contingency_table, get_shift, true_acc
 
 log = get_logger(id=PROJECT)
 
@@ -39,7 +41,7 @@ log = get_logger(id=PROJECT)
 def local_path(dataset_name, cls_name, method_name, acc_name):
     parent_dir = os.path.join(root_dir, PROBLEM, cls_name, acc_name, dataset_name)
     os.makedirs(parent_dir, exist_ok=True)
-    return os.path.join(parent_dir, f"{method_name}.csv")
+    return os.path.join(parent_dir, f"{method_name}.json")
 
 
 def is_excluded(classifier, dataset, method, acc):
@@ -101,11 +103,13 @@ def experiments():
             V2_prot_posteriors.append(h.predict_proba(sample.X))
 
         # precomumpute model posteriors for test samples
-        test_prot_posteriors, test_prot_y_hat = [], []
+        test_prot_posteriors, test_prot_y_hat, test_prot_true_cts = [], [], []
         for sample in test_prot():
             P = h.predict_proba(sample.X)
             test_prot_posteriors.append(P)
-            test_prot_y_hat.append(np.argmax(P, axis=-1))
+            y_hat = np.argmax(P, axis=-1)
+            test_prot_y_hat.append(y_hat)
+            test_prot_true_cts.append(contingency_table(sample.y, y_hat, sample.n_classes))
 
         # precompute the actual accuracy values
         true_accs = {}
@@ -131,7 +135,11 @@ def experiments():
                     t_train = t_train if _t_train is None else _t_train
 
                     test_shift = get_shift(np.array([Ui.prevalence() for Ui in test_prot()]), L.prevalence())
-                    estim_accs, t_test_ave = get_predictions(method, test_prot, test_prot_posteriors)
+                    estim_accs, estim_cts, t_test_ave = get_ct_predictions(method, test_prot, test_prot_posteriors)
+                    if estim_cts is None:
+                        estim_cts = [None] * len(estim_accs)
+                    else:
+                        estim_cts = [ct.tolist() for ct in estim_cts]
                 except Exception as e:
                     print_exception(e)
                     log.warning(f"{method_name}: {acc_name} gave error '{e}' - skipping")
@@ -142,6 +150,8 @@ def experiments():
                     np.vstack([test_shift, true_accs[acc_name], estim_accs, ae]).T,
                     columns=["shifts", "true_accs", "estim_accs", "acc_err"],
                 )
+                method_df["estim_cts"] = estim_cts
+                method_df["true_cts"] = test_prot_true_cts
                 method_df["classifier"] = cls_name
                 method_df["method"] = method_name
                 method_df["dataset"] = dataset_name
@@ -154,7 +164,7 @@ def experiments():
                 get_extra_from_method(method_df, method)
 
                 log.info(f"{method_name} on {acc_name} done [{timestamp(t_train, t_test_ave)}]")
-                method_df.to_csv(path, sep=CSV_SEP)
+                method_df.to_json(path)
 
 
 if __name__ == "__main__":

@@ -8,7 +8,7 @@ from quapy.protocol import UPP
 
 import quacc as qc
 from quacc.models.base import ClassifierAccuracyPrediction
-from quacc.models.cont_table import LabelledCollection
+from quacc.models.cont_table import CAPContingencyTable, LabelledCollection
 from quacc.models.model_selection import GridSearchCAP
 
 
@@ -40,9 +40,19 @@ def get_predictions(method: ClassifierAccuracyPrediction, test_prot, test_prot_p
     return estim_accs, t_test_ave
 
 
+def get_ct_predictions(method: ClassifierAccuracyPrediction, test_prot, test_prot_posteriors):
+    tinit = time()
+    if isinstance(method, CAPContingencyTable):
+        estim_accs, estim_cts = method.batch_predict(test_prot, test_prot_posteriors, get_estim_cts=True)
+    else:
+        estim_accs, estim_cts = method.batch_predict(test_prot, test_prot_posteriors), None
+    t_test_ave = (time() - tinit) / test_prot.total()
+    return estim_accs, estim_cts, t_test_ave
+
+
 def get_plain_prev(prev: np.ndarray):
     if prev.shape[0] > 2:
-        return tuple(np.around(prev[1:], decimals=4).tolist())
+        return np.around(prev[1:], decimals=4).tolist()
     else:
         return float(np.around(prev, decimals=4)[-1])
 
