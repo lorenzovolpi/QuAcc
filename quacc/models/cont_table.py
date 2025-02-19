@@ -15,6 +15,7 @@ from scipy.sparse import csr_matrix, issparse
 from sklearn.base import BaseEstimator
 from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import StratifiedKFold, cross_val_predict
+from typing_extensions import override
 
 from quacc.models.base import ClassifierAccuracyPrediction
 from quacc.models.utils import max_conf, max_inverse_softmax, neg_entropy
@@ -111,6 +112,16 @@ class CAPContingencyTable(ClassifierAccuracyPrediction):
         cont_table = self.predict_ct(X, posteriors)
         return self.acc_fn(cont_table)
 
+    def _batch_predict_ct(self, prot: AbstractProtocol, posteriors):
+        estim_cts = [self.predict_ct(Ui.X, posteriors=P) for Ui, P in IT.zip_longest(prot(), posteriors)]
+        return estim_cts
+
+    @override
+    def batch_predict(self, prot: AbstractProtocol, posteriors, get_estim_cts=False) -> list[float]:
+        estim_cts = self._batch_predict_ct(prot, posteriors)
+        estim_accs = [self.acc_fn(ct) for ct in estim_cts]
+        return (estim_accs, estim_cts) if get_estim_cts else estim_accs
+
 
 class NaiveCAP(CAPContingencyTable):
     """
@@ -125,6 +136,7 @@ class NaiveCAP(CAPContingencyTable):
         y_hat = np.argmax(posteriors, axis=-1)
         y_true = val.y
         self.cont_table = confusion_matrix(y_true, y_pred=y_hat, labels=val.classes_)
+        self.cont_table = self.cont_table / self.cont_table.sum()
         return self
 
     def predict_ct(self, test, posteriors):
@@ -344,12 +356,13 @@ class NsquaredEquationsCAP(CAPContingencyTableQ):
 
         return cont_table_test
 
-    def batch_predict(self, prot: AbstractProtocol, posteriors) -> list[float]:
-        estim_accs = [self.predict(Ui.X, posteriors=P) for Ui, P in IT.zip_longest(prot(), posteriors)]
+    def batch_predict(self, prot: AbstractProtocol, posteriors, get_estim_cts=False):
+        estim_cts = self._batch_predict_ct(prot, posteriors)
+        estim_accs = [self.acc_fn(ct) for ct in estim_cts]
         if self.log_true_solve:
             _prot_logs = np.array(self._true_solve_log[-prot.total() :]).flatten().tolist()
             self._true_solve_log = self._true_solve_log[: -prot.total()] + [_prot_logs]
-        return estim_accs
+        return (estim_accs, estim_cts) if get_estim_cts else estim_accs
 
 
 class OverConstrainedEquationsCAP(CAPContingencyTableQ):
