@@ -37,10 +37,8 @@ def sample_size(test_size):
         return 300
     elif test_size > 400:
         return 200
-    elif test_size > 150:
-        return 100
     else:
-        return 50
+        return 100
 
 
 def sld():
@@ -144,7 +142,7 @@ def get_acc_names():
 def get_method_names():
     mock_h = LogisticRegression()
     _, mock_acc_fn = next(gen_acc_measure())
-    mock_V2_prot = UPP(None)
+    mock_V2_prot = UPP(None, sample_size=1)
     mock_V2_post = np.empty((1,))
     return (
         [m for m, _ in gen_baselines(mock_acc_fn)]
@@ -155,7 +153,7 @@ def get_method_names():
 
 def get_baseline_names():
     _, mock_acc_fn = next(gen_acc_measure())
-    mock_V2_prot = UPP(None)
+    mock_V2_prot = UPP(None, sample_size=1)
     mock_V2_post = np.empty((1,))
     baselines_names = [m for m, _ in gen_baselines(mock_acc_fn)]
     baselines_vp_names = [m for m, _ in gen_baselines_vp(mock_acc_fn, mock_V2_prot, mock_V2_post)]
