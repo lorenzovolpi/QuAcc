@@ -16,13 +16,13 @@ from quacc.error import f1, f1_macro, vanilla_acc
 from quacc.models.cont_table import LEAP, OCE, PHD, NaiveCAP, QuAccNxN
 from quacc.models.direct import ATC, DoC
 
-PROJECT = "leap_dyn"
+PROJECT = "leap"
 root_dir = os.path.join(qc.env["OUT_DIR"], PROJECT)
 NUM_TEST = 1000
 qp.environ["_R_SEED"] = 0
 CSV_SEP = ","
 
-PROBLEM = "binary"
+PROBLEM = "multiclass"
 
 _toggle = {
     "vanilla": True,
@@ -31,14 +31,15 @@ _toggle = {
 
 
 def sample_size(test_size):
-    if test_size > 3000:
-        return 500
-    elif test_size > 1000:
-        return 300
-    elif test_size > 400:
-        return 200
-    else:
-        return 100
+    return 100
+    # if test_size > 3000:
+    #     return 500
+    # elif test_size > 1000:
+    #     return 300
+    # elif test_size > 400:
+    #     return 200
+    # else:
+    #     return 100
 
 
 def sld():
