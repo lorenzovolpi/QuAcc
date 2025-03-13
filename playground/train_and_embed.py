@@ -87,18 +87,14 @@ def embed(model, tokenizer, data, selection_strategy, args):
     split_logits = []
     split_hidden_states = []
 
-    model.eval()
-
     for batch in batched(tqdm(data), n=args.embed_batchsize):
         texts, labels = zip(*((d["text"], d["label"]) for d in batch))
-        pdb.set_trace()
         with torch.no_grad():
             model_inputs = tokenizer(
                 texts, truncation=True, max_length=args.max_length, padding="max_length", return_tensors="pt"
             )  # pad each batch to max_length
+            output = model(**model_inputs.to(args.device), output_hidden_states=True)
 
-        pdb.set_trace()
-        output = model(**model_inputs.to(args.device), output_hidden_states=True)
         logits = output.logits
         hidden_states = output.hidden_states
         last_hidden_states = hidden_states[-1]
