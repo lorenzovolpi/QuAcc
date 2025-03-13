@@ -1,27 +1,43 @@
+import os
+
+import numpy as np
 import quapy as qp
-from datasets import load_dataset
-from transformers import AutoTokenizer
+import torch
+from sklearn.base import BaseEstimator
 
 qp.environ["_R_SEED"] = 0
 
 
+class BaseEstimatorAdapter(BaseEstimator):
+    def __init__(self, V_hidden_states, U_hidden_states, V_logits, U_logits):
+        self.V_hs = V_hidden_states
+        self.U_hs = U_hidden_states
+        self.V_logits = V_logits
+        self.U_logits = U_logits
+
+    def decision_function(self, X: np.ndarray):
+        print(X[:, np.newaxis, :])
+        print(np.nonzero((X[:, np.newaxis, :] == self.V_hs).all(axis=-1).sum(axis=0))[0])
+
+        # def find_idx(a):
+        #     return np.nonzero((self.V_hs == a).all(axis=-1))[0][0]
+        #
+        # idxs = np.vectorize(find_idx, signature="(m,n)->(m)")(X)
+        # print(idxs)
+
+
 if __name__ == "__main__":
-    tokenizer = AutoTokenizer.from_pretrained("distilbert-base-uncased")
+    dataset_name = "imdb"
+    model_name = "bert-base-uncased"
+    parent_dir = os.path.join("embeds", dataset_name, model_name)
 
-    def tokenize(datapoint):
-        return tokenizer(datapoint["sentence"], padding="max_length", truncation=True)
+    V_hidden_states = torch.load(os.path.join(parent_dir, "hidden_states.validation.pt")).numpy()
+    V_logits = torch.load(os.path.join(parent_dir, "logits.validation.pt")).numpy()
+    U_hidden_states = torch.load(os.path.join(parent_dir, "hidden_states.test.pt")).numpy()
+    U_logits = torch.load(os.path.join(parent_dir, "logits.test.pt")).numpy()
 
-    dataset = load_dataset("glue", "cola")
-    tokenized_dataset = dataset.map(tokenize, batched=True)
-    tokenized_dataset = tokenized_dataset.remove_columns("sentence")
-    tokenized_dataset = tokenized_dataset.rename_column("label", "labels")
-    tokenized_dataset.set_format("pytorch")
-    print(tokenized_dataset)
-    print(type(tokenized_dataset["train"]))
-    print(tokenized_dataset["train"].select([135, 189, 256]))
+    model = BaseEstimatorAdapter(V_hidden_states, U_hidden_states, V_logits, U_logits)
 
-    # test set
-    # d = dataset["test"].shuffle(seed=qp.environ["_R_SEED"])
-    # if length is not None:
-    #     d = d.select(np.arange(length))
-    # d = d.map(tokenize, batched=True)
+    test_X = V_hidden_states[[12, 115, 257], :]
+    print(test_X)
+    model.decision_function(test_X)
