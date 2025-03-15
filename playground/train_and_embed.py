@@ -176,9 +176,11 @@ def main(args):
         split_logits, split_last_hiddens = embed(
             model, tokenizer, data=split_data, selection_strategy=get_cls_bertlike, args=args
         )
+        split_labels = torch.tensor(dataset[split]["label"])
 
         torch.save(split_logits, os.path.join(embeds_outdir, f"logits.{split}.pt"))
         torch.save(split_last_hiddens, os.path.join(embeds_outdir, f"hidden_states.{split}.pt"))
+        torch.save(split_labels, os.path.join(embeds_outdir, f"labels.{split}.pt"))
 
 
 @dataclass
