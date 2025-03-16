@@ -1,4 +1,5 @@
 import os
+from collections import defaultdict
 from pathlib import Path
 
 import numpy as np
@@ -6,6 +7,7 @@ import quapy as qp
 import torch
 import torch.nn as nn
 from quapy.data.base import LabelledCollection
+from sklearn.base import BaseEstimator
 from torch.optim import AdamW
 from torch.utils.data import DataLoader
 from tqdm import tqdm
@@ -23,6 +25,35 @@ from quacc.data.base import TorchDataset, TorchLabelledCollection
 
 def softmax(logits: torch.Tensor) -> np.ndarray:
     return nn.functional.softmax(logits, dim=-1).numpy()
+
+
+class BaseEstimatorAdapter(BaseEstimator):
+    def __init__(self, V_hidden_states, U_hidden_states, V_logits, U_logits):
+        self.hs = np.vstack([V_hidden_states, U_hidden_states])
+        self.logits = np.vstack([V_logits, U_logits])
+
+        hashes = self._hash(self.hs)
+        self._dict = defaultdict(lambda: [])
+        for i, hash in enumerate(hashes):
+            self._dict[hash].append(i)
+
+    def _hash(self, X):
+        return np.around(np.abs(X).sum(axis=-1) * self.hs.shape[0])
+
+    def predict_proba(self, X: np.ndarray):
+        def f(data, hash):
+            _ids = np.array(self._dict[hash])
+            _m = self.hs[_ids, :]
+            _eq_idx = np.nonzero((_m == data).all(axis=-1))[0][0]
+            return _ids[_eq_idx]
+
+        hashes = self._hash(X)
+        logits_idx = np.vectorize(f, signature="(m),()->()")(X, hashes)
+        _logits = self.logits[logits_idx, :]
+        return softmax(_logits, axis=-1)
+
+    def decision_function(self, X: np.ndarray):
+        return self.predict_proba(X)
 
 
 class LargeModel:
