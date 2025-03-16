@@ -1,3 +1,4 @@
+import json
 import os
 import pdb
 from dataclasses import dataclass
@@ -14,11 +15,15 @@ from transformers import (
     TrainingArguments,
 )
 
+import quacc as qc
+
+base_dir = os.path.join(qc.env["OUT_DIR"], "transformers")
+
 
 def get_tr_outdir(args):
     model_name = args.model_name.split("/")[-1]
     dataset_name = args.dataset_name.split("/")[-1]
-    outdir = os.path.join("models", dataset_name, model_name)
+    outdir = os.path.join(base_dir, "models", dataset_name, model_name)
     os.makedirs(outdir, exist_ok=True)
     return outdir
 
@@ -26,7 +31,7 @@ def get_tr_outdir(args):
 def get_embed_outdir(args):
     model_name = args.model_name.split("/")[-1]
     dataset_name = args.dataset_name.split("/")[-1]
-    outdir = os.path.join("embeds", dataset_name, model_name)
+    outdir = os.path.join(base_dir, "embeds", dataset_name, model_name)
     os.makedirs(outdir, exist_ok=True)
     return outdir
 
@@ -108,6 +113,12 @@ def embed(model, tokenizer, data, selection_strategy, args):
     return split_logits, split_hidden_states
 
 
+def get_prevalence(labels):
+    labels = torch.tensor(labels)
+    unique_lbls = labels.unique()
+    return [((labels == lbl).sum() / len(labels)).item() for lbl in unique_lbls]
+
+
 def main(args):
     print(f"- model: {args.model_name}")
     print(f"- dataset: {args.dataset_name}")
@@ -181,6 +192,10 @@ def main(args):
         torch.save(split_logits, os.path.join(embeds_outdir, f"logits.{split}.pt"))
         torch.save(split_last_hiddens, os.path.join(embeds_outdir, f"hidden_states.{split}.pt"))
         torch.save(split_labels, os.path.join(embeds_outdir, f"labels.{split}.pt"))
+
+    with open(os.path.join(embeds_outdir, "dataset_info.json"), "w") as f:
+        info = {"L_prev": get_prevalence(dataset["train"]["label"])}
+        json.dump(info, f)
 
 
 @dataclass
