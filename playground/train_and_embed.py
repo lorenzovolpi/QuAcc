@@ -199,21 +199,5 @@ class MainArgs:
 
 
 if __name__ == "__main__":
-    # from argparse import ArgumentParser
-    #
-    # parser = ArgumentParser()
-    # parser.add_argument("--model_name", type=str, default="google-bert/bert-base-uncased")
-    # parser.add_argument("--dataset_name", type=str, default="stanfordnlp/imdb")
-    # parser.add_argument("--num_classes", type=int, default=2)
-    # parser.add_argument("--max_length", type=int, default=512)
-    # parser.add_argument("--nepochs", type=int, default=1)
-    # parser.add_argument("--train_batchsize", type=int, default=64)
-    # parser.add_argument("--embed_batchsize", type=int, default=512)
-    # parser.add_argument("--val_size", type=float, default=0.2)
-    # parser.add_argument("--lr", type=float, default=5e-4)
-    # parser.add_argument("--train_backbone", action="store_true")
-    # parser.add_argument("--device", type=str, default="cuda")
-    # args = parser.parse_args()
-
     args = MainArgs()
     main(args)
