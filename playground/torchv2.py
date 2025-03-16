@@ -3,6 +3,7 @@ from collections import defaultdict
 from time import time
 
 import numpy as np
+import pandas as pd
 import quapy as qp
 import torch
 from quapy.data import LabelledCollection
@@ -11,7 +12,17 @@ from quapy.protocol import UPP
 from scipy.special import softmax
 from sklearn.base import BaseEstimator
 
+import quacc as qc
+from exp.leap.config import kdey
+from exp.util import get_ct_predictions, split_validation
+from quacc.error import vanilla_acc
+from quacc.models.cont_table import LEAP, OCE, PHD
+from quacc.models.direct import DoC
+
 qp.environ["_R_SEED"] = 0
+qp.environ["SAMPLE_SIZE"] = 1000
+
+base_dir = os.path.join(qc.env["OUT_DIR"], "transformers", "embeds")
 
 
 class BaseEstimatorAdapter(BaseEstimator):
@@ -43,33 +54,66 @@ class BaseEstimatorAdapter(BaseEstimator):
         return self.predict_proba(X)
 
 
+def load_model_dataset(dataset_name, model_name):
+    parent_dir = os.path.join(base_dir, dataset_name, model_name)
+
+    V_X = torch.load(os.path.join(parent_dir, "hidden_states.validation.pt")).numpy()
+    V_logits = torch.load(os.path.join(parent_dir, "logits.validation.pt")).numpy()
+    V_labels = torch.load(os.path.join(parent_dir, "labels.validation.pt")).numpy()
+    U_X = torch.load(os.path.join(parent_dir, "hidden_states.test.pt")).numpy()
+    U_logits = torch.load(os.path.join(parent_dir, "logits.test.pt")).numpy()
+    U_labels = torch.load(os.path.join(parent_dir, "labels.test.pt")).numpy()
+
+    V = LabelledCollection(V_X, V_labels, classes=np.unique(V_labels))
+    U = LabelledCollection(U_X, U_labels, classes=np.unique(U_labels))
+
+    model = BaseEstimatorAdapter(V_X, U_X, V_logits, U_logits)
+
+    return model, (V, U)
+
+
 if __name__ == "__main__":
     dataset_name = "imdb"
     model_name = "bert-base-uncased"
-    parent_dir = os.path.join("embeds", dataset_name, model_name)
 
-    V_hidden_states = torch.load(os.path.join(parent_dir, "hidden_states.validation.pt")).numpy()
-    V_logits = torch.load(os.path.join(parent_dir, "logits.validation.pt")).numpy()
-    U_hidden_states = torch.load(os.path.join(parent_dir, "hidden_states.test.pt")).numpy()
-    U_logits = torch.load(os.path.join(parent_dir, "logits.test.pt")).numpy()
+    model, (V, U) = load_model_dataset(dataset_name, model_name)
 
-    V = LabelledCollection(V_hidden_states, np.argmax(V_logits, axis=-1), [0, 1])
-    U = LabelledCollection(U_hidden_states, np.argmax(U_logits, axis=-1), [0, 1])
+    test_prot = UPP(U, repeats=1000, random_state=0, return_type="labelled_collection")
 
-    model = BaseEstimatorAdapter(V_hidden_states, U_hidden_states, V_logits, U_logits)
+    V1, V2_prot = split_validation(V)
 
-    prot = UPP(U, sample_size=1000, repeats=100, random_state=0, return_type="labelled_collection")
+    V_posteriors = model.predict_proba(V.X)
+    V1_posteriors = model.predict_proba(V1.X)
+    V2_prot_posteriors = [model.predict_proba(Vi.X) for Vi in V2_prot()]
 
-    t0 = time()
-    V_P = model.decision_function(V.X)
-    print(V_P)
-    print(V_P.shape, type(V_P))
-    t1 = time()
-    print("val.:", f"{t1 - t0:.3f}s")
-    U_Ps = [model.decision_function(Ui.X) for Ui in prot()]
-    t2 = time()
-    print("test (avg.):", f"{(t2 - t1) / prot.repeats:.3f}s")
+    test_prot_posteriors = [model.predict_proba(Ui.X) for Ui in test_prot()]
+    test_prot_yhat = [np.argmax(Ui_P, axis=-1) for Ui_P in test_prot_posteriors]
+    test_prot_y = [Ui.y for Ui in test_prot()]
 
-    q = KDEyML(model)
-    q.fit(V, fit_classifier=False)
-    print([q.quantify(Ui.X) for Ui in prot()])
+    true_accs = [vanilla_acc(y, yhat) for y, yhat in zip(test_prot_y, test_prot_yhat)]
+
+    methods = [
+        ("leap", LEAP(vanilla_acc, kdey(), reuse_h=model)),
+        ("phd", PHD(vanilla_acc, kdey(), reuse_h=model)),
+        ("oce", OCE(vanilla_acc, kdey(), reuse_h=model, optim_method="SLSQP")),
+        ("doc", DoC(vanilla_acc, V2_prot, V2_prot_posteriors)),
+    ]
+
+    dfs = []
+    for method_name, method in methods:
+        if method_name in ["leap", "phd", "oce"]:
+            method.fit(V, V_posteriors)
+        else:
+            method.fit(V1, V1_posteriors)
+        estim_accs, estim_cts, t_test_ave = get_ct_predictions(method, test_prot, test_prot_posteriors)
+        ae = qc.error.ae(np.array(true_accs), np.array(estim_accs))
+        method_df = pd.DataFrame(
+            np.vstack([true_accs, estim_accs, ae]).T, columns=["true_accs", "estim_accs", "acc_err"]
+        )
+        method_df["method"] = method_name
+        dfs.append(method_df)
+
+    df = pd.concat(dfs, axis=0)
+    pivot = pd.pivot_table(df, values="acc_err", index=["method"])
+
+    print(pivot)
