@@ -1,7 +1,10 @@
+import json
 import os
 
 import numpy as np
 import quapy as qp
+import torch
+from quapy.data import LabelledCollection
 from quapy.data.datasets import UCI_BINARY_DATASETS, UCI_MULTICLASS_DATASETS
 from quapy.method.aggregative import EMQ, DistributionMatchingY, KDEyML
 from quapy.protocol import UPP
@@ -13,6 +16,7 @@ from sklearn.svm import SVC
 import quacc as qc
 from quacc.data.datasets import fetch_UCIBinaryDataset, fetch_UCIMulticlassDataset, sort_datasets_by_size
 from quacc.error import f1, f1_macro, vanilla_acc
+from quacc.models._large_models import BaseEstimatorAdapter
 from quacc.models.cont_table import LEAP, OCE, PHD, NaiveCAP, QuAccNxN
 from quacc.models.direct import ATC, DoC
 
@@ -84,6 +88,38 @@ def gen_datasets(only_names=False):
             yield dataset_name, dval
 
 
+def gen_transformer_model_dataset(only_dataset_names=False, only_model_names=False):
+    dataset_model = [
+        ("imdb", "bert-base-uncased"),
+    ]
+
+    if only_dataset_names:
+        return [d for d, _ in dataset_model]
+    if only_model_names:
+        return [m for _, m in dataset_model]
+
+    for dataset_name, model_name in dataset_model:
+        parent_dir = os.path.join(qc.env["OUT_DIR"], "trainsformers", "embeds", dataset_name, model_name)
+
+        V_X = torch.load(os.path.join(parent_dir, "hidden_states.validation.pt")).numpy()
+        V_logits = torch.load(os.path.join(parent_dir, "logits.validation.pt")).numpy()
+        V_labels = torch.load(os.path.join(parent_dir, "labels.validation.pt")).numpy()
+        U_X = torch.load(os.path.join(parent_dir, "hidden_states.test.pt")).numpy()
+        U_logits = torch.load(os.path.join(parent_dir, "logits.test.pt")).numpy()
+        U_labels = torch.load(os.path.join(parent_dir, "labels.test.pt")).numpy()
+
+        V = LabelledCollection(V_X, V_labels, classes=np.unique(V_labels))
+        U = LabelledCollection(U_X, U_labels, classes=np.unique(U_labels))
+
+        model = BaseEstimatorAdapter(V_X, U_X, V_logits, U_logits)
+
+        with open(os.path.join(parent_dir, "dataset_info.json")) as f:
+            dataset_info = json.load(f)
+            L_prev = np.array(dataset_info["L_prev"])
+
+        yield (model_name, model), (dataset_name, (V, U), L_prev)
+
+
 def gen_acc_measure():
     multiclass = PROBLEM == "multiclass"
     if _toggle["vanilla"]:
@@ -129,11 +165,11 @@ def gen_methods(h, V, V_posteriors, V1, V1_posteriors, V2_prot, V2_prot_posterio
 
 
 def get_classifier_names():
-    return [name for name, _ in gen_classifiers()]
+    return [name for name, _ in gen_classifiers()] + gen_transformer_model_dataset(only_model_names=True)
 
 
 def get_dataset_names():
-    return [name for name, _ in gen_datasets(only_names=True)]
+    return [name for name, _ in gen_datasets(only_names=True)] + gen_transformer_model_dataset(only_dataset_names=True)
 
 
 def get_acc_names():
