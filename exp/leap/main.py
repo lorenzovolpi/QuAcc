@@ -171,6 +171,8 @@ def experiments():
 
         experimental_protocol(cls_name, dataset_name, h, V, U, L.prevalence())
 
+
+def transofrmers():
     for (cls_name, h), (dataset_name, (V, U), L_prev) in gen_transformer_model_dataset():
         # compute and set the SAMPLE_SIZE for each dataset
         qp.environ["SAMPLE_SIZE"] = 1000
