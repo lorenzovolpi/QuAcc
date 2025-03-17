@@ -6,7 +6,7 @@ import quapy as qp
 import torch
 from quapy.data import LabelledCollection
 from quapy.data.datasets import UCI_BINARY_DATASETS, UCI_MULTICLASS_DATASETS
-from quapy.method.aggregative import EMQ, DistributionMatchingY, KDEyML
+from quapy.method.aggregative import ACC, EMQ, DistributionMatchingY, KDEyML
 from quapy.protocol import UPP
 from sklearn.linear_model import LogisticRegression
 from sklearn.neighbors import KNeighborsClassifier as KNN
@@ -44,6 +44,10 @@ def sample_size(test_size):
     #     return 200
     # else:
     #     return 100
+
+
+def acc():
+    return ACC(LogisticRegression())
 
 
 def sld():
@@ -140,6 +144,7 @@ def gen_baselines_vp(acc_fn, V2_prot, V2_prot_posteriors):
 
 
 def gen_CAP_cont_table(h, acc_fn):
+    yield "LEAP(ACC)", LEAP(acc_fn, acc(), reuse_h=h, log_true_solve=True)
     yield "LEAP(KDEy)", LEAP(acc_fn, kdey(), reuse_h=h, log_true_solve=True)
     yield "PHD(KDEy)", PHD(acc_fn, kdey(), reuse_h=h)
     yield "OCE(KDEy)-SLSQP", OCE(acc_fn, kdey(), reuse_h=h, optim_method="SLSQP")
@@ -165,11 +170,19 @@ def gen_methods(h, V, V_posteriors, V1, V1_posteriors, V2_prot, V2_prot_posterio
 
 
 def get_classifier_names():
-    return [name for name, _ in gen_classifiers()] + gen_transformer_model_dataset(only_model_names=True)
+    return [name for name, _ in gen_classifiers()]
+
+
+def get_tr_classifier_names():
+    return gen_transformer_model_dataset(only_model_names=True)
 
 
 def get_dataset_names():
-    return [name for name, _ in gen_datasets(only_names=True)] + gen_transformer_model_dataset(only_dataset_names=True)
+    return [name for name, _ in gen_datasets(only_names=True)]
+
+
+def get_tr_dataset_names():
+    return gen_transformer_model_dataset(only_dataset_names=True)
 
 
 def get_acc_names():
