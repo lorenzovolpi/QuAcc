@@ -26,7 +26,7 @@ NUM_TEST = 1000
 qp.environ["_R_SEED"] = 0
 CSV_SEP = ","
 
-PROBLEM = "multiclass"
+PROBLEM = "binary"
 
 _toggle = {
     "vanilla": True,
@@ -135,7 +135,7 @@ def gen_acc_measure():
 def gen_baselines(acc_fn):
     yield "Naive", NaiveCAP(acc_fn)
     yield "ATC-MC", ATC(acc_fn, scoring_fn="maxconf")
-    yield "QuAccNxN(KDEy)", QuAccNxN(acc_fn, kdey(), add_X=True, add_posteriors=True, add_maxinfsoft=True)
+    # yield "QuAccNxN(KDEy)", QuAccNxN(acc_fn, kdey(), add_X=True, add_posteriors=True, add_maxinfsoft=True)
     # yield "QuAccNxN(KDEy-a)", QuAccNxN(acc_fn, kdey_auto(), add_X=True, add_posteriors=True, add_maxinfsoft=True)
 
 
