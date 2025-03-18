@@ -17,7 +17,7 @@ import quacc as qc
 from quacc.data.datasets import fetch_UCIBinaryDataset, fetch_UCIMulticlassDataset, sort_datasets_by_size
 from quacc.error import f1, f1_macro, vanilla_acc
 from quacc.models._large_models import BaseEstimatorAdapter
-from quacc.models.cont_table import LEAP, OCE, PHD, NaiveCAP, QuAccNxN
+from quacc.models.cont_table import LEAP, OCE, PHD, NaiveCAP
 from quacc.models.direct import ATC, DoC
 
 PROJECT = "leap"
