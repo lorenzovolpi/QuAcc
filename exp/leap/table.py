@@ -16,6 +16,34 @@ from exp.leap.util import load_results
 from quacc.table import Format, Table
 
 
+def rename_dataset(df, datasets):
+    mapping = {
+        "poker_hand": "poker-hand",
+        "hand_digits": "hand-digits",
+        "page_block": "page-block",
+        "image_seg": "image-seg",
+    }
+
+    _datasets = [mapping.get(d, d) for d in datasets]
+    for d, rd in mapping.items():
+        df.loc[df["dataset"] == d, "dataset"] = rd
+    return df, _datasets
+
+
+def rename_methods(df, methods, baselines):
+    mapping = {
+        "Naive": 'Na\\"ive',
+        "PHD(KDEy)": "S-LEAP(KDEy)",
+        "OCE(KDEy)-SLSQP": "O-LEAP(KDEy)",
+    }
+
+    _methods = [mapping.get(m, m) for m in methods]
+    _baselines = [mapping.get(b, b) for b in baselines]
+    for m, rm in mapping.items():
+        df.loc[df["method"] == m, "method"] = rm
+    return df, _methods, _baselines
+
+
 def tables():
     res = load_results()
 
@@ -47,7 +75,9 @@ def tables():
     for classifier, acc in IT.product(classifiers, accs):
         _df = res.loc[(res["classifier"] == classifier) & (res["acc_name"] == acc), :]
         name = f"{PROBLEM}_{classifier}_{acc}"
-        tbls.append(gen_table(_df, name, datasets, methods, baselines))
+        _df, _datasets = rename_dataset(_df, datasets)
+        _df, _methods, _baselines = rename_methods(_df, methods, baselines)
+        tbls.append(gen_table(_df, name, _datasets, _methods, _baselines))
 
     pdf_path = os.path.join(root_dir, "tables", f"{PROBLEM}.pdf")
     Table.LatexPDF(pdf_path, tables=tbls, landscape=False)
