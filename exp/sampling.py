@@ -590,7 +590,7 @@ def plots(df: pd.DataFrame):
                     problem=PROBLEM,
                     x_label=f"True {acc_name}",
                     y_label=f"Estimated {acc_name}",
-                    file_name=f"{str(int(tp * 100))}_diagonal",
+                    filename=f"{str(int(tp * 100))}_diagonal",
                 )
 
 

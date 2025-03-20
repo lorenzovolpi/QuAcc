@@ -24,6 +24,7 @@ class Format:
     lower_is_better: bool = True
     stat_test: str = "wilcoxon"
     show_stat: bool = True
+    simple_stat: bool = False
     color_mode: str = "local"
     with_mean: bool = True
     mean_macro: bool = True
@@ -113,7 +114,10 @@ class Cell:
         # std ?
         # ---------------------------------------------------
         if self.format.show_std:
-            std = f"$\pm${whitespace}{self.std():.{self.format.std_prec}f}"
+            _std_val = f"{self.std():.{self.format.std_prec}f}"
+            if self.format.remove_zero:
+                _std_val = _std_val.replace("0.", ".")
+            std = f"$\pm${whitespace}{_std_val}"
         else:
             std = ""
 
@@ -124,7 +128,12 @@ class Cell:
         else:
             comp_symbol = whitespace
             pval = self.local_group.compare(self)
-            if pval is not None:
+            if pval is not None and self.format.simple_stat:
+                if 0.001 > pval:
+                    comp_symbol = whitespace
+                else:
+                    comp_symbol = "$^{\dag}$"
+            elif pval is not None and not self.format.simple_stat:
                 if 0.001 > pval:
                     comp_symbol = whitespace
                 elif 0.05 > pval >= 0.001:

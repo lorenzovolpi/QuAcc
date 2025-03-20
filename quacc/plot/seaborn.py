@@ -14,15 +14,13 @@ sns.set_palette("colorblind")
 DPI = 300
 
 
-def _save_figure(plot: Axes, basedir, problem, cls_name, acc_name, dataset_name, plot_type):
+def _save_figure(plot: Axes, basedir, filename):
     exts = [
         "svg",
         "png",
     ]
-    plotsubdir = "all" if dataset_name == "*" else dataset_name
-    files = [get_plots_path(basedir, problem, cls_name, acc_name, plotsubdir, plot_type, ext=e) for e in exts]
+    files = [os.path.join(basedir, f"{filename}.{ext}") for ext in exts]
     for f in files:
-        os.makedirs(Path(f).parent, exist_ok=True)
         plot.figure.savefig(f, bbox_inches="tight", dpi=DPI)
     plot.figure.clear()
 
@@ -34,13 +32,9 @@ def _config_legend(plot: Axes):
 
 def plot_diagonal(
     df: pd.DataFrame,
-    cls_name,
-    acc_name,
-    dataset_name,
     *,
-    basedir="results",
-    problem="binary",
-    file_name=None,
+    basedir="output",
+    filename="diagonal",
     **kwargs,
 ):
     plot = sns.relplot(
@@ -73,26 +67,15 @@ def plot_diagonal(
     if "y_label" in kwargs:
         plot.set_ylabels(kwargs["y_label"])
 
-    return _save_figure(
-        plot=plot,
-        basedir=basedir,
-        problem=problem,
-        cls_name=cls_name,
-        acc_name=acc_name,
-        dataset_name=dataset_name,
-        plot_type="diagonal" if file_name is None else file_name,
-    )
+    return _save_figure(plot=plot, basedir=basedir, filename=filename)
 
 
 def plot_diagonal_grid(
     df: pd.DataFrame,
-    cls_name,
-    acc_name,
     dataset_names,
     *,
-    basedir="results",
-    problem="binary",
-    file_name=None,
+    basedir="output",
+    filename="diagonal_grid",
     n_cols=1,
     x_label="true accs.",
     y_label="estim. accs.",
@@ -142,27 +125,16 @@ def plot_diagonal_grid(
     plot.set_xlabels(x_label)
     plot.set_ylabels(y_label)
 
-    return _save_figure(
-        plot=plot,
-        basedir=basedir,
-        problem=problem,
-        cls_name=cls_name,
-        acc_name=acc_name,
-        dataset_name="grid",
-        plot_type="diagonal" if file_name is None else file_name,
-    )
+    return _save_figure(plot=plot, basedir=basedir, filename=filename)
 
 
 def plot_shift(
     df: pd.DataFrame,
-    cls_name,
-    acc_name,
-    dataset_name,
     *,
     n_bins=20,
     basedir="results",
     problem="binary",
-    file_name=None,
+    filename=None,
     linewidth=1,
     **kwargs,
 ):
@@ -184,15 +156,7 @@ def plot_shift(
         plot.set_xlabel(kwargs["x_label"])
     if "y_label" in kwargs:
         plot.set_ylabel(kwargs["y_label"])
-    return _save_figure(
-        plot=plot,
-        basedir=basedir,
-        problem=problem,
-        cls_name=cls_name,
-        acc_name=acc_name,
-        dataset_name=dataset_name,
-        plot_type="shift" if file_name is None else file_name,
-    )
+    return _save_figure(plot=plot, basedir=basedir, filename=filename)
 
 
 # def plot_delta(

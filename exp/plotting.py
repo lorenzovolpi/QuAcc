@@ -38,7 +38,7 @@ def plot_grid_of_diagonals(methods, dataset_names, classifiers, filename=None, n
             n_cols=n_cols,
             x_label="True Accuracy",
             y_label="Estimated Accuracy",
-            file_name=f"{PROBLEM}_{filename}" if filename else PROBLEM,
+            filename=f"{PROBLEM}_{filename}" if filename else PROBLEM,
             **kwargs,
         )
         print(f"{cls_name}-{acc_name} plots generated")
