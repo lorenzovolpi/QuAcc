@@ -12,36 +12,23 @@ from exp.leap.config import (
     get_method_names,
     root_dir,
 )
-from exp.leap.util import load_results
+from exp.leap.util import load_results, rename_datasets, rename_methods
 from quacc.table import Format, Table
 
+method_map = {
+    "Naive": 'Na\\"ive',
+    "LEAP(ACC)": "LEAP_{\\mathrm{ACC}}",
+    "LEAP(KDEy)": "LEAP_{\\mathrm{KDEy}}",
+    "PHD(KDEy)": "S-LEAP_{\\mathrm{KDEy}}",
+    "OCE(KDEy)-SLSQP": "O-LEAP_{\\mathrm{KDEy}}",
+}
 
-def rename_dataset(df, datasets):
-    mapping = {
-        "poker_hand": "poker-hand",
-        "hand_digits": "hand-digits",
-        "page_block": "page-block",
-        "image_seg": "image-seg",
-    }
-
-    _datasets = [mapping.get(d, d) for d in datasets]
-    for d, rd in mapping.items():
-        df.loc[df["dataset"] == d, "dataset"] = rd
-    return df, _datasets
-
-
-def rename_methods(df, methods, baselines):
-    mapping = {
-        "Naive": 'Na\\"ive',
-        "PHD(KDEy)": "S-LEAP(KDEy)",
-        "OCE(KDEy)-SLSQP": "O-LEAP(KDEy)",
-    }
-
-    _methods = [mapping.get(m, m) for m in methods]
-    _baselines = [mapping.get(b, b) for b in baselines]
-    for m, rm in mapping.items():
-        df.loc[df["method"] == m, "method"] = rm
-    return df, _methods, _baselines
+dataset_map = {
+    "poker_hand": "poker-hand",
+    "hand_digits": "hand-digits",
+    "page_block": "page-block",
+    "image_seg": "image-seg",
+}
 
 
 def tables():
@@ -50,13 +37,14 @@ def tables():
     def gen_table(df: pd.DataFrame, name, datasets, methods, baselines):
         tbl = Table(name=name, benchmarks=datasets, methods=methods, baselines=baselines)
         tbl.format = Format(
-            mean_prec=4,
+            mean_prec=3,
             show_std=True,
             remove_zero=True,
             with_rank_mean=False,
             with_mean=True,
             color=True,
             color_mode="baselines",
+            simple_stat=True,
         )
         tbl.format.mean_macro = False
         for dataset, method in IT.product(datasets, methods):
@@ -75,8 +63,8 @@ def tables():
     for classifier, acc in IT.product(classifiers, accs):
         _df = res.loc[(res["classifier"] == classifier) & (res["acc_name"] == acc), :]
         name = f"{PROBLEM}_{classifier}_{acc}"
-        _df, _datasets = rename_dataset(_df, datasets)
-        _df, _methods, _baselines = rename_methods(_df, methods, baselines)
+        _df, _datasets = rename_datasets(dataset_map, _df, datasets)
+        _df, _methods, _baselines = rename_methods(method_map, _df, methods, baselines)
         tbls.append(gen_table(_df, name, _datasets, _methods, _baselines))
 
     pdf_path = os.path.join(root_dir, "tables", f"{PROBLEM}.pdf")
