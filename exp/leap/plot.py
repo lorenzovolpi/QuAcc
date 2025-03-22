@@ -1,6 +1,8 @@
 import itertools as IT
 import os
 
+import seaborn as sns
+
 from exp.leap.config import PROBLEM, get_acc_names, get_classifier_names, get_dataset_names, root_dir
 from exp.leap.util import load_results, rename_methods
 from quacc.plot.seaborn import plot_diagonal_grid
@@ -48,6 +50,9 @@ def plots():
                 basedir=parent_dir,
                 filename=f"{cls_name}_{acc}_{config}",
                 n_cols=3,
+                legend_bbox_to_anchor=(0.95, 0.3),
+                palette="deep",
+                # palette=sns.color_palette("hls", len(_methods)),
             )
 
 

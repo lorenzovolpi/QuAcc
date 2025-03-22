@@ -86,6 +86,7 @@ def plot_diagonal_grid(
     hspace=0.1,
     wspace=0.1,
     legend_bbox_to_anchor=(1, 0.5),
+    palette="tab10",
     **kwargs,
 ):
     plot = sns.FacetGrid(
@@ -96,6 +97,7 @@ def plot_diagonal_grid(
         xlim=(0, 1),
         ylim=(0, 1),
         aspect=aspect,
+        palette=palette,
     )
     plot.map(sns.scatterplot, "true_accs", "estim_accs", alpha=0.2, s=20, edgecolor=None)
     for ax in plot.axes.flat:
