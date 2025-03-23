@@ -16,7 +16,8 @@ DPI = 300
 
 def _save_figure(plot: Axes, basedir, filename):
     exts = [
-        "svg",
+        # "svg",
+        "pdf",
         "png",
     ]
     files = [os.path.join(basedir, f"{filename}.{ext}") for ext in exts]
