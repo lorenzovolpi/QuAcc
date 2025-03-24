@@ -98,8 +98,8 @@ def ctdfiff_true_acc():
     classifiers = get_classifier_names()
     accs = get_acc_names()
     datasets = get_dataset_names()
-    # methods = ["Naive", "LEAP(ACC)", "LEAP(KDEy)", "PHD(KDEy)", "OCE(KDEy)-SLSQP"]
-    methods = ["LEAP(ACC)", "LEAP(KDEy)", "PHD(KDEy)", "OCE(KDEy)-SLSQP"]
+    methods = ["Naive", "LEAP(KDEy)", "PHD(KDEy)", "OCE(KDEy)-SLSQP"]
+    # methods = ["LEAP(ACC)", "LEAP(KDEy)", "PHD(KDEy)", "OCE(KDEy)-SLSQP"]
 
     parent_dir = os.path.join(root_dir, "ctdiffs", PROBLEM)
     os.makedirs(parent_dir, exist_ok=True)
