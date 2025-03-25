@@ -73,7 +73,7 @@ def plot_diagonal(
 
 def plot_diagonal_grid(
     df: pd.DataFrame,
-    dataset_names,
+    method_names,
     *,
     basedir="output",
     filename="diagonal_grid",
@@ -95,6 +95,7 @@ def plot_diagonal_grid(
         col="dataset",
         col_wrap=n_cols,
         hue="method",
+        hue_order=method_names,
         xlim=(0, 1),
         ylim=(0, 1),
         aspect=aspect,
