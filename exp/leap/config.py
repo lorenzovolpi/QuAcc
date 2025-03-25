@@ -31,7 +31,7 @@ NUM_TEST = 1000
 qp.environ["_R_SEED"] = 0
 CSV_SEP = ","
 
-PROBLEM = "multiclass"
+PROBLEM = "binary"
 
 _toggle = {
     "vanilla": True,
@@ -83,6 +83,22 @@ class DatasetBundle:
             self.test_prot_true_cts.append(contingency_table(sample.y, y_hat, sample.n_classes))
 
         return self
+
+    @classmethod
+    def mock(cls):
+        return DatasetBundle(None, None, None, test_prot=lambda: [])
+        # mock_y = np.array([0, 1])
+        # mock_X = mock_post = mock_cts = np.eye(2)
+        # mock_lc = LabelledCollection(mock_X, mock_y)
+        # mock_prot = UPP(mock_lc, repeats=1, sample_size=1, return_type="labelled_collection")
+        # D = DatasetBundle(mock_y, mock_lc, mock_lc)
+        # D.V1 = mock_lc
+        # D.V2_prot = D.test_prot = mock_prot
+        # D.test_prot = mock_prot
+        # D.V1_posteriors = mock_post
+        # D.V2_prot_posteriors = D.test_prot_posteriors = [mock_post]
+        # D.test_prot_y_hat = [mock_y]
+        # D.test_prot_true_cts = [mock_cts]
 
 
 def sample_size(test_size):
@@ -249,26 +265,24 @@ def get_acc_names():
     return [acc_name for acc_name, _ in gen_acc_measure()]
 
 
-def get_method_names():
+def get_method_names(with_oracle=True):
     mock_h = LogisticRegression()
     _, mock_acc_fn = next(gen_acc_measure())
-    # TODO: fix
-    return (
+    mock_D = DatasetBundle.mock()
+    names = (
         [m for m, _ in gen_baselines(mock_acc_fn)]
-        + [m for m, _ in gen_baselines_vp(mock_acc_fn, mock_V2_prot, mock_V2_post)]
+        + [m for m, _ in gen_baselines_vp(mock_acc_fn, mock_D)]
         + [m for m, _ in gen_CAP_cont_table(mock_h, mock_acc_fn)]
-        + [m for m, _ in gen_methods_with_oracle(mock_h, mock_acc_fn)]
     )
+    if with_oracle:
+        names += [m for m, _ in gen_methods_with_oracle(mock_h, mock_acc_fn, mock_D)]
 
-
-def get_method_wo_names():
-    return []
+    return names
 
 
 def get_baseline_names():
     _, mock_acc_fn = next(gen_acc_measure())
-    mock_V2_prot = UPP(None, sample_size=1)
-    mock_V2_post = np.empty((1,))
+    mock_D = DatasetBundle.mock()
     baselines_names = [m for m, _ in gen_baselines(mock_acc_fn)]
-    baselines_vp_names = [m for m, _ in gen_baselines_vp(mock_acc_fn, mock_V2_prot, mock_V2_post)]
+    baselines_vp_names = [m for m, _ in gen_baselines_vp(mock_acc_fn, mock_D)]
     return baselines_names[:2] + baselines_vp_names + baselines_names[2:]
