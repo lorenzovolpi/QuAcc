@@ -5,6 +5,8 @@ from traceback import print_exception
 import numpy as np
 import pandas as pd
 import quapy as qp
+from quapy.data.datasets import UCI_BINARY_DATASETS, UCI_MULTICLASS_DATASETS
+from quapy.protocol import UPP
 
 import quacc as qc
 from exp.leap.config import (
@@ -17,7 +19,6 @@ from exp.leap.config import (
     gen_methods,
     gen_transformer_model_dataset,
     get_method_names,
-    get_method_wo_names,
     root_dir,
     sample_size,
 )
@@ -29,7 +30,9 @@ from exp.util import (
     get_plain_prev,
     timestamp,
 )
+from quacc.data.datasets import fetch_UCIBinaryDataset, fetch_UCIMulticlassDataset
 from quacc.models.cont_table import LEAP
+from quacc.models.utils import OracleQuantifier
 from quacc.utils.commons import get_shift, true_acc
 
 log = get_logger(id=PROJECT)
@@ -50,8 +53,8 @@ def get_extra_from_method(df, method):
         df["true_solve"] = method._true_solve_log[-1]
 
 
-def all_exist_pre_check(dataset_name, cls_name, method_names):
-    method_names = get_method_names() + get_method_wo_names()
+def all_exist_pre_check(dataset_name, cls_name):
+    method_names = get_method_names()
     acc_names = [acc_name for acc_name, _ in gen_acc_measure()]
 
     all_exist = True
@@ -106,7 +109,7 @@ def exp_protocol(cls_name, dataset_name, h, D):
 
             ae = qc.error.ae(np.array(true_accs[acc_name]), np.array(estim_accs))
 
-            df_len = estim_accs.shape[0]
+            df_len = len(estim_accs)
             method_df = gen_method_df(
                 df_len,
                 shifts=test_shift,
