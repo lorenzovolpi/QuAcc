@@ -5,6 +5,7 @@ import numpy as np
 import scipy
 from quapy.data import LabelledCollection
 from quapy.method.aggregative import AggregativeQuantifier
+from sklearn.base import BaseEstimator
 
 
 def get_posteriors_from_h(h, X):
@@ -52,14 +53,15 @@ def smooth(prevalences, epsilon=1e-5, axis=None):
 
 
 class OracleQuantifier(AggregativeQuantifier):
-    def __init__(self, labelled_data: List[LabelledCollection]):
-        self.hash_K = len(labelled_data)
-        self.data_map = defaultdict(lambda: [])
-        for ui in labelled_data:
-            self.data_map[self._get_hash(ui.X)].append(ui)
+    def __init__(self, ldata: List[LabelledCollection], classifier: BaseEstimator = None):
+        self.hash_K = len(ldata)
+        self.ldata = defaultdict(lambda: [])
+        for ui in ldata:
+            self.ldata[self._get_hash(ui.X)].append(ui)
+        self.classifier = classifier
 
     def _get_hash(self, X):
-        return float(np.around(np.abs(X.prod(axis=1)).sum() * self.hash_K))
+        return int(np.around(np.abs(X).sum() * self.hash_K, decimals=0))
 
     @override
     def fit(self, data: LabelledCollection, fit_classifier=True, val_split=None):
@@ -76,6 +78,6 @@ class OracleQuantifier(AggregativeQuantifier):
     @override
     def quantify(self, instances):
         _hash = self._get_hash(instances)
-        lcs = self.data_map[_hash]
+        lcs = self.ldata[_hash]
         eq_idx = [np.all(instances == lc.X) for lc in lcs].index(True)
         return lcs[eq_idx].prevalence()
