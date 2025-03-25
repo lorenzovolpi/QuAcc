@@ -1,5 +1,6 @@
 import json
 import os
+from dataclasses import dataclass
 
 import numpy as np
 import quapy as qp
@@ -7,18 +8,22 @@ import torch
 from quapy.data import LabelledCollection
 from quapy.data.datasets import UCI_BINARY_DATASETS, UCI_MULTICLASS_DATASETS
 from quapy.method.aggregative import ACC, EMQ, DistributionMatchingY, KDEyML
-from quapy.protocol import UPP
+from quapy.protocol import UPP, AbstractStochasticSeededProtocol
+from sklearn.base import BaseEstimator
 from sklearn.linear_model import LogisticRegression
 from sklearn.neighbors import KNeighborsClassifier as KNN
 from sklearn.neural_network import MLPClassifier as MLP
 from sklearn.svm import SVC
 
 import quacc as qc
+from exp.util import split_validation
 from quacc.data.datasets import fetch_UCIBinaryDataset, fetch_UCIMulticlassDataset, sort_datasets_by_size
 from quacc.error import f1, f1_macro, vanilla_acc
 from quacc.models._large_models import BaseEstimatorAdapter
 from quacc.models.cont_table import LEAP, OCE, PHD, NaiveCAP
 from quacc.models.direct import ATC, DoC
+from quacc.models.utils import OracleQuantifier
+from quacc.utils.commons import contingency_table
 
 PROJECT = "leap"
 root_dir = os.path.join(qc.env["OUT_DIR"], PROJECT)
@@ -32,6 +37,52 @@ _toggle = {
     "vanilla": True,
     "f1": False,
 }
+
+
+@dataclass
+class DatasetBundle:
+    L_prevalence: np.ndarray
+    V: LabelledCollection
+    U: LabelledCollection
+    V1: LabelledCollection = None
+    V2_prot: AbstractStochasticSeededProtocol = None
+    test_prot: AbstractStochasticSeededProtocol = None
+    V_posteriors: np.ndarray = None
+    V1_posteriors: np.ndarray = None
+    V2_prot_posteriors: np.ndarray = None
+    test_prot_posteriors: np.ndarray = None
+    test_prot_y_hat: np.ndarray = None
+    test_prot_true_cts: np.ndarray = None
+
+    def create_bundle(self, h: BaseEstimator):
+        # generate test protocol
+        self.test_prot = UPP(
+            self.U,
+            repeats=NUM_TEST,
+            return_type="labelled_collection",
+            random_state=qp.environ["_R_SEED"],
+        )
+
+        # split validation set
+        self.V1, self.V2_prot = split_validation(self.V)
+
+        # precomumpute model posteriors for validation sets
+        self.V_posteriors = h.predict_proba(self.V.X)
+        self.V1_posteriors = h.predict_proba(self.V1.X)
+        self.V2_prot_posteriors = []
+        for sample in self.V2_prot():
+            self.V2_prot_posteriors.append(h.predict_proba(sample.X))
+
+        # precomumpute model posteriors for test samples
+        self.test_prot_posteriors, self.test_prot_y_hat, self.test_prot_true_cts = [], [], []
+        for sample in self.test_prot():
+            P = h.predict_proba(sample.X)
+            self.test_prot_posteriors.append(P)
+            y_hat = np.argmax(P, axis=-1)
+            self.test_prot_y_hat.append(y_hat)
+            self.test_prot_true_cts.append(contingency_table(sample.y, y_hat, sample.n_classes))
+
+        return self
 
 
 def sample_size(test_size):
@@ -139,8 +190,8 @@ def gen_baselines(acc_fn):
     # yield "QuAccNxN(KDEy-a)", QuAccNxN(acc_fn, kdey_auto(), add_X=True, add_posteriors=True, add_maxinfsoft=True)
 
 
-def gen_baselines_vp(acc_fn, V2_prot, V2_prot_posteriors):
-    yield "DoC", DoC(acc_fn, V2_prot, V2_prot_posteriors)
+def gen_baselines_vp(acc_fn, D):
+    yield "DoC", DoC(acc_fn, D.V2_prot, D.V2_prot_posteriors)
 
 
 def gen_CAP_cont_table(h, acc_fn):
@@ -159,14 +210,23 @@ def gen_CAP_cont_table(h, acc_fn):
     #     yield "OCE(DMy)-SLSQP", OCE(acc_fn, dmy(), reuse_h=h, optim_method="SLSQP")
 
 
-def gen_methods(h, V, V_posteriors, V1, V1_posteriors, V2_prot, V2_prot_posteriors):
+def gen_methods_with_oracle(h, acc_fn, D: DatasetBundle):
+    oracle_q = OracleQuantifier([ui for ui in D.test_prot()])
+    yield "LEAP(oracle)", LEAP(acc_fn, oracle_q, reuse_h=h, log_true_solve=True)
+    yield "PHD(oracle)", PHD(acc_fn, oracle_q, reuse_h=h)
+    yield "OCE(oracle)-SLSQP", OCE(acc_fn, oracle_q, reuse_h=h, optim_method="SLSQP")
+
+
+def gen_methods(h, D):
     _, acc_fn = next(gen_acc_measure())
     for name, method in gen_baselines(acc_fn):
-        yield name, method, V, V_posteriors
-    for name, method in gen_baselines_vp(acc_fn, V2_prot, V2_prot_posteriors):
-        yield name, method, V1, V1_posteriors
+        yield name, method, D.V, D.V_posteriors
+    for name, method in gen_baselines_vp(acc_fn, D):
+        yield name, method, D.V1, D.V1_posteriors
     for name, method in gen_CAP_cont_table(h, acc_fn):
-        yield name, method, V, V_posteriors
+        yield name, method, D.V, D.V_posteriors
+    for name, method in gen_methods_with_oracle(h, acc_fn, D):
+        yield name, method, D.V, D.V_posteriors
 
 
 def get_classifier_names():
@@ -192,13 +252,17 @@ def get_acc_names():
 def get_method_names():
     mock_h = LogisticRegression()
     _, mock_acc_fn = next(gen_acc_measure())
-    mock_V2_prot = UPP(None, sample_size=1)
-    mock_V2_post = np.empty((1,))
+    # TODO: fix
     return (
         [m for m, _ in gen_baselines(mock_acc_fn)]
         + [m for m, _ in gen_baselines_vp(mock_acc_fn, mock_V2_prot, mock_V2_post)]
         + [m for m, _ in gen_CAP_cont_table(mock_h, mock_acc_fn)]
+        + [m for m, _ in gen_methods_with_oracle(mock_h, mock_acc_fn)]
     )
+
+
+def get_method_wo_names():
+    return []
 
 
 def get_baseline_names():
