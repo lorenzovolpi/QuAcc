@@ -17,10 +17,10 @@ from quacc.table import Format, Table
 
 method_map = {
     "Naive": 'Na\\"ive',
-    "LEAP(ACC)": "LEAP_{\\mathrm{ACC}}",
-    "LEAP(KDEy)": "LEAP_{\\mathrm{KDEy}}",
-    "PHD(KDEy)": "S-LEAP_{\\mathrm{KDEy}}",
-    "OCE(KDEy)-SLSQP": "O-LEAP_{\\mathrm{KDEy}}",
+    "LEAP(ACC)": "LEAP$_{\\mathrm{ACC}}$",
+    "LEAP(KDEy)": "LEAP$_{\\mathrm{KDEy}}$",
+    "PHD(KDEy)": "S-LEAP$_{\\mathrm{KDEy}}$",
+    "OCE(KDEy)-SLSQP": "O-LEAP$_{\\mathrm{KDEy}}$",
 }
 
 dataset_map = {
