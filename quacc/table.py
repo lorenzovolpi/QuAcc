@@ -31,6 +31,7 @@ class Format:
     with_rank_mean: bool = True
     only_full_mean: bool = True
     best_color: str = "green"
+    mid_color: str = "cyan"
     worst_color: str = "red"
     baseline_color: str = "yellow"
 
@@ -255,11 +256,12 @@ class CellGroup:
             # return f"\cellcolor{{{color}!{int(tone)}}}"
 
             if cell_is_better:
-                color = self.format.best_color
+                tone = self.format.maxtone
                 if p_val < 0.001:
-                    tone = self.format.maxtone
+                    color = self.format.best_color
                 else:
-                    tone = self.format.maxtone * 0.6
+                    # tone = self.format.maxtone * 0.6
+                    color = self.format.mid_color
                 return f"\cellcolor{{{color}!{int(tone)}}}"
             else:
                 return ""
@@ -704,7 +706,7 @@ class Table:
         lines.append("\\usepackage{amsfonts}")
         lines.append("\\usepackage{amssymb}")
         lines.append("\\usepackage{graphicx}")
-        lines.append("\\usepackage{xcolor}")
+        lines.append("\\usepackage[dvipsnames]{xcolor}")
         lines.append("\\usepackage{colortbl}")
         lines.append("\\usepackage{booktabs}")
         if landscape:
