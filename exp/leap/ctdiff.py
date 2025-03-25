@@ -135,19 +135,24 @@ def ctdfiff_true_acc():
         for m in methods:
             true_cts = get_cts(df, m, "true_cts")
             estim_cts = get_cts(df, m, "estim_cts")
-            ae = np.abs(estim_cts - true_cts).mean(axis=0)
+            print(m)
+            print(estim_cts, true_cts)
+            _ae = np.abs(estim_cts - true_cts).mean(axis=0)
+            print(_ae)
+            sqae = np.sqrt(_ae)
+            print(sqae)
 
-            mdf = pd.DataFrame(ae)
+            mdf = pd.DataFrame(sqae)
             mdf["col"] = cnt % N_COLS
             # mdf["row"] = cnt // N_COLS
             mdf["row"] = 0
             mdfs.append(mdf)
             plot_names.append(m)
             cbars.append(cnt == len(methods) - 1)
-            ae_min, ae_max = np.min(ae), np.max(ae)
+            ae_min, ae_max = np.min(sqae), np.max(sqae)
             vmin = ae_min if ae_min < vmin else vmin
             vmax = ae_max if ae_max > vmax else vmax
-            annot = ae.shape[1] <= 4
+            annot = sqae.shape[1] <= 4
             cnt += 1
 
         # hmdf = pd.concat([true_df] + mdfs, axis=0)
