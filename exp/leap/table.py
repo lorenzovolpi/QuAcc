@@ -45,6 +45,8 @@ def tables():
             color=True,
             color_mode="baselines",
             simple_stat=True,
+            best_color="Green",
+            mid_color="SkyBlue",
         )
         tbl.format.mean_macro = False
         for dataset, method in IT.product(datasets, methods):
@@ -55,7 +57,7 @@ def tables():
 
     classifiers = get_classifier_names()
     datasets = get_dataset_names()
-    methods = get_method_names()
+    methods = get_method_names(with_oracle=False)
     baselines = get_baseline_names()
     accs = get_acc_names()
 
