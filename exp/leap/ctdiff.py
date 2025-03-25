@@ -95,13 +95,15 @@ def ctdfiff_couples():
 def ctdfiff_true_acc():
     res = load_results()
 
-    classifiers = get_classifier_names()
+    # classifiers = get_classifier_names()
+    classifiers = ["LR", "MLP"]
     accs = get_acc_names()
-    datasets = get_dataset_names()
+    # datasets = get_dataset_names()
+    datasets = ["chess"]
     methods = ["Naive", "LEAP(KDEy)", "PHD(KDEy)", "OCE(KDEy)-SLSQP"]
     # methods = ["LEAP(ACC)", "LEAP(KDEy)", "PHD(KDEy)", "OCE(KDEy)-SLSQP"]
 
-    parent_dir = os.path.join(root_dir, "ctdiffs", PROBLEM)
+    parent_dir = os.path.join(root_dir, "ctdiffs")
     os.makedirs(parent_dir, exist_ok=True)
 
     res, datasets = rename_datasets(dataset_map, res, datasets)
@@ -163,7 +165,7 @@ def ctdfiff_true_acc():
         )
         plot.fig.subplots_adjust(right=0.9)
 
-        path = os.path.join(parent_dir, f"{cls_name} - {dataset}")
+        path = os.path.join(parent_dir, f"heatmap_{cls_name}_{dataset}_{PROBLEM}")
         _savefig(plot, path)
 
 

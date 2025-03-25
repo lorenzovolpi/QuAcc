@@ -23,9 +23,9 @@ dataset_map = {
 
 def get_selection_datasets():
     if PROBLEM == "binary":
-        return ["haberman", "pageblocks.5", "iris.2"]
+        return ["haberman", "pageblocks.5", "iris.2", "yeast"]
     elif PROBLEM == "multiclass":
-        return ["phishing", "page_block", "academic-success"]
+        return ["phishing", "page_block", "academic-success", "mhr"]
 
 
 def plots():
@@ -37,10 +37,10 @@ def plots():
 
     dataset_configs = {
         "all": get_dataset_names(),
-        "3x1": get_selection_datasets(),
+        "4x1": get_selection_datasets(),
     }
 
-    parent_dir = os.path.join(root_dir, "plots", PROBLEM)
+    parent_dir = os.path.join(root_dir, "plots")
     os.makedirs(parent_dir, exist_ok=True)
 
     for cls_name, acc in IT.product(classifiers[:1], accs):
@@ -54,10 +54,10 @@ def plots():
             df_config = df.loc[df["dataset"].isin(_datasets), :]
             plot_diagonal_grid(
                 df_config,
-                _datasets,
+                _methods,
                 basedir=parent_dir,
-                filename=f"{cls_name}_{acc}_{config}",
-                n_cols=3,
+                filename=f"grid_{cls_name}_{PROBLEM}_{config}",
+                n_cols=4,
                 legend_bbox_to_anchor=(0.95, 0.3),
                 palette="deep",
                 # palette=sns.color_palette("hls", len(_methods)),
