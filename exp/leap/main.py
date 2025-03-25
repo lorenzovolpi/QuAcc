@@ -1,25 +1,23 @@
 import itertools as IT
 import os
-import pdb
 from traceback import print_exception
 
 import numpy as np
 import pandas as pd
 import quapy as qp
-from quapy.protocol import UPP
 
 import quacc as qc
 from exp.leap.config import (
-    CSV_SEP,
-    NUM_TEST,
     PROBLEM,
     PROJECT,
+    DatasetBundle,
     gen_acc_measure,
     gen_classifiers,
     gen_datasets,
     gen_methods,
     gen_transformer_model_dataset,
     get_method_names,
+    get_method_wo_names,
     root_dir,
     sample_size,
 )
@@ -29,12 +27,10 @@ from exp.util import (
     get_ct_predictions,
     get_logger,
     get_plain_prev,
-    get_predictions,
-    split_validation,
     timestamp,
 )
 from quacc.models.cont_table import LEAP
-from quacc.utils.commons import contingency_table, get_shift, true_acc
+from quacc.utils.commons import get_shift, true_acc
 
 log = get_logger(id=PROJECT)
 
@@ -54,8 +50,8 @@ def get_extra_from_method(df, method):
         df["true_solve"] = method._true_solve_log[-1]
 
 
-def all_exist_pre_check(dataset_name, cls_name):
-    method_names = get_method_names()
+def all_exist_pre_check(dataset_name, cls_name, method_names):
+    method_names = get_method_names() + get_method_wo_names()
     acc_names = [acc_name for acc_name, _ in gen_acc_measure()]
 
     all_exist = True
@@ -70,43 +66,19 @@ def all_exist_pre_check(dataset_name, cls_name):
     return all_exist
 
 
-def experimental_protocol(cls_name, dataset_name, h, V, U, L_prevalence):
-    # test generation protocol
-    test_prot = UPP(
-        U,
-        repeats=NUM_TEST,
-        return_type="labelled_collection",
-        random_state=qp.environ["_R_SEED"],
-    )
+def gen_method_df(df_len, **data):
+    data = data | {k: [v] * df_len for k, v in data.items() if not isinstance(v, list)}
+    return pd.DataFrame.from_dict(data, orient="columns")
 
-    # split validation set
-    V1, V2_prot = split_validation(V)
 
-    # precomumpute model posteriors for validation sets
-    V_posteriors = h.predict_proba(V.X)
-    V1_posteriors = h.predict_proba(V1.X)
-    V2_prot_posteriors = []
-    for sample in V2_prot():
-        V2_prot_posteriors.append(h.predict_proba(sample.X))
-
-    # precomumpute model posteriors for test samples
-    test_prot_posteriors, test_prot_y_hat, test_prot_true_cts = [], [], []
-    for sample in test_prot():
-        P = h.predict_proba(sample.X)
-        test_prot_posteriors.append(P)
-        y_hat = np.argmax(P, axis=-1)
-        test_prot_y_hat.append(y_hat)
-        test_prot_true_cts.append(contingency_table(sample.y, y_hat, sample.n_classes))
-
+def exp_protocol(cls_name, dataset_name, h, D):
     # precompute the actual accuracy values
     true_accs = {}
     for acc_name, acc_fn in gen_acc_measure():
-        true_accs[acc_name] = [true_acc(h, acc_fn, Ui) for Ui in test_prot()]
+        true_accs[acc_name] = [true_acc(h, acc_fn, Ui) for Ui in D.test_prot()]
 
-    L_prev = get_plain_prev(L_prevalence)
-    for method_name, method, val, val_posteriors in gen_methods(
-        h, V, V_posteriors, V1, V1_posteriors, V2_prot, V2_prot_posteriors
-    ):
+    L_prev = get_plain_prev(D.L_prevalence)
+    for method_name, method, val, val_posteriors in gen_methods(h, D):
         val_prev = get_plain_prev(val.prevalence())
         t_train = None
         for acc_name, acc_fn in gen_acc_measure():
@@ -121,8 +93,8 @@ def experimental_protocol(cls_name, dataset_name, h, V, U, L_prevalence):
                 method, _t_train = fit_or_switch(method, val, val_posteriors, acc_fn, t_train is not None)
                 t_train = t_train if _t_train is None else _t_train
 
-                test_shift = get_shift(np.array([Ui.prevalence() for Ui in test_prot()]), L_prevalence)
-                estim_accs, estim_cts, t_test_ave = get_ct_predictions(method, test_prot, test_prot_posteriors)
+                test_shift = get_shift(np.array([Ui.prevalence() for Ui in D.test_prot()]), D.L_prevalence)
+                estim_accs, estim_cts, t_test_ave = get_ct_predictions(method, D.test_prot, D.test_prot_posteriors)
                 if estim_cts is None:
                     estim_cts = [None] * len(estim_accs)
                 else:
@@ -133,21 +105,25 @@ def experimental_protocol(cls_name, dataset_name, h, V, U, L_prevalence):
                 continue
 
             ae = qc.error.ae(np.array(true_accs[acc_name]), np.array(estim_accs))
-            method_df = pd.DataFrame(
-                np.vstack([test_shift, true_accs[acc_name], estim_accs, ae]).T,
-                columns=["shifts", "true_accs", "estim_accs", "acc_err"],
-            )
-            method_df["estim_cts"] = estim_cts
-            method_df["true_cts"] = test_prot_true_cts
-            method_df["classifier"] = cls_name
-            method_df["method"] = method_name
-            method_df["dataset"] = dataset_name
-            method_df["acc_name"] = acc_name
-            method_df["train_prev"] = [L_prev] * len(method_df)
-            method_df["val_prev"] = [val_prev] * len(method_df)
-            method_df["t_train"] = t_train
-            method_df["t_test_ave"] = t_test_ave
 
+            df_len = estim_accs.shape[0]
+            method_df = gen_method_df(
+                df_len,
+                shifts=test_shift,
+                true_accs=true_accs[acc_name],
+                estim_accs=estim_accs,
+                acc_err=ae,
+                estim_cts=estim_cts,
+                true_cts=D.test_prot_true_cts,
+                classifier=cls_name,
+                method=method_name,
+                dataset=dataset_name,
+                acc_name=acc_name,
+                train_prev=[L_prev] * df_len,
+                val_prev=[val_prev] * df_len,
+                t_train=t_train,
+                t_test_ave=t_test_ave,
+            )
             get_extra_from_method(method_df, method)
 
             log.info(f"{method_name} on {acc_name} done [{timestamp(t_train, t_test_ave)}]")
@@ -169,7 +145,8 @@ def experiments():
         log.info(f"Training {cls_name} over {dataset_name}")
         h.fit(*L.Xy)
 
-        experimental_protocol(cls_name, dataset_name, h, V, U, L.prevalence())
+        D = DatasetBundle(L.prevalence(), V, U).create_bundle(h)
+        exp_protocol(cls_name, dataset_name, h, D)
 
 
 def transofrmers():
@@ -184,7 +161,8 @@ def transofrmers():
             continue
 
         log.info(f"Computing {cls_name} over {dataset_name}")
-        experimental_protocol(cls_name, dataset_name, h, V, U, L_prev)
+        D = DatasetBundle(L_prev, V, U).create_bundle(h)
+        exp_protocol(cls_name, dataset_name, h, D)
 
 
 if __name__ == "__main__":

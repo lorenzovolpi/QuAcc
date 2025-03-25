@@ -3,7 +3,7 @@ import os
 
 import pandas as pd
 
-from exp.leap.config import CSV_SEP, PROBLEM, root_dir
+from exp.leap.config import PROBLEM, root_dir
 
 
 def load_results() -> pd.DataFrame:
