@@ -142,6 +142,8 @@ class Cell:
                     comp_symbol = "$^{\ddag}$"
             str_cell = f"{mean}{comp_symbol}{std}"
 
+        str_cell = str_cell.replace("$$", "")  # remove useless "$$"
+
         # color ?
         # ---------------------------------------------------
         if self.format.color:
