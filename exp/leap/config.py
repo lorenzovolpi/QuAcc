@@ -25,13 +25,13 @@ from quacc.models.direct import ATC, DoC
 from quacc.models.utils import OracleQuantifier
 from quacc.utils.commons import contingency_table
 
-PROJECT = "leap"
+PROJECT = "leap_v500"
 root_dir = os.path.join(qc.env["OUT_DIR"], PROJECT)
 NUM_TEST = 1000
 qp.environ["_R_SEED"] = 0
 CSV_SEP = ","
 
-PROBLEM = "multiclass"
+PROBLEM = "binary"
 
 _toggle = {
     "vanilla": True,
@@ -64,7 +64,7 @@ class DatasetBundle:
         )
 
         # split validation set
-        self.V1, self.V2_prot = split_validation(self.V)
+        self.V1, self.V2_prot = split_validation(self.V, repeats=500)
 
         # precomumpute model posteriors for validation sets
         self.V_posteriors = h.predict_proba(self.V.X)
