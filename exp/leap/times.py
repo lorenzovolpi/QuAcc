@@ -15,6 +15,7 @@ method_map = {
     "LEAP(KDEy)": "LEAP$_{\\mathrm{KDEy}}$",
     "PHD(KDEy)": "S-LEAP$_{\\mathrm{KDEy}}$",
     "OCE(KDEy)-SLSQP": "O-LEAP$_{\\mathrm{KDEy}}$",
+    "ATC-MC": "ATC",
 }
 
 
@@ -37,16 +38,13 @@ def plot(df, methods, parent_dir):
     exts = ["png", "pdf"]
     paths = [os.path.join(parent_dir, f"time_plot_{PROBLEM}.{ext}") for ext in exts]
 
-    palette = sns.color_palette("deep", 4)
-    palette = [palette[id] for id in [0, 2, 1, 3]]
     plot = sns.lineplot(
         data=df,
         x="n_classes",
         y="t_test_ave",
         hue="method",
         hue_order=methods,
-        errorbar=("sd", 2),
-        palette=palette,
+        errorbar="sd",
     )
     plot.legend(title="")
     plot.set_xlabel("Number of classes")
@@ -64,7 +62,7 @@ def times():
     accs = get_acc_names()
     datasets = get_dataset_names()
     # methods = ["LEAP(KDEy)", "PHD(KDEy)"]
-    methods = ["DoC", "LEAP(KDEy)", "PHD(KDEy)", "OCE(KDEy)-SLSQP"]
+    methods = ["ATC-MC", "DoC", "LEAP(KDEy)", "PHD(KDEy)", "OCE(KDEy)-SLSQP"]
 
     parent_dir = os.path.join(root_dir, "times")
     os.makedirs(parent_dir, exist_ok=True)
