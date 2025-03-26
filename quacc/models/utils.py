@@ -68,6 +68,10 @@ class OracleQuantifier(AggregativeQuantifier):
         pass
 
     @override
+    def classifier_fit_predict(self, data: LabelledCollection, fit_classifier=True, predict_on=None):
+        return []
+
+    @override
     def aggregation_fit(self, classif_predictions: LabelledCollection, data: LabelledCollection):
         pass
 
