@@ -5,7 +5,7 @@ from collections import defaultdict
 import numpy as np
 import pandas as pd
 import seaborn as sns
-from matplotlib.pyplot import close
+from matplotlib.pyplot import close, yscale
 
 from exp.leap.config import PROBLEM, get_acc_names, get_classifier_names, get_dataset_names, root_dir
 from exp.leap.util import load_results, rename_datasets, rename_methods
@@ -115,18 +115,6 @@ def ctdfiff_true_acc():
 
         cnt = 0
 
-        # true_cts = get_cts(df, methods[0], "true_cts").mean(axis=0)
-        # true_df = pd.DataFrame(true_cts)
-        # true_df["col"] = 0
-        # true_df["row"] = 0
-        #
-        # cnt += 1
-        #
-        # plot_names = ["True Acc."]
-        # cbars = [False]
-        # vmin, vmax = np.min(true_cts), np.max(true_cts)
-        # annot = true_cts.shape[1] <= 4
-
         plot_names, cbars = [], []
         vmin, vmax = 1, 0
         annot = False
@@ -135,12 +123,8 @@ def ctdfiff_true_acc():
         for m in methods:
             true_cts = get_cts(df, m, "true_cts")
             estim_cts = get_cts(df, m, "estim_cts")
-            print(m)
-            print(estim_cts, true_cts)
             _ae = np.abs(estim_cts - true_cts).mean(axis=0)
-            print(_ae)
             sqae = np.sqrt(_ae)
-            print(sqae)
 
             mdf = pd.DataFrame(sqae)
             mdf["col"] = cnt % N_COLS
