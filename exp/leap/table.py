@@ -1,5 +1,6 @@
 import itertools as IT
 import os
+import pdb
 
 import pandas as pd
 
@@ -17,6 +18,7 @@ from quacc.table import Format, Table
 
 method_map = {
     "Naive": 'Na\\"ive',
+    "ATC-MC": "ATC",
     "LEAP(ACC)": "LEAP$_{\\mathrm{ACC}}$",
     "LEAP(KDEy)": "LEAP$_{\\mathrm{KDEy}}$",
     "PHD(KDEy)": "S-LEAP$_{\\mathrm{KDEy}}$",
@@ -45,8 +47,8 @@ def tables():
             color=True,
             color_mode="baselines",
             simple_stat=True,
-            best_color="Green",
-            mid_color="SkyBlue",
+            best_color="OliveGreen",
+            mid_color="SeaGreen",
         )
         tbl.format.mean_macro = False
         for dataset, method in IT.product(datasets, methods):
