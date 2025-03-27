@@ -2,6 +2,7 @@ import itertools as IT
 import os
 from collections import defaultdict
 
+import matplotlib.ticker as tkr
 import numpy as np
 import pandas as pd
 import seaborn as sns
@@ -169,6 +170,8 @@ def ctdfiff_true_acc():
             cbar_ax=cbar_ax,
         )
         plot.fig.subplots_adjust(right=0.9)
+        for ax in plot.axes.flatten():
+            ax.xaxis.set_major_formatter(tkr.FuncFormatter(lambda x, p: f"a{x}"))
 
         path = os.path.join(parent_dir, f"heatmap_{cls_name}_{dataset}_{PROBLEM}")
         _savefig(plot, path)
