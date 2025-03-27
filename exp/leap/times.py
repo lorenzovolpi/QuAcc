@@ -45,10 +45,12 @@ def plot(df, methods, parent_dir):
         hue="method",
         hue_order=methods,
         errorbar="sd",
+        err_style="bars",
     )
     plot.legend(title="")
     plot.set_xlabel("Number of classes")
     plot.set_ylabel("Avg. time (s)")
+    plot.set(yscale="log")
     for p in paths:
         plot.figure.savefig(p)
     plot.figure.clear()
