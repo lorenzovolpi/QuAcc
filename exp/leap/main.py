@@ -1,5 +1,6 @@
 import itertools as IT
 import os
+import pdb
 from traceback import print_exception
 
 import numpy as np
@@ -96,7 +97,7 @@ def exp_protocol(cls_name, dataset_name, h, D):
                 method, _t_train = fit_or_switch(method, val, val_posteriors, acc_fn, t_train is not None)
                 t_train = t_train if _t_train is None else _t_train
 
-                test_shift = get_shift(np.array([Ui.prevalence() for Ui in D.test_prot()]), D.L_prevalence)
+                test_shift = get_shift(np.array([Ui.prevalence() for Ui in D.test_prot()]), D.L_prevalence).tolist()
                 estim_accs, estim_cts, t_test_ave = get_ct_predictions(method, D.test_prot, D.test_prot_posteriors)
                 if estim_cts is None:
                     estim_cts = [None] * len(estim_accs)
@@ -107,7 +108,7 @@ def exp_protocol(cls_name, dataset_name, h, D):
                 log.warning(f"{method_name}: {acc_name} gave error '{e}' - skipping")
                 continue
 
-            ae = qc.error.ae(np.array(true_accs[acc_name]), np.array(estim_accs))
+            ae = qc.error.ae(np.array(true_accs[acc_name]), np.array(estim_accs)).tolist()
 
             df_len = len(estim_accs)
             method_df = gen_method_df(

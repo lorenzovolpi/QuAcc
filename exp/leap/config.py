@@ -25,7 +25,7 @@ from quacc.models.direct import ATC, DoC
 from quacc.models.utils import OracleQuantifier
 from quacc.utils.commons import contingency_table
 
-PROJECT = "leap_v500"
+PROJECT = "leap"
 root_dir = os.path.join(qc.env["OUT_DIR"], PROJECT)
 NUM_TEST = 1000
 qp.environ["_R_SEED"] = 0
@@ -231,6 +231,8 @@ def gen_methods_with_oracle(h, acc_fn, D: DatasetBundle):
     yield "LEAP(oracle)", LEAP(acc_fn, oracle_q, reuse_h=h, log_true_solve=True)
     yield "PHD(oracle)", PHD(acc_fn, oracle_q, reuse_h=h)
     yield "OCE(oracle)-SLSQP", OCE(acc_fn, oracle_q, reuse_h=h, optim_method="SLSQP")
+    # return
+    # yield
 
 
 def gen_methods(h, D):
