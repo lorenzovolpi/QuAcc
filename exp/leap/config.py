@@ -7,7 +7,7 @@ import quapy as qp
 import torch
 from quapy.data import LabelledCollection
 from quapy.data.datasets import UCI_BINARY_DATASETS, UCI_MULTICLASS_DATASETS
-from quapy.method.aggregative import ACC, EMQ, DistributionMatchingY, KDEyML
+from quapy.method.aggregative import ACC, CC, EMQ, DistributionMatchingY, KDEyML
 from quapy.protocol import UPP, AbstractStochasticSeededProtocol
 from sklearn.base import BaseEstimator
 from sklearn.linear_model import LogisticRegression
@@ -113,6 +113,10 @@ def sample_size(test_size):
     #     return 100
 
 
+def cc():
+    return CC(LogisticRegression())
+
+
 def acc():
     return ACC(LogisticRegression())
 
@@ -129,6 +133,10 @@ def kdey():
 
 def kdey_auto():
     return KDEyML(LogisticRegression(), bandwidth="auto")
+
+
+def kdey_mlp():
+    return KDEyML(MLP())
 
 
 def dmy():
@@ -211,10 +219,14 @@ def gen_baselines_vp(acc_fn, D):
 
 
 def gen_CAP_cont_table(h, acc_fn):
+    yield "LEAP(CC)", LEAP(acc_fn, cc(), reuse_h=h, log_true_solve=True)
     yield "LEAP(ACC)", LEAP(acc_fn, acc(), reuse_h=h, log_true_solve=True)
     yield "LEAP(KDEy)", LEAP(acc_fn, kdey(), reuse_h=h, log_true_solve=True)
+    yield "PHD(CC)", PHD(acc_fn, cc(), reuse_h=h)
     yield "PHD(KDEy)", PHD(acc_fn, kdey(), reuse_h=h)
+    yield "OCE(CC)-SLSQP", OCE(acc_fn, cc(), reuse_h=h, optim_method="SLSQP")
     yield "OCE(KDEy)-SLSQP", OCE(acc_fn, kdey(), reuse_h=h, optim_method="SLSQP")
+    # yield "OCE(KDEy-MLP)-SLSQP", OCE(acc_fn, kdey_mlp(), optim_method="SLSQP")
     # yield "OCE(KDEy)-SLSQP-c", OCE(acc_fn, kdey(), reuse_h=h, optim_method="SLSQP-c")
     # yield "OCE(KDEy)-L-BFGS-B", OCE(acc_fn, kdey(), reuse_h=h, optim_method="L-BFGS-B")
     # yield "LEAP(KDEy-a)", LEAP(acc_fn, kdey_auto(), reuse_h=h, log_true_solve=True)
