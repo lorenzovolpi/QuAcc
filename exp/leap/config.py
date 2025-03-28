@@ -31,7 +31,7 @@ NUM_TEST = 1000
 qp.environ["_R_SEED"] = 0
 CSV_SEP = ","
 
-PROBLEM = "multiclass"
+PROBLEM = "binary"
 
 _toggle = {
     "vanilla": True,
@@ -64,7 +64,7 @@ class DatasetBundle:
         )
 
         # split validation set
-        self.V1, self.V2_prot = split_validation(self.V, repeats=500)
+        self.V1, self.V2_prot = split_validation(self.V)
 
         # precomumpute model posteriors for validation sets
         self.V_posteriors = h.predict_proba(self.V.X)
@@ -121,6 +121,14 @@ def acc():
     return ACC(LogisticRegression())
 
 
+def acc_mlp():
+    return ACC(MLP(hidden_layer_sizes=(100, 15), max_iter=300, random_state=qp.environ["_R_SEED"]))
+
+
+def acc_lr():
+    return ACC(LogisticRegression())
+
+
 def sld():
     emq = EMQ(LogisticRegression(), val_split=5)
     emq.SUPPRESS_WARNINGS = True
@@ -136,7 +144,11 @@ def kdey_auto():
 
 
 def kdey_mlp():
-    return KDEyML(MLP())
+    return KDEyML(MLP(hidden_layer_sizes=(100, 15), max_iter=300, random_state=qp.environ["_R_SEED"]))
+
+
+def kdey_lr():
+    return KDEyML(LogisticRegression())
 
 
 def dmy():
@@ -221,12 +233,19 @@ def gen_baselines_vp(acc_fn, D):
 def gen_CAP_cont_table(h, acc_fn):
     yield "LEAP(CC)", LEAP(acc_fn, cc(), reuse_h=h, log_true_solve=True)
     yield "LEAP(ACC)", LEAP(acc_fn, acc(), reuse_h=h, log_true_solve=True)
+    yield "LEAP(ACC-MLP)", LEAP(acc_fn, acc_mlp(), log_true_solve=True)
+    yield "LEAP(ACC-LR)", LEAP(acc_fn, acc_lr(), log_true_solve=True)
     yield "LEAP(KDEy)", LEAP(acc_fn, kdey(), reuse_h=h, log_true_solve=True)
+    yield "LEAP(KDEy-MLP)", LEAP(acc_fn, kdey_mlp(), log_true_solve=True)
+    yield "LEAP(KDEy-LR)", LEAP(acc_fn, kdey_lr(), log_true_solve=True)
     yield "PHD(CC)", PHD(acc_fn, cc(), reuse_h=h)
     yield "PHD(KDEy)", PHD(acc_fn, kdey(), reuse_h=h)
+    yield "PHD(KDEy-MLP)", PHD(acc_fn, kdey_mlp())
+    yield "PHD(KDEy-LR)", PHD(acc_fn, kdey_lr())
     yield "OCE(CC)-SLSQP", OCE(acc_fn, cc(), reuse_h=h, optim_method="SLSQP")
     yield "OCE(KDEy)-SLSQP", OCE(acc_fn, kdey(), reuse_h=h, optim_method="SLSQP")
-    # yield "OCE(KDEy-MLP)-SLSQP", OCE(acc_fn, kdey_mlp(), optim_method="SLSQP")
+    yield "OCE(KDEy-MLP)-SLSQP", OCE(acc_fn, kdey_mlp(), optim_method="SLSQP")
+    yield "OCE(KDEy-LR)-SLSQP", OCE(acc_fn, kdey_lr(), optim_method="SLSQP")
     # yield "OCE(KDEy)-SLSQP-c", OCE(acc_fn, kdey(), reuse_h=h, optim_method="SLSQP-c")
     # yield "OCE(KDEy)-L-BFGS-B", OCE(acc_fn, kdey(), reuse_h=h, optim_method="L-BFGS-B")
     # yield "LEAP(KDEy-a)", LEAP(acc_fn, kdey_auto(), reuse_h=h, log_true_solve=True)
