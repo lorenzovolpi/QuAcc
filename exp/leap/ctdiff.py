@@ -1,4 +1,5 @@
 import itertools as IT
+import math
 import os
 from collections import defaultdict
 
@@ -155,7 +156,9 @@ def ctdfiff_true_acc():
         )
         plot.fig.subplots_adjust(right=0.9)
         for ax in plot.axes.flatten():
-            ax.xaxis.set_major_formatter(tkr.FuncFormatter(lambda x, p: f"a{x}"))
+            formatter = tkr.FuncFormatter(lambda x, p: "$\\omega_{" + f"{int(math.floor(x) + 1)}" + "}$")
+            ax.xaxis.set_major_formatter(formatter)
+            ax.yaxis.set_major_formatter(formatter)
 
         path = os.path.join(parent_dir, f"heatmap_{cls_name}_{dataset}_{PROBLEM}")
         _savefig(plot, path)
