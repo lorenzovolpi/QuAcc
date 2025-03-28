@@ -2,8 +2,10 @@ import itertools as IT
 import os
 
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 import seaborn as sns
+from matplotlib.ticker import FixedLocator, LogFormatter, LogLocator, MultipleLocator
 
 from exp.critdd import get_acc_names
 from exp.leap.config import PROBLEM, get_classifier_names, get_dataset_names, get_method_names, root_dir
@@ -48,9 +50,12 @@ def plot(df, methods, parent_dir):
         err_style="bars",
     )
     plot.legend(title="")
-    plot.set_xlabel("Number of classes")
-    plot.set_ylabel("Avg. time (s)")
+    plot.set_xlabel("Number of classes ($n$)")
+    plot.set_ylabel("Avg. time log (s)")
     plot.set(yscale="log")
+    plot.xaxis.set_major_locator(MultipleLocator(2, offset=df["n_classes"].min()))
+    plot.yaxis.set_major_locator(MultipleLocator(1))
+    plot.yaxis.set_minor_locator(LogLocator(10))
     for p in paths:
         plot.figure.savefig(p)
     plot.figure.clear()
