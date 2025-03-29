@@ -107,7 +107,8 @@ class EXP:
         return self.code == 400
 
 
-def exp_protocol(cls_name, dataset_name, h, D, true_accs, method_name, method, val, val_posteriors):
+def exp_protocol(args):
+    cls_name, dataset_name, h, D, true_accs, method_name, method, val, val_posteriors = args
     results = []
 
     L_prev = get_plain_prev(D.L_prevalence)
@@ -192,14 +193,14 @@ def experiments():
                 (cls_name, dataset_name, h, D, true_accs, method_name, method, val, val_posteriors)
             )
 
-    gen_results = parallel(
+    results_gen = parallel(
         func=exp_protocol,
         args_list=exp_prot_args_list,
         n_jobs=qc.env["N_JOBS"],
         return_as="generator_unordered",
     )
 
-    for res in gen_results():
+    for res in results_gen:
         for cls_name, dataset_name, acc_name, method_name, method_df, t_train, t_test_ave, r in res:
             if r.ok:
                 path = local_path(dataset_name, cls_name, method_name, acc_name)
