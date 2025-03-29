@@ -5,6 +5,7 @@ from dataclasses import dataclass
 import numpy as np
 import quapy as qp
 import torch
+from pandas.core.common import random_state
 from quapy.data import LabelledCollection
 from quapy.data.datasets import UCI_BINARY_DATASETS, UCI_MULTICLASS_DATASETS
 from quapy.method.aggregative import ACC, CC, EMQ, DistributionMatchingY, KDEyML
@@ -34,8 +35,12 @@ CSV_SEP = ","
 PROBLEM = "multiclass"
 
 _toggle = {
+    "lr": True,
+    "mlp": False,
+    "same_h": True,
     "vanilla": True,
     "f1": False,
+    "cc": False,
 }
 
 
@@ -87,18 +92,6 @@ class DatasetBundle:
     @classmethod
     def mock(cls):
         return DatasetBundle(None, None, None, test_prot=lambda: [])
-        # mock_y = np.array([0, 1])
-        # mock_X = mock_post = mock_cts = np.eye(2)
-        # mock_lc = LabelledCollection(mock_X, mock_y)
-        # mock_prot = UPP(mock_lc, repeats=1, sample_size=1, return_type="labelled_collection")
-        # D = DatasetBundle(mock_y, mock_lc, mock_lc)
-        # D.V1 = mock_lc
-        # D.V2_prot = D.test_prot = mock_prot
-        # D.test_prot = mock_prot
-        # D.V1_posteriors = mock_post
-        # D.V2_prot_posteriors = D.test_prot_posteriors = [mock_post]
-        # D.test_prot_y_hat = [mock_y]
-        # D.test_prot_true_cts = [mock_cts]
 
 
 def sample_size(test_size):
@@ -113,16 +106,16 @@ def sample_size(test_size):
     #     return 100
 
 
-def cc():
+def cc_lr():
     return CC(LogisticRegression())
 
 
-def acc():
-    return ACC(LogisticRegression())
+def cc_mlp():
+    return CC(MLP(random_state=qp.environ["_R_SEED"]))
 
 
 def acc_mlp():
-    return ACC(MLP())
+    return ACC(MLP(random_state=qp.environ["_R_SEED"]))
 
 
 def acc_lr():
@@ -135,16 +128,8 @@ def sld():
     return emq
 
 
-def kdey():
-    return KDEyML(LogisticRegression())
-
-
-def kdey_auto():
-    return KDEyML(LogisticRegression(), bandwidth="auto")
-
-
 def kdey_mlp():
-    return KDEyML(MLP())
+    return KDEyML(MLP(random_state=qp.environ["_R_SEED"]))
 
 
 def kdey_lr():
@@ -231,30 +216,33 @@ def gen_baselines_vp(acc_fn, D):
 
 
 def gen_CAP_cont_table(h, acc_fn):
-    yield "LEAP(CC)", LEAP(acc_fn, cc(), reuse_h=h, log_true_solve=True)
-    yield "LEAP(ACC)", LEAP(acc_fn, acc(), reuse_h=h, log_true_solve=True)
-    # yield "LEAP(ACC-MLP)", LEAP(acc_fn, acc_mlp(), log_true_solve=True)
-    yield "LEAP(ACC-LR)", LEAP(acc_fn, acc_lr(), log_true_solve=True)
-    yield "LEAP(KDEy)", LEAP(acc_fn, kdey(), reuse_h=h, log_true_solve=True)
-    # yield "LEAP(KDEy-MLP)", LEAP(acc_fn, kdey_mlp(), log_true_solve=True)
-    yield "LEAP(KDEy-LR)", LEAP(acc_fn, kdey_lr(), log_true_solve=True)
-    yield "PHD(CC)", PHD(acc_fn, cc(), reuse_h=h)
-    yield "PHD(KDEy)", PHD(acc_fn, kdey(), reuse_h=h)
-    # yield "PHD(KDEy-MLP)", PHD(acc_fn, kdey_mlp())
-    yield "PHD(KDEy-LR)", PHD(acc_fn, kdey_lr())
-    yield "OCE(CC)-SLSQP", OCE(acc_fn, cc(), reuse_h=h, optim_method="SLSQP")
-    yield "OCE(KDEy)-SLSQP", OCE(acc_fn, kdey(), reuse_h=h, optim_method="SLSQP")
-    # yield "OCE(KDEy-MLP)-SLSQP", OCE(acc_fn, kdey_mlp(), optim_method="SLSQP")
-    yield "OCE(KDEy-LR)-SLSQP", OCE(acc_fn, kdey_lr(), optim_method="SLSQP")
-    # yield "OCE(KDEy)-SLSQP-c", OCE(acc_fn, kdey(), reuse_h=h, optim_method="SLSQP-c")
-    # yield "OCE(KDEy)-L-BFGS-B", OCE(acc_fn, kdey(), reuse_h=h, optim_method="L-BFGS-B")
-    # yield "LEAP(KDEy-a)", LEAP(acc_fn, kdey_auto(), reuse_h=h, log_true_solve=True)
-    # yield "PHD(KDEy-a)", PHD(acc_fn, kdey_auto(), reuse_h=h)
-    # yield "OCE(KDEy-a)-SLSQP", OCE(acc_fn, kdey_auto(), reuse_h=h, optim_method="SLSQP")
-    # if PROBLEM == "binary":
-    #     yield "LEAP(DMy)", LEAP(acc_fn, dmy(), reuse_h=h, log_true_solve=True)
-    #     yield "PHD(DMy)", PHD(acc_fn, dmy(), reuse_h=h)
-    #     yield "OCE(DMy)-SLSQP", OCE(acc_fn, dmy(), reuse_h=h, optim_method="SLSQP")
+    if _toggle["lr"]:
+        yield "LEAP(ACC-LR)", LEAP(acc_fn, acc_lr(), log_true_solve=True)
+        yield "LEAP(KDEy-LR)", LEAP(acc_fn, kdey_lr(), log_true_solve=True)
+        yield "PHD(KDEy-LR)", PHD(acc_fn, kdey_lr())
+        yield "OCE(KDEy-LR)-SLSQP", OCE(acc_fn, kdey_lr(), optim_method="SLSQP")
+
+    if _toggle["mlp"]:
+        yield "LEAP(ACC-MLP)", LEAP(acc_fn, acc_mlp(), log_true_solve=True)
+        yield "LEAP(KDEy-MLP)", LEAP(acc_fn, kdey_mlp(), log_true_solve=True)
+        yield "PHD(KDEy-MLP)", PHD(acc_fn, kdey_mlp())
+        yield "OCE(KDEy-MLP)-SLSQP", OCE(acc_fn, kdey_mlp(), optim_method="SLSQP")
+
+    if _toggle["same_h"]:
+        yield "LEAP(ACC)", LEAP(acc_fn, acc_lr(), reuse_h=h, log_true_solve=True)
+        yield "LEAP(KDEy)", LEAP(acc_fn, kdey_lr(), reuse_h=h, log_true_solve=True)
+        yield "PHD(KDEy)", PHD(acc_fn, kdey_lr(), reuse_h=h)
+        yield "OCE(KDEy)-SLSQP", OCE(acc_fn, kdey_lr(), reuse_h=h, optim_method="SLSQP")
+
+    if _toggle["cc"]:
+        yield "LEAP(CC-LR)", LEAP(acc_fn, cc_lr(), log_true_solve=True)
+        yield "PHD(CC-LR)", PHD(acc_fn, cc_lr())
+        yield "OCE(CC-LR)-SLSQP", OCE(acc_fn, cc_lr(), optim_method="SLSQP")
+
+    if _toggle["same_h"] and _toggle["cc"]:
+        yield "LEAP(CC)", LEAP(acc_fn, cc_lr(), reuse_h=h, log_true_solve=True)
+        yield "PHD(CC)", PHD(acc_fn, cc_lr(), reuse_h=h)
+        yield "OCE(CC)-SLSQP", OCE(acc_fn, cc_lr(), reuse_h=h, optim_method="SLSQP")
 
 
 def gen_methods_with_oracle(h, acc_fn, D: DatasetBundle):
