@@ -19,10 +19,14 @@ from quacc.table import Format, Table
 method_map = {
     "Naive": 'Na\\"ive',
     "ATC-MC": "ATC",
-    "LEAP(ACC-LR)": "LEAP$_{\\mathrm{ACC}}$",
-    "LEAP(KDEy-LR)": "LEAP$_{\\mathrm{KDEy}}$",
-    "PHD(KDEy-LR)": "LEAP(PPS)$_{\\mathrm{KDEy}}$",
-    "OCE(KDEy-LR)-SLSQP": "OLEAP$_{\\mathrm{KDEy}}$",
+    "LEAP(ACC-LR)": "LEAP$_{\\mathrm{ACC}}$[LR]",
+    "LEAP(KDEy-LR)": "LEAP$_{\\mathrm{KDEy}}$[LR]",
+    "PHD(KDEy-LR)": "LEAP(PPS)$_{\\mathrm{KDEy}}$[LR]",
+    "OCE(KDEy-LR)-SLSQP": "OLEAP$_{\\mathrm{KDEy}}$[LR]",
+    "LEAP(ACC)": "LEAP$_{\\mathrm{ACC}}$[h]",
+    "LEAP(KDEy)": "LEAP$_{\\mathrm{KDEy}}$[h]",
+    "PHD(KDEy)": "LEAP(PPS)$_{\\mathrm{KDEy}}$[h]",
+    "OCE(KDEy)-SLSQP": "OLEAP$_{\\mathrm{KDEy}}$[h]",
 }
 
 dataset_map = {
