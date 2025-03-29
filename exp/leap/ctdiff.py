@@ -15,10 +15,10 @@ from exp.leap.util import load_results, rename_datasets, rename_methods
 N_COLS = 4
 
 method_map = {
-    "LEAP(ACC)": "LEAP$_{\\mathrm{ACC}}$",
-    "LEAP(KDEy)": "LEAP$_{\\mathrm{KDEy}}$",
-    "PHD(KDEy)": "S-LEAP$_{\\mathrm{KDEy}}$",
-    "OCE(KDEy)-SLSQP": "O-LEAP$_{\\mathrm{KDEy}}$",
+    "LEAP(ACC-LR)": "LEAP$_{\\mathrm{ACC}}$",
+    "LEAP(KDEy-LR)": "LEAP$_{\\mathrm{KDEy}}$",
+    "PHD(KDEy-LR)": "LEAP(PPS)$_{\\mathrm{KDEy}}$",
+    "OCE(KDEy-LR)-SLSQP": "OLEAP$_{\\mathrm{KDEy}}$",
 }
 
 dataset_map = {

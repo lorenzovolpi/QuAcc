@@ -19,18 +19,10 @@ from quacc.table import Format, Table
 method_map = {
     "Naive": 'Na\\"ive',
     "ATC-MC": "ATC",
-    "LEAP(ACC)": "LEAP$_{\\mathrm{ACC}}$[h]",
-    "LEAP(ACC-MLP)": "LEAP$_{\\mathrm{ACC}}$[MLP]",
-    "LEAP(ACC-LR)": "LEAP$_{\\mathrm{ACC}}$[LR]",
-    "LEAP(KDEy)": "LEAP$_{\\mathrm{KDEy}}$[h]",
-    "LEAP(KDEy-MLP)": "LEAP$_{\\mathrm{KDEy}}$[MLP]",
-    "LEAP(KDEy-LR)": "LEAP$_{\\mathrm{KDEy}}$[LR]",
-    "PHD(KDEy)": "LEAP(PPS)$_{\\mathrm{KDEy}}$[h]",
-    "PHD(KDEy-MLP)": "LEAP(PPS)$_{\\mathrm{KDEy}}$[MLP]",
-    "PHD(KDEy-LR)": "LEAP(PPS)$_{\\mathrm{KDEy}}$[LR]",
-    "OCE(KDEy)-SLSQP": "OLEAP$_{\\mathrm{KDEy}}$[h]",
-    "OCE(KDEy-MLP)-SLSQP": "OLEAP$_{\\mathrm{KDEy}}$[MLP]",
-    "OCE(KDEy-LR)-SLSQP": "OLEAP$_{\\mathrm{KDEy}}$[LR]",
+    "LEAP(ACC-LR)": "LEAP$_{\\mathrm{ACC}}$",
+    "LEAP(KDEy-LR)": "LEAP$_{\\mathrm{KDEy}}$",
+    "PHD(KDEy-LR)": "LEAP(PPS)$_{\\mathrm{KDEy}}$",
+    "OCE(KDEy-LR)-SLSQP": "OLEAP$_{\\mathrm{KDEy}}$",
 }
 
 dataset_map = {

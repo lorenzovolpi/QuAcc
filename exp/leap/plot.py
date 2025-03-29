@@ -9,10 +9,10 @@ from exp.leap.util import load_results, rename_datasets, rename_methods
 from quacc.plot.seaborn import plot_diagonal_grid
 
 method_map = {
-    "LEAP(KDEy)": "LEAP$_{\\mathrm{KDEy}}$",
-    "PHD(KDEy)": "S-LEAP$_{\\mathrm{KDEy}}$",
-    "OCE(KDEy)-SLSQP": "O-LEAP$_{\\mathrm{KDEy}}$",
-    "LEAP(CC)": "LEAP$_{\\mathrm{CC}}$",
+    "LEAP(KDEy-LR)": "LEAP$_{\\mathrm{KDEy}}$",
+    "PHD(KDEy-LR)": "LEAP(PPS)$_{\\mathrm{KDEy}}$",
+    "OCE(KDEy-LR)-SLSQP": "OLEAP$_{\\mathrm{KDEy}}$",
+    "LEAP(CC-LR)": "LEAP$_{\\mathrm{CC}}$",
     "LEAP(oracle)": "LEAP$_{\\Phi}$",
 }
 

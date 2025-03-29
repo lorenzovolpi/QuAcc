@@ -1,23 +1,21 @@
-import itertools as IT
 import os
 
 import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
 import seaborn as sns
-from matplotlib.ticker import FixedLocator, LogFormatter, LogLocator, MultipleLocator
+from matplotlib.ticker import LogLocator, MultipleLocator
 
 from exp.critdd import get_acc_names
-from exp.leap.config import PROBLEM, get_classifier_names, get_dataset_names, get_method_names, root_dir
-from exp.leap.util import load_results, rename_datasets, rename_methods
+from exp.leap.config import PROBLEM, get_classifier_names, get_dataset_names, root_dir
+from exp.leap.util import load_results, rename_methods
 
 method_map = {
     "Naive": 'Na\\"ive',
-    "LEAP(ACC)": "LEAP$_{\\mathrm{ACC}}$",
-    "LEAP(KDEy)": "LEAP$_{\\mathrm{KDEy}}$",
-    "PHD(KDEy)": "S-LEAP$_{\\mathrm{KDEy}}$",
-    "OCE(KDEy)-SLSQP": "O-LEAP$_{\\mathrm{KDEy}}$",
     "ATC-MC": "ATC",
+    "LEAP(ACC-LR)": "LEAP$_{\\mathrm{ACC}}$",
+    "LEAP(KDEy-LR)": "LEAP$_{\\mathrm{KDEy}}$",
+    "PHD(KDEy-LR)": "LEAP(PPS)$_{\\mathrm{KDEy}}$",
+    "OCE(KDEy-LR)-SLSQP": "OLEAP$_{\\mathrm{KDEy}}$",
 }
 
 
