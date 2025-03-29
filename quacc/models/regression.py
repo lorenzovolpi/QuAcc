@@ -93,6 +93,7 @@ class ReQua(CAPDirect):
                 n_jobs=self.n_jobs,
                 seed=qp.environ.get("_R_SEED", None),
                 verbose=self.joblib_verbose,
+                return_as="array",
             )
             self.models, self.fit_mask = zip(*outs)
         else:
@@ -123,7 +124,7 @@ class ReQua(CAPDirect):
                 models_cts_args,
                 n_jobs=self.n_jobs,
                 seed=qp.environ.get("_R_SEED", None),
-                asarray=False,
+                return_as="list",
                 verbose=self.joblib_verbose,
                 batch_size=round(len(self.models) / (self.n_jobs * 2)),
             )

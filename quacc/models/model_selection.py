@@ -150,7 +150,7 @@ class GridSearchCAP(CAPContingencyTable):
                 cls_configs,
                 seed=qp.environ.get("_R_SEED", None),
                 n_jobs=self.n_jobs,
-                asarray=False,
+                return_as="list",
             )
 
         # filter out classifier configurations that yielded any error
@@ -177,7 +177,11 @@ class GridSearchCAP(CAPContingencyTable):
             aggr_outs = [self._prepare_aggregation(args) for args in aggr_configs]
         else:
             aggr_outs = qc.commons.parallel(
-                self._prepare_aggregation, aggr_configs, seed=qp.environ.get("_R_SEED", None), n_jobs=self.n_jobs
+                self._prepare_aggregation,
+                aggr_configs,
+                seed=qp.environ.get("_R_SEED", None),
+                n_jobs=self.n_jobs,
+                return_as="array",
             )
 
         return aggr_outs

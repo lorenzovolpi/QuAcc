@@ -155,8 +155,7 @@ def parallel(
     args_list,
     n_jobs,
     seed=None,
-    asarray=True,
-    return_as: Literal["list"] | Literal["generator"] | Literal["generator_unordered"] = "list",
+    return_as: Literal["list"] | Literal["array"] | Literal["generator"] | Literal["generator_unordered"] = "list",
     backend="loky",
     verbose=0,
     batch_size="auto",
@@ -189,17 +188,15 @@ def parallel(
                 stack.enter_context(qp.util.temp_seed(seed))
             return func(*args)
 
+    _returnas = "list" if return_as == "array" else return_as
     with ExitStack() as stack:
         stack.enter_context(qc.commons.temp_force_njobs(qc.env["FORCE_NJOBS"]))
-        out = Parallel(n_jobs=n_jobs, return_as=return_as, backend=backend, verbose=verbose, batch_size=batch_size)(
+        out = Parallel(n_jobs=n_jobs, return_as=_returnas, backend=backend, verbose=verbose, batch_size=batch_size)(
             delayed(func_dec)(qp.environ, qc.env, None if seed is None else seed + i, args_i)
             for i, args_i in enumerate(args_list)
         )
 
-    if return_as != "list":
-        asarray = False
-
-    if asarray:
+    if return_as == "array":
         out = np.asarray(out)
     return out
 
