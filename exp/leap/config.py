@@ -36,7 +36,7 @@ PROBLEM = "multiclass"
 
 _toggle = {
     "lr": True,
-    "mlp": False,
+    "mlp": True,
     "same_h": True,
     "vanilla": True,
     "f1": False,
@@ -216,10 +216,21 @@ def gen_baselines_vp(acc_fn, D):
 
 
 def gen_CAP_cont_table(h, acc_fn):
+    if _toggle["same_h"]:
+        yield "LEAP(ACC)", LEAP(acc_fn, acc_lr(), reuse_h=h, log_true_solve=True)
     if _toggle["lr"]:
         yield "LEAP(ACC-LR)", LEAP(acc_fn, acc_lr(), log_true_solve=True)
+    if _toggle["same_h"]:
+        yield "LEAP(KDEy)", LEAP(acc_fn, kdey_lr(), reuse_h=h, log_true_solve=True)
+    if _toggle["lr"]:
         yield "LEAP(KDEy-LR)", LEAP(acc_fn, kdey_lr(), log_true_solve=True)
+    if _toggle["same_h"]:
+        yield "PHD(KDEy)", PHD(acc_fn, kdey_lr(), reuse_h=h)
+    if _toggle["lr"]:
         yield "PHD(KDEy-LR)", PHD(acc_fn, kdey_lr())
+    if _toggle["same_h"]:
+        yield "OCE(KDEy)-SLSQP", OCE(acc_fn, kdey_lr(), reuse_h=h, optim_method="SLSQP")
+    if _toggle["lr"]:
         yield "OCE(KDEy-LR)-SLSQP", OCE(acc_fn, kdey_lr(), optim_method="SLSQP")
 
     if _toggle["mlp"]:
@@ -227,12 +238,6 @@ def gen_CAP_cont_table(h, acc_fn):
         yield "LEAP(KDEy-MLP)", LEAP(acc_fn, kdey_mlp(), log_true_solve=True)
         yield "PHD(KDEy-MLP)", PHD(acc_fn, kdey_mlp())
         yield "OCE(KDEy-MLP)-SLSQP", OCE(acc_fn, kdey_mlp(), optim_method="SLSQP")
-
-    if _toggle["same_h"]:
-        yield "LEAP(ACC)", LEAP(acc_fn, acc_lr(), reuse_h=h, log_true_solve=True)
-        yield "LEAP(KDEy)", LEAP(acc_fn, kdey_lr(), reuse_h=h, log_true_solve=True)
-        yield "PHD(KDEy)", PHD(acc_fn, kdey_lr(), reuse_h=h)
-        yield "OCE(KDEy)-SLSQP", OCE(acc_fn, kdey_lr(), reuse_h=h, optim_method="SLSQP")
 
     if _toggle["cc"]:
         yield "LEAP(CC-LR)", LEAP(acc_fn, cc_lr(), log_true_solve=True)
