@@ -11,6 +11,7 @@ from quapy.data.datasets import UCI_BINARY_DATASETS, UCI_MULTICLASS_DATASETS
 from quapy.method.aggregative import ACC, CC, EMQ, DistributionMatchingY, KDEyML
 from quapy.protocol import UPP, AbstractStochasticSeededProtocol
 from sklearn.base import BaseEstimator
+from sklearn.ensemble import RandomForestClassifier as RFC
 from sklearn.linear_model import LogisticRegression
 from sklearn.neighbors import KNeighborsClassifier as KNN
 from sklearn.neural_network import MLPClassifier as MLP
@@ -32,15 +33,19 @@ NUM_TEST = 1000
 qp.environ["_R_SEED"] = 0
 CSV_SEP = ","
 
-PROBLEM = "multiclass"
+PROBLEM = "binary"
 
 _toggle = {
-    "lr": True,
+    "lr": False,
     "mlp": True,
-    "same_h": True,
+    "rf": False,
+    "mlp_sig": False,
+    "lr_nop": False,
+    "same_h": False,
     "vanilla": True,
     "f1": False,
-    "cc": False,
+    "cc": True,
+    "acc": False,
 }
 
 
@@ -111,15 +116,19 @@ def cc_lr():
 
 
 def cc_mlp():
-    return CC(MLP(random_state=qp.environ["_R_SEED"]))
+    return CC(MLP())
 
 
 def acc_mlp():
-    return ACC(MLP(random_state=qp.environ["_R_SEED"]))
+    return ACC(MLP())
 
 
 def acc_lr():
     return ACC(LogisticRegression())
+
+
+def acc_rf():
+    return ACC(RFC())
 
 
 def sld():
@@ -129,11 +138,23 @@ def sld():
 
 
 def kdey_mlp():
-    return KDEyML(MLP(random_state=qp.environ["_R_SEED"]))
+    return KDEyML(MLP())
 
 
 def kdey_lr():
     return KDEyML(LogisticRegression())
+
+
+def kdey_rf():
+    return KDEyML(RFC())
+
+
+def kdey_lr_nop():
+    return KDEyML(LogisticRegression(penalty=None))
+
+
+def kdey_mlp_sig():
+    return KDEyML(MLP(activation="logistic"))
 
 
 def dmy():
@@ -215,39 +236,62 @@ def gen_baselines_vp(acc_fn, D):
     yield "DoC", DoC(acc_fn, D.V2_prot, D.V2_prot_posteriors)
 
 
+# NOTE: the reason why mlp beats lr could be two-fold:
+# (i) mlp uses a hidden layer of 100 ReLU which has proven to be more effective in practical applications than sigmoid function;
+# (ii) while both mlp and lr use the same loss function (cross-entropy), lr corrects its predictions using a penalty function
+# which is based on L2. This could affect negatively the performance of the KDEyML quantifier which uses the KL divergence as
+# a loss function, which is strictly correlated to cross-entropy. The lr L2 regularization could possibly "ruin" the pure
+# cross-entropy minimization towards which also KDEyML works.
 def gen_CAP_cont_table(h, acc_fn):
     if _toggle["same_h"]:
-        yield "LEAP(ACC)", LEAP(acc_fn, acc_lr(), reuse_h=h, log_true_solve=True)
-    if _toggle["lr"]:
-        yield "LEAP(ACC-LR)", LEAP(acc_fn, acc_lr(), log_true_solve=True)
-    if _toggle["same_h"]:
+        if _toggle["cc"]:
+            yield "LEAP(CC)", LEAP(acc_fn, cc_lr(), reuse_h=h, log_true_solve=True)
+            yield "PHD(CC)", PHD(acc_fn, cc_lr(), reuse_h=h)
+            yield "OCE(CC)-SLSQP", OCE(acc_fn, cc_lr(), reuse_h=h, optim_method="SLSQP")
+        if _toggle["acc"]:
+            yield "LEAP(ACC)", LEAP(acc_fn, acc_lr(), reuse_h=h, log_true_solve=True)
         yield "LEAP(KDEy)", LEAP(acc_fn, kdey_lr(), reuse_h=h, log_true_solve=True)
-    if _toggle["lr"]:
-        yield "LEAP(KDEy-LR)", LEAP(acc_fn, kdey_lr(), log_true_solve=True)
-    if _toggle["same_h"]:
         yield "PHD(KDEy)", PHD(acc_fn, kdey_lr(), reuse_h=h)
-    if _toggle["lr"]:
-        yield "PHD(KDEy-LR)", PHD(acc_fn, kdey_lr())
-    if _toggle["same_h"]:
         yield "OCE(KDEy)-SLSQP", OCE(acc_fn, kdey_lr(), reuse_h=h, optim_method="SLSQP")
-    if _toggle["lr"]:
-        yield "OCE(KDEy-LR)-SLSQP", OCE(acc_fn, kdey_lr(), optim_method="SLSQP")
 
     if _toggle["mlp"]:
-        yield "LEAP(ACC-MLP)", LEAP(acc_fn, acc_mlp(), log_true_solve=True)
+        if _toggle["cc"]:
+            yield "LEAP(CC-MLP)", LEAP(acc_fn, cc_mlp(), log_true_solve=True)
+            yield "PHD(CC-MLP)", PHD(acc_fn, cc_mlp())
+            yield "OCE(CC-MLP)-SLSQP", OCE(acc_fn, cc_mlp(), optim_method="SLSQP")
+        if _toggle["acc"]:
+            yield "LEAP(ACC-MLP)", LEAP(acc_fn, acc_mlp(), log_true_solve=True)
         yield "LEAP(KDEy-MLP)", LEAP(acc_fn, kdey_mlp(), log_true_solve=True)
         yield "PHD(KDEy-MLP)", PHD(acc_fn, kdey_mlp())
         yield "OCE(KDEy-MLP)-SLSQP", OCE(acc_fn, kdey_mlp(), optim_method="SLSQP")
 
-    if _toggle["cc"]:
-        yield "LEAP(CC-LR)", LEAP(acc_fn, cc_lr(), log_true_solve=True)
-        yield "PHD(CC-LR)", PHD(acc_fn, cc_lr())
-        yield "OCE(CC-LR)-SLSQP", OCE(acc_fn, cc_lr(), optim_method="SLSQP")
+    if _toggle["lr"]:
+        if _toggle["cc"]:
+            yield "LEAP(CC-LR)", LEAP(acc_fn, cc_lr(), log_true_solve=True)
+            yield "PHD(CC-LR)", PHD(acc_fn, cc_lr())
+            yield "OCE(CC-LR)-SLSQP", OCE(acc_fn, cc_lr(), optim_method="SLSQP")
+        if _toggle["acc"]:
+            yield "LEAP(ACC-LR)", LEAP(acc_fn, acc_lr(), log_true_solve=True)
+        yield "LEAP(KDEy-LR)", LEAP(acc_fn, kdey_lr(), log_true_solve=True)
+        yield "PHD(KDEy-LR)", PHD(acc_fn, kdey_lr())
+        yield "OCE(KDEy-LR)-SLSQP", OCE(acc_fn, kdey_lr(), optim_method="SLSQP")
 
-    if _toggle["same_h"] and _toggle["cc"]:
-        yield "LEAP(CC)", LEAP(acc_fn, cc_lr(), reuse_h=h, log_true_solve=True)
-        yield "PHD(CC)", PHD(acc_fn, cc_lr(), reuse_h=h)
-        yield "OCE(CC)-SLSQP", OCE(acc_fn, cc_lr(), reuse_h=h, optim_method="SLSQP")
+    if _toggle["rf"]:
+        if _toggle["acc"]:
+            yield "LEAP(ACC-RF)", LEAP(acc_fn, acc_rf(), log_true_solve=True)
+        yield "LEAP(KDEy-RF)", LEAP(acc_fn, kdey_rf(), log_true_solve=True)
+        yield "PHD(KDEy-RF)", PHD(acc_fn, kdey_rf())
+        yield "OCE(KDEy-RF)-SLSQP", OCE(acc_fn, kdey_rf(), optim_method="SLSQP")
+
+    if _toggle["mlp_sig"]:
+        yield "LEAP(KDEy-MLPsig)", LEAP(acc_fn, kdey_mlp_sig(), log_true_solve=True)
+        yield "PHD(KDEy-MLPsig)", PHD(acc_fn, kdey_mlp_sig())
+        yield "OCE(KDEy-MLPsig)-SLSQP", OCE(acc_fn, kdey_mlp_sig(), optim_method="SLSQP")
+
+    if _toggle["lr_nop"]:
+        yield "LEAP(KDEy-LRnop)", LEAP(acc_fn, kdey_lr_nop(), log_true_solve=True)
+        yield "PHD(KDEy-LRnop)", PHD(acc_fn, kdey_lr_nop())
+        yield "OCE(KDEy-LRnop)-SLSQP", OCE(acc_fn, kdey_lr_nop(), optim_method="SLSQP")
 
 
 def gen_methods_with_oracle(h, acc_fn, D: DatasetBundle):
@@ -295,11 +339,12 @@ def get_method_names(with_oracle=True):
     mock_h = LogisticRegression()
     _, mock_acc_fn = next(gen_acc_measure())
     mock_D = DatasetBundle.mock()
-    names = (
-        [m for m, _ in gen_baselines(mock_acc_fn)]
-        + [m for m, _ in gen_baselines_vp(mock_acc_fn, mock_D)]
-        + [m for m, _ in gen_CAP_cont_table(mock_h, mock_acc_fn)]
-    )
+
+    baselines = [m for m, _ in gen_baselines(mock_acc_fn)] + [m for m, _ in gen_baselines_vp(mock_acc_fn, mock_D)]
+    CAP_ct = [m for m, _ in gen_CAP_cont_table(mock_h, mock_acc_fn)]
+
+    names = baselines + CAP_ct
+
     if with_oracle:
         names += [m for m, _ in gen_methods_with_oracle(mock_h, mock_acc_fn, mock_D)]
 
