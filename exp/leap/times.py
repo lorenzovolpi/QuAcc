@@ -12,10 +12,10 @@ from exp.leap.util import load_results, rename_methods
 method_map = {
     "Naive": 'Na\\"ive',
     "ATC-MC": "ATC",
-    "LEAP(ACC-LR)": "LEAP$_{\\mathrm{ACC}}$",
-    "LEAP(KDEy-LR)": "LEAP$_{\\mathrm{KDEy}}$",
-    "PHD(KDEy-LR)": "LEAP(PPS)$_{\\mathrm{KDEy}}$",
-    "OCE(KDEy-LR)-SLSQP": "OLEAP$_{\\mathrm{KDEy}}$",
+    "LEAP(ACC-MLP)": "LEAP$_{\\mathrm{ACC}}$",
+    "LEAP(KDEy-MLP)": "LEAP$_{\\mathrm{KDEy}}$",
+    "PHD(KDEy-MLP)": "LEAP(PPS)$_{\\mathrm{KDEy}}$",
+    "OCE(KDEy-MLP)-SLSQP": "OLEAP$_{\\mathrm{KDEy}}$",
 }
 
 
@@ -67,7 +67,7 @@ def times():
     accs = get_acc_names()
     datasets = get_dataset_names()
     # methods = ["LEAP(KDEy)", "PHD(KDEy)"]
-    methods = ["ATC-MC", "DoC", "LEAP(KDEy)", "PHD(KDEy)", "OCE(KDEy)-SLSQP"]
+    methods = ["ATC-MC", "DoC", "LEAP(KDEy-MLP)", "PHD(KDEy-MLP)", "OCE(KDEy-MLP)-SLSQP"]
 
     parent_dir = os.path.join(root_dir, "times")
     os.makedirs(parent_dir, exist_ok=True)

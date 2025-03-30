@@ -9,10 +9,10 @@ from exp.leap.util import load_results, rename_datasets, rename_methods
 from quacc.plot.seaborn import plot_diagonal_grid
 
 method_map = {
-    "LEAP(KDEy-LR)": "LEAP$_{\\mathrm{KDEy}}$",
-    "PHD(KDEy-LR)": "LEAP(PPS)$_{\\mathrm{KDEy}}$",
-    "OCE(KDEy-LR)-SLSQP": "OLEAP$_{\\mathrm{KDEy}}$",
-    "LEAP(CC-LR)": "LEAP$_{\\mathrm{CC}}$",
+    "LEAP(KDEy-MLP)": "LEAP$_{\\mathrm{KDEy}}$",
+    "PHD(KDEy-MLP)": "LEAP(PPS)$_{\\mathrm{KDEy}}$",
+    "OCE(KDEy-MLP)-SLSQP": "OLEAP$_{\\mathrm{KDEy}}$",
+    "LEAP(CC-MLP)": "LEAP$_{\\mathrm{CC}}$",
     "LEAP(oracle)": "LEAP$_{\\Phi}$",
 }
 
@@ -35,10 +35,10 @@ def get_palette():
     base_palette = sns.color_palette("bright", 10)
     _dict = {
         "DoC": 0,
-        "LEAP(KDEy)": 1,
-        "PHD(KDEy)": 2,
-        "OCE(KDEy)-SLSQP": 3,
-        "LEAP(CC)": 4,
+        "LEAP(KDEy-MLP)": 1,
+        "PHD(KDEy-MLP)": 2,
+        "OCE(KDEy-MLP)-SLSQP": 3,
+        "LEAP(CC-MLP)": 4,
         "LEAP(oracle)": 7,
     }
     return {method_map.get(k, k): base_palette[v] for k, v in _dict.items()}
@@ -49,8 +49,8 @@ def plots():
 
     classifiers = get_classifier_names()
     accs = get_acc_names()
-    main_methods = ["DoC", "LEAP(KDEy)", "PHD(KDEy)", "OCE(KDEy)-SLSQP"]
-    oracle_methods = ["LEAP(CC)", "LEAP(KDEy)", "LEAP(oracle)"]
+    main_methods = ["DoC", "LEAP(KDEy-MLP)", "PHD(KDEy-MLP)", "OCE(KDEy-MLP)-SLSQP"]
+    oracle_methods = ["LEAP(CC-MLP)", "LEAP(KDEy-MLP)", "LEAP(oracle)"]
 
     configs = [
         {

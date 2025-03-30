@@ -15,10 +15,10 @@ from exp.leap.util import load_results, rename_datasets, rename_methods
 N_COLS = 4
 
 method_map = {
-    "LEAP(ACC-LR)": "LEAP$_{\\mathrm{ACC}}$",
-    "LEAP(KDEy-LR)": "LEAP$_{\\mathrm{KDEy}}$",
-    "PHD(KDEy-LR)": "LEAP(PPS)$_{\\mathrm{KDEy}}$",
-    "OCE(KDEy-LR)-SLSQP": "OLEAP$_{\\mathrm{KDEy}}$",
+    "LEAP(ACC-MLP)": "LEAP$_{\\mathrm{ACC}}$",
+    "LEAP(KDEy-MLP)": "LEAP$_{\\mathrm{KDEy}}$",
+    "PHD(KDEy-MLP)": "LEAP(PPS)$_{\\mathrm{KDEy}}$",
+    "OCE(KDEy-MLP)-SLSQP": "OLEAP$_{\\mathrm{KDEy}}$",
 }
 
 dataset_map = {
@@ -102,7 +102,7 @@ def ctdfiff_true_acc():
     accs = get_acc_names()
     # datasets = get_dataset_names()
     datasets = ["chess"]
-    methods = ["Naive", "LEAP(KDEy)", "PHD(KDEy)", "OCE(KDEy)-SLSQP"]
+    methods = ["Naive", "LEAP(KDEy-MLP)", "PHD(KDEy-MLP)", "OCE(KDEy-MLP)-SLSQP"]
     # methods = ["LEAP(ACC)", "LEAP(KDEy)", "PHD(KDEy)", "OCE(KDEy)-SLSQP"]
 
     parent_dir = os.path.join(root_dir, "ctdiffs")
