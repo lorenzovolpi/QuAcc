@@ -1,13 +1,10 @@
 import itertools as IT
 import os
-import pdb
 from traceback import print_exception
 
 import numpy as np
 import pandas as pd
 import quapy as qp
-from quapy.data.datasets import UCI_BINARY_DATASETS, UCI_MULTICLASS_DATASETS
-from quapy.protocol import UPP
 from sklearn.base import clone as skl_clone
 
 import quacc as qc
@@ -19,10 +16,8 @@ from exp.leap.config import (
     gen_classifiers,
     gen_datasets,
     gen_methods,
-    gen_transformer_model_dataset,
     get_method_names,
     root_dir,
-    sample_size,
 )
 from exp.util import (
     fit_or_switch,
@@ -32,9 +27,7 @@ from exp.util import (
     get_plain_prev,
     timestamp,
 )
-from quacc.data.datasets import fetch_UCIBinaryDataset, fetch_UCIMulticlassDataset
 from quacc.models.cont_table import LEAP
-from quacc.models.utils import OracleQuantifier
 from quacc.utils.commons import get_shift, parallel, true_acc
 
 log = get_logger(id=PROJECT)
