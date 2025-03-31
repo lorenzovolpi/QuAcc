@@ -50,7 +50,7 @@ def tables():
             best_color="OliveGreen",
             mid_color="SeaGreen",
         )
-        tbl.format.mean_macro = False
+        tbl.format.mean_macro = True
         for dataset, method in IT.product(datasets, methods):
             values = df.loc[(df["dataset"] == dataset) & (df["method"] == method), "acc_err"].to_numpy()
             for v in values:
