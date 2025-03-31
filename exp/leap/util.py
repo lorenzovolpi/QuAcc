@@ -1,15 +1,19 @@
 import glob
 import os
+from pathlib import Path
 
 import pandas as pd
 
-from exp.leap.config import PROBLEM, root_dir
+from exp.leap.config import PROBLEM, get_method_names, root_dir
 
 
 def load_results() -> pd.DataFrame:
     dfs = []
+    _methods = get_method_names()
     for path in glob.glob(os.path.join(root_dir, PROBLEM, "**", "*.json"), recursive=True):
-        dfs.append(pd.read_json(path))
+        if Path(path).stem in _methods:
+            dfs.append(pd.read_json(path))
+
     return pd.concat(dfs, axis=0)
 
 
