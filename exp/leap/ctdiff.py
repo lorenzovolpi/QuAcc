@@ -101,7 +101,7 @@ def ctdfiff_true_acc():
     classifiers = ["LR", "MLP"]
     accs = get_acc_names()
     # datasets = get_dataset_names()
-    datasets = ["chess"]
+    datasets = ["chess", "hand_digits", "digits", "abalone"]
     methods = ["Naive", "LEAP(KDEy-MLP)", "PHD(KDEy-MLP)", "OCE(KDEy-MLP)-SLSQP"]
     # methods = ["LEAP(ACC)", "LEAP(KDEy)", "PHD(KDEy)", "OCE(KDEy)-SLSQP"]
 
