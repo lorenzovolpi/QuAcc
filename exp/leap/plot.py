@@ -38,8 +38,8 @@ def get_palette():
         "LEAP(KDEy-MLP)": 1,
         "PHD(KDEy-MLP)": 2,
         "OCE(KDEy-MLP)-SLSQP": 3,
-        "LEAP(CC-MLP)": 4,
-        "LEAP(oracle)": 7,
+        "OCE(CC-MLP)-SLSQP": 4,
+        "OCE(oracle)-SLSQP": 8,
     }
     return {method_map.get(k, k): base_palette[v] for k, v in _dict.items()}
 
@@ -50,7 +50,7 @@ def plots():
     classifiers = get_classifier_names()
     accs = get_acc_names()
     main_methods = ["DoC", "LEAP(KDEy-MLP)", "PHD(KDEy-MLP)", "OCE(KDEy-MLP)-SLSQP"]
-    oracle_methods = ["LEAP(CC-MLP)", "LEAP(KDEy-MLP)", "LEAP(oracle)"]
+    oracle_methods = ["OCE(CC-MLP)-SLSQP", "OCE(KDEy-MLP)-SLSQP", "OCE(oracle)-SLSQP"]
 
     configs = [
         {
