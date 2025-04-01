@@ -5,7 +5,6 @@ from dataclasses import dataclass
 import numpy as np
 import quapy as qp
 import torch
-from pandas.core.common import random_state
 from quapy.data import LabelledCollection
 from quapy.data.datasets import UCI_BINARY_DATASETS, UCI_MULTICLASS_DATASETS
 from quapy.method.aggregative import ACC, CC, EMQ, DistributionMatchingY, KDEyML
@@ -41,7 +40,7 @@ _toggle = {
     "rf": False,
     "mlp_sig": False,
     "lr_nop": False,
-    "same_h": False,
+    "same_h": True,
     "vanilla": True,
     "f1": False,
     "cc": True,
@@ -165,7 +164,7 @@ def gen_classifiers():
     yield "LR", LogisticRegression()
     yield "kNN", KNN(n_neighbors=10)
     yield "SVM", SVC(kernel="rbf", probability=True)
-    yield "MLP", MLP(hidden_layer_sizes=(100, 15), max_iter=300, random_state=qp.environ["_R_SEED"])
+    yield "MLP", MLP()
 
 
 def gen_datasets(only_names=False):
