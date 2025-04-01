@@ -711,6 +711,7 @@ class Table:
         lines.append("\\usepackage{booktabs}")
         if landscape:
             lines.append("\\usepackage[landscape]{geometry}")
+        lines.extend(kwargs.pop("new_commands", []))
         lines.append("")
         lines.append("\\begin{document}")
         for table in tables:
