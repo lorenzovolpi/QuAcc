@@ -1,5 +1,6 @@
 import os
 
+import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 from matplotlib.axes import Axes
@@ -22,6 +23,7 @@ def _save_figure(plot: Axes, basedir, filename):
     for f in files:
         plot.figure.savefig(f, bbox_inches="tight", dpi=DPI)
     plot.figure.clear()
+    plt.close(plot.figure)
 
 
 def _config_legend(plot: Axes):
@@ -71,8 +73,9 @@ def plot_diagonal(
 
 def plot_diagonal_grid(
     df: pd.DataFrame,
-    method_names,
     *,
+    methods_order=None,
+    datasets_order=None,
     basedir="output",
     filename="diagonal_grid",
     n_cols=1,
@@ -91,9 +94,10 @@ def plot_diagonal_grid(
     plot = sns.FacetGrid(
         df,
         col="dataset",
+        col_order=datasets_order,
         col_wrap=n_cols,
         hue="method",
-        hue_order=method_names,
+        hue_order=methods_order,
         xlim=(0, 1),
         ylim=(0, 1),
         aspect=aspect,
