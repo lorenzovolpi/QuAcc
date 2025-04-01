@@ -15,10 +15,10 @@ from exp.leap.util import load_results, rename_datasets, rename_methods
 N_COLS = 4
 
 method_map = {
-    "LEAP(ACC-MLP)": "LEAP$_{\\mathrm{ACC}}$",
+    "LEAP(ACC)": "LEAP$_{\\mathrm{ACC}}$",
     "LEAP(KDEy-MLP)": "LEAP$_{\\mathrm{KDEy}}$",
-    "PHD(KDEy-MLP)": "LEAP(PPS)$_{\\mathrm{KDEy}}$",
-    "OCE(KDEy-MLP)-SLSQP": "OLEAP$_{\\mathrm{KDEy}}$",
+    "PHD(KDEy-MLP)": "S-LEAP$_{\\mathrm{KDEy}}$",
+    "OCE(KDEy-MLP)-SLSQP": "O-LEAP$_{\\mathrm{KDEy}}$",
 }
 
 dataset_map = {
@@ -95,15 +95,12 @@ def ctdfiff_couples():
 
 
 def ctdfiff_true_acc():
-    res = load_results()
-
-    # classifiers = get_classifier_names()
-    classifiers = ["LR", "MLP"]
+    classifiers = get_classifier_names()
     accs = get_acc_names()
-    # datasets = get_dataset_names()
-    datasets = ["chess", "hand_digits", "digits", "abalone"]
+    datasets = get_dataset_names()
     methods = ["Naive", "LEAP(KDEy-MLP)", "PHD(KDEy-MLP)", "OCE(KDEy-MLP)-SLSQP"]
-    # methods = ["LEAP(ACC)", "LEAP(KDEy)", "PHD(KDEy)", "OCE(KDEy)-SLSQP"]
+
+    res = load_results(filter_methods=methods)
 
     parent_dir = os.path.join(root_dir, "ctdiffs")
     os.makedirs(parent_dir, exist_ok=True)
@@ -130,7 +127,6 @@ def ctdfiff_true_acc():
 
             mdf = pd.DataFrame(sqae)
             mdf["col"] = cnt % N_COLS
-            # mdf["row"] = cnt // N_COLS
             mdf["row"] = 0
             mdfs.append(mdf)
             plot_names.append(m)
@@ -141,7 +137,6 @@ def ctdfiff_true_acc():
             annot = sqae.shape[1] <= 4
             cnt += 1
 
-        # hmdf = pd.concat([true_df] + mdfs, axis=0)
         hmdf = pd.concat(mdfs, axis=0)
         plot = sns.FacetGrid(hmdf, col="col", row="row")
         cbar_ax = plot.fig.add_axes([0.92, 0.15, 0.02, 0.7])

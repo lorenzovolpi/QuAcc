@@ -7,9 +7,9 @@ import pandas as pd
 from exp.leap.config import PROBLEM, get_method_names, root_dir
 
 
-def load_results() -> pd.DataFrame:
+def load_results(filter_methods=None) -> pd.DataFrame:
     dfs = []
-    _methods = get_method_names()
+    _methods = get_method_names() if filter_methods is None else filter_methods
     for path in glob.glob(os.path.join(root_dir, PROBLEM, "**", "*.json"), recursive=True):
         if Path(path).stem in _methods:
             dfs.append(pd.read_json(path))
