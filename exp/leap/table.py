@@ -52,9 +52,11 @@ def tables():
             with_mean=True,
             mean_macro=False,
             color=True,
-            color_mode="baselines",
+            # color_mode="baselines",
+            color_mode="local",
             simple_stat=True,
-            best_color="OliveGreen",
+            # best_color="OliveGreen",
+            best_color="green",
             mid_color="SeaGreen",
         )
         for dataset, method in IT.product(datasets, methods):
