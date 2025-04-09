@@ -1,5 +1,6 @@
 import itertools as IT
 import os
+from dataclasses import dataclass
 from traceback import print_exception
 
 import numpy as np
@@ -66,22 +67,29 @@ def gen_method_df(df_len, **data):
     return pd.DataFrame.from_dict(data, orient="columns")
 
 
+@dataclass
 class EXP:
-    def __init__(self, code, err=None):
-        self.code = code
-        self.err = err
+    code: int
+    cls_name: str
+    dataset_name: str
+    acc_name: str
+    method_name: str
+    df: pd.DataFrame = None
+    t_train: float = None
+    t_test_ave: float = None
+    err: Exception = None
 
     @classmethod
-    def SUCCESS(cls):
-        return EXP(200)
+    def SUCCESS(cls, *args, **kwargs):
+        return EXP(200, *args, **kwargs)
 
     @classmethod
-    def EXISTS(cls):
-        return EXP(300)
+    def EXISTS(cls, *args, **kwargs):
+        return EXP(300, *args, **kwargs)
 
     @classmethod
-    def ERROR(cls, e):
-        return EXP(400, err=e)
+    def ERROR(cls, e, *args, **kwargs):
+        return EXP(400, *args, err=e, **kwargs)
 
     @property
     def ok(self):
@@ -107,7 +115,7 @@ def exp_protocol(args):
             continue
         path = local_path(dataset_name, cls_name, method_name, acc_name)
         if os.path.exists(path):
-            results.append((cls_name, dataset_name, acc_name, method_name, None, None, None, EXP.EXISTS()))
+            results.append(EXP.EXISTS(cls_name, dataset_name, acc_name, method_name))
             continue
 
         try:
@@ -122,7 +130,7 @@ def exp_protocol(args):
                 estim_cts = [ct.tolist() for ct in estim_cts]
         except Exception as e:
             print_exception(e)
-            results.append((cls_name, dataset_name, acc_name, method_name, None, None, None, EXP.ERROR(e)))
+            results.append(EXP.ERROR(e, cls_name, dataset_name, acc_name, method_name))
             continue
 
         ae = qc.error.ae(np.array(true_accs[acc_name]), np.array(estim_accs)).tolist()
@@ -130,6 +138,7 @@ def exp_protocol(args):
         df_len = len(estim_accs)
         method_df = gen_method_df(
             df_len,
+            uids=np.arange(df_len).tolist(),
             shifts=test_shift,
             true_accs=true_accs[acc_name],
             estim_accs=estim_accs,
@@ -147,7 +156,11 @@ def exp_protocol(args):
         )
         get_extra_from_method(method_df, method)
 
-        results.append((cls_name, dataset_name, acc_name, method_name, method_df, t_train, t_test_ave, EXP.SUCCESS()))
+        results.append(
+            EXP.SUCCESS(
+                cls_name, dataset_name, acc_name, method_name, df=method_df, t_train=t_train, t_test_ave=t_test_ave
+            )
+        )
 
     return results
 
@@ -187,17 +200,19 @@ def experiments():
     )
 
     for res in results_gen:
-        for cls_name, dataset_name, acc_name, method_name, method_df, t_train, t_test_ave, r in res:
+        for r in res:
             if r.ok:
-                path = local_path(dataset_name, cls_name, method_name, acc_name)
-                method_df.to_json(path)
+                path = local_path(r.dataset_name, r.cls_name, r.method_name, r.acc_name)
+                r.df.to_json(path)
                 log.info(
-                    f"[{cls_name}@{dataset_name}] {method_name} on {acc_name} done [{timestamp(t_train, t_test_ave)}]"
+                    f"[{r.cls_name}@{r.dataset_name}] {r.method_name} on {r.acc_name} done [{timestamp(r.t_train, r.t_test_ave)}]"
                 )
             elif r.old:
-                log.info(f"[{cls_name}@{dataset_name}] {method_name} on {acc_name} exists, skipping")
+                log.info(f"[{r.cls_name}@{r.dataset_name}] {r.method_name} on {r.acc_name} exists, skipping")
             elif r.error:
-                log.warning(f"[{cls_name}@{dataset_name}] {method_name}: {acc_name} gave error '{r.err}' - skipping")
+                log.warning(
+                    f"[{r.cls_name}@{r.dataset_name}] {r.method_name}: {r.acc_name} gave error '{r.err}' - skipping"
+                )
 
 
 # TODO: parallel support for transformers
