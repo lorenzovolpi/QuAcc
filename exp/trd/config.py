@@ -106,7 +106,6 @@ def get_cls_name(base_name: str, params: dict):
     return f"{base_name}_[{params_str}]"
 
 
-# TODO: generate classifiers variants (hyperparameters combos)
 def gen_classifiers():
     LR_param_grid = {
         "C": np.logspace(-2, 2, 5),
