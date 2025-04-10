@@ -101,7 +101,10 @@ def kdey():
     return KDEyML(MLP())
 
 
-def get_cls_name(base_name: str, params: dict):
+def get_cls_name(base_name: str, params: dict, is_default: bool):
+    if is_default:
+        return base_name
+
     params_str = ";".join([f"{k}={v}" for k, v in params.items()])
     return f"{base_name}_[{params_str}]"
 
@@ -112,7 +115,7 @@ def gen_classifiers():
         "class_weight": [None, "balanced"],
     }
     kNN_param_grid = {
-        "n_neighbors": np.linspace(5, 13, 5),
+        "n_neighbors": np.linspace(5, 13, 5, dtype="int"),
         "weights": ["uniform", "distance"],
     }
     SVM_param_grid = {
@@ -136,10 +139,10 @@ def gen_classifiers():
         _par_combos = IT.product(*list(param_grid.values()))
         for _combo in _par_combos:
             _params = dict(zip(_par_names, _combo))
-            _qual_name = get_cls_name(name, _params)
             _model = clone(base)
             _model.set_params(**_params)
             _default = _params == {k: v for k, v in base.get_params().items() if k in _par_names}
+            _qual_name = get_cls_name(name, _params, _default)
             yield ClsVariant(name=_qual_name, h=_model, params=_params, default=_default)
 
 
