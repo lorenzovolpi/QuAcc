@@ -104,18 +104,18 @@ class EXP:
 
 
 def exp_protocol(args):
-    cls_name, dataset_name, h, D, true_accs, method_name, method, val, val_posteriors = args
+    clsf, dataset_name, D, true_accs, method_name, method, val, val_posteriors = args
     results = []
 
     L_prev = get_plain_prev(D.L_prevalence)
     val_prev = get_plain_prev(val.prevalence())
     t_train = None
     for acc_name, acc_fn in gen_acc_measure():
-        if is_excluded(cls_name, dataset_name, method_name, acc_name):
+        if is_excluded(clsf.name, dataset_name, method_name, acc_name):
             continue
-        path = local_path(dataset_name, cls_name, method_name, acc_name)
+        path = local_path(dataset_name, clsf.name, method_name, acc_name)
         if os.path.exists(path):
-            results.append(EXP.EXISTS(cls_name, dataset_name, acc_name, method_name))
+            results.append(EXP.EXISTS(clsf.name, dataset_name, acc_name, method_name))
             continue
 
         try:
@@ -130,7 +130,7 @@ def exp_protocol(args):
                 estim_cts = [ct.tolist() for ct in estim_cts]
         except Exception as e:
             print_exception(e)
-            results.append(EXP.ERROR(e, cls_name, dataset_name, acc_name, method_name))
+            results.append(EXP.ERROR(e, clsf.name, dataset_name, acc_name, method_name))
             continue
 
         ae = qc.error.ae(np.array(true_accs[acc_name]), np.array(estim_accs)).tolist()
@@ -145,7 +145,8 @@ def exp_protocol(args):
             acc_err=ae,
             estim_cts=estim_cts,
             true_cts=D.test_prot_true_cts,
-            classifier=cls_name,
+            classifier=clsf.name,
+            default_c=[clsf.default] * df_len,
             method=method_name,
             dataset=dataset_name,
             acc_name=acc_name,
@@ -154,38 +155,73 @@ def exp_protocol(args):
             t_train=t_train,
             t_test_ave=t_test_ave,
         )
-        get_extra_from_method(method_df, method)
 
         results.append(
             EXP.SUCCESS(
-                cls_name, dataset_name, acc_name, method_name, df=method_df, t_train=t_train, t_test_ave=t_test_ave
+                clsf.name, dataset_name, acc_name, method_name, df=method_df, t_train=t_train, t_test_ave=t_test_ave
             )
         )
 
     return results
 
 
+def train_cls(args):
+    orig_clsf, (dataset_name, (L, V, U)) = args
+    #
+    # check if all results for current combination already exist
+    # if so, skip the combination
+    if all_exist_pre_check(dataset_name, orig_clsf.name):
+        return (orig_clsf, dataset_name, None, None)
+    else:
+        # clone model from the original one
+        clsf = orig_clsf.clone()
+        # fit model
+        clsf.h.fit(*L.Xy)
+        # create dataset bundle
+        D = DatasetBundle(L.prevalence(), V, U).create_bundle(clsf.h)
+        # compute true accs for h on dataset
+        true_accs = {}
+        for acc_name, acc_fn in gen_acc_measure():
+            true_accs[acc_name] = [true_acc(clsf.h, acc_fn, Ui) for Ui in D.test_prot()]
+        # store h-dataset combination
+        return (clsf, dataset_name, D, true_accs)
+
+
 def experiments():
+    cls_train_args = list(gen_model_dataset(gen_classifiers, gen_datasets))
+    cls_dataset_gen = parallel(
+        func=train_cls,
+        args_list=cls_train_args,
+        n_jobs=qc.env["N_JOBS"],
+        return_as="generator_unordered",
+    )
     cls_dataset = []
-    for orig_clsf, (dataset_name, (L, V, U)) in gen_model_dataset(gen_classifiers, gen_datasets):
-        # check if all results for current combination already exist
-        # if so, skip the combination
-        if all_exist_pre_check(dataset_name, orig_clsf.name):
-            log.info(f"All results for {orig_clsf.name} over {dataset_name} exist, skipping")
+    for clsf, dataset_name, D, true_accs in cls_dataset_gen:
+        if D is None:
+            log.info(f"All results for {clsf.name} over {dataset_name} exist, skipping")
         else:
-            # clone model from the original one
-            clsf = orig_clsf.clone()
-            # fit model
-            clsf.h.fit(*L.Xy)
             log.info(f"Trained {clsf.name} over {dataset_name}")
-            # create dataset bundle
-            D = DatasetBundle(L.prevalence(), V, U).create_bundle(clsf.h)
-            # compute true accs for h on dataset
-            true_accs = {}
-            for acc_name, acc_fn in gen_acc_measure():
-                true_accs[acc_name] = [true_acc(clsf.h, acc_fn, Ui) for Ui in D.test_prot()]
-            # store h-dataset combination
             cls_dataset.append((clsf, dataset_name, D, true_accs))
+
+    # for orig_clsf, (dataset_name, (L, V, U)) in gen_model_dataset(gen_classifiers, gen_datasets):
+    #     # check if all results for current combination already exist
+    #     # if so, skip the combination
+    #     if all_exist_pre_check(dataset_name, orig_clsf.name):
+    #         log.info(f"All results for {orig_clsf.name} over {dataset_name} exist, skipping")
+    #     else:
+    #         # clone model from the original one
+    #         clsf = orig_clsf.clone()
+    #         # fit model
+    #         clsf.h.fit(*L.Xy)
+    #         log.info(f"Trained {clsf.name} over {dataset_name}")
+    #         # create dataset bundle
+    #         D = DatasetBundle(L.prevalence(), V, U).create_bundle(clsf.h)
+    #         # compute true accs for h on dataset
+    #         true_accs = {}
+    #         for acc_name, acc_fn in gen_acc_measure():
+    #             true_accs[acc_name] = [true_acc(clsf.h, acc_fn, Ui) for Ui in D.test_prot()]
+    #         # store h-dataset combination
+    #         cls_dataset.append((clsf, dataset_name, D, true_accs))
 
     exp_prot_args_list = []
     for clsf, dataset_name, D, true_accs in cls_dataset:
