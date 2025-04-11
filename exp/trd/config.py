@@ -123,7 +123,7 @@ def gen_classifiers():
         "gamma": ["scale", "auto"],
     }
     MLP_param_grid = {
-        "alpha": np.logspace(-5, -1, 5),
+        "alpha": np.around(np.logspace(-5, -1, 5), decimals=5),
         "learning_rate": ["constant", "adaptive"],
     }
 
@@ -190,7 +190,7 @@ def gen_CAP_methods(h, D, with_oracle=False):
 
 
 def get_classifier_names():
-    return [name for name, _ in gen_classifiers()]
+    return [clsf.name for clsf in gen_classifiers()]
 
 
 def get_dataset_names():
