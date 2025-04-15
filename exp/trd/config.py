@@ -189,7 +189,7 @@ def gen_CAP_methods(h, D, with_oracle=False):
             yield name, method, D.V, D.V_posteriors
 
 
-def get_classifier_names():
+def get_classifier_names(only_default=False):
     return [clsf.name for clsf in gen_classifiers()]
 
 

@@ -15,7 +15,7 @@ def local_path(dataset_name, cls_name, method_name, acc_name):
     return os.path.join(parent_dir, f"{cls_name}.json")
 
 
-def load_results(filter_methods=None) -> pd.DataFrame:
+def load_results() -> pd.DataFrame:
     dfs = []
     for path in glob.glob(os.path.join(root_dir, PROBLEM, "**", "*.json"), recursive=True):
         dfs.append(pd.read_json(path))
@@ -35,7 +35,7 @@ def CAP_model_selection(res: pd.DataFrame):
         # index data by dataset, sample_id (uids), and classifier
         mdf = mdf.set_index(["dataset", "uids", "classifier"])
         # group data by sample_id and dataset and take the index of the minimum in the "estim_accs" column
-        best_idx = mdf.groupby(["uids", "dataset"])["estim_accs"].idxmin()
+        best_idx = mdf.groupby(["uids", "dataset"])["estim_accs"].idxmax()
         # use the index to filter the data, resetting the index
         mdf = mdf.loc[best_idx, :].reset_index(drop=False)
         dfs.append(mdf)
@@ -49,7 +49,7 @@ def oracle_model_selection(res: pd.DataFrame):
     dfs = []
     for acc in accs:
         odf = res.loc[res["acc_name"] == acc, :].groupby(["dataset", "uids", "classifier"]).first()
-        best_idx = odf.groupby(["uids", "dataset"])["true_accs"].idxmin()
+        best_idx = odf.groupby(["uids", "dataset"])["true_accs"].idxmax()
         odf = odf.loc[best_idx, :].reset_index(drop=False)
         odf["method"] = ["oracle"] * len(odf)
         dfs.append(odf)
@@ -60,7 +60,6 @@ def oracle_model_selection(res: pd.DataFrame):
 def no_model_selection(res: pd.DataFrame, only_default=False):
     accs = get_acc_names()
     classifiers = get_classifier_names()
-    print(classifiers)
 
     dfs = []
     for acc, classifier in IT.product(accs, classifiers):
@@ -78,19 +77,12 @@ def no_model_selection(res: pd.DataFrame, only_default=False):
     return pd.concat(dfs, axis=0)
 
 
-def model_selection(res, only_default=False):
-    return pd.concat(
-        [
-            CAP_model_selection(res),
-            oracle_model_selection(res),
-            no_model_selection(res, only_default=only_default),
-        ],
-        axis=0,
-    )
+def model_selection(res, oracle=False, only_default=False):
+    dfs = [
+        CAP_model_selection(res),
+        no_model_selection(res, only_default=only_default),
+    ]
+    if oracle:
+        dfs.append(oracle_model_selection(res))
 
-
-if __name__ == "__main__":
-    res = load_results()
-    print(CAP_model_selection(res))
-    print(oracle_model_selection(res))
-    print(no_model_selection(res))
+    return pd.concat(dfs, axis=0)
