@@ -4,7 +4,8 @@ import os
 import pandas as pd
 
 from exp.trd.config import PROBLEM, get_acc_names, root_dir
-from exp.trd.util import load_results, model_selection
+from exp.trd.model_selection import model_selection
+from exp.trd.util import load_results
 from quacc.table import Format, Table
 
 
