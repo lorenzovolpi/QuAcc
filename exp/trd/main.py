@@ -146,6 +146,7 @@ def exp_protocol(args):
             estim_cts=estim_cts,
             true_cts=D.test_prot_true_cts,
             classifier=clsf.name,
+            classifier_class=clsf.class_name,
             default_c=[clsf.default] * df_len,
             method=method_name,
             dataset=dataset_name,
