@@ -1,13 +1,10 @@
 import itertools as IT
 import os
-import pdb
 from traceback import print_exception
 
 import numpy as np
 import pandas as pd
 import quapy as qp
-from quapy.data.datasets import UCI_BINARY_DATASETS, UCI_MULTICLASS_DATASETS
-from quapy.protocol import UPP
 
 import quacc as qc
 from exp.leap.config import (
@@ -31,9 +28,7 @@ from exp.util import (
     get_plain_prev,
     timestamp,
 )
-from quacc.data.datasets import fetch_UCIBinaryDataset, fetch_UCIMulticlassDataset
 from quacc.models.cont_table import LEAP
-from quacc.models.utils import OracleQuantifier
 from quacc.utils.commons import get_shift, true_acc
 
 log = get_logger(id=PROJECT)
