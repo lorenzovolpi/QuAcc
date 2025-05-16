@@ -19,7 +19,7 @@ import quacc as qc
 from exp.util import split_validation
 from quacc.data.datasets import fetch_UCIBinaryDataset, fetch_UCIMulticlassDataset, sort_datasets_by_size
 from quacc.error import f1, f1_macro, vanilla_acc
-from quacc.models.cont_table import OCE
+from quacc.models.cont_table import OCE, NaiveCAP
 from quacc.models.utils import OracleQuantifier
 from quacc.utils.commons import contingency_table
 
@@ -28,7 +28,7 @@ root_dir = os.path.join(qc.env["OUT_DIR"], PROJECT)
 NUM_TEST = 1000
 qp.environ["_R_SEED"] = 0
 
-PROBLEM = "binary"
+PROBLEM = "multiclass"
 
 _toggle = {
     "vanilla": True,
@@ -89,12 +89,13 @@ class DatasetBundle:
 @dataclass
 class ClsVariant:
     name: str
+    class_name: str
     h: BaseEstimator
     params: dict
     default: bool = False
 
     def clone(self):
-        return ClsVariant(self.name, clone(self.h), self.params, self.default)
+        return ClsVariant(self.name, self.class_name, clone(self.h), self.params, self.default)
 
 
 def kdey():
@@ -109,7 +110,7 @@ def get_cls_name(base_name: str, params: dict, is_default: bool):
     return f"{base_name}_[{params_str}]"
 
 
-def gen_classifiers():
+def gen_classifier_classes():
     LR_param_grid = {
         "C": np.logspace(-2, 2, 5),
         "class_weight": [None, "balanced"],
@@ -127,14 +128,14 @@ def gen_classifiers():
         "learning_rate": ["constant", "adaptive"],
     }
 
-    _cls_grid = [
-        ("LR", LogisticRegression(), LR_param_grid),
-        ("kNN", KNN(), kNN_param_grid),
-        ("SVM", SVC(kernel="rbf", probability=True), SVM_param_grid),
-        ("MLP", MLP(), MLP_param_grid),
-    ]
+    yield "LR", LogisticRegression(), LR_param_grid
+    yield "kNN", KNN(), kNN_param_grid
+    yield "SVM", SVC(kernel="rbf", probability=True), SVM_param_grid
+    yield "MLP", MLP(), MLP_param_grid
 
-    for name, base, param_grid in _cls_grid:
+
+def gen_classifiers():
+    for name, base, param_grid in gen_classifier_classes():
         _par_names = list(param_grid.keys())
         _par_combos = IT.product(*list(param_grid.values()))
         for _combo in _par_combos:
@@ -143,7 +144,7 @@ def gen_classifiers():
             _model.set_params(**_params)
             _default = _params == {k: v for k, v in base.get_params().items() if k in _par_names}
             _qual_name = get_cls_name(name, _params, _default)
-            yield ClsVariant(name=_qual_name, h=_model, params=_params, default=_default)
+            yield ClsVariant(name=_qual_name, class_name=name, h=_model, params=_params, default=_default)
 
 
 def gen_datasets(only_names=False):
@@ -172,6 +173,7 @@ def gen_acc_measure():
 
 
 def gen_CAP_cont_table(h, acc_fn):
+    yield "Naive", NaiveCAP(acc_fn)
     yield "O-LEAP(KDEy)", OCE(acc_fn, kdey(), optim_method="SLSQP")
 
 
@@ -189,8 +191,12 @@ def gen_CAP_methods(h, D, with_oracle=False):
             yield name, method, D.V, D.V_posteriors
 
 
-def get_classifier_names(only_default=False):
+def get_classifier_names():
     return [clsf.name for clsf in gen_classifiers()]
+
+
+def get_classifier_class_names():
+    return [name for name, _, _ in gen_classifier_classes()]
 
 
 def get_dataset_names():
