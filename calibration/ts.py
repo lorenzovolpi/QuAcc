@@ -1,7 +1,7 @@
 import numpy as np
 import scipy
 
-from calibration.base import CalibratorFactory
+from calibration.base import SimpleCalibratorFactory
 from calibration.util import compute_nll, inverse_softmax, softmax, t_gradients
 
 
@@ -49,7 +49,7 @@ def do_tempscale_optimization(labels, preacts, verbose, lbfgs_kwargs, epsilon=5e
     return optimal_t
 
 
-class TemperatureScaling(CalibratorFactory):
+class TemperatureScaling(SimpleCalibratorFactory):
     def __init__(self, lbfgs_kwargs={}, verbose=False):
         self.lbfgs_kwargs = lbfgs_kwargs
         self.verbose = verbose

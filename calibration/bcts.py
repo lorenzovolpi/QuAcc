@@ -1,7 +1,7 @@
 import numpy as np
 import scipy
 
-from calibration.base import CalibratorFactory
+from calibration.base import SimpleCalibratorFactory
 from calibration.util import b_gradients, compute_nll, inverse_softmax, softmax, t_gradients
 
 
@@ -63,7 +63,7 @@ def do_tempscale_and_bias_optimization(labels, preacts, bias_positions, verbose,
     return optimal_t, biases
 
 
-class BiasCorrectedTemperatureScaling(CalibratorFactory):
+class BiasCorrectedTemperatureScaling(SimpleCalibratorFactory):
     def __init__(self, lbfgs_kwargs={}, verbose=False, bias_positions="all"):
         self.lbfgs_kwargs = lbfgs_kwargs
         self.verbose = verbose
