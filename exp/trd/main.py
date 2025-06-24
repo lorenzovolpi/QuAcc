@@ -189,7 +189,12 @@ def train_cls(args):
 
 
 def experiments():
-    cls_train_args = list(gen_model_dataset(gen_classifiers, gen_datasets))
+    # cls_train_args = list(gen_model_dataset(gen_classifiers, gen_datasets))
+    cls_train_args = []
+    for dataset in gen_datasets():
+        _, (L, _, _) = dataset
+        for model in gen_classifiers(L.n_classes):
+            cls_train_args.append((model, dataset))
     cls_dataset_gen = parallel(
         func=train_cls,
         args_list=cls_train_args,
