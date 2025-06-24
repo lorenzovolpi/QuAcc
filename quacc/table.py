@@ -1,4 +1,5 @@
 import os
+import pdb
 import subprocess
 from collections.abc import Iterable
 from dataclasses import dataclass, replace
@@ -467,6 +468,8 @@ class Table:
             )
             leave_empty = False
             for bench in self.get_benchmarks():
+                # if bench == r"\textsf{iris.3}" and method == r"PrediQuant":
+                #     pdb.set_trace()
                 rank = self.get(benchmark=bench, method=method).rank()
                 if rank is not None:
                     method_rank_mean.append(rank)
