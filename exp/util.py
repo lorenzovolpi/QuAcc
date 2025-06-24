@@ -68,9 +68,9 @@ def get_acc_name(acc_name):
     }
 
 
-def split_validation(V: LabelledCollection, ratio=0.6, repeats=100):
+def split_validation(V: LabelledCollection, ratio=0.6, repeats=100, sample_size=None):
     v_train, v_val = V.split_stratified(ratio, random_state=qp.environ["_R_SEED"])
-    val_prot = UPP(v_val, repeats=repeats, return_type="labelled_collection")
+    val_prot = UPP(v_val, repeats=repeats, sample_size=sample_size, return_type="labelled_collection")
     return v_train, val_prot
 
 
