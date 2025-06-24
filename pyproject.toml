@@ -22,6 +22,7 @@ ucimlrepo = "^0.0.7"
 xlrd = "^2.0.1"
 quapy = {git = "https://github.com/lorenzovolpi/QuaPy.git", rev = "accuracy"}
 critdd = {git = "https://github.com/mirkobunse/critdd"}
+lascal = {git = "https://github.com/tpopordanoska/label-shift-calibration.git"}
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.0.0"
@@ -35,6 +36,8 @@ gunicorn = "^21.2.0"
 dash-bootstrap-components = "^1.6.0"
 plotly = "^5.22.0"
 
+[tool.poetry.group.lascal.dependencies]
+rich = "^14.0.0"
 
 [tool.pytest.ini_options]
 addopts = "--cov=quacc -rA --cov-report html"
