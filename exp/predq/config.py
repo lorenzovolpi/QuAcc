@@ -18,7 +18,7 @@ from exp.util import split_validation
 from quacc.data.datasets import fetch_UCIBinaryDataset, fetch_UCIMulticlassDataset, sort_datasets_by_size
 from quacc.error import f1, f1_macro, vanilla_acc
 from quacc.models.cont_table import LEAP, OCE, PHD, NaiveCAP
-from quacc.models.direct import ATC, DoC
+from quacc.models.direct import ATC, DoC, PabloCAP, PrediQuant
 from quacc.models.utils import OracleQuantifier
 from quacc.utils.commons import contingency_table
 
@@ -27,7 +27,7 @@ root_dir = os.path.join(qc.env["OUT_DIR"], PROJECT)
 NUM_TEST = 1000
 qp.environ["_R_SEED"] = 0
 
-PROBLEM = "binary"
+PROBLEM = "multiclass"
 
 _toggle = {
     "vanilla": True,
@@ -89,6 +89,10 @@ def kdey():
     return KDEyML(MLP())
 
 
+def kdey_h(h: BaseEstimator):
+    return KDEyML(h)
+
+
 def gen_classifiers():
     yield "LR", LogisticRegression()
     yield "kNN", KNN(n_neighbors=10)
@@ -126,24 +130,33 @@ def gen_baselines(acc_fn):
     yield "ATC-MC", ATC(acc_fn, scoring_fn="maxconf")
 
 
-def gen_baselines_vp(acc_fn, D):
+def gen_baselines_vp(acc_fn, D: DatasetBundle):
     yield "DoC", DoC(acc_fn, D.V2_prot, D.V2_prot_posteriors)
 
 
 def gen_CAP_cont_table(h, acc_fn):
-    yield "LEAP(KDEy)", LEAP(acc_fn, kdey())
+    yield "LEAP(KDEy)", LEAP(acc_fn, kdey(), log_true_solve=True)
     yield "S-LEAP(KDEy)", PHD(acc_fn, kdey())
     yield "O-LEAP(KDEy)", OCE(acc_fn, kdey(), optim_method="SLSQP")
 
 
+def gen_CAP_direct_vp(h, acc_fn, D: DatasetBundle):
+    yield "PrediQuant", PrediQuant(acc_fn, kdey_h(h), D.V2_prot, D.V2_prot_posteriors)
+    yield "PrediQuant-a0", PrediQuant(acc_fn, kdey_h(h), D.V2_prot, D.V2_prot_posteriors, alpha=0)
+
+
+def gen_CAP_direct(h, acc_fn):
+    yield "PabloCAP", PabloCAP(acc_fn, kdey())
+
+
 def gen_methods_with_oracle(h, acc_fn, D: DatasetBundle):
     oracle_q = OracleQuantifier([ui for ui in D.test_prot()])
-    yield "LEAP(KDEy)", LEAP(acc_fn, oracle_q)
-    yield "S-LEAP(KDEy)", PHD(acc_fn, oracle_q)
+    yield "LEAP(oracle)", LEAP(acc_fn, oracle_q)
+    yield "S-LEAP(oracle)", PHD(acc_fn, oracle_q)
     yield "O-LEAP(oracle)", OCE(acc_fn, oracle_q, reuse_h=h, optim_method="SLSQP")
 
 
-def gen_methods(h, D, with_oracle=False):
+def gen_methods(h, D: DatasetBundle, with_oracle=False):
     _, acc_fn = next(gen_acc_measure())
     for name, method in gen_baselines(acc_fn):
         yield name, method, D.V, D.V_posteriors
@@ -151,13 +164,17 @@ def gen_methods(h, D, with_oracle=False):
         yield name, method, D.V1, D.V1_posteriors
     for name, method in gen_CAP_cont_table(h, acc_fn):
         yield name, method, D.V, D.V_posteriors
+    for name, method in gen_CAP_direct(h, acc_fn):
+        yield name, method, D.V, D.V_posteriors
+    for name, method in gen_CAP_direct_vp(h, acc_fn, D):
+        yield name, method, D.V1, D.V1_posteriors
     if with_oracle:
         for name, method in gen_methods_with_oracle(h, acc_fn, D):
             yield name, method, D.V, D.V_posteriors
 
 
 def get_classifier_names():
-    return [clsf.name for clsf in gen_classifiers()]
+    return [name for name, _ in gen_classifiers()]
 
 
 def get_dataset_names():
@@ -172,6 +189,6 @@ def get_method_names(with_oracle=False):
     mock_h = LogisticRegression()
     mock_D = DatasetBundle.mock()
 
-    names = [m for m, _ in gen_methods(mock_h, mock_D, with_oracle=with_oracle)]
+    names = [m for m, _, _, _ in gen_methods(mock_h, mock_D, with_oracle=with_oracle)]
 
     return names
