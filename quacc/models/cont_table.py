@@ -8,7 +8,7 @@ import numpy as np
 import scipy
 from quapy.data.base import LabelledCollection as LC
 from quapy.functional import prevalence_from_labels
-from quapy.method.aggregative import AggregativeQuantifier
+from quapy.method.aggregative import PCC, AggregativeQuantifier
 from quapy.protocol import AbstractProtocol
 from scipy import optimize
 from scipy.sparse import csr_matrix, issparse
@@ -17,6 +17,7 @@ from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import StratifiedKFold, cross_val_predict
 from typing_extensions import override
 
+from calibration.lascal import LasCal
 from quacc.models.base import ClassifierAccuracyPrediction
 from quacc.models.utils import max_conf, max_inverse_softmax, neg_entropy
 
@@ -150,6 +151,32 @@ class NaiveCAP(CAPContingencyTable):
         :return: a confusion matrix in the return format of `sklearn.metrics.confusion_matrix`
         """
         return self.cont_table
+
+
+class CBPE(CAPContingencyTable):
+    def __init__(self, acc_fn: Callable):
+        super().__init__(acc_fn)
+
+    def fit(self, val: LabelledCollection, posteriors):
+        self.val_y = val.y
+        self.val_P = posteriors
+        self.n_classes = val.n_classes
+        self.calibrator = LasCal()
+
+    def predict_ct(self, test, posteriors):
+        test_P_calib = self.calibrator(self.val_P, self.val_y, posteriors)
+
+        estim_ct = []
+        for j in range(self.n_classes):
+            j_idx = test_P_calib.argmax(axis=1) == j
+            if j_idx.sum() == 0:
+                estim_ct.append(np.zeros(self.n_classes))
+                continue
+
+            c_j = PCC().aggregate(test_P_calib[j_idx])
+            estim_ct.append(c_j)
+
+        return np.vstack(estim_ct).T
 
 
 class CAPContingencyTableQ(CAPContingencyTable, BaseEstimator):
