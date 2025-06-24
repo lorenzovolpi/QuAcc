@@ -1,6 +1,7 @@
 import itertools as IT
 import os
 
+import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
 
@@ -117,5 +118,52 @@ def plots():
             )
 
 
+def sample_size_plot():
+    methods = ["DoC", "LEAP(KDEy-MLP)", "PHD(KDEy-MLP)", "OCE(KDEy-MLP)-SLSQP"]
+    classifiers = get_classifier_names()
+    accs = get_acc_names()
+
+    res_dir = os.path.join(root_dir, "sample_size")
+    res = load_results(base_dir=res_dir, filter_methods=methods)
+
+    for acc, cls_name in IT.product(accs, classifiers):
+        df = res.loc[(res["method"].isin(methods)) & (res["acc_name"] == acc) & (res["classifier"] == cls_name)]
+        print(f"Plotting {cls_name} [{acc}]")
+        assert len(df["method"].unique()) == len(methods), (
+            f"Error while plotting {cls_name} [{acc}]: some methods missing!"
+        )
+        _df, _methods = rename_methods(method_map, df, methods)
+
+        plot = sns.lineplot(
+            data=_df,
+            x="sample_size",
+            y="acc_err",
+            hue="method",
+            estimator="mean",
+            errorbar=None,
+            linewidth=1,
+        )
+
+        # config legend
+        plot.legend(title="")
+        sns.move_legend(plot, "lower center", bbox_to_anchor=(0.95, 0.3), ncol=1)
+
+        # set axes labels
+        plot.set_xlabel("Sample size")
+        plot.set_ylabel("Accuracy Error")
+
+        # plot directory
+        plot_dir = os.path.join(root_dir, "plots", "sample_size")
+        os.makedirs(plot_dir, exist_ok=True)
+        # save figure
+        exts = [".pdf", ".png"]
+        files = [os.path.join(plot_dir, f"{cls_name}_{acc}.{ext}") for ext in exts]
+        for f in files:
+            plot.figure.savefig(f, bbox_inches="tight", dpi=300)
+        plot.figure.clear()
+        plt.close(plot.figure)
+
+
 if __name__ == "__main__":
-    plots()
+    # plots()
+    sample_size_plot()
