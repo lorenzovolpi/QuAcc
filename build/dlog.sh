@@ -1,20 +1,17 @@
 #!/bin/bash
 
-WORKDIR="quacc"
-
-host="bcuda"
+HOST="bcuda"
 LOGFILE="quacc"
 
 while [[ $# -gt 0 ]]; do
     case $1 in
         -h|--host)
-            host="$2"
+            HOST="$2"
             shift
             shift
             ;;
         --local)
-            host=""
-            WORKDIR="."
+            HOST=""
             shift
             ;;
         -m|--module)
@@ -29,8 +26,17 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-if [[ $1 == "-l" ]]; then
-    $host cat "$WORKDIR/output/${LOGFILE}.log" | bat -l syslog
+if [[ $HOST == "bcuda" ]]; then
+    WORKDIR="quacc"
+elif [[ $HOST == "dgx" ]]; then
+    WORKDIR="raid/quacc"
 else
-    $host tail -f -n +0 "$WORKDIR/output/${LOGFILE}.log" | bat -P -l syslog
+    WORKDIR="."
+fi
+
+
+if [[ $1 == "-l" ]]; then
+    $HOST cat "$WORKDIR/output/${LOGFILE}.log" | bat -l syslog
+else
+    $HOST tail -f -n +0 "$WORKDIR/output/${LOGFILE}.log" | bat -P -l syslog
 fi

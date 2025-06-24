@@ -2,6 +2,8 @@
 
 if [[ $(hostname) == "barracuda.isti.cnr.it" ]]; then
     ENVFILE="bcuda.env"
+elif [[ $(hostname) == "dgx-a100" ]]; then
+    ENVFILE="dgx.env"
 else
     ENVFILE="local.env"
 fi
@@ -45,9 +47,9 @@ while [[ $# -gt 0 ]]; do
             shift
             ;;
         --stop)
-            pkill -f $MODULE -u $USER
-            sleep 2
             pkill -f joblib -u $USER
+            sleep 2
+            pkill -f $MODULE -u $USER
             exit 0
             ;;
         -*|--*)

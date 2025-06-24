@@ -1,8 +1,6 @@
 #!/bin/bash
 
-host="bcuda"
-PYTHON_PATH="miniconda3/bin/python"
-WORKDIR="quacc"
+HOST="bcuda"
 OUTPUT_DIR="output"
 OUTPUT_FILE="quacc"
 FILTER=false
@@ -11,6 +9,11 @@ TAIL=false
 
 while [[ $# -gt 0 ]]; do
     case $1 in
+        -h|--host)
+            HOST=$2
+            shift
+            shift
+            ;;
         -t|--tail)
             TAIL=true
             shift 
@@ -36,12 +39,21 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
+if [[ $HOST == "bcuda" ]]; then
+    PYTHON_PATH="miniconda3/bin/python"
+    WORKDIR="quacc"
+elif [[ $HOST == "dgx" ]]; then
+    PYTHON_PATH="raid/miniconda3/bin/python"
+    WORKDIR="raid/quacc"
+fi
+
+
 if [[ $TAIL == true ]]; then
-    $host tail -n +0 -f "$WORKDIR/$OUTPUT_DIR/${OUTPUT_FILE}.out" | bat -P
+    $HOST tail -n +0 -f "$WORKDIR/$OUTPUT_DIR/${OUTPUT_FILE}.out" | bat -P
 else
     if [[ $FILTER == true ]]; then
-        $host "$PYTHON_PATH" "$WORKDIR/filter_out.py" "$WORKDIR/$OUTPUT_DIR/${OUTPUT_FILE}.out" | bat
+        $HOST "$PYTHON_PATH" "$WORKDIR/filter_out.py" "$WORKDIR/$OUTPUT_DIR/${OUTPUT_FILE}.out" | bat
     else
-        $host cat "$WORKDIR/$OUTPUT_DIR/${OUTPUT_FILE}.out" | bat
+        $HOST cat "$WORKDIR/$OUTPUT_DIR/${OUTPUT_FILE}.out" | bat
     fi
 fi
