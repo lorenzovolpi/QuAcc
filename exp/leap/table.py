@@ -46,7 +46,7 @@ def decorate_datasets(df, datasets):
 def tables():
     classifiers = get_classifier_names()
     datasets = get_dataset_names()
-    baselines = get_baseline_names()
+    baselines = [b for b in get_baseline_names() if b not in ["COT"]]
     methods = baselines + ["LEAP(ACC)", "LEAP(KDEy-MLP)", "PHD(KDEy-MLP)", "OCE(KDEy-MLP)-SLSQP"]
     accs = get_acc_names()
 
@@ -86,10 +86,10 @@ def tables():
 
     pdf_path = os.path.join(root_dir, "tables", f"{PROBLEM}.pdf")
     new_commands = [
-        "\\newcommand{\leapacc}{LEAP$_\\mathrm{ACC}$}",
-        "\\newcommand{\leapplus}{LEAP$_\\mathrm{KDEy}$}",
-        "\\newcommand{\leapppskde}{S-LEAP$_\\mathrm{KDEy}$}",
-        "\\newcommand{\oleapkde}{O-LEAP$_\\mathrm{KDEy}$}",
+        "\\newcommand{\\leapacc}{LEAP$_\\mathrm{ACC}$}",
+        "\\newcommand{\\leapplus}{LEAP$_\\mathrm{KDEy}$}",
+        "\\newcommand{\\leapppskde}{S-LEAP$_\\mathrm{KDEy}$}",
+        "\\newcommand{\\oleapkde}{O-LEAP$_\\mathrm{KDEy}$}",
     ]
     Table.LatexPDF(pdf_path, tables=tbls, landscape=False, new_commands=new_commands)
 
