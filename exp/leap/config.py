@@ -3,6 +3,7 @@ import os
 from dataclasses import dataclass
 
 import numpy as np
+import pandas as pd
 import quapy as qp
 import torch
 from quapy.data import LabelledCollection
@@ -21,8 +22,8 @@ from exp.util import split_validation
 from quacc.data.datasets import fetch_UCIBinaryDataset, fetch_UCIMulticlassDataset, sort_datasets_by_size
 from quacc.error import f1, f1_macro, vanilla_acc
 from quacc.models._large_models import BaseEstimatorAdapter
-from quacc.models.cont_table import LEAP, OCE, PHD, NaiveCAP
-from quacc.models.direct import ATC, DoC
+from quacc.models.cont_table import CBPE, LEAP, OCE, PHD, NaiveCAP
+from quacc.models.direct import ATC, COT, DispersionScore, DoC
 from quacc.models.utils import OracleQuantifier
 from quacc.utils.commons import contingency_table
 
@@ -32,7 +33,7 @@ NUM_TEST = 1000
 qp.environ["_R_SEED"] = 0
 CSV_SEP = ","
 
-PROBLEM = "multiclass"
+PROBLEM = "binary"
 
 _toggle = {
     "lr": False,
@@ -63,17 +64,18 @@ class DatasetBundle:
     test_prot_y_hat: np.ndarray = None
     test_prot_true_cts: np.ndarray = None
 
-    def create_bundle(self, h: BaseEstimator):
+    def create_bundle(self, h: BaseEstimator, sample_size=None):
         # generate test protocol
         self.test_prot = UPP(
             self.U,
             repeats=NUM_TEST,
+            sample_size=sample_size,
             return_type="labelled_collection",
             random_state=qp.environ["_R_SEED"],
         )
 
         # split validation set
-        self.V1, self.V2_prot = split_validation(self.V)
+        self.V1, self.V2_prot = split_validation(self.V, sample_size=sample_size)
 
         # precomumpute model posteriors for validation sets
         self.V_posteriors = h.predict_proba(self.V.X)
@@ -96,18 +98,6 @@ class DatasetBundle:
     @classmethod
     def mock(cls):
         return DatasetBundle(None, None, None, test_prot=lambda: [])
-
-
-def sample_size(test_size):
-    return 100
-    # if test_size > 3000:
-    #     return 500
-    # elif test_size > 1000:
-    #     return 300
-    # elif test_size > 400:
-    #     return 200
-    # else:
-    #     return 100
 
 
 def cc_lr():
@@ -227,6 +217,9 @@ def gen_acc_measure():
 def gen_baselines(acc_fn):
     yield "Naive", NaiveCAP(acc_fn)
     yield "ATC-MC", ATC(acc_fn, scoring_fn="maxconf")
+    yield "DS", DispersionScore(acc_fn)
+    yield "COT", COT(acc_fn)
+    yield "CBPE", CBPE(acc_fn)
     # yield "QuAccNxN(KDEy)", QuAccNxN(acc_fn, kdey(), add_X=True, add_posteriors=True, add_maxinfsoft=True)
     # yield "QuAccNxN(KDEy-a)", QuAccNxN(acc_fn, kdey_auto(), add_X=True, add_posteriors=True, add_maxinfsoft=True)
 
