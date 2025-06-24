@@ -1,12 +1,9 @@
 import glob
-import itertools as IT
 import os
 
-import numpy as np
 import pandas as pd
 
-from exp.leap.config import sample_size
-from exp.trd.config import PROBLEM, get_acc_names, get_CAP_method_names, get_classifier_names, root_dir
+from exp.trd.config import PROBLEM, root_dir
 
 
 def local_path(dataset_name, cls_name, method_name, acc_name):
@@ -21,3 +18,32 @@ def load_results() -> pd.DataFrame:
         dfs.append(pd.read_json(path))
 
     return pd.concat(dfs, axis=0)
+
+
+def rename_datasets(mapping, df, datasets):
+    _datasets = [mapping.get(d, d) for d in datasets]
+    for d, rd in mapping.items():
+        df.loc[df["dataset"] == d, "dataset"] = rd
+    return df, _datasets
+
+
+def rename_methods(mapping, df, methods, baselines=None):
+    _methods = [mapping.get(m, m) for m in methods]
+    for m, rm in mapping.items():
+        df.loc[df["method"] == m, "method"] = rm
+
+    if baselines is None:
+        return df, _methods
+    else:
+        _baselines = [mapping.get(b, b) for b in baselines]
+        return df, _methods, _baselines
+
+
+def decorate_datasets(df, datasets):
+    def _decorate(d):
+        return r"\textsf{" + d + r"}"
+
+    _datasets = [_decorate(d) for d in datasets]
+    for d in df["dataset"].unique():
+        df.loc[df["dataset"] == d, "dataset"] = _decorate(d)
+    return df, _datasets

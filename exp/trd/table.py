@@ -5,8 +5,23 @@ import pandas as pd
 
 from exp.trd.config import PROBLEM, get_acc_names, root_dir
 from exp.trd.model_selection import model_selection
-from exp.trd.util import load_results
+from exp.trd.util import decorate_datasets, load_results, rename_datasets, rename_methods
 from quacc.table import Format, Table
+
+method_map = {
+    "Naive": 'Na\\"ive',
+    "ATC-MC": "ATC",
+    "LEAP(KDEy)": "\\leapplus",
+    "S-LEAP(KDEy)": "\\leapppskde",
+    "O-LEAPCE(KDEy)-SLSQP": "\\oleapkde",
+}
+
+dataset_map = {
+    "poker_hand": "poker-hand",
+    "hand_digits": "hand-digits",
+    "page_block": "page-block",
+    "image_seg": "image-seg",
+}
 
 
 def tables():
@@ -41,7 +56,10 @@ def tables():
     for acc in accs:
         _df = res.loc[res["acc_name"] == acc, :]
         name = f"{PROBLEM}_{acc}"
-        tbls.append(gen_table(_df, name, datasets, methods))
+        _df, _datasets = rename_datasets(dataset_map, _df, datasets)
+        _df, _datasets = decorate_datasets(_df, _datasets)
+        _df, _methods = rename_methods(method_map, _df, methods)
+        tbls.append(gen_table(_df, name, _datasets, _methods))
 
     pdf_path = os.path.join(root_dir, "tables", f"{PROBLEM}.pdf")
     Table.LatexPDF(pdf_path, tables=tbls, landscape=False)
