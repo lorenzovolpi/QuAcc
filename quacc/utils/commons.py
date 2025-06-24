@@ -159,6 +159,7 @@ def parallel(
     backend="loky",
     verbose=0,
     batch_size="auto",
+    max_nbytes="1M",
 ):
     """
     A wrapper of multiprocessing:
@@ -191,7 +192,14 @@ def parallel(
     _returnas = "list" if return_as == "array" else return_as
     with ExitStack() as stack:
         stack.enter_context(qc.commons.temp_force_njobs(qc.env["FORCE_NJOBS"]))
-        out = Parallel(n_jobs=n_jobs, return_as=_returnas, backend=backend, verbose=verbose, batch_size=batch_size)(
+        out = Parallel(
+            n_jobs=n_jobs,
+            return_as=_returnas,
+            backend=backend,
+            verbose=verbose,
+            batch_size=batch_size,
+            max_nbytes=max_nbytes,
+        )(
             delayed(func_dec)(qp.environ, qc.env, None if seed is None else seed + i, args_i)
             for i, args_i in enumerate(args_list)
         )
