@@ -1,6 +1,7 @@
 import functools
 import json
 import os
+from abc import ABC
 from contextlib import ExitStack, contextmanager
 from pathlib import Path
 from typing import Callable, Literal
@@ -11,11 +12,32 @@ import pandas as pd
 import quapy as qp
 from joblib import Parallel, delayed
 from quapy.data.base import LabelledCollection
+from scipy.sparse import coo_array
 from sklearn.base import BaseEstimator
 from sklearn.metrics import confusion_matrix
 from tqdm import tqdm
 
 import quacc as qc
+
+
+class SparseMatrixBuilder(ABC):
+    def __init__(self):
+        self.data = []
+        self.rows = []
+        self.cols = []
+
+    def add(self, data: np.ndarray, rows: np.ndarray, cols: np.ndarray):
+        assert len(data) == len(rows) == len(cols), "Inconsistent array lengths; cannot add to SparseMatrixBuilder"
+        self.data.append(data)
+        self.rows.append(rows)
+        self.cols.append(cols)
+
+    def build_csr(self, shape):
+        data = np.hstack(self.data)
+        rows = np.hstack(self.rows)
+        cols = np.hstack(self.cols)
+        coo = coo_array((data, (rows, cols)), shape=shape)
+        return coo.tocsr()
 
 
 def combine_dataframes(dfs, df_index=[]) -> pd.DataFrame:
