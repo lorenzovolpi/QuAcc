@@ -105,8 +105,8 @@ def ctdfiff_true_acc():
     parent_dir = os.path.join(root_dir, "ctdiffs")
     os.makedirs(parent_dir, exist_ok=True)
 
-    res, datasets = rename_datasets(dataset_map, res, datasets)
-    res, methods = rename_methods(method_map, res, methods)
+    datasets, res = rename_datasets(dataset_map, datasets, df=res)
+    methods, res = rename_methods(method_map, methods, df=res)
 
     for cls_name, acc, dataset in IT.product(classifiers, accs, datasets):
         print(cls_name, acc, dataset)

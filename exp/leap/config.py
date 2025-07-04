@@ -50,6 +50,42 @@ _toggle = {
 
 
 @dataclass
+class EXP:
+    code: int
+    cls_name: str
+    dataset_name: str
+    acc_name: str
+    method_name: str
+    df: pd.DataFrame = None
+    t_train: float = None
+    t_test_ave: float = None
+    err: Exception = None
+
+    @classmethod
+    def SUCCESS(cls, *args, **kwargs):
+        return EXP(200, *args, **kwargs)
+
+    @classmethod
+    def EXISTS(cls, *args, **kwargs):
+        return EXP(300, *args, **kwargs)
+
+    @classmethod
+    def ERROR(cls, e, *args, **kwargs):
+        return EXP(400, *args, err=e, **kwargs)
+
+    @property
+    def ok(self):
+        return self.code == 200
+
+    @property
+    def old(self):
+        return self.code == 300
+
+    def error(self):
+        return self.code == 400
+
+
+@dataclass
 class DatasetBundle:
     L_prevalence: np.ndarray
     V: LabelledCollection
@@ -64,9 +100,8 @@ class DatasetBundle:
     test_prot_y_hat: np.ndarray = None
     test_prot_true_cts: np.ndarray = None
 
-    def create_bundle(self, h: BaseEstimator, sample_size=None):
-        # generate test protocol
-        self.test_prot = UPP(
+    def get_test_prot(self, sample_size=None):
+        return UPP(
             self.U,
             repeats=NUM_TEST,
             sample_size=sample_size,
@@ -74,6 +109,9 @@ class DatasetBundle:
             random_state=qp.environ["_R_SEED"],
         )
 
+    def create_bundle(self, h: BaseEstimator, sample_size=None):
+        # generate test protocol
+        self.test_prot = self.get_test_prot(sample_size=sample_size)
         # split validation set
         self.V1, self.V2_prot = split_validation(self.V, sample_size=sample_size)
 
@@ -256,6 +294,7 @@ def gen_CAP_cont_table(h, acc_fn):
         yield "LEAP(KDEy-MLP)", LEAP(acc_fn, kdey_mlp(), log_true_solve=True)
         yield "PHD(KDEy-MLP)", PHD(acc_fn, kdey_mlp())
         yield "OCE(KDEy-MLP)-SLSQP", OCE(acc_fn, kdey_mlp(), optim_method="SLSQP")
+        yield "OCE(KDEy-MLP)-linear", OCE(acc_fn, kdey_mlp(), optim_method="lsq_linear")
 
     if _toggle["lr"]:
         if _toggle["cc"]:

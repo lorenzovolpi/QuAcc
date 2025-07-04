@@ -10,6 +10,7 @@ from sklearn.base import clone as skl_clone
 
 import quacc as qc
 from exp.leap.config import (
+    EXP,
     PROBLEM,
     PROJECT,
     DatasetBundle,
@@ -17,10 +18,11 @@ from exp.leap.config import (
     gen_classifiers,
     gen_datasets,
     gen_methods,
+    get_acc_names,
     get_method_names,
     root_dir,
 )
-from exp.leap.util import gen_method_df, get_extra_from_method, is_excluded
+from exp.leap.util import all_exist_pre_check, gen_method_df, get_extra_from_method, is_excluded, local_path
 from exp.util import (
     fit_or_switch,
     gen_model_dataset,
@@ -34,64 +36,6 @@ from quacc.utils.commons import get_shift, parallel, true_acc
 log = get_logger(id=PROJECT)
 
 qp.environ["SAMPLE_SIZE"] = 100
-
-
-def local_path(dataset_name, cls_name, method_name, acc_name):
-    parent_dir = os.path.join(root_dir, PROBLEM, cls_name, acc_name, dataset_name)
-    os.makedirs(parent_dir, exist_ok=True)
-    return os.path.join(parent_dir, f"{method_name}.json")
-
-
-def all_exist_pre_check(dataset_name, cls_name):
-    method_names = get_method_names()
-    acc_names = [acc_name for acc_name, _ in gen_acc_measure()]
-
-    all_exist = True
-    for method, acc in IT.product(method_names, acc_names):
-        if is_excluded(cls_name, dataset_name, method, acc):
-            continue
-        path = local_path(dataset_name, cls_name, method, acc)
-        all_exist = os.path.exists(path)
-        if not all_exist:
-            break
-
-    return all_exist
-
-
-@dataclass
-class EXP:
-    code: int
-    cls_name: str
-    dataset_name: str
-    acc_name: str
-    method_name: str
-    df: pd.DataFrame = None
-    t_train: float = None
-    t_test_ave: float = None
-    err: Exception = None
-
-    @classmethod
-    def SUCCESS(cls, *args, **kwargs):
-        return EXP(200, *args, **kwargs)
-
-    @classmethod
-    def EXISTS(cls, *args, **kwargs):
-        return EXP(300, *args, **kwargs)
-
-    @classmethod
-    def ERROR(cls, e, *args, **kwargs):
-        return EXP(400, *args, err=e, **kwargs)
-
-    @property
-    def ok(self):
-        return self.code == 200
-
-    @property
-    def old(self):
-        return self.code == 300
-
-    def error(self):
-        return self.code == 400
 
 
 def exp_protocol(args):
@@ -205,21 +149,26 @@ def experiments():
         args_list=exp_prot_args_list,
         n_jobs=qc.env["N_JOBS"],
         return_as="generator_unordered",
+        max_nbytes=None,
     )
 
+    exp_cnt, n_exp = 0, len(exp_prot_args_list) * len(get_acc_names())
     for res in results_gen:
         for r in res:
+            exp_cnt += 1
             if r.ok:
                 path = local_path(r.dataset_name, r.cls_name, r.method_name, r.acc_name)
                 r.df.to_json(path)
                 log.info(
-                    f"[{r.cls_name}@{r.dataset_name}] {r.method_name} on {r.acc_name} done [{timestamp(r.t_train, r.t_test_ave)}]"
+                    f"({exp_cnt}/{n_exp}) [{r.cls_name}@{r.dataset_name}] {r.method_name} on {r.acc_name} done [{timestamp(r.t_train, r.t_test_ave)}]"
                 )
             elif r.old:
-                log.info(f"[{r.cls_name}@{r.dataset_name}] {r.method_name} on {r.acc_name} exists, skipping")
+                log.info(
+                    f"({exp_cnt}/{n_exp}) [{r.cls_name}@{r.dataset_name}] {r.method_name} on {r.acc_name} exists, skipping"
+                )
             elif r.error:
                 log.warning(
-                    f"[{r.cls_name}@{r.dataset_name}] {r.method_name}: {r.acc_name} gave error '{r.err}' - skipping"
+                    f"({exp_cnt}/{n_exp}) [{r.cls_name}@{r.dataset_name}] {r.method_name}: {r.acc_name} gave error '{r.err}' - skipping"
                 )
 
 
