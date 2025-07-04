@@ -26,7 +26,7 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-if [[ $HOST == "bcuda" ]]; then
+if [[ $HOST == "bcuda" || $HOST == "nity" ]]; then
     WORKDIR="quacc"
 elif [[ $HOST == "dgx" ]]; then
     WORKDIR="raid/quacc"

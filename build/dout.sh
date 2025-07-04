@@ -39,7 +39,7 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-if [[ $HOST == "bcuda" ]]; then
+if [[ $HOST == "bcuda" || $HOST == "nity" ]]; then
     PYTHON_PATH="miniconda3/bin/python"
     WORKDIR="quacc"
 elif [[ $HOST == "dgx" ]]; then

@@ -38,13 +38,16 @@ if [[ $SERVER == "dgx" ]]; then
 elif [[ $SERVER == "bcuda" || $SERVER == "barracuda" ]]; then
     HOST="volpi@barracuda.isti.cnr.it"
     WORKDIR="quacc"
+elif [[ $SERVER == "nity" || $SERVER == "trinity" ]]; then
+    HOST="volpi@barracuda.isti.cnr.it"
+    WORKDIR="quacc"
 fi
 
 FROM_WORKDIR="$WORKDIR/$TYPE"
 LOCAL_WORKDIR="/home/lorev/quacc/$TYPE"
 
 sync_res() {
-    rsync -a "$HOST:$FROM_WORKDIR/$MODULE" $LOCAL_WORKDIR
+    rsync --info=progress2 -a "$HOST:$FROM_WORKDIR/$MODULE" $LOCAL_WORKDIR
 }
 
 daemon_sync_res() {

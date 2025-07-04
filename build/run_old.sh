@@ -2,8 +2,6 @@
 
 if [[ $(hostname) == "barracuda.isti.cnr.it" ]]; then
     ENVFILE="bcuda.env"
-elif [[ $(hostname) == "rk020278" ]]; then
-    ENVFILE="nity.env"
 elif [[ $(hostname) == "dgx-a100" ]]; then
     ENVFILE="dgx.env"
 else
@@ -14,8 +12,7 @@ export $(cat "${ENVFILE}" | xargs)
 
 OUTPUT_FILE="quacc.out"
 MODULE="quacc.experiments.run"
-FRONT=true
-PYTHON_ARGS=()
+FRONT=false
 
 while [[ $# -gt 0 ]]; do
     case $1 in
@@ -24,8 +21,12 @@ while [[ $# -gt 0 ]]; do
             shift
             shift 
             ;;
+        -m|--module)
+            MODULE=$2
+            shift
+            shift
+            ;;
         -o|--out)
-            FRONT=false
             OUTPUT_FILE=$2
             shift
             shift
@@ -41,22 +42,26 @@ while [[ $# -gt 0 ]]; do
                 shift
             done
             ;;
+        -f|--front)
+            FRONT=true
+            shift
+            ;;
         --stop)
             pkill -f joblib -u $USER
             sleep 2
             pkill -f $MODULE -u $USER
             exit 0
             ;;
-        *)
-            PYTHON_ARGS+=($1)
-            shift
+        -*|--*)
+            echo "Unknown option $1"
+            exit 1
             ;;
     esac
 done
 
 if [[ $FRONT == true ]]; then
-    poetry run python -um "${PYTHON_ARGS[@]}"
+    poetry run python -um $MODULE
 else
-    poetry run python -um "${PYTHON_ARGS[@]}" &> "$QUACC_OUT_DIR/$OUTPUT_FILE" & disown
+    poetry run python -um $MODULE &> "$QUACC_OUT_DIR/$OUTPUT_FILE" & disown
 fi
     
