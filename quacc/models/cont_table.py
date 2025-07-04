@@ -1,44 +1,36 @@
 import itertools as IT
 import pdb
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 from copy import deepcopy
-from typing import Callable
+from typing import Callable, override
 
+import cvxpy as cp
 import numpy as np
 import scipy
+import torch
 from quapy.data.base import LabelledCollection as LC
 from quapy.functional import prevalence_from_labels
 from quapy.method.aggregative import PCC, AggregativeQuantifier
 from quapy.protocol import AbstractProtocol
 from scipy import optimize
-from scipy.sparse import csr_matrix, issparse
+from scipy.sparse import coo_array, csr_array, csr_matrix, issparse
+from scipy.special import softmax
 from sklearn.base import BaseEstimator
 from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import StratifiedKFold, cross_val_predict
 from typing_extensions import override
 
 from calibration.lascal import LasCal
+from quacc.models._leap_opt import (
+    _optim_Adam,
+    _optim_Adam_batched,
+    _optim_cvxpy,
+    _optim_lsq_linear,
+    _optim_minimize,
+)
 from quacc.models.base import ClassifierAccuracyPrediction
 from quacc.models.utils import max_conf, max_inverse_softmax, neg_entropy
-
-
-def _optim_minimize(loss: Callable, n_classes: int, method="SLSQP", bounds=None, constraints=None):
-    """
-    Searches for the optimal prevalence values, i.e., an `n_classes`-dimensional vector of the (`n_classes`-1)-simplex
-    that yields the smallest lost. This optimization is carried out by means of a constrained search using scipy's
-    SLSQP routine.
-
-    :param loss: (callable) the function to minimize
-    :param n_classes: (int) the number of classes, i.e., the dimensionality of the prevalence vector
-    :param method: (str) the method used by scipy.optimize to minimize the loss; default="SLSQP"
-    :return: (ndarray) the best prevalence vector found
-    """
-    # the initial point is set as the uniform distribution
-    uniform_distribution = np.full(fill_value=1 / n_classes, shape=(n_classes,))
-
-    # solutions are bounded to those contained in the unit-simplex
-    r = optimize.minimize(loss, x0=uniform_distribution, method=method, bounds=bounds, constraints=constraints)
-    return r.x
+from quacc.utils.commons import SparseMatrixBuilder
 
 
 class LabelledCollection(LC):
@@ -266,6 +258,8 @@ class NsquaredEquationsCAP(CAPContingencyTableQ):
         acc_fn: Callable,
         q_class,
         always_optimize=False,
+        optim_method="cvxpy",
+        sparse_matrix=True,
         log_true_solve=False,
         reuse_h: BaseEstimator | None = None,
         verbose=False,
@@ -273,6 +267,8 @@ class NsquaredEquationsCAP(CAPContingencyTableQ):
         super().__init__(acc_fn, q_class, reuse_h)
         self.verbose = verbose
         self.always_optimize = always_optimize
+        self.optim_method = self._check_optim_method(optim_method)
+        self.sparse_matrix = sparse_matrix
         self.log_true_solve = log_true_solve
         self._true_solve_log = []
 
@@ -280,54 +276,140 @@ class NsquaredEquationsCAP(CAPContingencyTableQ):
         if self.verbose:
             print(*msgs, **kwargs)
 
+    def _check_optim_method(self, method):
+        _valid_methods = ["SLSQP", "cvxpy", "Adam", "lsq_linear"]
+        if method not in _valid_methods:
+            raise ValueError(f"Invalid optimization method: {method}; valid methods are: {_valid_methods}")
+        if method == "Adam" and self.sparse_matrix:
+            raise ValueError(f"Optimization method '{method}' does not support sparse matrices, yet")
+        return method
+
     def preprocess_data(self, data: LabelledCollection, posteriors):
         self.classes_ = data.classes_
         y_hat = np.argmax(posteriors, axis=-1)
         y_true = data.y
         self.cont_table = confusion_matrix(y_true, y_pred=y_hat, labels=data.classes_)
-        self.A, self.partial_b = self._construct_equations()
+
+        # self.A, self.partial_b = self._construct_equations()
+
+        # building equations
+        n = self.cont_table.shape[1]
+        # we need a n x n matrix of unknowns and the same number of equations
+        n_eqs = n * n
+
+        self.A = self._construct_A(n, n_eqs)
+        self.partial_b = self._construct_partial_b(n, n_eqs)
+
         return data
 
-    def _construct_equations(self):
-        # we need a n x n matrix of unknowns
-        n = self.cont_table.shape[1]
-
+    def _construct_A(self, n, n_eqs):
         # Idx is the matrix of indexes of unknowns. For example, if we need the counts of
         # all instances belonging to class i that have been classified as belonging to 0, 1, ..., n:
         # the indexes of the corresponding unknowns are given by I[i,:]
         Idx = np.arange(n * n).reshape(n, n)
 
+        # class-conditional ratios: they remain stable across train and test
+        # according to PPS assumptions
+        class_cond_ratios_tr = self.cont_table / self.cont_table.sum(axis=1, keepdims=True)
+
+        if self.sparse_matrix:
+            # system of equations: Ax=b, A.shape=(n*n, n*n,), b.shape=(n*n,)
+            A = SparseMatrixBuilder()
+
+            # first equation: the sum of all unknowns is 1
+            eq_no = 0
+            A.add(
+                data=np.ones(n_eqs),
+                rows=np.full(n_eqs, eq_no),
+                cols=np.arange(n_eqs),
+            )
+            eq_no += 1
+
+            # (n-1)*(n-1) equations: the class cond ratios should be the same in training and in test due to the PPS assumptions.
+            for i in range(1, n):
+                for j in range(1, n):
+                    ratio_ij = class_cond_ratios_tr[i, j]
+                    A.add(
+                        data=np.full(len(Idx[i, :j]), -ratio_ij),
+                        rows=np.full(len(Idx[i, :j]), eq_no),
+                        cols=Idx[i, :j],
+                    )
+                    A.add(
+                        data=np.array([1 - ratio_ij]),
+                        rows=np.array([eq_no]),
+                        cols=np.array([Idx[i, j]]),
+                    )
+                    A.add(
+                        data=np.full(len(Idx[i, j + 1 :]), -ratio_ij),
+                        rows=np.full(len(Idx[i, j + 1 :]), eq_no),
+                        cols=Idx[i, j + 1 :],
+                    )
+                    eq_no += 1
+
+            # n-1 equations: the sum of class-cond counts must equal the C&C prevalence prediction
+            for i in range(1, n):
+                A.add(
+                    data=np.ones(len(Idx[:, i])),
+                    rows=np.full(len(Idx[:, i]), eq_no),
+                    cols=Idx[:, i],
+                )
+                eq_no += 1
+
+            # n-1 equations: the sum of true true class-conditional positives must equal the class prev label in test
+            for i in range(n):
+                A.add(
+                    data=np.ones(len(Idx[i, :])),
+                    rows=np.full(len(Idx[i, :]), eq_no),
+                    cols=Idx[i, :],
+                )
+                eq_no += 1
+
+            return A.build_csr(shape=(n_eqs, n_eqs))
+        else:
+            # system of equations: Ax=b, A.shape=(n*n, n*n,), b.shape=(n*n,)
+            A = np.zeros(shape=(n_eqs, n_eqs))
+
+            # first equation: the sum of all unknowns is 1
+            eq_no = 0
+            A[eq_no, :] = 1
+            eq_no += 1
+
+            # (n-1)*(n-1) equations: the class cond ratios should be the same in training and in test due to the PPS assumptions.
+            for i in range(1, n):
+                for j in range(1, n):
+                    ratio_ij = class_cond_ratios_tr[i, j]
+                    A[eq_no, Idx[i, :]] = -ratio_ij
+                    A[eq_no, Idx[i, j]] = 1 - ratio_ij
+                    eq_no += 1
+
+            # n-1 equations: the sum of class-cond counts must equal the C&C prevalence prediction
+            for i in range(1, n):
+                A[eq_no, Idx[:, i]] = 1
+                eq_no += 1
+
+            # n-1 equations: the sum of true true class-conditional positives must equal the class prev label in test
+            for i in range(1, n):
+                A[eq_no, Idx[i, :]] = 1
+                eq_no += 1
+
+            return A
+
+    def _construct_partial_b(self, n, n_eqs):
         # system of equations: Ax=b, A.shape=(n*n, n*n,), b.shape=(n*n,)
-        A = np.zeros(shape=(n * n, n * n))
-        b = np.zeros(shape=(n * n))
+        b = np.zeros(shape=(n_eqs))
 
         # first equation: the sum of all unknowns is 1
         eq_no = 0
-        A[eq_no, :] = 1
         b[eq_no] = 1
         eq_no += 1
 
         # (n-1)*(n-1) equations: the class cond ratios should be the same in training and in test due to the PPS assumptions.
-        class_cond_ratios_tr = self.cont_table / self.cont_table.sum(axis=1, keepdims=True)
         for i in range(1, n):
             for j in range(1, n):
-                ratio_ij = class_cond_ratios_tr[i, j]
-                A[eq_no, Idx[i, :]] = -ratio_ij
-                A[eq_no, Idx[i, j]] = 1 - ratio_ij
                 b[eq_no] = 0
                 eq_no += 1
 
-        # n-1 equations: the sum of class-cond counts must equal the C&C prevalence prediction
-        for i in range(1, n):
-            A[eq_no, Idx[:, i]] = 1
-            eq_no += 1
-
-        # n-1 equations: the sum of true true class-conditional positives must equal the class prev label in test
-        for i in range(1, n):
-            A[eq_no, Idx[i, :]] = 1
-            eq_no += 1
-
-        return A, b
+        return b
 
     def predict_ct(self, test, posteriors):
         """
@@ -355,7 +437,10 @@ class NsquaredEquationsCAP(CAPContingencyTableQ):
         b[-(n - 1) :] = q_prev_estim[1:]
 
         # try the fast solution (may not be valid)
-        x = np.linalg.solve(A, b)
+        if self.sparse_matrix:
+            x = scipy.sparse.linalg.spsolve(A, b)
+        else:
+            x = np.linalg.solve(A, b)
 
         _true_solve = True
         n_classes = n**2
@@ -367,12 +452,15 @@ class NsquaredEquationsCAP(CAPContingencyTableQ):
             def loss(x):
                 return np.linalg.norm(A @ x - b, ord=2)
 
-            x = _optim_minimize(
-                loss,
-                n_classes=n_classes,
-                bounds=tuple((0, 1) for _ in range(n_classes)),  # values in [0,1]
-                constraints={"type": "eq", "fun": lambda x: 1 - sum(x)},  # values summing up to 1
-            )
+            if self.optim_method == "SLSQP":
+                x = _optim_minimize(loss, n_classes=n_classes, method="SLSQP")
+            elif self.optim_method == "cvxpy":
+                x = _optim_cvxpy(A, b)
+            elif self.otpim_method == "lsq_linear":
+                x = _optim_lsq_linear(A, b)
+            elif self.optim_method == "Adam":
+                x = _optim_Adam(A, b)
+
         else:
             self._sout(".", end="")
 
@@ -382,6 +470,38 @@ class NsquaredEquationsCAP(CAPContingencyTableQ):
             self._true_solve_log.append([_true_solve])
 
         return cont_table_test
+
+    @override
+    def _batch_predict_ct(self, prot: AbstractProtocol, posteriors):
+        if self.optim_method == "Adam" and self.always_optimize:
+            n = self.cont_table.shape[1]
+
+            bs = []
+            for test, P in IT.zip_longest(prot(), posteriors):
+                h_label_preds = np.argmax(P, axis=-1)
+
+                cc_prev_estim = prevalence_from_labels(h_label_preds, self.classes_)
+                q_prev_estim = self.q.quantify(test.X)
+
+                # we need a copy for b, otherwise original object is updated at each iteration
+                b = self.partial_b.copy()
+
+                # b is partially filled; we finish the vector by plugin in the classify and count
+                # prevalence estimates (n-1 values only), and the quantification estimates (n-1 values only)
+                b[-2 * (n - 1) : -(n - 1)] = cc_prev_estim[1:]
+                b[-(n - 1) :] = q_prev_estim[1:]
+
+                bs.append(b)
+
+            A = self.A
+            bs = np.stack(bs, axis=0)
+
+            xs = _optim_Adam_batched(A, bs, bounds=(0, 1))
+
+            cts_test = [x.reshape(n, n) for x in xs]
+            return cts_test
+        else:
+            return super()._batch_predict_ct(prot, posteriors)
 
     def batch_predict(self, prot: AbstractProtocol, posteriors, get_estim_cts=False):
         estim_cts = self._batch_predict_ct(prot, posteriors)
@@ -400,11 +520,13 @@ class OverConstrainedEquationsCAP(CAPContingencyTableQ):
         acc_fn: Callable,
         q_class,
         reuse_h: BaseEstimator | None = None,
-        optim_method: str = "SLSQP",
+        optim_method: str = "cvxpy",
+        sparse_matrix=True,
         verbose=False,
     ):
         super().__init__(acc_fn, q_class, reuse_h)
         self.verbose = verbose
+        self.sparse_matrix = sparse_matrix
         self.optim_method = self._check_optim_method(optim_method)
 
     def _sout(self, *msgs, **kwargs):
@@ -412,9 +534,11 @@ class OverConstrainedEquationsCAP(CAPContingencyTableQ):
             print(*msgs, **kwargs)
 
     def _check_optim_method(self, method):
-        _valid_methods = ["SLSQP", "SLSQP-c", "L-BFGS-B"]
+        _valid_methods = ["SLSQP", "cvxpy", "Adam", "lsq_linear"]
         if method not in _valid_methods:
             raise ValueError(f"Invalid optimization method: {method}; valid methods are: {_valid_methods}")
+        if method == "Adam" and self.sparse_matrix:
+            raise ValueError(f"Optimization method '{method}' does not support sparse matrices, yet")
         return method
 
     def preprocess_data(self, data: LabelledCollection, posteriors):
@@ -422,51 +546,127 @@ class OverConstrainedEquationsCAP(CAPContingencyTableQ):
         y_hat = np.argmax(posteriors, axis=-1)
         y_true = data.y
         self.cont_table = confusion_matrix(y_true, y_pred=y_hat, labels=data.classes_)
-        self.A, self.partial_b = self._construct_equations()
-        return data
 
-    def _construct_equations(self):
-        # we need a n x n matrix of unknowns
+        # building equations
         n = self.cont_table.shape[1]
+        # we want (n+1)^2 equations
         n_eqs = n * n + 2 * n + 1
+        # we need a n x n matrix of unknowns
         n_unknowns = n * n
 
+        self.A = self._construct_A(n, n_unknowns, n_eqs)
+        self.partial_b = self._construct_partial_b(n, n_eqs)
+
+        return data
+
+    def _construct_A(self, n, n_unknowns, n_eqs):
         # Idx is the matrix of indexes of unknowns. For example, if we need the counts of
         # all instances belonging to class i that have been classified as belonging to 0, 1, ..., n:
         # the indexes of the corresponding unknowns are given by I[i,:]
         Idx = np.arange(n * n).reshape(n, n)
 
+        # class-conditional ratios: they remain stable across train and test
+        # according to PPS assumptions
+        class_cond_ratios_tr = self.cont_table / self.cont_table.sum(axis=1, keepdims=True)
+
+        if self.sparse_matrix:
+            # system of equations: Ax=b, A.shape=(n*n, n*n,), b.shape=(n*n,)
+            A = SparseMatrixBuilder()
+
+            # first equation: the sum of all unknowns is 1
+            eq_no = 0
+            A.add(
+                data=np.ones(n_unknowns),
+                rows=np.full(n_unknowns, eq_no),
+                cols=np.arange(n_unknowns),
+            )
+            eq_no += 1
+
+            # (n-1)*(n-1) equations: the class cond ratios should be the same in training and in test due to the PPS assumptions.
+            for i in range(n):
+                for j in range(n):
+                    ratio_ij = class_cond_ratios_tr[i, j]
+                    A.add(
+                        data=np.full(len(Idx[i, :j]), -ratio_ij),
+                        rows=np.full(len(Idx[i, :j]), eq_no),
+                        cols=Idx[i, :j],
+                    )
+                    A.add(
+                        data=np.array([1 - ratio_ij]),
+                        rows=np.array([eq_no]),
+                        cols=np.array([Idx[i, j]]),
+                    )
+                    A.add(
+                        data=np.full(len(Idx[i, j + 1 :]), -ratio_ij),
+                        rows=np.full(len(Idx[i, j + 1 :]), eq_no),
+                        cols=Idx[i, j + 1 :],
+                    )
+                    eq_no += 1
+
+            # n-1 equations: the sum of class-cond counts must equal the C&C prevalence prediction
+            for i in range(n):
+                A.add(
+                    data=np.ones(len(Idx[:, i])),
+                    rows=np.full(len(Idx[:, i]), eq_no),
+                    cols=Idx[:, i],
+                )
+                eq_no += 1
+
+            # n-1 equations: the sum of true true class-conditional positives must equal the class prev label in test
+            for i in range(n):
+                A.add(
+                    data=np.ones(len(Idx[i, :])),
+                    rows=np.full(len(Idx[i, :]), eq_no),
+                    cols=Idx[i, :],
+                )
+                eq_no += 1
+
+            return A.build_csr(shape=(n_eqs, n_unknowns))
+        else:
+            # system of equations: Ax=b, A.shape=(n*n, n*n,), b.shape=(n*n,)
+            A = np.zeros(shape=(n_eqs, n_unknowns))
+
+            # first equation: the sum of all unknowns is 1
+            eq_no = 0
+            A[eq_no, :] = 1
+            eq_no += 1
+
+            # (n-1)*(n-1) equations: the class cond ratios should be the same in training and in test due to the PPS assumptions.
+            for i in range(n):
+                for j in range(n):
+                    ratio_ij = class_cond_ratios_tr[i, j]
+                    A[eq_no, Idx[i, :]] = -ratio_ij
+                    A[eq_no, Idx[i, j]] = 1 - ratio_ij
+                    eq_no += 1
+
+            # n-1 equations: the sum of class-cond counts must equal the C&C prevalence prediction
+            for i in range(n):
+                A[eq_no, Idx[:, i]] = 1
+                eq_no += 1
+
+            # n-1 equations: the sum of true true class-conditional positives must equal the class prev label in test
+            for i in range(n):
+                A[eq_no, Idx[i, :]] = 1
+                eq_no += 1
+
+            return A
+
+    def _construct_partial_b(self, n, n_eqs):
         # system of equations: Ax=b, A.shape=(n*n, n*n,), b.shape=(n*n,)
-        A = np.zeros(shape=(n_eqs, n_unknowns))
         b = np.zeros(shape=(n_eqs))
 
         # first equation: the sum of all unknowns is 1
         eq_no = 0
-        A[eq_no, :] = 1
         b[eq_no] = 1
         eq_no += 1
 
         # (n-1)*(n-1) equations: the class cond ratios should be the same in training and in test due to the PPS assumptions.
-        class_cond_ratios_tr = self.cont_table / self.cont_table.sum(axis=1, keepdims=True)
         for i in range(n):
             for j in range(n):
-                ratio_ij = class_cond_ratios_tr[i, j]
-                A[eq_no, Idx[i, :]] = -ratio_ij
-                A[eq_no, Idx[i, j]] = 1 - ratio_ij
                 b[eq_no] = 0
                 eq_no += 1
 
-        # n-1 equations: the sum of class-cond counts must equal the C&C prevalence prediction
-        for i in range(n):
-            A[eq_no, Idx[:, i]] = 1
-            eq_no += 1
-
-        # n-1 equations: the sum of true true class-conditional positives must equal the class prev label in test
-        for i in range(n):
-            A[eq_no, Idx[i, :]] = 1
-            eq_no += 1
-
-        return A, b
+        return b
 
     def predict_ct(self, test, posteriors):
         """
@@ -489,7 +689,6 @@ class OverConstrainedEquationsCAP(CAPContingencyTableQ):
 
         # b is partially filled; we finish the vector by plugin in the classify and count
         # prevalence estimates (n-1 values only), and the quantification estimates (n-1 values only)
-
         b[-2 * n : -n] = cc_prev_estim
         b[-n:] = q_prev_estim
 
@@ -498,43 +697,48 @@ class OverConstrainedEquationsCAP(CAPContingencyTableQ):
 
         n_classes = n**2
         if self.optim_method == "SLSQP":
-            x = _optim_minimize(
-                loss,
-                n_classes=n_classes,
-                method=self.optim_method,
-                bounds=tuple((0, 1) for _ in range(n_classes)),  # values in [0,1]
-                constraints={"type": "eq", "fun": lambda x: 1 - sum(x)},  # values summing up to 1
-            )
-        elif self.optim_method == "SLSQP-c":
-            self.optim_method = "SLSQP"
-            Idx = np.arange(n * n).reshape(n, n)
-            _constraints = [{"type": "eq", "fun": lambda x: 1 - sum(x)}]
-            for i in range(n):
-                _mask = np.zeros(n_classes)
-                _mask[Idx[:, i]] = 1
-                _constr = {
-                    "type": "eq",
-                    "fun": lambda x: (x * _mask).sum() - cc_prev_estim[i],
-                }
-                _constraints.append(_constr)
-            x = _optim_minimize(
-                loss,
-                n_classes=n_classes,
-                method=self.optim_method,
-                bounds=tuple((0, 1) for _ in range(n_classes)),  # values in [0,1]
-                constraints=_constraints,
-            )
-        elif self.optim_method == "L-BFGS-B":
-            x = _optim_minimize(
-                loss,
-                n_classes=n_classes,
-                method=self.optim_method,
-                bounds=tuple((0, 1) for _ in range(n_classes)),  # values in [0,1]
-            )
-            x = x / x.sum()
+            x = _optim_minimize(loss, n_classes=n_classes, method=self.optim_method)
+        elif self.optim_method == "cvxpy":
+            x = _optim_cvxpy(A, b)
+        elif self.otpim_method == "lsq_linear":
+            x = _optim_lsq_linear(A, b)
+        elif self.optim_method == "Adam":
+            x = _optim_Adam(A, b)
 
         cont_table_test = x.reshape(n, n)
         return cont_table_test
+
+    @override
+    def _batch_predict_ct(self, prot: AbstractProtocol, posteriors):
+        if self.optim_method == "Adam":
+            n = self.cont_table.shape[1]
+
+            bs = []
+            for test, P in IT.zip_longest(prot(), posteriors):
+                h_label_preds = np.argmax(P, axis=-1)
+
+                cc_prev_estim = prevalence_from_labels(h_label_preds, self.classes_)
+                q_prev_estim = self.q.quantify(test.X)
+
+                # we need a copy for b, otherwise original object is updated at each iteration
+                b = self.partial_b.copy()
+
+                # b is partially filled; we finish the vector by plugin in the classify and count
+                # prevalence estimates (n-1 values only), and the quantification estimates (n-1 values only)
+                b[-2 * n : -n] = cc_prev_estim
+                b[-n:] = q_prev_estim
+
+                bs.append(b)
+
+            A = self.A
+            bs = np.stack(bs, axis=0)
+
+            xs = _optim_Adam_batched(A, bs, bounds=(0, 1))
+
+            cts_test = [x.reshape(n, n) for x in xs]
+            return cts_test
+        else:
+            return super()._batch_predict_ct(prot, posteriors)
 
 
 class QuAcc(CAPContingencyTableQ):
