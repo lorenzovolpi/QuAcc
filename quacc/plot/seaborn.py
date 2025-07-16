@@ -5,25 +5,12 @@ import pandas as pd
 import seaborn as sns
 from matplotlib.axes import Axes
 
-from quacc.plot.utils import get_binned_values
+from quacc.plot.utils import get_binned_values, save_figure
 
 sns.set_theme(style="whitegrid")
 sns.set_palette("colorblind")
 
 DPI = 300
-
-
-def _save_figure(plot: Axes, basedir, filename):
-    exts = [
-        # "svg",
-        "pdf",
-        "png",
-    ]
-    files = [os.path.join(basedir, f"{filename}.{ext}") for ext in exts]
-    for f in files:
-        plot.figure.savefig(f, bbox_inches="tight", dpi=DPI)
-    plot.figure.clear()
-    plt.close(plot.figure)
 
 
 def _config_legend(plot: Axes):
@@ -68,7 +55,7 @@ def plot_diagonal(
     if "y_label" in kwargs:
         plot.set_ylabels(kwargs["y_label"])
 
-    return _save_figure(plot=plot, basedir=basedir, filename=filename)
+    return save_figure(plot=plot, basedir=basedir, filename=filename)
 
 
 def plot_diagonal_grid(
@@ -131,7 +118,7 @@ def plot_diagonal_grid(
     plot.set_xlabels(x_label)
     plot.set_ylabels(y_label)
 
-    return _save_figure(plot=plot, basedir=basedir, filename=filename)
+    return save_figure(plot=plot, basedir=basedir, filename=filename)
 
 
 def plot_shift(
@@ -162,7 +149,7 @@ def plot_shift(
         plot.set_xlabel(kwargs["x_label"])
     if "y_label" in kwargs:
         plot.set_ylabel(kwargs["y_label"])
-    return _save_figure(plot=plot, basedir=basedir, filename=filename)
+    return save_figure(plot=plot, basedir=basedir, filename=filename)
 
 
 # def plot_delta(

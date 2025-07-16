@@ -1,7 +1,10 @@
-import numpy as np
-import plotly.graph_objects as go
+import os
 
-from quacc.utils.commons import get_plots_path
+import matplotlib.pyplot as plt
+import numpy as np
+from matplotlib.axes import Axes
+
+DPI = 300
 
 
 def get_ref_limits(true_accs: np.ndarray, estim_accs: np.ndarray):
@@ -22,4 +25,18 @@ def get_binned_values(df, val_name, n_bins):
     binwidth = (val_max - val_min) / n_bins
     vals_bin_idx = np.digitize(df.loc[:, val_name], bins, right=True)
     bins[1:] = bins[1:] - binwidth / 2
+    bins = np.hstack([bins, [val_max]])
     return bins[vals_bin_idx]
+
+
+def save_figure(plot: Axes, basedir, filename):
+    exts = [
+        # "svg",
+        "pdf",
+        "png",
+    ]
+    files = [os.path.join(basedir, f"{filename}.{ext}") for ext in exts]
+    for f in files:
+        plot.figure.savefig(f, bbox_inches="tight", dpi=DPI)
+    plot.figure.clear()
+    plt.close(plot.figure)
