@@ -12,19 +12,26 @@ def local_path(dataset_name, cls_name, method_name, acc_name):
     return os.path.join(parent_dir, f"{cls_name}.json")
 
 
-def load_results() -> pd.DataFrame:
+def load_results(acc_name="*", dataset="*") -> pd.DataFrame:
     dfs = []
-    for path in glob.glob(os.path.join(root_dir, PROBLEM, "**", "*.json"), recursive=True):
+    for path in glob.glob(os.path.join(root_dir, PROBLEM, acc_name, dataset, "**", "*.json"), recursive=True):
         dfs.append(pd.read_json(path))
 
     return pd.concat(dfs, axis=0)
 
 
-def rename_datasets(mapping, df, datasets):
-    _datasets = [mapping.get(d, d) for d in datasets]
+def rename_datasets(mapping, df, datasets: str | list[str]):
+    if isinstance(datasets, str):
+        _datasets = [mapping.get(d, d) for d in [datasets]]
+    else:
+        _datasets = [mapping.get(d, d) for d in datasets]
     for d, rd in mapping.items():
         df.loc[df["dataset"] == d, "dataset"] = rd
-    return df, _datasets
+
+    if isinstance(datasets, str):
+        return df, _datasets[0]
+    else:
+        return df, _datasets
 
 
 def rename_methods(mapping, df, methods, baselines=None):
@@ -39,11 +46,18 @@ def rename_methods(mapping, df, methods, baselines=None):
         return df, _methods, _baselines
 
 
-def decorate_datasets(df, datasets):
+def decorate_datasets(df, datasets: str | list[str]):
     def _decorate(d):
         return r"\textsf{" + d + r"}"
 
-    _datasets = [_decorate(d) for d in datasets]
+    if isinstance(datasets, str):
+        _datasets = [_decorate(d) for d in [datasets]]
+    else:
+        _datasets = [_decorate(d) for d in datasets]
     for d in df["dataset"].unique():
         df.loc[df["dataset"] == d, "dataset"] = _decorate(d)
-    return df, _datasets
+
+    if isinstance(datasets, str):
+        return df, _datasets[0]
+    else:
+        return df, _datasets
