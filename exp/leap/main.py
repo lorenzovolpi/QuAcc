@@ -1,16 +1,11 @@
-import itertools as IT
 import os
 from argparse import ArgumentParser
-from dataclasses import dataclass
-from pathlib import Path
 from traceback import print_exception
 
 import numpy as np
-import pandas as pd
 import quapy as qp
 from sklearn.base import clone as skl_clone
 
-import exp.leap.config as cfg
 import exp.leap.env as env
 import quacc as qc
 from exp.leap.config import (
@@ -21,7 +16,6 @@ from exp.leap.config import (
     gen_datasets,
     gen_methods,
     get_acc_names,
-    get_method_names,
     is_excluded,
 )
 from exp.leap.util import all_exist_pre_check, gen_method_df, get_extra_from_method, local_path
@@ -183,56 +177,12 @@ def experiments():
                 )
 
 
-# def rename_files():
-#     import glob
-#
-#     _replace = {"PHD": "S-LEAP"}
-#     for _old, _new in _replace.items():
-#         print(cfg.root_dir, cfg.PROBLEM)
-#         for path in glob.glob(os.path.join(cfg.root_dir, cfg.PROBLEM, "**", f"{_old}*.json"), recursive=True):
-#             name = Path(path).stem
-#             new_path = path.replace(_old, _new)
-#             print(path, new_path)
-#             new_name = Path(new_path).stem
-#             os.rename(path, new_path)
-#
-#             df = pd.read_json(new_path)
-#             df.loc[df["method"] == name, "method"] = new_name
-#             df.to_json(new_path)
-#
-#
-# def import_leap_from_bcuda():
-#     import glob
-#     import shutil
-#
-#     bcuda_dir = os.path.join(qc.env["OUT_DIR"], "leap_bcuda")
-#     leap_variants = ["ACC", "ACC-MLP", "CC", "CC-MLP", "KDEy", "KDEy-MLP", "oracle"]
-#     for path in glob.glob(os.path.join(bcuda_dir, cfg.PROBLEM, "**", "LEAP*.json"), recursive=True):
-#         old_name = Path(path).stem
-#         if not any([f"({_v})" in old_name for _v in leap_variants]):
-#             continue
-#         new_name = old_name + "-SLSQP"
-#         new_path = path.replace(bcuda_dir, cfg.root_dir).replace(old_name, new_name)
-#         shutil.copy2(path, new_path)
-#
-#         df = pd.read_json(new_path)
-#         df.loc[df["method"] == old_name, "method"] = new_name
-#         df.to_json(new_path)
-#
-#         print(path, new_path, "", sep="\n")
-
-
 if __name__ == "__main__":
     parser = ArgumentParser()
     parser.add_argument("--rename", action="store_true", help="Rename files")
     parser.add_argument("--ileap", action="store_true", help="Import LEAP results from leap_bcuda directory")
     args = parser.parse_args()
 
-    # if args.rename:
-    #     rename_files()
-    # elif args.ileap:
-    #     import_leap_from_bcuda()
-    # else:
     try:
         log.info("-" * 31 + "  start  " + "-" * 31)
         experiments()
