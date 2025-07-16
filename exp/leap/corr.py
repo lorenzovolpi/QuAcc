@@ -4,7 +4,9 @@ import os
 import pandas as pd
 from scipy.stats import pearsonr, spearmanr
 
-from exp.leap.config import PROBLEM, get_acc_names, get_classifier_names, get_dataset_names, get_method_names, root_dir
+import exp.leap.config as cfg
+import exp.leap.env as env
+from exp.leap.config import get_acc_names, get_classifier_names, get_dataset_names, get_method_names
 from exp.leap.util import load_results
 
 
@@ -41,11 +43,11 @@ def pearson():
     pearson_df = pd.DataFrame.from_dict(data, orient="columns")
 
     pearson_pivot = pd.pivot_table(df, index="classifier", columns="method", values="pearson-r")
-    with open(os.path.join(root_dir, "tables", f"pearson_{PROBLEM}.html"), "w") as f:
+    with open(os.path.join(env.root_dir, "tables", f"pearson_{env.PROBLEM}.html"), "w") as f:
         pearson_pivot.to_html(f)
 
     spearman_pivot = pd.pivot_table(df, index="classifier", columns="method", values="spearman-r")
-    with open(os.path.join(root_dir, "tables", f"spaerman_{PROBLEM}.html"), "w") as f:
+    with open(os.path.join(env.root_dir, "tables", f"spaerman_{env.PROBLEM}.html"), "w") as f:
         spearman_pivot.to_html(f)
 
 
