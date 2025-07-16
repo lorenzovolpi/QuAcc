@@ -356,7 +356,7 @@ class NsquaredEquationsCAP(CAPContingencyTableQ):
                 eq_no += 1
 
             # n-1 equations: the sum of true true class-conditional positives must equal the class prev label in test
-            for i in range(n):
+            for i in range(1, n):
                 A.add(
                     data=np.ones(len(Idx[i, :])),
                     rows=np.full(len(Idx[i, :]), eq_no),
