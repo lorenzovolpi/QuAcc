@@ -10,6 +10,7 @@ import scipy as sp
 from quapy.data.base import LabelledCollection
 from quapy.method.aggregative import AggregativeQuantifier, BaseQuantifier
 from quapy.protocol import UPP, AbstractProtocol
+from scipy.sparse import issparse
 from sklearn.base import BaseEstimator
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import confusion_matrix
@@ -303,14 +304,17 @@ class DispersionScore(CAPDirect):
 
     def _get_ds(self, X, post):
         y_hat = np.argmax(post, axis=-1)
-        _mu = np.mean(X, axis=0)
-        _mus = np.array([np.mean(X[y_hat == i], axis=0) for i in self.classes_])
+        _mu = safe_mean(X, axis=0)
+
+        def _get_mui(i):
+            # check if any class has no datapoints; if so, set corresponding
+            # value in _mus to _mu in order to make corresponding value in
+            # _mus_l2sq to 0 to avoid nan values and mean errors
+            X_i = X[y_hat == i, :]
+            return safe_mean(X_i, axis=0) if X_i.shape[0] > 0 else _mu
+
+        _mus = np.array([_get_mui(i) for i in self.classes_])
         _mus_l2sq = np.sum((_mu - _mus) ** 2, axis=-1)
-        # check if any class has no datapoints; if so, set corresponding
-        # value in _mus_l2sq to 0 to avoid nan values
-        for i in self.classes_:
-            if X[y_hat == i].shape[0] == 0:
-                _mus_l2sq[i] = 0
         _weights = np.array([np.sum(y_hat == i) for i in self.classes_]) / y_hat.shape[0]
         dispersion_score = np.log(np.sum(_weights * _mus_l2sq) / (self.n_classes - 1) + 1e-5)
         return dispersion_score
