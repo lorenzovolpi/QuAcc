@@ -20,6 +20,13 @@ from tqdm import tqdm
 import quacc as qc
 
 
+class NaNError(Exception):
+    def __init__(self, dataset, method, *args: object) -> None:
+        super().__init__(*args)
+        self.dataset = dataset
+        self.method = method
+
+
 class SparseMatrixBuilder(ABC):
     def __init__(self):
         self.data = []
