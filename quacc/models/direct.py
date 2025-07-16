@@ -357,6 +357,53 @@ class DispersionScore(CAPDirect):
         return acc_pred
 
 
+class NuclearNorm(CAPDirect):
+    def __init__(self, acc_fn: Callable, val_samples=100, clip_vals=(0, 1)):
+        super().__init__(acc_fn)
+        self.val_samples = 100
+        self.clip_vals = clip_vals
+
+    def _get_nuc_norm(self, P):
+        return np.linalg.norm(P, ord="nuc") * np.sqrt(min(P.shape[0], P.shape[1]) * P.shape[0])
+
+    def _get_acc(self, y, post):
+        y_hat = np.argmax(post, axis=-1)
+        return vanilla_acc(y, y_hat)
+
+    def train_reg_model(self, _nns, _accs):
+        _nns = np.asarray(_nns).reshape(-1, 1)
+        _accs = np.asarray(_accs)
+        lin_reg = LinearRegression()
+        return lin_reg.fit(_nns, _accs)
+
+    def predict_reg_model(self, _ds):
+        _ds = np.asarray([_ds]).reshape(-1, 1)
+        return self.reg_model.predict(_ds)
+
+    def fit(self, val: LabelledCollection, posteriors):
+        val_prot = UPP(
+            val,
+            repeats=self.val_samples,
+            random_state=qp.environ["_R_SEED"],
+            return_type="index",
+        )
+
+        self.classes_ = val.classes_
+        self.n_classes = val.n_classes
+        _nns = [self._get_nuc_norm(posteriors[idx, :]) for idx in val_prot()]
+        _accs = [self._get_acc(val.y[idx], posteriors[idx, :]) for idx in val_prot()]
+        self.reg_model = self.train_reg_model(_nns, _accs)
+
+        return self
+
+    def predict(self, X, posteriors):
+        _nn = self._get_nuc_norm(posteriors)
+        acc_pred = self.predict_reg_model(_nn)[0]
+        if self.clip_vals is not None:
+            acc_pred = float(np.clip(acc_pred, *self.clip_vals))
+        return acc_pred
+
+
 class COT(CAPDirect):
     def __init__(self, acc_fn: Callable, emd_max_iter=1e8, exact_train_prev=True):
         super().__init__(acc_fn)
