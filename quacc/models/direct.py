@@ -487,3 +487,39 @@ class COTT(CAPDirect):
         costs = (Pi * M.shape[0] * M).sum(axis=1) * -1
         est_err = (costs < self.threshold).sum() / sample_size
         return 1 - est_err
+
+
+class Q_COT(CAPDirect):
+    def __init__(self, acc_fn: Callable, q: AggregativeQuantifier, emd_max_iter=1e8, exact_train_prev=True):
+        super().__init__(acc_fn)
+        self.q = q
+        self.emd_max_iter = emd_max_iter
+        self.exact_train_prev = exact_train_prev
+
+    def fit(self, val: LabelledCollection, posteriors):
+        self.n_classes = val.n_classes
+        self.classes = val.classes_
+        self.q.fit(val)
+
+        return self
+
+    def predict(self, X, posteriors):
+        sample_size = X.shape[0]
+
+        test_q_priors = self.q.quantify(X)
+        test_q_labels = _sample_label_dist(sample_size, test_q_priors, self.n_classes)
+
+        test_q_one_hot = _one_hot(test_q_labels, num_classes=self.n_classes)
+
+        M = sp.spatial.distance.cdist(test_q_one_hot, posteriors, "minkowski", p=1) / 2
+        weights = np.asarray([])
+        Pi = ot.emd(weights, weights, M, numItermax=self.emd_max_iter)
+        costs = (Pi * M.shape[0] * M).sum(axis=1)
+        return 1 - costs.mean()
+
+
+def safe_mean(X, axis=None):
+    if issparse(X):
+        return np.array(X.mean(axis=axis)).squeeze()
+    else:
+        return np.mean(X, axis=axis)
