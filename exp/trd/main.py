@@ -239,6 +239,7 @@ def experiments():
         args_list=exp_prot_args_list,
         n_jobs=qc.env["N_JOBS"],
         return_as="generator_unordered",
+        max_nbytes=None,
     )
 
     for res in results_gen:
