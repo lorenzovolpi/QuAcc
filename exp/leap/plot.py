@@ -424,7 +424,7 @@ def plot_by_shift():
         print(f"Plotted {cls_name} - {acc} - {env.PROBLEM}")
 
 
-def pseudo_label_shift_plot():
+def plot_pseudo_label_shift():
     def get_pseudo_label_shift(df: pd.DataFrame, datasets: list[str]):
         for d in datasets:
             _df = df.loc[df["dataset"] == d, :]
@@ -476,6 +476,68 @@ def pseudo_label_shift_plot():
         print(f"Plotted {cls_name} - {acc} - {env.PROBLEM}")
 
 
+def plot_qerr():
+    from exp.leap.qerr import get_acc_names as qerr_accs
+    from exp.leap.qerr import get_classifier_names as qerr_clssifiers
+    from exp.leap.qerr import get_dataset_names as qerr_datasets
+    from exp.leap.qerr import get_method_names as qerr_methods
+
+    n_bins = 20
+    classifiers = qerr_clssifiers()
+    accs = qerr_accs()
+    datasets = qerr_datasets()
+    methods = qerr_methods()
+
+    base_dir = os.path.join(env.root_dir, "qerr")
+
+    for acc, cls_name in IT.product(accs, classifiers):
+        df = load_results(base_dir=base_dir, acc=acc, classifier=cls_name, filter_methods=methods)
+        df.loc[:, "q_errs_bin"] = get_binned_values(df, "q_errs", n_bins)
+        _methods, df = rename_methods(method_map, methods, df=df)
+        _datasets, df = rename_datasets(dataset_map, datasets, df=df)
+
+        base_dir = os.path.join(env.root_dir, "plots", "qerr")
+        os.makedirs(base_dir, exist_ok=True)
+
+        plot = sns.relplot(
+            df,
+            x="q_errs_bin",
+            y="acc_err",
+            col="dataset",
+            col_order=_datasets,
+            col_wrap=len(datasets),
+            hue="method",
+            hue_order=_methods,
+            kind="line",
+            # sns.lineplot args
+            estimator="mean",
+            errorbar="se",
+            err_style="bars",
+            err_kws=dict(capsize=2.0, capthick=1.0),
+            linewidth=1,
+        )
+
+        # set plot title
+        plot.set_titles("{col_name}")
+
+        # config legend
+        plot.legend.set_title(None)
+        sns.move_legend(
+            plot,
+            "center right",
+        )
+
+        # set axes labels
+        plot.set_xlabels("Quantification Error")
+        plot.set_ylabels("AE")
+
+        plot_dir = os.path.join(env.root_dir, "plots", "qerr")
+        os.makedirs(plot_dir, exist_ok=True)
+
+        save_figure(plot=plot, basedir=plot_dir, filename=f"qerr_{cls_name}_{env.PROBLEM}")
+        print(f"Plotted {cls_name} - {acc} - {env.PROBLEM}")
+
+
 if __name__ == "__main__":
     parser = ArgumentParser()
     parser.add_argument(
@@ -489,6 +551,7 @@ if __name__ == "__main__":
     )
     parser.add_argument("--shift", action="store_true", help="Plots accuracy error by amount of PPS")
     parser.add_argument("--pseudo", action="store_true", help="Plots accuracy error by amount of pseudo-label shift")
+    parser.add_argument("--qerr", action="store_true", help="Plots accuracy error by amount of quantification error")
     args = parser.parse_args()
 
     if args.problem not in env._valid_problems:
@@ -506,6 +569,8 @@ if __name__ == "__main__":
     elif args.shift:
         plot_by_shift()
     elif args.pseudo:
-        pseudo_label_shift_plot()
+        plot_pseudo_label_shift()
+    elif args.qerr:
+        plot_qerr()
     else:
         parser.print_help()
