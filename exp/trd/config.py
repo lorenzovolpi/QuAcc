@@ -20,7 +20,7 @@ import quacc as qc
 from exp.util import split_validation
 from quacc.data.datasets import fetch_UCIBinaryDataset, fetch_UCIMulticlassDataset, sort_datasets_by_size
 from quacc.error import f1, f1_macro, vanilla_acc
-from quacc.models.cont_table import OCE, NaiveCAP
+from quacc.models.cont_table import LEAP, OCE, NaiveCAP
 from quacc.models.utils import OracleQuantifier
 from quacc.utils.commons import contingency_table
 
@@ -193,12 +193,14 @@ def gen_acc_measure():
 
 def gen_CAP_cont_table(h, acc_fn):
     yield "Naive", NaiveCAP(acc_fn)
-    yield "O-LEAP(KDEy)", OCE(acc_fn, kdey(), optim_method="SLSQP")
+    yield "LEAP(KDEy)", LEAP(acc_fn, kdey(), reuse_h=h, log_true_solve=True)
+    # yield "O-LEAP(KDEy)", OCE(acc_fn, kdey(), optim_method="SLSQP")
 
 
 def gen_methods_with_oracle(h, acc_fn, D: DatasetBundle):
     oracle_q = OracleQuantifier([ui for ui in D.test_prot()])
-    yield "O-LEAP(oracle)", OCE(acc_fn, oracle_q, reuse_h=h, optim_method="SLSQP")
+    yield "LEAP(oracle)", LEAP(acc_fn, oracle_q, reuse_h=h, log_true_solve=True)
+    # yield "O-LEAP(oracle)", OCE(acc_fn, oracle_q, reuse_h=h, optim_method="SLSQP")
 
 
 def gen_CAP_methods(h, D, with_oracle=False):
