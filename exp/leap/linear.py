@@ -6,10 +6,10 @@ import numpy as np
 import pandas as pd
 import quapy as qp
 
+import exp.leap.config as cfg
+import exp.leap.env as env
 import quacc as qc
 from exp.leap.config import (
-    PROBLEM,
-    PROJECT,
     DatasetBundle,
     gen_acc_measure,
     gen_classifiers,
@@ -17,7 +17,6 @@ from exp.leap.config import (
     gen_methods,
     gen_transformer_model_dataset,
     get_method_names,
-    root_dir,
 )
 from exp.util import (
     fit_or_switch,
@@ -30,12 +29,12 @@ from exp.util import (
 from quacc.models.cont_table import LEAP
 from quacc.utils.commons import get_shift, true_acc
 
-log = get_logger(id=PROJECT)
+log = get_logger(id=env.PROJECT)
 qp.environ["SAMPLE_SIZE"] = 100
 
 
 def local_path(dataset_name, cls_name, method_name, acc_name):
-    parent_dir = os.path.join(root_dir, PROBLEM, cls_name, acc_name, dataset_name)
+    parent_dir = os.path.join(env.root_dir, env.PROBLEM, cls_name, acc_name, dataset_name)
     os.makedirs(parent_dir, exist_ok=True)
     return os.path.join(parent_dir, f"{method_name}.json")
 
