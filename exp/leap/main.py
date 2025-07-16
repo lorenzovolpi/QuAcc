@@ -1,6 +1,8 @@
 import itertools as IT
 import os
+from argparse import ArgumentParser
 from dataclasses import dataclass
+from pathlib import Path
 from traceback import print_exception
 
 import numpy as np
@@ -8,11 +10,11 @@ import pandas as pd
 import quapy as qp
 from sklearn.base import clone as skl_clone
 
+import exp.leap.config as cfg
+import exp.leap.env as env
 import quacc as qc
 from exp.leap.config import (
     EXP,
-    PROBLEM,
-    PROJECT,
     DatasetBundle,
     gen_acc_measure,
     gen_classifiers,
@@ -20,9 +22,9 @@ from exp.leap.config import (
     gen_methods,
     get_acc_names,
     get_method_names,
-    root_dir,
+    is_excluded,
 )
-from exp.leap.util import all_exist_pre_check, gen_method_df, get_extra_from_method, is_excluded, local_path
+from exp.leap.util import all_exist_pre_check, gen_method_df, get_extra_from_method, local_path
 from exp.util import (
     fit_or_switch,
     gen_model_dataset,
@@ -33,7 +35,7 @@ from exp.util import (
 )
 from quacc.utils.commons import get_shift, parallel, true_acc
 
-log = get_logger(id=PROJECT)
+log = get_logger(id=env.PROJECT)
 
 qp.environ["SAMPLE_SIZE"] = 100
 
@@ -140,6 +142,15 @@ def experiments():
     exp_prot_args_list = []
     for cls_name, dataset_name, h, D, true_accs in cls_dataset:
         for method_name, method, val, val_posteriors in gen_methods(h, D):
+            if all(
+                [
+                    os.path.exists(local_path(dataset_name, cls_name, method_name, acc_name))
+                    for acc_name in get_acc_names()
+                ]
+            ):
+                log.info(f"([{cls_name}@{dataset_name}] {method_name} on all acc measures exists, skipping")
+                continue
+
             exp_prot_args_list.append(
                 (cls_name, dataset_name, h, D, true_accs, method_name, method, val, val_posteriors)
             )
@@ -172,7 +183,56 @@ def experiments():
                 )
 
 
+# def rename_files():
+#     import glob
+#
+#     _replace = {"PHD": "S-LEAP"}
+#     for _old, _new in _replace.items():
+#         print(cfg.root_dir, cfg.PROBLEM)
+#         for path in glob.glob(os.path.join(cfg.root_dir, cfg.PROBLEM, "**", f"{_old}*.json"), recursive=True):
+#             name = Path(path).stem
+#             new_path = path.replace(_old, _new)
+#             print(path, new_path)
+#             new_name = Path(new_path).stem
+#             os.rename(path, new_path)
+#
+#             df = pd.read_json(new_path)
+#             df.loc[df["method"] == name, "method"] = new_name
+#             df.to_json(new_path)
+#
+#
+# def import_leap_from_bcuda():
+#     import glob
+#     import shutil
+#
+#     bcuda_dir = os.path.join(qc.env["OUT_DIR"], "leap_bcuda")
+#     leap_variants = ["ACC", "ACC-MLP", "CC", "CC-MLP", "KDEy", "KDEy-MLP", "oracle"]
+#     for path in glob.glob(os.path.join(bcuda_dir, cfg.PROBLEM, "**", "LEAP*.json"), recursive=True):
+#         old_name = Path(path).stem
+#         if not any([f"({_v})" in old_name for _v in leap_variants]):
+#             continue
+#         new_name = old_name + "-SLSQP"
+#         new_path = path.replace(bcuda_dir, cfg.root_dir).replace(old_name, new_name)
+#         shutil.copy2(path, new_path)
+#
+#         df = pd.read_json(new_path)
+#         df.loc[df["method"] == old_name, "method"] = new_name
+#         df.to_json(new_path)
+#
+#         print(path, new_path, "", sep="\n")
+
+
 if __name__ == "__main__":
+    parser = ArgumentParser()
+    parser.add_argument("--rename", action="store_true", help="Rename files")
+    parser.add_argument("--ileap", action="store_true", help="Import LEAP results from leap_bcuda directory")
+    args = parser.parse_args()
+
+    # if args.rename:
+    #     rename_files()
+    # elif args.ileap:
+    #     import_leap_from_bcuda()
+    # else:
     try:
         log.info("-" * 31 + "  start  " + "-" * 31)
         experiments()

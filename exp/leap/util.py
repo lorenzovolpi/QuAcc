@@ -5,15 +5,16 @@ from pathlib import Path
 
 import pandas as pd
 
-from exp.leap.config import PROBLEM, gen_acc_measure, get_method_names, root_dir
+import exp.leap.env as env
+from exp.leap.config import gen_acc_measure, get_method_names, is_excluded
 from quacc.models.cont_table import LEAP
 
 
 def local_path(dataset_name, cls_name, method_name, acc_name, subproject=None):
     if subproject is None:
-        parent_dir = os.path.join(root_dir, PROBLEM, cls_name, acc_name, dataset_name)
+        parent_dir = os.path.join(env.root_dir, env.PROBLEM, cls_name, acc_name, dataset_name)
     else:
-        parent_dir = os.path.join(root_dir, subproject, PROBLEM, cls_name, acc_name, dataset_name)
+        parent_dir = os.path.join(env.root_dir, subproject, env.PROBLEM, cls_name, acc_name, dataset_name)
     os.makedirs(parent_dir, exist_ok=True)
     return os.path.join(parent_dir, f"{method_name}.json")
 
@@ -29,16 +30,17 @@ def all_exist_pre_check(dataset_name, cls_name, subproject=None, method_names=No
         path = local_path(dataset_name, cls_name, method, acc, subproject=subproject)
         all_exist = os.path.exists(path)
         if not all_exist:
+            print(path)
             break
 
     return all_exist
 
 
-def load_results(base_dir=None, filter_methods=None) -> pd.DataFrame:
-    base_dir = root_dir if base_dir is None else base_dir
+def load_results(*, base_dir=None, classifier="*", acc="*", dataset="*", filter_methods=None) -> pd.DataFrame:
+    base_dir = env.root_dir if base_dir is None else base_dir
     dfs = []
     _methods = get_method_names() if filter_methods is None else filter_methods
-    for path in glob.glob(os.path.join(base_dir, PROBLEM, "**", "*.json"), recursive=True):
+    for path in glob.glob(os.path.join(base_dir, env.PROBLEM, classifier, acc, dataset, "*.json"), recursive=True):
         if Path(path).stem in _methods:
             dfs.append(pd.read_json(path))
 
@@ -97,10 +99,6 @@ def rename_methods(mapping, methods, df=None, baselines=None):
         res.append(_baselines)
 
     return tuple(res) if len(res) > 1 else res[0]
-
-
-def is_excluded(classifier, dataset, method, acc):
-    return False
 
 
 def get_extra_from_method(df, method):
