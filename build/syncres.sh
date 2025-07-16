@@ -39,7 +39,7 @@ elif [[ $SERVER == "bcuda" || $SERVER == "barracuda" ]]; then
     HOST="volpi@barracuda.isti.cnr.it"
     WORKDIR="quacc"
 elif [[ $SERVER == "nity" || $SERVER == "trinity" ]]; then
-    HOST="volpi@barracuda.isti.cnr.it"
+    HOST="lorenzo.volpi@trinity.isti.cnr.it"
     WORKDIR="quacc"
 fi
 
