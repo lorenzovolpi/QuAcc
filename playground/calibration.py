@@ -8,9 +8,9 @@ from quapy.protocol import UPP
 from sklearn.linear_model import LogisticRegression
 
 # from abstention.calibration import TempScaling
-from calibration import TS
-from calibration.bcts import BCTS
-from calibration.error import calibration_error
+from quacc.calibration import TS
+from quacc.calibration.bcts import BCTS
+from quacc.calibration.error import calibration_error
 from quacc.data.datasets import fetch_UCIBinaryDataset
 from quacc.error import vanilla_acc
 from quacc.models.cont_table import QuAcc1xN2

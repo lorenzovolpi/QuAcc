@@ -1,26 +1,20 @@
 import itertools as IT
-import pdb
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 from copy import deepcopy
 from typing import Callable, override
 
-import cvxpy as cp
 import numpy as np
 import scipy
-import torch
 from quapy.data.base import LabelledCollection as LC
 from quapy.functional import prevalence_from_labels
 from quapy.method.aggregative import PCC, AggregativeQuantifier
 from quapy.protocol import AbstractProtocol
-from scipy import optimize
-from scipy.sparse import coo_array, csr_array, csr_matrix, issparse
-from scipy.special import softmax
+from scipy.sparse import csr_matrix, issparse
 from sklearn.base import BaseEstimator
 from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import StratifiedKFold, cross_val_predict
-from typing_extensions import override
 
-from calibration.lascal import LasCal
+from quacc.calibration import LasCal
 from quacc.models._leap_opt import (
     _optim_Adam,
     _optim_Adam_batched,
