@@ -1,15 +1,12 @@
-import itertools as IT
 import os
-from contextlib import ExitStack
 from dataclasses import dataclass
 from traceback import print_exception
 from typing import override
 
 import numpy as np
-import pandas as pd
 import quapy as qp
 from quapy.data import LabelledCollection
-from quapy.protocol import UPP, AbstractStochasticSeededProtocol
+from quapy.protocol import UPP
 from sklearn.base import BaseEstimator
 from sklearn.base import clone as skl_clone
 from sklearn.linear_model import LogisticRegression
@@ -30,13 +27,12 @@ from exp.util import (
     get_ct_predictions,
     get_logger,
     get_plain_prev,
-    split_validation,
     timestamp,
 )
 from quacc.error import vanilla_acc
-from quacc.models.cont_table import OCE, PHD
+from quacc.models.cont_table import OCE
 from quacc.models.direct import DoC
-from quacc.utils.commons import contingency_table, get_shift, parallel, true_acc
+from quacc.utils.commons import get_shift, parallel, true_acc
 
 SUBPROJECT = "bootstrap"
 NUM_REPEATS = 500
