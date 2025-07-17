@@ -123,7 +123,7 @@ def plots():
             _methods, _df = rename_methods(method_map, methods, df=df)
             _datasets, _df = rename_datasets(dataset_map, datasets, df=_df)
 
-            sns.set_context("paper", font_scale=2)
+            sns.set_context("paper", font_scale=1.8)
             plot = sns.relplot(
                 _df,
                 x="true_accs",
@@ -541,9 +541,6 @@ def plot_qerr():
     from exp.leap.qerr import get_dataset_names as qerr_datasets
     from exp.leap.qerr import get_method_names as qerr_methods
 
-    aspect = 0.8
-    xticks = yticks = np.linspace(0, 1, 6, endpoint=True)
-    hspace = wspace = 0.1
     n_bins = 20
     classifiers = qerr_clssifiers()
     accs = qerr_accs()
@@ -561,54 +558,110 @@ def plot_qerr():
         base_dir = os.path.join(env.root_dir, "plots", "qerr")
         os.makedirs(base_dir, exist_ok=True)
 
-        sns.set_context("paper", font_scale=2)
-        plot = sns.relplot(
-            df,
-            x="q_errs_bin",
-            y="acc_err",
-            col="dataset",
-            col_order=_datasets,
-            col_wrap=len(_datasets),
-            hue="method",
-            hue_order=_methods,
-            kind="line",
-            # sns.lineplot args
-            estimator="mean",
-            err_style=None,
-            # errorbar="se",
-            # err_style="bars",
-            # err_kws=dict(capsize=2.0, capthick=1.0),
-            linewidth=4,
-            facet_kws=dict(
-                xlim=(0, 1),
-                ylim=(0, 1),
-            ),
-            aspect=aspect,
-            palette=get_palette(),
-        )
-        for ax in plot.axes.flat:
-            ax.tick_params(axis="x", labelrotation=90)
-            ax.set_xticks(xticks)
-            ax.set_yticks(yticks)
-
-        plot.figure.subplots_adjust(hspace=hspace, wspace=wspace)
-
-        # set plot title
-        plot.set_titles("{col_name}")
-
-        # config legend
-        plot.legend.set_title(None)
-        sns.move_legend(
-            plot,
-            "center right",
-        )
-
-        # set axes labels
-        plot.set_xlabels("Quantification Error")
-        plot.set_ylabels("AE")
-
+        sns.set_context("paper", font_scale=1.8)
+        # plot = sns.relplot(
+        #     df,
+        #     x="q_errs_bin",
+        #     y="acc_err",
+        #     col="dataset",
+        #     col_order=_datasets,
+        #     col_wrap=len(_datasets),
+        #     hue="method",
+        #     hue_order=_methods,
+        #     kind="line",
+        #     # sns.lineplot args
+        #     estimator="mean",
+        #     err_style=None,
+        #     # errorbar="se",
+        #     # err_style="bars",
+        #     # err_kws=dict(capsize=2.0, capthick=1.0),
+        #     linewidth=4,
+        #     facet_kws=dict(
+        #         xlim=(0, 1),
+        #         ylim=(0, 1),
+        #     ),
+        #     aspect=aspect,
+        #     palette=get_palette(),
+        # )
+        # for ax in plot.axes.flat:
+        #     ax.tick_params(axis="x", labelrotation=90)
+        #     ax.set_xticks(xticks)
+        #     ax.set_yticks(yticks)
+        #
+        # plot.figure.subplots_adjust(hspace=hspace, wspace=wspace)
+        #
+        # # set plot title
+        # plot.set_titles("{col_name}")
+        #
+        # # config legend
+        # plot.legend.set_title(None)
+        # sns.move_legend(
+        #     plot,
+        #     "center right",
+        # )
+        #
+        # # set axes labels
+        # plot.set_xlabels("Quantification Error")
+        # plot.set_ylabels("AE")
+        #
         plot_dir = os.path.join(env.root_dir, "plots", "qerr")
         os.makedirs(plot_dir, exist_ok=True)
+
+        def joint_map(data: pd.DataFrame, **kwargs):
+            if data["row"].to_numpy()[0] == "hist":
+                sns.kdeplot(data, x="q_errs", fill=True, alpha=0.3)
+            elif data["row"].to_numpy()[0] == "line":
+                sns.lineplot(data, x="q_errs_bin", y="acc_err", linewidth=4, err_style=None)
+                # sns.scatterplot(data, x="q_errs", y="acc_err", alpha=0.2, s=50)
+
+        df = pd.concat([df, df], keys=["hist", "line"], names=["row", "_id"]).reset_index()
+        plot = sns.FacetGrid(
+            df,
+            col="dataset",
+            col_order=_datasets,
+            # col_wrap=len(_datasets),
+            row="row",
+            row_order=["hist", "line"],
+            hue="method",
+            hue_order=_methods,
+            xlim=(0, 1),
+            sharex=False,
+            sharey=False,
+            # ylim=(0, 1),
+            aspect=1.15,
+            palette=get_palette(),
+        )
+        plot.map_dataframe(joint_map)
+        # remove the y-ticks from the first row
+        for i in range(plot.axes.shape[1]):
+            # row kde
+            plot.axes[0, i].set_xticks([])
+            plot.axes[0, i].set_yticks([])
+            plot.axes[0, i].set_xlabel("")
+            plot.axes[0, i].set_ylabel("")
+            plot.axes[0, i].set_title(_datasets[i])
+            plot.axes[0, i].set_box_aspect(0.3)
+
+            # row line
+            plot.axes[1, i].set_xticks(np.linspace(0, 1, 6, endpoint=True))
+            plot.axes[1, i].set_title("")
+            plot.axes[1, i].set_xlabel("Quantification Error")
+            plot.axes[1, i].set_ylim((0, 1))
+            plot.axes[1, i].set_yticks(np.linspace(0, 1, 6, endpoint=True))
+            plot.axes[1, i].tick_params(axis="x", labelrotation=90)
+            if i == 0:
+                plot.axes[1, i].set_ylabel("AE")
+            else:
+                plot.axes[1, i].set_ylabel("")
+                plot.axes[1, i].set_yticklabels([""] * 6)
+
+        plot.figure.subplots_adjust(hspace=-0.3, wspace=0.1)
+
+        # plot.set_titles("{col_name}")
+        plot.add_legend(title="")
+        sns.move_legend(plot, "center right")
+        for lh in plot.legend.legend_handles:
+            print(lh)
 
         save_figure(plot=plot, basedir=plot_dir, filename=f"qerr_{cls_name}_{env.PROBLEM}")
         print(f"Plotted {cls_name} - {acc} - {env.PROBLEM}")
