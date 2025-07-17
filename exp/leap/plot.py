@@ -71,11 +71,6 @@ def get_palette(methods=None):
 
 def plots():
     # scatter and relplot params
-    hspace = wspace = 0.1
-    xticks = yticks = np.linspace(0, 1, 6, endpoint=True)
-    aspect = 0.8
-    scatter_s = 50
-    alpha = 0.2
 
     all_classifiers = get_classifier_names()
     accs = ["vanilla_accuracy"]
@@ -123,53 +118,53 @@ def plots():
             _methods, _df = rename_methods(method_map, methods, df=df)
             _datasets, _df = rename_datasets(dataset_map, datasets, df=_df)
 
-            sns.set_context("paper", font_scale=1.8)
-            plot = sns.relplot(
-                _df,
-                x="true_accs",
-                y="estim_accs",
-                col="dataset",
-                col_order=_datasets,
-                col_wrap=len(_datasets),
-                hue="method",
-                hue_order=_methods,
-                kind="scatter",
-                # scatterplot params
-                alpha=alpha,
-                s=scatter_s,
-                edgecolor=None,
-                facet_kws=dict(
-                    xlim=(0, 1),
-                    ylim=(0, 1),
-                ),
-                aspect=aspect,
-                palette=get_palette(),
-            )
-            for ax in plot.axes.flat:
-                ax.axline((0, 0), slope=1, color="black", linestyle="--", linewidth=1)
-                ax.tick_params(axis="x", labelrotation=90)
-                ax.set_xticks(xticks)
-                ax.set_yticks(yticks)
-
-            plot.figure.subplots_adjust(hspace=hspace, wspace=wspace)
-            plot.set_titles("{col_name}")
-
-            plot.legend.set_title(None)
-            sns.move_legend(
-                plot,
-                "center right",
-            )
-
-            for lh in plot.legend.legend_handles:
-                lh.set_alpha(1)
-                lh.set_markersize(16)
-
-            plot.set_xlabels("True Accuracy")
-            plot.set_ylabels("Estimated Accuracy")
-
-            save_figure(plot=plot, basedir=parent_dir, filename=f"grid_{cls_name}_{env.PROBLEM}_{name}")
-
-            print(f"Plotted {name} for {cls_name} [{acc}]")
+            # sns.set_context("paper", font_scale=1.8)
+            # plot = sns.relplot(
+            #     _df,
+            #     x="true_accs",
+            #     y="estim_accs",
+            #     col="dataset",
+            #     col_order=_datasets,
+            #     col_wrap=len(_datasets),
+            #     hue="method",
+            #     hue_order=_methods,
+            #     kind="scatter",
+            #     # scatterplot params
+            #     alpha=alpha,
+            #     s=scatter_s,
+            #     edgecolor=None,
+            #     facet_kws=dict(
+            #         xlim=(0, 1),
+            #         ylim=(0, 1),
+            #     ),
+            #     aspect=aspect,
+            #     palette=get_palette(),
+            # )
+            # for ax in plot.axes.flat:
+            #     ax.axline((0, 0), slope=1, color="black", linestyle="--", linewidth=1)
+            #     ax.tick_params(axis="x", labelrotation=90)
+            #     ax.set_xticks(xticks)
+            #     ax.set_yticks(yticks)
+            #
+            # plot.figure.subplots_adjust(hspace=hspace, wspace=wspace)
+            # plot.set_titles("{col_name}")
+            #
+            # plot.legend.set_title(None)
+            # sns.move_legend(
+            #     plot,
+            #     "center right",
+            # )
+            #
+            # for lh in plot.legend.legend_handles:
+            #     lh.set_alpha(1)
+            #     lh.set_markersize(16)
+            #
+            # plot.set_xlabels("True Accuracy")
+            # plot.set_ylabels("Estimated Accuracy")
+            #
+            # save_figure(plot=plot, basedir=parent_dir, filename=f"grid_{cls_name}_{env.PROBLEM}_{name}")
+            #
+            # print(f"Plotted {name} for {cls_name} [{acc}]")
 
             # plot_diagonal_grid(
             #     _df,
@@ -187,6 +182,42 @@ def plots():
             #     xticks=np.linspace(0, 1, 6, endpoint=True),
             #     yticks=np.linspace(0, 1, 6, endpoint=True),
             # )
+
+            sns.set_context("paper", font_scale=1.1)
+            plot = sns.FacetGrid(
+                df,
+                col="dataset",
+                col_order=_datasets,
+                col_wrap=len(_datasets),
+                hue="method",
+                hue_order=_methods,
+                xlim=(0, 1),
+                ylim=(0, 1),
+                aspect=0.8,
+                palette=get_palette(),
+            )
+            plot.map_dataframe(sns.scatterplot, x="true_accs", y="estim_accs", alpha=0.3, s=20)
+            # plot.map_dataframe(sns.scatterplot, x="true_accs", y="estim_accs", alpha=0.2, s=20, edgecolor=None)
+            # name += "_noedge"
+            for ax in plot.axes.flat:
+                ax.axline((0, 0), slope=1, color="black", linestyle="--", linewidth=1)
+                ax.tick_params(axis="x", labelrotation=90)
+                ax.set_xticks(np.linspace(0, 1, 6, endpoint=True))
+                ax.set_yticks(np.linspace(0, 1, 6, endpoint=True))
+
+            plot.figure.subplots_adjust(hspace=0.1, wspace=0.08)
+
+            plot.set_titles("{col_name}")
+            plot.add_legend(title="", markerscale=1.5)
+            sns.move_legend(plot, "center right")
+            for lh in plot.legend.legend_handles:
+                lh.set_alpha(1)
+
+            plot.set_xlabels("True Accuracy")
+            plot.set_ylabels("Estimated Accuracy")
+
+            save_figure(plot=plot, basedir=parent_dir, filename=f"grid_{cls_name}_{env.PROBLEM}_{name}")
+            print(f"Plotted {name} for {cls_name} [{acc}]")
 
 
 def plot_sample_size():
