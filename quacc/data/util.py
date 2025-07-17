@@ -28,6 +28,7 @@ def split_train(train: LabelledCollection, train_val_split: float):
 
 
 def get_rcv1_class_info():
+    os.makedirs(qc.env["QUACC_DATA"], exist_ok=True)
     json_path = os.path.join(qc.env["QUACC_DATA"], "rcv1_class_info.json")
     if not os.path.exists(json_path):
         # retrieve hierarchy file and class names
