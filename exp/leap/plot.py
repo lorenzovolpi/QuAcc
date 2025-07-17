@@ -591,6 +591,7 @@ def plot_qerr():
 
         plot_dir = os.path.join(env.root_dir, "plots", "qerr")
         os.makedirs(plot_dir, exist_ok=True)
+        filename = f"qerr_{cls_name}_{env.PROBLEM}"
 
         sns.set_context("paper", font_scale=1.1)
         plot = sns.FacetGrid(
@@ -598,7 +599,6 @@ def plot_qerr():
             col="dataset",
             col_order=_datasets,
             col_wrap=len(_datasets),
-            row_order=["hist", "line"],
             hue="method",
             hue_order=_methods,
             xlim=(0, 1),
@@ -606,7 +606,9 @@ def plot_qerr():
             aspect=0.8,
             palette=get_palette(),
         )
-        plot.map_dataframe(sns.scatterplot, x="q_errs", y="acc_err", alpha=0.2, s=50)
+        plot.map_dataframe(sns.scatterplot, x="q_errs", y="acc_err", alpha=0.3, s=20)
+        # plot.map_dataframe(sns.scatterplot, x="q_errs", y="acc_err", alpha=0.2, s=20, edgecolor=None)
+        # filename += "_noedge"
         for ax in plot.axes.flat:
             ax.tick_params(axis="x", labelrotation=90)
             ax.set_xticks(np.linspace(0, 1, 6, endpoint=True))
@@ -623,7 +625,7 @@ def plot_qerr():
         plot.set_xlabels("Quantification Error")
         plot.set_ylabels("AE")
 
-        save_figure(plot=plot, basedir=plot_dir, filename=f"qerr_{cls_name}_{env.PROBLEM}")
+        save_figure(plot=plot, basedir=plot_dir, filename=filename)
         print(f"Plotted {cls_name} - {acc} - {env.PROBLEM}")
 
 
