@@ -5,6 +5,8 @@ var/
 *.pdf
 *.md
 *.html
+*.lock
+poetry.toml
 
 # virtualenvs
 quavenv/*
@@ -35,10 +37,6 @@ dataset_stats/*
 
 # pyenv
 .python-version
-
-# poetry
-poetry.lock
-poetry.toml
 
 # log files
 *.log
