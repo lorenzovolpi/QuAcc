@@ -1,3 +1,6 @@
+# miscellaneous
+var/
+*.txt
 *.code-workspace
 *.pdf
 *.md
@@ -44,18 +47,13 @@ log
 # requirements
 requirements*.txt
 
-# dataset
-rcv1_class_info.json
-
 # links
 deploy
 dlog
 syncres
-dash
 
-var/
-test*.py
-*.sh
+#build files
 !build/*.sh
-*.txt
 *.env
+*.sh
+
