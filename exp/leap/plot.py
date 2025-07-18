@@ -1,7 +1,6 @@
 import itertools as IT
 import math
 import os
-import pdb
 from argparse import ArgumentParser
 
 import matplotlib.pyplot as plt
@@ -9,14 +8,11 @@ import matplotlib.ticker as tkr
 import numpy as np
 import pandas as pd
 import seaborn as sns
-from matplotlib.pyplot import close
 from matplotlib.ticker import LogLocator, MultipleLocator
 
-import exp.leap.config as cfg
 import exp.leap.env as env
 from exp.leap.config import get_acc_names, get_classifier_names, get_dataset_names
 from exp.leap.util import load_results, rename_datasets, rename_methods
-from quacc.plot.seaborn import plot_diagonal_grid
 from quacc.plot.utils import get_binned_values, save_figure
 
 method_map = {
@@ -174,7 +170,7 @@ def plot_sample_size():
         _methods, _df = rename_methods(method_map, methods, df=df)
         _datasets, _df = rename_datasets(dataset_map, datasets, df=_df)
 
-        sns.set_context("paper", font_scale=1.4)
+        sns.set_context("paper", font_scale=1.6)
         plot = sns.relplot(
             _df,
             x="sample_size",
