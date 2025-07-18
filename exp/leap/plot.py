@@ -158,7 +158,6 @@ def plot_sample_size():
     from exp.leap.sample_size import get_classifier_names as ss_classifier_names
     from exp.leap.sample_size import get_dataset_names as ss_dataset_names
 
-    # methods = ["DoC", "LEAP(KDEy-MLP)", "PHD(KDEy-MLP)", "OCE(KDEy-MLP)-SLSQP"]
     methods = ["DoC", "O-LEAP(KDEy-MLP)"]
     classifiers = ss_classifier_names()
     datasets = ss_dataset_names()
@@ -169,13 +168,13 @@ def plot_sample_size():
     for acc, cls_name in IT.product(accs, classifiers):
         res = load_results(base_dir=res_dir, acc=acc, classifier=cls_name, filter_methods=methods)
         df = res.loc[res["method"].isin(methods), :]
-        print(f"Plotting {cls_name} [{acc} - {env.PROBLEM}]")
         assert len(df["method"].unique()) == len(methods), (
             f"Error while plotting {cls_name} [{acc}]: some methods missing!"
         )
         _methods, _df = rename_methods(method_map, methods, df=df)
         _datasets, _df = rename_datasets(dataset_map, datasets, df=_df)
 
+        sns.set_context("paper", font_scale=1.4)
         plot = sns.relplot(
             _df,
             x="sample_size",
@@ -202,7 +201,6 @@ def plot_sample_size():
         sns.move_legend(
             plot,
             "center right",
-            # bbox_to_anchor=(1.07, 0.3),
             ncol=1,
         )
 
@@ -217,13 +215,8 @@ def plot_sample_size():
         plot_dir = os.path.join(env.root_dir, "plots", "sample_size")
         os.makedirs(plot_dir, exist_ok=True)
 
-        # save figure
-        exts = ["pdf", "png"]
-        files = [os.path.join(plot_dir, f"sample_size_{cls_name}_{env.PROBLEM}.{ext}") for ext in exts]
-        for f in files:
-            plot.figure.savefig(f, bbox_inches="tight", dpi=300)
-        plot.figure.clear()
-        plt.close(plot.figure)
+        save_figure(plot, plot_dir, f"sample_size_{cls_name}_{env.PROBLEM}")
+        print(f"Plotting {cls_name} [{acc} - {env.PROBLEM}]")
 
 
 def plot_times():
