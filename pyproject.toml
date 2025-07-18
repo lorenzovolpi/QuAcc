@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "quacc"
-version = "0.1.0"
+version = "0.1.1.3"
 description = ""
 authors = ["Lorenzo Volpi <lorenzo.volpi@outlook.com>"]
 readme = "README.md"
