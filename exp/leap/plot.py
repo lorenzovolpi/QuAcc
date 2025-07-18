@@ -141,7 +141,7 @@ def plots():
             plot.figure.subplots_adjust(hspace=0.1, wspace=0.08)
 
             plot.set_titles("{col_name}")
-            plot.add_legend(title="", markerscale=1.5)
+            plot.add_legend(title="", markerscale=1.8)
             sns.move_legend(plot, "center right")
             for lh in plot.legend.legend_handles:
                 lh.set_alpha(1)
@@ -543,7 +543,7 @@ def plot_qerr():
         plot.figure.subplots_adjust(hspace=0.1, wspace=0.08)
 
         plot.set_titles("{col_name}")
-        plot.add_legend(title="", markerscale=1.5)
+        plot.add_legend(title="", markerscale=1.8)
         sns.move_legend(plot, "center right")
         for lh in plot.legend.legend_handles:
             lh.set_alpha(1)
