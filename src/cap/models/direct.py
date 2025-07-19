@@ -16,11 +16,11 @@ from sklearn.linear_model import LinearRegression
 from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import cross_val_score
 
-import quacc as qc
-import quacc.models.utils as utils
-from quacc.error import vanilla_acc
-from quacc.models.base import ClassifierAccuracyPrediction
-from quacc.models.utils import get_posteriors_from_h, max_conf, neg_entropy
+import cap
+import cap.models.utils as utils
+from cap.error import vanilla_acc
+from cap.models.base import ClassifierAccuracyPrediction
+from cap.models.utils import get_posteriors_from_h, max_conf, neg_entropy
 
 
 def _one_hot(arr: np.ndarray, num_classes=None):
@@ -61,7 +61,7 @@ class PrediQuant(CAPDirect):
         prot_posteriors,
         alpha=0.3,
         alpha_rate=1.2,
-        error: str | Callable = qc.error.mae,
+        error: str | Callable = cap.error.mae,
         predict_train_prev=True,
     ):
         super().__init__(acc_fn)
@@ -75,16 +75,16 @@ class PrediQuant(CAPDirect):
         self.predict_train_prev = predict_train_prev
 
     def __check_error(self, error):
-        if error in qc.error.ACCURACY_ERROR_SINGLE:
+        if error in cap.error.ACCURACY_ERROR_SINGLE:
             self.error = error
-        elif isinstance(error, str) and error in qc.error.ACCURACY_ERROR_SINGLE_NAMES:
-            self.error = qc.error.from_name(error)
+        elif isinstance(error, str) and error in cap.error.ACCURACY_ERROR_SINGLE_NAMES:
+            self.error = cap.error.from_name(error)
         elif hasattr(error, "__call__"):
             self.error = error
         else:
             raise ValueError(
                 f"unexpected error type; must either be a callable function or a str\n"
-                f"representing the name of an error function in {qc.error.ACCURACY_ERROR_NAMES}"
+                f"representing the name of an error function in {cap.error.ACCURACY_ERROR_NAMES}"
             )
 
     def fit(self, val: LabelledCollection, posteriors):

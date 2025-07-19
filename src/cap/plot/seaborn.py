@@ -5,7 +5,7 @@ import pandas as pd
 import seaborn as sns
 from matplotlib.axes import Axes
 
-from quacc.plot.utils import get_binned_values, save_figure
+from cap.plot.utils import get_binned_values, save_figure
 
 sns.set_theme(style="whitegrid")
 sns.set_palette("colorblind")

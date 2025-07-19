@@ -7,6 +7,10 @@ var/
 *.html
 *.lock
 poetry.toml
+py.typed
+
+# build
+**/*.egg-info
 
 # virtualenvs
 quavenv/*
@@ -26,13 +30,13 @@ htmlcov/
 
 # results
 *out
-out/*
-output/*
-results/*
-old_results*/*
-tables/*
-plots/*
-dataset_stats/*
+out
+output
+results
+old_results*
+tables
+plots
+dataset_stats
 
 
 # pyenv

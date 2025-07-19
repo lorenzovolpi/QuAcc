@@ -9,8 +9,8 @@ import quapy as qp
 from quapy.data.base import LabelledCollection
 from torch.utils.data import DataLoader
 
-import quacc as qc
-from quacc.data.base import TorchLabelledCollection
+import cap
+from cap.data.base import TorchLabelledCollection
 
 # fmt: off
 
@@ -28,11 +28,11 @@ def split_train(train: LabelledCollection, train_val_split: float):
 
 
 def get_rcv1_class_info():
-    os.makedirs(qc.env["QUACC_DATA"], exist_ok=True)
-    json_path = os.path.join(qc.env["QUACC_DATA"], "rcv1_class_info.json")
+    os.makedirs(cap.env["QUACC_DATA"], exist_ok=True)
+    json_path = os.path.join(cap.env["QUACC_DATA"], "rcv1_class_info.json")
     if not os.path.exists(json_path):
         # retrieve hierarchy file and class names
-        hierarchy_tmp_path = os.path.join(qc.env["QUACC_DATA"], "rcv1_hierarchy.tmp")
+        hierarchy_tmp_path = os.path.join(cap.env["QUACC_DATA"], "rcv1_hierarchy.tmp")
         urllib.request.urlretrieve(RCV1_HIERARCHY_URL, filename=hierarchy_tmp_path)
         tree = defaultdict(lambda: [])
         class_names = set()
